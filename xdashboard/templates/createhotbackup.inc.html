@@ -1,0 +1,947 @@
+<style type="text/css">
+	.btn_nav{float:right;margin-top:10px;}
+	.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+	.aciTree div{ padding: 0em;}
+	.status_waiting_fonts{
+		 background: url(/static/images/loading_zb.gif) no-repeat;
+		 background-position: 170px 5px;
+		 background-size: 20px;
+		 font-size: 18px;
+		 font-weight: bold;
+	 }
+	 .status_waiting_icon{
+		 background: url(/static/images/arrow_right.png) no-repeat;
+		 background-position: 17px;
+		 width: 50px;
+		 padding: 0;
+		 background-size: 20px;
+	 }
+
+	 .status_checked_icon{
+		 background: url(/static/images/check_mark.png) no-repeat;
+		 background-position: 17px;
+		 width: 50px;
+		 padding: 0;
+		 background-size: 15px;
+	 }
+	 .status_todo_icon{
+		 background: url(/static/images/tripledots.png) no-repeat;
+		 background-position: 17px;
+		 width: 50px;
+		 padding: 0;
+		 background-size: 15px;
+	 }
+	 .disk_table_container{
+		margin-bottom: 20px;
+	}
+
+	.disk_item_header div{
+		float: left;
+		height: 30px;
+		line-height: 30px;
+		vertical-align:middle;
+	}
+
+	.disk_item_body li{
+		list-style-type: none;
+		line-height: 27px;
+	}
+	.disk_item_body table{
+		border-left:1px solid #ddd;
+		border-bottom:1px solid #ddd;
+		border-right:1px solid #ddd;
+		background: #fff;
+		width: 100%
+	}
+	.header_button:hover{
+		color:orange;
+		text-decoration: underline;
+	}
+	.client_search{
+		border: 2px solid #dce4ec;
+		color: #34495e;
+		font-family: "Lato", sans-serif;
+		font-size:14px;
+		padding: 3px 0 3px 10px;
+		width: 200px;
+		background:#fff url(/static/images/icon_search_1649.gif) no-repeat right;
+	}
+    #tabs-7 p{
+        margin: 0;
+        margin-left: 2em;
+        line-height: 2em;
+        padding: 0;
+    }
+    #stable_point_container .s_d_item{
+        padding: 0 6px;
+        border: 1px solid #d1dbe5;
+        background: #fff;
+        font-size: 13px;
+        min-width: 28px;
+        height: 28px;
+        line-height: 28px;
+        cursor: pointer;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    #stable_point_container .s_d_button:focus{
+        outline: none;
+    }
+    #stable_point_container .mprev{
+        border-radius: 2px 0 0 2px;
+    }
+    #stable_point_container .mprev:hover{
+        color: black;
+    }
+    #stable_point_container .s_d_button{
+        background: 50% no-repeat;
+        background-size: 16px;
+        background-color: #fff;
+        border: 1px solid #d1dbe5;
+        cursor: pointer;
+        margin: 0;
+        color: #97a8be;
+    }
+    #stable_point_container .s_d_disabled{
+        color: #e4e4e4;
+        background-color: #fff;
+        cursor: not-allowed;
+    }
+    #stable_point_container .mnext,.next_d{
+        border-radius: 0 2px 2px 0;
+    }
+    #stable_point_container .mnext:hover{
+        color: black;
+    }
+
+
+
+
+
+</style>
+<link href="/static/css/vis.css" rel="stylesheet" type="text/css"/>
+
+<div id="newhotbackupFormDiv" title="" class="ajaxForm">
+    <input id="edit_plan_id" type="hidden" value='none'/>
+    <input id="pointid" type="hidden" value='none'/>
+    <input id="is_windows" type="hidden" value='none'/>
+    <div id="tabs" style="overflow-y:auto;">
+        <ul>
+            <li><a href="#tabs-0">备份源</a></li>
+            <li><a href="#tabs-1">目标选择</a></li>
+            <li><a href="#tabs-2">计划名称</a></li>
+            <li><a href="#tabs-3">IP配置与切换方式</a></li>
+            <li><a href="#tabs-4">恢复方式</a></li>
+            <li><a href="#tabs-5">选择需要还原的卷</a></li>
+            <li><a href="#tabs-6">平台检测</a></li>
+            <li><a href="#tabs-7">更新驱动库</a></li>
+            <li><a href="#tabs-8">驱动更新模式</a></li>
+            <li><a href="#tabs-9">目标机硬盘</a></li>
+            <li><a href="#tabs-10">业务停止与启动脚本</a></li>
+        </ul>
+        <div id="tabs-0" style="padding:0em 1.4em;margin-top:1em;">
+            <div style="margin-bottom:10px;">选择热备源客户端，热备源客户端需有备份点。<a href="../createbackup">点这里创建备份计划</a></div>
+            <div style="float:left;"><input name="client_search" type="text" placeholder="开始搜索" class="client_search"/>
+            </div>
+            <div id="RefreshSrcServer" style="cursor:pointer;float:right;">刷新连接列表</div>
+            <div class="clear"></div>
+            <div id="Servers_Tree1" class="aciTree" style="width:100%;border:1px solid #ccc;overflow:auto;"></div>
+            <div style="width:100%;overflow:auto;" id="table_detail_div">
+                <div style="margin-top:10px;">客户端详细描述</div>
+                <table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+                    <tr height="25">
+                        <td width="30%" align="left">客户端名称</td>
+                        <td width="70%">
+                            <div id="show_servername"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">计算机名</td>
+                        <td align="left">
+                            <div id="show_pcname"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">IP地址</td>
+                        <td align="left">
+                            <div id="show_ip"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">MAC地址</td>
+                        <td align="left">
+                            <div id="show_mac"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">操作系统</td>
+                        <td align="left">
+                            <div id="show_os"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">Build Num</td>
+                        <td align="left">
+                            <div id="show_buildnum"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">磁盘数量</td>
+                        <td align="left">
+                            <div id="show_harddisknum"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">磁盘信息</td>
+                        <td align="left">
+                            <div id="show_harddiskinfo"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">总容量</td>
+                        <td align="left">
+                            <div id="show_total"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">已使用空间</td>
+                        <td align="left">
+                            <div id="show_use"></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="tabs-1">
+            <div style="margin-bottom:10px;">选择热备目标</div>
+            <div style="float:left;"><input name="client_target_search" type="text" placeholder="开始搜索"
+                                            class="client_search"/></div>
+            <div id="RefreshDestServer" style="cursor:pointer;float:right;">刷新连接列表</div>
+            <div class="clear"></div>
+            <div id="Servers_Tree2" class="aciTree" style="width:100%;border:1px solid #ccc;overflow:auto;"></div>
+            <div class="pe_mywaite ui-state-highlight ui-corner-all"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <strong>请稍候，正在分配资源</strong> <span id="pe_msg"></span></p>
+            </div>
+        </div>
+        <div id="tabs-2" style="overflow-y:auto;">
+			<div id="task_names"><span class="taskshowname">计划名称</span>：<input type="text" class="input" maxlength="120" id="taskname" style="width:80%;" onblur="removespace(this)"/></div>
+			<div style="margin-top:20px;">支持热备HA，提供支持在任意品牌/技术/芯片组的X86物理机、虚拟机和云主机之间配置热备HA架构，原机正常提供业务服务、备机Standby，且按策略和原机保持数据同步，原机故障时可秒级业务切换到备机，保障业务服务的连续性。</div>
+			<div style="margin-top:20px;"><span style="font-weight: bold">数据同步方式</span></div><hr>
+            <div><label for="push_new"><input class="radio" type="radio" value="1" name="timetype" checked="echecked"
+                                              id="push_new"
+            >持续同步</label></div>
+            <div style="margin-top:10px;margin-left:20px;"><span class="form_tips">持续推送主机最新的备份数据到备机。</span></div>
+            <div style="margin-top:10px;"><label for="push_choice"><input class="radio" type="radio" value="2"
+                                                                          name="timetype"
+                                                                          id="push_choice">同步到固定时间点</label></div>
+            <div style="margin-top:10px;margin-left:20px;"><span class="form_tips">仅推送主机固定时间点<span
+                    id="stable_restore_time" style="display: none;"></span>的备份数据到备机。</span></div>
+            <div id="stable_point_container" style="margin-left: 20px;margin-top: 10px;">
+                <div style="margin-bottom: 20px" id="s_d_vue">
+                    {% verbatim %}
+                    备份点时间：
+                    <button id="to_pre" class="s_d_button mprev" title="前一天" v-on:click="to_pre">
+                        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <span id="c_date" class="s_d_item s_d_time">{{ time }}</span>
+                    <button class="s_d_button next_d s_d_disabled" title="后一天" v-if="disabled">
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                    <button class="s_d_button mnext" title="后一天" v-on:click="to_next" v-else>
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                    <span style="color: #FF4949">{{ error }}</span>
+                    {% endverbatim %}
+                </div>
+                <table id="point_list"></table>
+                <div id="point_list_page"></div>
+                <div id="cdp_ui_id" style="display:none;border: 1px solid #aaaaaa;border-radius: 4px;padding: 10px;
+                width: 700px;box-sizing: border-box;margin-top: 10px">
+                    <p style="margin: 0;padding: 0;color: #222222;font-weight: bold">请选择具体的同步时间点</p>
+                    <div style="margin-top: 10px">
+                        同步到时间点：<input name="restoretime" type="text" id="restoretime" style="width:220px"
+                                      onblur="removespace(this)"/> 精确到微秒
+                        <br/>范围：<span id="show_cdpbackupstarttime"></span>&nbsp;&nbsp;-&nbsp;&nbsp;<span
+                            id="show_cdpbackupendtime"></span>
+                    </div>
+                    <div style="height: 405px;">
+                        <div id="select_cdp_point" style="border:1px solid #D4D7CB;padding:10px;margin-top:10px;">
+                            点击选择还原时间段：<span style="margin-left: 310px">支持鼠标滚轮缩放，按下左键拖动</span><br>
+                            <div id="visualization" style="padding-top:10px" title="支持鼠标滚轮缩放，按下左键拖动"></div>
+                            <div id="timebar"></div>
+                            <div style="padding-top:10px">
+                                还原时间段窗口长度：
+                                <input id="id2s" type="radio" name="windowSize" value="2">2秒
+                                <input id="id20s" type="radio" name="windowSize" value="20" checked>20秒
+                                <input id="id180s" type="radio" name="windowSize" value="180">3分
+                                <div style="margin-top:10px">
+                                    <div id="yDscr" style="float: left;"><p style="margin-top: 3px;">高&nbsp;</p>
+                                        <p style="margin-top: 70px;width: 16px">安全等级&nbsp;</p>
+                                        <p style="margin-top: 70px;">低&nbsp;</p></div>
+                                    <div id="visualization2" title="支持鼠标滚轮缩放，按下左键拖动"></div>
+                                    <div id="timebar2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:20px;"><span style="font-weight: bold">IP漂移功能</span></div>
+            <hr>
+            <div><label><input class="radio" type="radio" value="0" name="switch_change_master_ip" checked="echecked">禁用</label></div>
+			<div style="margin-top:10px;margin-left:20px;"><span>在切换时不会变更主服务器的网络配置</span></div>
+            <div style="margin-top:10px;margin-left:40px;"><span class="form_tips">适用场景：</span></div>
+            <div style="margin-top:10px;margin-left:40px;"><span
+                    class="form_tips">1. 主服务器与备服务器在隔离的三层网络中，如：互联网、公有云等环境</span></div>
+            <div style="margin-top:10px;margin-left:40px;"><span class="form_tips">2. 测试灾备预案</span></div>
+            <div style="margin-top:10px;"><label><input class="radio" type="radio" value="1"
+                                                        name="switch_change_master_ip">启用</label></div>
+			<div style="margin-top:10px;margin-left:20px;"><span>支持在切换时将指定的IP地址从主服务器漂移到备服务器</span></div>
+            <div style="margin-top:10px;margin-left:40px;"><span class="form_tips">适用场景：</span></div>
+            <div style="margin-top:10px;margin-left:40px;"><span class="form_tips">1. 主服务器与备服务器在同一个三层网络中</span></div>
+            <div style="margin-top:10px;margin-left:40px;"><span class="form_tips">2. 主服务器中的业务系统会自主地向其他业务系统写入数据</span>
+            </div>
+        </div>
+        <div id="tabs-3">
+            <div id="ip_switch_tabs">
+                <ul>
+                    <li><a href="#ip_switch_tabs_0">不漂移</a></li>
+                    <li><a href="#ip_switch_tabs_1">漂移</a></li>
+                </ul>
+                <div id="ip_switch_tabs_0">
+                    <div style="margin-top:20px;"><span style="font-weight: bold">切换方式</span></div>
+                    <hr>
+                    <div><label><input class="radio" type="radio" value="1" name="ip_switch_tabs_0_switchtype"
+                                       checked="echecked">手工切换</label></div>
+                    <div style="margin-top:10px;margin-left:20px;"><span
+                            class="form_tips">当源机出现故障后，需要管理员手工将业务系统切换到备机上。</span>
+                    </div>
+                    <div style="margin-top:10px;display:none;"><label><input class="radio" type="radio" value="2"
+                                                                name="ip_switch_tabs_0_switchtype">主备自动切换</label>
+                    </div>
+                    <div style="margin-top:10px;margin-left:20px;display:none;"><span
+                            class="form_tips">当源机出现故障后，会将业务系统自动切换到备机。</span>
+                    </div>
+                    <div class="auto_switch_div">
+                        <div style="margin-top:10px;margin-left:20px;">
+                            <div>当同时满足以下故障检测条件时，自动切换到备机：</div>
+                            <div style="margin-top:10px;margin-left:10px;"><label><input type="checkbox"
+                                                                                         name="detection_type"
+                                                                                         id="detect_arbitrate_2_master_business_ip"
+                                                                                         disabled="disabled"/>仲裁服务器不能访问主服务器</label>
+                            </div>
+                            <div style="margin-top:10px;margin-left:10px;"><label><input type="checkbox"
+                                                                                         name="detection_type"
+                                                                                         id="detect_aio_2_master_control_ip"
+                                                                                         checked="checked"/>备份一体机不能访问主服务器</label>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;margin-left:20px;">
+                            <div>故障检测间隔时间：<input type="number" min="1" max="999"
+                                                 oninput="if(value.length>3)value=value.slice(0,3)" class="input"
+                                                 value="10"
+                                                 id="test_timeinterval" style="width:41px" onblur="removespace(this)"/>秒　　故障检测次数：<input
+                                    type="number" min="1" max="999" oninput="if(value.length>3)value=value.slice(0,3)"
+                                    class="input" value="3" id="test_frequency" style="width:41px"
+                                    onblur="removespace(this)"/>(1-999次)
+                            </div>
+                            <div style="margin-top:10px;"><label><input type="checkbox" id="switchback"
+                                                                        disabled="disabled"/>备机故障后自动切换回主机</label></div>
+                        </div>
+                        <div style="margin-top:10px;margin-left:20px;">
+                            <p>
+                                <strong>警告：</strong>故障检测机制基于ICMP协议（使用PING命令检测）。使用“主备自动切换”模式前，请先测试源机是否能够正常响应“PING”命令。
+                            </p>
+                            <p>
+                                若源机不能正常响应“PING”命令，则可能造成误判切换。请使用“手工切换”模式或调整源机防火墙规则。
+                            </p>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;"><span style="font-weight: bold">IP配置</span></div>
+                    <hr>
+                    <div style="margin-top:10px;">
+                        <div id="switch_canvas_0" style="width:500px;height:300px;border:1px solid #d3d3d3;"></div>
+                    </div>
+                    <div style="margin-top:10px;" id="arbitrate_div">仲裁服务器IP：<input type="text" name="arbitrate_ip"
+                                                                                    onblur="onblur_drawHotBackup(this)"/>
+                    </div>
+                    <fieldset style="margin-top:10px;float:left;width:300px;" id="not_switch_ip_adptersettings_div">
+                        <legend>备服务器</legend>
+                        <div class="class_adpter_div"
+                             style="border:1px solid #d3d3d3;border-bottom:0px;margin-top:20px;">
+                            {# 动态生成 #}
+                        </div>
+                        <div style="border:1px solid #d3d3d3;margin-top:10px;">
+                            <div style="margin-top:10px;">默认网关：<input type="text" name="gateway"/></div>
+                            <div class="class_dns_div" style="margin-top:10px;">
+                                {# 动态生成 #}
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;">路由</div>
+                        <div class="class_route_div" id="route_ui_3">
+                            <div style="border:1px solid #d3d3d3;">
+                                <div style="margin-top:10px;">目标网络：<input type="text" name="route_ip"/></div>
+                                <div style="margin-top:10px;">子网掩码：<input type="text" name="route_mask"/></div>
+                                <div style="margin-top:10px;margin-bottom:10px;">网　　关：<input type="text"
+                                                                                             name="route_gate"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-left:200px;margin-top:10px;"><span style="color: blue;cursor:pointer;"
+                                                                              id="addRouteButton3">增加路由</span></div>
+
+                    </fieldset>
+                    <div class="clear"></div>
+                </div>
+                <div id="ip_switch_tabs_1">
+                    <div style="margin-top:20px;"><span style="font-weight: bold">切换方式</span></div>
+                    <hr>
+                    <div><label><input class="radio" type="radio" value="1" name="ip_switch_tabs_1_switchtype"
+                                       checked="echecked">手工切换</label></div>
+                    <div style="margin-top:10px;margin-left:20px;"><span
+                            class="form_tips">当源机出现故障后，需要管理员手工将业务系统切换到备机上。</span></div>
+                    <div style="margin-top:10px;"><label><input class="radio" type="radio" value="2"
+                                                                name="ip_switch_tabs_1_switchtype">主备自动切换</label>
+                    </div>
+                    <div style="margin-top:10px;margin-left:20px;"><span
+                            class="form_tips">当源机出现故障后，会将业务系统自动切换到备机。</span></div>
+                    <div class="auto_switch_div">
+                        <div style="margin-top:10px;margin-left:20px;">
+                            <div>当同时满足以下故障检测条件时，自动切换到备机：</div>
+                            <div style="margin-top:10px;margin-left:10px;"><label><input type="checkbox"
+                                                                                         name="detection_type"
+                                                                                         id="detect_arbitrate_2_master_business_ip"
+                                                                                         disabled="disabled"/>仲裁服务器不能访问主服务器（漂移IP）</label>
+                            </div>
+                            <div style="margin-top:10px;margin-left:10px;"><label><input type="checkbox"
+                                                                                         name="detection_type"
+                                                                                         id="detect_aio_2_master_control_ip"
+                                                                                         checked="checked"/>备份一体机不能访问主服务器（固有IP）</label>
+                            </div>
+                            <div style="margin-top:10px;margin-left:10px;"><label><input type="checkbox"
+                                                                                         name="detection_type"
+                                                                                         id="detect_aio_2_master_business_ip"
+                                                                                         checked="checked"/>备份一体机不能访问主服务器（漂移IP）</label>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;margin-left:20px;">
+                            <div>故障检测间隔时间：<input type="number" min="1" max="999"
+                                                 oninput="if(value.length>3)value=value.slice(0,3)" class="input"
+                                                 value="10" id="test_timeinterval" style="width:41px"
+                                                 onblur="removespace(this)"/>秒　　故障检测次数：<input type="number" min="1"
+                                                                                              max="999"
+                                                                                              oninput="if(value.length>3)value=value.slice(0,3)"
+                                                                                              class="input" value="3"
+                                                                                              id="test_frequency"
+                                                                                              style="width:41px"
+                                                                                              onblur="removespace(this)"/>(1-999次)
+                            </div>
+                            <div style="margin-top:10px;"><label><input type="checkbox" id="switchback"
+                                                                        disabled="disabled"/>备机故障后自动切换回主机</label></div>
+                        </div>
+                        <div style="margin-top:10px;margin-left:20px;">
+                            <p>
+                                <strong>警告：</strong>故障检测机制基于ICMP协议（使用PING命令检测）。使用“主备自动切换”模式前，请先测试源机是否能够正常响应“PING”命令。
+                            </p>
+                            <p>
+                                若源机不能正常响应“PING”命令，则可能造成误判切换。请使用“手工切换”模式或调整源机防火墙规则。
+                            </p>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;"><span style="font-weight: bold">IP配置</span></div>
+                    <hr>
+                    <div style="margin-top:10px;">
+                        <div id="switch_canvas_1" style="width:500px;height:300px;border:1px solid #d3d3d3;"></div>
+                    </div>
+                    <div style="margin-top:10px;" id="arbitrate_div">仲裁服务器IP：<input type="text" name="arbitrate_ip" disabled="disabled"
+                                                                                    onblur="onblur_drawHotBackup(this)"/>
+                    </div>
+					<div style="margin-top:10px;"><span class="form_tips">　　“固有IP”为服务器独占IP地址，不会在服务器之间漂移；“漂移IP”支持在切换时从主服务器漂移到备服务器。</span></div>
+					<div style="margin-top:10px;"><span class="form_tips">　　热备任务执行期间，主服务器关机或重启后将进入业务静默状态。进入静默状态的主服务器启动后，固有IP为启用状态，漂移IP为禁用状态；须连接到备份一体机进行仲裁，确认备服务器没有占用漂移IP后，漂移IP才在主服务器中变更为启用状态，主服务器退出静默状态。</span></div>
+                    <div style="margin-top:10px;float:left;width:300px;" id="master_adptersettings_div">
+                        <fieldset id="master_server_fieldset">
+                            <legend>主服务器</legend>
+                            <div style="border:1px solid #d3d3d3;">
+                                <div style="margin-top:10px;">　　网卡：<select
+                                        onchange="on_adpter_sel_change(this,'master_server_fieldset')"
+                                        name="control_adpter" id="master_control_adpter" style="width:182px;">
+                                    <option value='-1|-1' selected="selected">请稍候</option>
+                                </select>
+                                </div>
+                                <div style="margin-top:10px;margin-left:23px;">MAC：<input type="text"
+                                                                                          name="control_mac"
+                                                                                          id="master_control_mac"
+                                                                                          class="text6"
+                                                                                          style="width:190px;"
+                                                                                          disabled="disabled"/></div>
+                                <div style="margin-top:10px;">　固有IP：<input type="text" id="master_control_ip"
+                                                                           name="control_ip"
+                                                                           onblur="onblur_drawHotBackup(this)"/></div>
+                                <div style="margin-top:10px;margin-bottom:10px;">子网掩码：<input type="text"
+                                                                                             id="master_route_mask"
+                                                                                             name="route_mask"
+                                                                                             onblur="onblur_drawHotBackup(this)"/>
+                                </div>
+                            </div>
+                            <div class="class_adpter_div"
+                                 style="border:1px solid #d3d3d3;border-bottom:0px;margin-top:20px;"
+                                 id="master_adpter_div">
+                                {# 动态生成 #}
+                            </div>
+                            <div style="border:1px solid #d3d3d3;margin-top:10px;">
+                                <div style="margin-top:10px;">默认网关：<input type="text" name="gateway"/></div>
+                                <div class="class_dns_div" style="margin-top:10px;" id="master_dns_div">
+                                    {# 动态生成 #}
+                                </div>
+                            </div>
+                            <div style="margin-top:10px;">路由</div>
+                            <div class="class_route_div" id="route_ui_1">
+                                <div style="border:1px solid #d3d3d3;">
+                                    <div style="margin-top:10px;">目标网络：<input type="text" name="route_ip"/></div>
+                                    <div style="margin-top:10px;">子网掩码：<input type="text" name="route_mask"/></div>
+                                    <div style="margin-top:10px;margin-bottom:10px;">网　　关：<input type="text"
+                                                                                                 name="route_gate"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-left:200px;margin-top:10px;"><span style="color: blue;cursor:pointer;"
+                                                                                  id="addRouteButton1">增加路由</span></div>
+                        </fieldset>
+                        <fieldset id="remote_server_fieldset" style="display:none;">
+                            <legend>远程服务器</legend>
+                            <div style="border:1px solid #d3d3d3;">
+                                <div style="margin:10px;">
+                                    远程主机热备无需设置主服务器IP
+                                </div>
+                                <div style="margin:10px;">
+                                    备服务器仅支持手工切换
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div style="margin-top:10px;float:left;width:300px;" id="standby_adptersettings_div">
+                        <fieldset id="standby_server_fieldset">
+                            <legend>备服务器</legend>
+                            <div style="border:1px solid #d3d3d3;">
+                                <div style="margin-top:10px;">　　网卡：<select
+                                        onchange="on_adpter_sel_change(this,'standby_server_fieldset')"
+                                        name="control_adpter" id="standby_control_adpter" style="width:182px;">
+                                    <option value='-1|-1' selected="selected">请稍候</option>
+                                </select>
+                                </div>
+                                <div style="margin-top:10px;margin-left:23px;">MAC：<input type="text"
+                                                                                          name="control_mac"
+                                                                                          id="standby_control_mac"
+                                                                                          class="text6"
+                                                                                          style="width:190px;"
+                                                                                          disabled="disabled"/></div>
+                                <div style="margin-top:10px;">　<span name="control_ip_span">固有IP</span>：<input
+                                        type="text" name="control_ip" id="standby_control_ip"
+                                        onblur="onblur_drawHotBackup(this)"/></div>
+                                <div style="margin-top:10px;margin-bottom:10px;">子网掩码：<input type="text"
+                                                                                             name="route_mask"
+                                                                                             id="standby_route_mask"
+                                                                                             onblur="onblur_drawHotBackup(this)"/>
+                                </div>
+                            </div>
+                            <div class="class_adpter_div"
+                                 style="border:1px solid #d3d3d3;border-bottom:0px;margin-top:20px;"
+                                 id="standby_adpter_div">
+                                {# 动态生成 #}
+                            </div>
+                            <div style="border:1px solid #d3d3d3;margin-top:10px;">
+                                <div style="margin-top:10px;">默认网关：<input type="text" name="gateway"/></div>
+                                <div class="class_dns_div" style="margin-top:10px;" id="standby_dns_div">
+                                    {# 动态生成 #}
+                                </div>
+                            </div>
+                            <div style="margin-top:10px;">路由</div>
+                            <div class="class_route_div" id="route_ui_2">
+                                <div style="border:1px solid #d3d3d3;">
+                                    <div style="margin-top:10px;">目标网络：<input type="text" name="route_ip"/></div>
+                                    <div style="margin-top:10px;">子网掩码：<input type="text" name="route_mask"/></div>
+                                    <div style="margin-top:10px;margin-bottom:10px;">网　　关：<input type="text"
+                                                                                                 name="route_gate"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-left:200px;margin-top:10px;"><span style="color: blue;cursor:pointer;"
+                                                                                  id="addRouteButton2">增加路由</span></div>
+                        </fieldset>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+        <div id="tabs-4">
+            <div style="margin-top:20px;"><span style="font-weight: bold">恢复方式</span></div>
+            <hr>
+            <div><label><input class="radio" type="radio" value="1" name="restoretype" checked="echecked">整机恢复</label>
+            </div>
+            <div style="margin-top:10px;margin-left:20px;"><span class="form_tips">基于磁盘快照的整机恢复，恢复了完整的磁盘状态，所以无需了解业务系统和数据库的实现方法/机制、数据结构及其中的逻辑关系，支持所有业务系统和数据库。</span>
+            </div>
+            <div style="margin-top:10px;"><label><input class="radio" type="radio" value="2"
+                                                        name="restoretype">卷恢复</label>
+            </div>
+            <div style="margin-top:10px;margin-left:20px;"><span class="form_tips">仅恢复选择的卷。由管理员保证业务系统和数据库的完整性。</span>
+            </div>
+        </div>
+        <div id="tabs-5">
+            <div>选择需要还原的卷</div>
+            <div id="disk_vol_div" class="ui-widget ui-widget-content ui-corner-all"
+                 style="margin-top:10px;margin-left:10px;overflow-y:auto;">
+                <div>
+                    <div style="border: 1px solid #d3d3d3;border-top: 0px;border-left: 0px;float:left;width:45%;height:27px;line-height:27px;text-align:center; vertical-align:middle;">
+                        数据源卷
+                    </div>
+                    <div style="border: 1px solid #d3d3d3;border-top: 0px;border-left: 0px;border-right: 0px;float:left;width:9%;height:27px;line-height:27px;text-align:center; vertical-align:middle;">
+                        恢复到
+                    </div>
+                    <div style="border: 1px solid #d3d3d3;border-top: 0px;float:left;width:45%;height:27px;line-height:27px;text-align:center; vertical-align:middle;">
+                        目标机卷
+                    </div>
+                </div>
+                <div class="clear"></div>
+                <div id="disk_vol_content">
+                    <ul style="margin:0;padding: 0"></ul>
+                </div>
+            </div>
+            <div style="margin-top: 10px">
+                <p style="margin-left: 1em;">Tip1：若卷的挂载点在['/boot', '/']中，此卷不支持卷还原。</p>
+                <p style="margin-left: 1em;margin-top: 10px">Tip2：若卷的文件系统是swap，此卷不支持卷还原。</p>
+                <p style="margin-left: 1em;margin-top: 10px">Tip3：若卷是系统卷，此卷不支持卷还原，若需要还原系统卷，请进行整机还原。</p>
+                <p style="margin-left: 1em;margin-top: 10px">
+                    Tip4：若发现无对应盘符，则说明备机的卷与源的卷在磁盘上的分布不相同。请对备机进行一次整机还原，使两者卷分布一致。</p>
+            </div>
+            <div class="mywaite_vol ui-state-highlight ui-corner-all"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <strong>请稍候</strong> <span id="msg_vol"></span></p>
+            </div>
+        </div>
+        <div id="tabs-6">
+            <div>平台检测</div>
+            <p style="text-indent: 2em;">还原、迁移和验证性还原过程中，需要对目标主机的硬件环境进行检测。</p>
+            <div class="ui-widget ui-widget-content ui-corner-all"
+                 style="margin-top:10px;overflow-y:auto;height:360px;padding: 20px">
+                <div id="check_left">
+                    <table width="80%" border="0" cellpadding="5" style="text-align: left; border-collapse:collapse;">
+                        <tr id="step1">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">分配资源中</td>
+                            <td></td>
+                        </tr>
+                        <tr id="step2">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">检测是否异构平台</td>
+                            <td></td>
+                        </tr>
+                        <tr id="step3">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">匹配硬件驱动</td>
+                            <td></td>
+                        </tr>
+                        <tr id="step4">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">查询最新驱动</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="check_intro" style="margin-top: 100px;">
+                    <p>1分配资源：还原目标机需要启动程序，分配资源。</p>
+                    <p style="margin-top: 12px;padding-left: 125px;text-indent: -125px ">
+                        2检测是否异构平台：检测目标机与源系统是否是异构系统，若为同构（硬件环境相同），则会跳过步骤三和四。</p>
+                    <p style="margin-top: 12px;padding-left: 100px;text-indent: -100px ">
+                        3匹配硬件驱动：步骤三中检测结果为异构（硬件环境不同），则会根据目标机中的硬件，在{{ title }}的驱动库中匹配相应的驱动，若完全匹配则跳过步骤四。</p>
+                    <p style="margin-top: 12px;padding-left: 100px;text-indent: -100px ">
+                        4查询最新驱动：若步骤三中未匹配完全，则会根据未匹配的硬件，去“{{ company }}在线驱动库”获取最新的驱动程序。</p>
+                </div>
+            </div>
+        </div>
+        <div id="tabs-7">
+            <input type="hidden" id="aiourl"/>
+            <div>
+                <p style="margin: 0">通过“{{ title }}在线驱动库”查询驱动结果：</p>
+                <p>Tip1：若发现有匹配的驱动，点击“下一步”，会出现更新的对话框，请更新此驱动到{{ title }}。</p>
+                <p>Tip2：若发现无法解析服务器，说明无法访问网络，请连接到互联网，重新做此步骤。</p>
+                <p>Tip3：若发现有未匹配的驱动（可能导致目标机无法启动），请联系超级管理员更新未匹配的驱动。</p>
+                <p>源操作系统：<span id="os_info"></span></p>
+            </div>
+            <div id="drivers_Tree" class="aciTree"
+                 style="width:100%;height:350px;border:1px solid #ccc;overflow:auto;"></div>
+            <div id="errinfo2" style="display:none;word-break: break-all;height: 75px;overflow: auto;"></div>
+        </div>
+        <div id="tabs-8">
+            <div>请选择驱动更新模式</div>
+            <div id="driver_update_method" class="ui-widget ui-widget-content ui-corner-all"
+                 style="margin-top:10px;margin-left:10px;overflow-y:auto;height:420px">
+                <div style="margin: 20px 0 10px 20px">默认情况请选择模式一，如果某次还原失败，再次还原时候，可以根据情况选择模式二去除可疑驱动。</div>
+                <div style="margin: 20px 0 10px 20px">
+                    <input type="radio" name="choice_method" value="1" checked="checked"> 模式一：智能匹配最新版本的设备驱动（推荐）
+                </div>
+                <div style="margin: 20px 0 10px 20px">
+                    <input type="radio" name="choice_method" value="2">模式二：选择指定版本的设备驱动（高级）
+                </div>
+                <div id="choice2_warp" style="margin: 20px 0 0 40px">
+                    <div id="driver_version_wrap" style="margin-top: 10px;display: none">
+                        <label for="driver_version">平台驱动筛选：</label>
+                        <select id="driver_version" style="color: red">
+                            <option value="" selected>请选择--</option>
+                        </select>
+                        <span style="color: red">(发现多个版本平台驱动，请选择特定版本的平台驱动。)</span>
+                    </div>
+                    <div id="driver_version_tree" class="aciTree" style="margin-top: 10px"></div>
+                </div>
+            </div>
+            <div class="mywaite_driver_mode ui-state-highlight ui-corner-all"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <strong>请稍候</strong> <span id="msg_driver_mode"></span></p>
+            </div>
+        </div>
+        <div id="tabs-9">
+            {% include 'hard_disk_setting.html' %}
+            <div class="clear"></div>
+            <div class="mywaite ui-state-highlight ui-corner-all"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <strong>请稍候</strong> <span id="msg"></span></p>
+            </div>
+        </div>
+        <div id="tabs-10">
+            <div><span style="font-weight: bold">业务停止与启动脚本</span></div>
+            <div style="margin-top:20px;margin-left:20px;">
+                配置停止业务与启动业务时，需要执行的脚本。上传为.zip/.tar.gz格式压缩包，并指定运行该压缩包中的可执行文件或脚本。
+            </div>
+            <div style="margin-top:20px;">
+                <fieldset>
+                    <legend>停止脚本</legend>
+                    <form id="StopScriptForm" enctype="multipart/form-data">
+                        <div style="margin-top:10px;">可执行文件名：　<input type="text" name="exe_name"
+                                                                     id="stop_script_exe_name"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">　　执行参数：　<input type="text" id="stop_script_exe_params"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">　　执行路径：　<input type="text" id="stop_script_work_path"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">　　解压路径：　<input type="text" id="stop_script_unzip_path"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">.zip/.tar.gz：　<input type="file" name="script_zip"
+                                                                           id="stop_script_zip"/></div>
+                    </form>
+                </fieldset>
+            </div>
+            <div style="margin-top:20px;">
+                <fieldset>
+                    <legend>启动脚本</legend>
+                    <form id="StartScriptForm" enctype="multipart/form-data">
+                        <div style="margin-top:10px;">可执行文件名：　<input type="text" name="exe_name"
+                                                                     id="start_script_exe_name"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">　　执行参数：　<input type="text" id="start_script_exe_params"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">　　执行路径：　<input type="text" id="start_script_work_path"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">　　解压路径：　<input type="text" id="start_script_unzip_path"
+                                                                     style="width:80%;"></div>
+                        <div style="margin-top:10px;">.zip/.tar.gz：　<input type="file" name="script_zip"
+                                                                           id="start_script_zip"/></div>
+                    </form>
+                </fieldset>
+            </div>
+            <div id="uploadmsg"></div>
+        </div>
+    </div>
+    <div class="btn_nav">
+        <input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input
+            type="button" id="next" class="next" style="float:right" value="下一步&raquo;"/>
+    </div>
+</div>
+
+<div id="div_content" style="display:none;">
+    <div class="disk_table_container">
+        <div class="disk_item_header">
+            <table style="border:1px solid #ddd;background: #f5f5f5;padding: 0 5px;width: 100%" cellpadding="0"
+                   cellspacing="0">
+                <tr>
+                    <td style="width:2%"><span style="margin: 0 3px;cursor:pointer" class="header_button">▼</span></td>
+                    <td style="width:2%"><input type="checkbox" class="header_check" checked="true"></td>
+                    <td style="width:46%;"><p style="word-break: break-all;padding: 10px 0" class="disk_name">
+                        (引导盘)(30.00GB)VMware Virtual disk SCSI Disk Device</p></td>
+                    <td style="width:20%;text-align: center;border-left:1px solid#ddd;color:grey">恢复到</td>
+                    <td style="width:30%;text-align: center;border-left:1px solid#ddd">
+                        <select width="100%">
+                            <option value="1">磁盘:0_40.0G(引导盘)</option>
+                            <option value="2">磁盘:1_40.0G</option>
+                            <option value="3">磁盘:2_60.0G</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="clear"></div>
+        <div class="disk_item_body">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="width:70%;">
+                        <ul style="padding: 0;margin:0;margin-left: 4em">
+                            <li><input type="checkbox" checked="true" name="current">系统保留:(容量0.1GB,已用0.1GB)</li>
+                            <li><input type="checkbox" checked="true" name="current">W2008R2(C:)(容量29.9GB,已用16.5GB)</li>
+                            <li><input type="checkbox">TEST(D:)(容量50GB,已用16.5GB)(<span class="li_warning">历史备份时间：2017-01-01 18:00:00</span>)
+                            </li>
+                            <li><input type="checkbox" disabled="true">SOFT(E:)(容量60.9GB,已用16.5GB)(从未备份过)</li>
+                        </ul>
+                    </td>
+                    <td style="text-align: center;border-left:1px solid #ddd;width:30%;width:calc(30% + 20px); ">
+                        磁盘选择
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
+
+<div id="finishFormDiv" title="" class="ajaxForm">
+    <div style="margin-top:20px;"><label><input class="radio" type="radio" value="1" name="immediately"
+                                                checked="checked">立即执行热备计划</label></div>
+    <div style="margin-top:20px;"><label><input class="radio" type="radio" value="2" name="immediately">仅创建热备计划，需要手动点击“立即执行”按钮执行本计划</label>
+    </div>
+</div>
+
+<div id="downloadFormFlash" title="更新" class="ajaxForm">
+    <form id="uploadForm" enctype="application/octet-stream">
+        <div style="margin-top: 10px;">下载更新文件后，请上传至服务器,服务器会立即执行更新命令</div>
+        <div style="margin-top: 10px;">镜像链接：<a id="imgurl2" href="" target="_blank">下载地址</a></div>
+        <div style="margin-top: 10px;">
+            <input type="file" id="localfileflash"/>
+            <div class="clear"></div>
+            <div id="info2" style="margin-top: 10px;"></div>
+        </div>
+    </form>
+</div>
+
+<div id="downloadForm" title="更新" class="ajaxForm">
+    <div style="margin-top: 10px;">下载更新文件后，请上传至服务器,服务器会立即执行更新命令</div>
+    <div style="margin-top: 10px;">点击<a id="imgurl" href="" target="_blank" style="color: blue">{{ company }}在线驱动库</a>下载最新驱动包
+    </div>
+    <div style="margin-top: 10px;">点击“选择文件”按钮，选择刚下载的驱动包，然后点击“上传并更新”按钮。</div>
+    <div style="margin-top: 10px;">
+        <input type="file" id="localfile"/>
+        <div style="margin-top: 10px;" id="info"></div>
+        <div class="mybtn_nav">
+            <input type="button" id="uploadImg" class="myprev" style="float:right;margin-top:40px;margin-right:3px;"
+                   value="上传并更新"/>
+        </div>
+    </div>
+</div>
+
+<div id="pe-status-checking" class="my-pe-waite ui-state-highlight ui-corner-all"
+     style="margin-top: 20px; padding: 0px 1.7em;position: absolute;top: 40%;left: 50%; display:none;z-index: 9999;">
+    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <strong>请稍候</strong>&nbsp;正在连接目标客户端...</p>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+<script type="text/javascript" src="/static/js/moment.js"></script>
+<script type="text/javascript" src="/static/js/raphael-min.js"></script>
+<script language="javascript">
+
+function UrlCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	jsonstr.url = window.location.protocol + "//" + jsonstr.url;
+	$('#aiourl').val(jsonstr.url);
+}
+
+$(function()
+{
+	$("#tabs").tabs();
+	$("#ip_switch_tabs").tabs();
+	$( "#ip_switch_tabs" ).tabs( "option", "active", 0 );
+	$('#ip_switch_tabs').css('border',0);
+	$('#ip_switch_tabs').css('padding',0);
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$("#tabs").css('min-height', 500);
+	$(".ui-tabs-nav").hide();
+	$(".prev").hide();
+	$('#Servers_Tree1').css('min-height', 160);
+	$('#Servers_Tree2').css('min-height', 430);
+	$('#table_detail_div').css('height',290);
+	var params='a=url';
+	myAjaxGet('../version_handle/',params,UrlCallback);
+});
+
+
+$("input[name='ip_switch_tabs_0_switchtype']").click(function() {
+	if(this.value==1)
+	{
+		$('div#ip_switch_tabs_0 .auto_switch_div').slideUp(600);
+		DrawHotBackup();
+	}
+	else if(this.value==2)
+	{
+		$('div#ip_switch_tabs_0 .auto_switch_div').slideDown(600);
+		DrawHotBackup();
+	}
+});
+
+$("input[name='ip_switch_tabs_1_switchtype']").click(function() {
+	if(this.value==1)
+	{
+		$('div#ip_switch_tabs_1 .auto_switch_div').slideUp(600);
+		DrawHotBackup();
+	}
+	else if(this.value==2)
+	{
+		$('div#ip_switch_tabs_1 .auto_switch_div').slideDown(600);
+		DrawHotBackup();
+	}
+});
+
+$(document).on('keyup', 'input[name=client_search]', function () {
+    var s_key = $('input[name=client_search]').val().toLowerCase();
+    var api = $('#Servers_Tree1').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+$(document).on('keyup', 'input[name=client_target_search]', function () {
+    var s_key = $('input[name=client_target_search]').val().toLowerCase();
+    var api = $('#Servers_Tree2').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+
+
+
+
+
+</script>

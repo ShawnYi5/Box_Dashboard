@@ -1,0 +1,286 @@
+<div class="right">
+    {% include 'remotebackup.inc.html' %}
+    <div class="table_menu">
+        <div class="menu_btn" id="createForm">新建计划</div>
+        <div class="menu_btn" id="runForm">立即执行</div>
+        <div class="menu_btn" id="delForm">删除计划</div>
+        <div class="menu_btn" id="enbaleForm">启用/禁用</div>
+        <div class="menu_btn" id="edit_plan">更改计划</div>
+        <div class="menu_btn" id="search_form">查询</div>
+        <div class="menu_btn" id="refresh">刷新</div>
+    </div>
+    <table id="list">
+    </table>
+    <div id="pager"></div>
+    <div id="schedule_detail_mgr">
+    </div>
+</div>
+<div id="search_form_div" title="查询" class="ajaxForm">
+    <div style="margin-top: 40px">
+        <label for="search_input">关键词：</label>
+        <input type="text" maxlength="50" placeholder="计划名称、远程客户端名称或主机IP" id="search_key" style="width: 200px">
+    </div>
+</div>
+<script type="text/javascript" src="/static/js/moment.js"></script>
+<script type="text/javascript">
+    {% include 'remotebackup.js' %}
+
+    $(function () {
+        jQuery("#list").jqGrid({
+            url: '../remotebackup_handle/?a=listplan',
+            datatype: "json",
+            colNames: ['序号', '计划名称', '主机名称', '创建时间', 'ext_config', '状态', '上次运行时间', '下次运行时间'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 50, sortable: true, hidden: true},
+                {name: 'name', index: '1', align: "center", width: 120, sortable: true},
+                {name: 'host', index: '2', align: "center", width: 100, sortable: true},
+                {name: 'created', index: '3', align: "center", width: 100, sortable: true},
+                {name: 'ext_config', index: '4', align: "center", width: 120, sortable: false, hidden: true},
+                {name: 'enabled', index: '5', align: "center", width: 100, sortable: true, formatter: statusFmatter},
+                {name: 'last_run_date', index: '6', align: "center", width: 100, sortable: true},
+                {name: 'next_run_date', index: '7', align: "center", width: 100, sortable: true}
+            ],
+            width: 748,
+            height: 250,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "asc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (ids) {
+                var ext_config = $('#list').jqGrid('getRowData', ids).ext_config;
+                showPlanDetialTable($('#schedule_detail_mgr table'), $.parseJSON(ext_config));
+            }
+        });
+        $('#tabs-4 table').clone().appendTo($('#schedule_detail_mgr'));
+    });
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    function statusFmatter(cellvalue, options, rowObjec) {
+        var status = rowObjec[5];
+        if (status) {
+            return '启用';
+        }
+        return '禁用';
+    }
+
+    function mgrrebackup_resize() {
+        resizeright();
+        var height = $(window).height() - 250;
+        var width = $('.table_menu').width();
+        $("#list").setGridWidth(width);
+        $("#list").setGridHeight(height);
+        baseresize();
+    }
+
+
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">远程灾备计划管理<span style="color:red;">{{ remotebackup_license }}</span></div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#mgrhotbackup" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        $("#tabs").css('height', 528);
+        $('#Servers_Tree2').css('height', 440);
+        mgrrebackup_resize();
+    });
+
+    function GetBackupInfo(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog('错误', jsonstr.e);
+        }
+        $.each(Object.keys(jsonstr.data), function (index, item) {
+            $('#' + item).html(jsonstr.data[item]);
+        })
+    }
+
+
+    $('#createForm')
+        .button()
+        .click(function () {
+            $("#tabs").tabs("option", "active", 0);
+            g_op_type = 'create_plan';
+            $("#newremotebackupFormDiv").dialog({
+                autoOpen: true,
+                height: 630,
+                width: 900,
+                modal: true,
+                title: '新建远程灾备计划',
+                close: function () {
+                    $('#refresh').trigger('click');
+                }
+            });
+            init_tab0_when_create_plan();
+        });
+
+    $('#edit_plan').button().click(function () {
+        $("#tabs").tabs("option", "active", 0);
+        window.edit_remote_plan_ing = 'yes';
+        show_or_hide_refresh_butt(false);
+        show_or_hide_search_butt(false);
+        var selectedId = getSelectedIds('one');
+        if (selectedId === null) return;
+        var ext_config = $('#list').jqGrid('getRowData', selectedId).ext_config;
+        window.remote_plan_ext_config = $.parseJSON(ext_config);
+        $("#newremotebackupFormDiv").dialog({
+            autoOpen: true,
+            height: 630,
+            width: 900,
+            modal: true,
+            title: '更改远程灾备计划',
+            close: function () {
+                window.edit_remote_plan_ing = 'no';
+                show_or_hide_refresh_butt(true);
+                show_or_hide_search_butt(true);
+                window.remote_plan_ext_config = null;
+                $('#refresh').trigger('click');
+            }
+        });
+        init_tab0_when_edit_plan();
+    });
+    $("#search_form_div").attr('title', '查询').dialog({
+        autoOpen: false,
+        height: 200,
+        width: 350,
+        modal: true,
+        buttons: {
+            '查询': function () {
+                search_worker();
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+
+    $('#search_form').button().click(function () {
+        $("#search_form_div").dialog('open');
+    });
+
+    function search_worker() {
+        var s_key = $('#search_key').val();
+        $("#search_form_div").dialog('close');
+        var new_url = '../remotebackup_handle/?a=listplan&s_key=' + s_key;
+        $('#list').setGridParam({url: new_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function ReloadGridCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+    }
+
+    $('#delForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idents = [];
+            $.each(ids, function (index, id) {
+                var ident = $('#list').jqGrid('getRowData', id).id;
+                idents.push(ident);
+            })
+            var idstring = idents.join(",");
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要删除计划吗?<br>点击确认按钮，执行删除操作；点击取消按钮，放弃删除操作。',
+                onBeforeOK: function () {
+                    var params = "ids=" + idstring;
+                    myAjaxGet('../remotebackup_handle/?a=del_remotebackup_plan', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+    $('#enbaleForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idents = [];
+            $.each(ids, function (index, id) {
+                var ident = $('#list').jqGrid('getRowData', id).id;
+                idents.push(ident);
+            })
+            var idstring = idents.join(",");
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要启用/禁用计划吗?',
+                onBeforeOK: function () {
+                    var params = "ids=" + idstring;
+                    myAjaxGet('../remotebackup_handle/?a=enable_remotebackup_plan', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+
+    $('#refresh')
+        .button()
+        .click(function () {
+            var new_url = '../remotebackup_handle/?a=listplan';
+            $('#list').setGridParam({url: new_url});
+            $('#list').trigger("reloadGrid", [{page: 1}]);
+        });
+
+    $('#runForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idents = [];
+            $.each(ids, function (index, id) {
+                var ident = $('#list').jqGrid('getRowData', id).id;
+                idents.push(ident);
+            })
+            var idstring = idents.join(","),
+                params = "ids=" + idstring;
+            myAjaxGet('../remotebackup_handle/?a=execute_plan_immediately', params, RunCallback);
+        });
+
+    function RunCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            var html = jsonstr.e;
+            openErrorDialog({title: '错误', html: html});
+            return;
+        } else {
+            var html = '';
+            for (var i = 0; i < jsonstr.result.length; i++) {
+                var item = jsonstr.result[i];
+                html += item.e + '<br>'
+            }
+            openCommonDialog('消息', html);
+            return;
+        }
+    }
+
+
+    $(window).resize(function () {
+        mgrrebackup_resize();
+    });
+</script>

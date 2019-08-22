@@ -1,0 +1,223 @@
+<div class="right">
+	<div class="table_menu">
+		<div class="menu_btn" id="addForm">新增</div>
+		<div class="menu_btn" id="delForm">删除</div>
+        <div class="menu_btn" id="showall">显示所有</div>
+	</div>
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+
+<div id="addFormDiv" title="新增" class="ajaxForm">
+	<div style="margin-top: 10px;margin-left: 20px;">
+	<a href="../autoverifytask_handle/?a=download&id=0" style="color:blue;">下载示例脚本</a>
+	</div>
+	<div style="margin-top: 10px;margin-left: 20px;">
+		<input type="file" id="localfile"/>
+	</div>
+	<div style="margin-top: 10px;margin-left: 20px;">名称：<input type="text" id="script_name" style="width: 242px"/></div>
+	<div style="margin-top: 10px;margin-left: 20px;">描述：<input type="text" id="script_desc" style="width: 242px"/></div>
+	<div id="upload_info" style="margin-top: 10px;margin-left: 20px;"></div>
+</div>
+
+<style>
+.ui-jqgrid tr.jqgrow td {
+  white-space: normal !important;
+ }
+</style>
+<script language="javascript"> 
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../autoverifytask_handle/?a=list_user_script',
+		datatype: "json",
+		colNames:['id', '名称', '描述','下载'],
+		colModel:[
+			{name:'id',index:'id',align:"left", width:100,hidden: true,sortable: false},
+			{name:'name',index:'name',align:"left", width:100,sortable: false},
+			{name:'desc',index:'desc',align:"left", width:200,sortable: false},
+			{name:'url',index:'url',align:"center", width:60,sortable: false, formatter: fmt_download_url},
+		],
+		width:748,
+		height:550,
+		rowNum:300,
+		rowList:[100,200,300],
+		pager: '#pager',
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true
+
+	});
+});
+jQuery("#list").jqGrid('navGrid','#pager',{add:false,search:false,del:false,edit:false,refresh:true,position:'right'});
+
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' }); 
+
+function fmt_download_url(cellvalue, options, rowObject) {
+	var id = rowObject[0];
+	return '<a href="../autoverifytask_handle/?a=download&id='+id+'">下载</a>';
+}
+
+
+function ReloadGridCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+				current:true
+			}]);
+}
+
+function shwoall() {
+    var newUrl='../autoverifytask_handle/?a=list_user_script';
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+$('#showall')
+.button()
+.click(function() {
+    shwoall();
+});
+
+var g_upload_ing = false;
+
+function FmtSize(size) {
+	return (size / (1024 * 1024)).toFixed(2);
+}
+
+function UploadCallback(jsonstr) {
+	if (jsonstr.r == 200) {
+		g_upload_ing = false;
+		$("#addFormDiv").dialog('close');
+		shwoall();
+		return;
+	}
+	if (jsonstr.r != 0) {
+		g_upload_ing = false;
+		openErrorDialog({title: '错误', html: jsonstr.e});
+		return;
+	}
+	var file = $('#localfile').get(0).files[0];
+	var start = jsonstr.start;
+	var total = file.size;
+	var html = "<div>上传进度：" + FmtSize(start) + "/" + FmtSize(total) + '（MB）</div>';
+	html+='<div style="margin-top: 10px;">上传过程中，请勿关闭或刷新浏览器。</div>';
+	$('#upload_info').html(html);
+	if (start < total) {
+		FileReaderReadFile(file, start, 1024 * 1024);
+	}
+}
+
+function FileReaderReadFile(file, start, step) {
+	var reader = new FileReader();
+	var buffer = null;
+	var total = file.size;
+	reader.onload = function (e) {
+		buffer = e.target.result;
+	}
+	reader.onloadend = function (e) {
+		var url = '../autoverifytask_handle/?a=upload';
+		url += '&filename=' + file.name;
+		url += '&start=' + start;
+		url += '&step=' + 1024 * 1024;
+		url += '&total=' + total;
+		if(start==0)
+		{
+			url += '&script_name=' + encodeURIComponent($('#script_name').val());
+			url += '&script_desc=' + encodeURIComponent($('#script_desc').val());
+		}
+		myPostBinary(url, buffer, UploadCallback);
+	}
+	var blob = file.slice(start, start + step);
+	reader.readAsDataURL(blob);
+}
+
+function OnAddScript()
+{
+	if($('#script_name').val()=='')
+	{
+		openErrorDialog({title:'错误',html:'请输入名称'});
+		return;
+	}
+	var file = $('#localfile').get(0).files[0];
+	if(file)
+	{
+		g_upload_ing = true;
+		FileReaderReadFile(file, 0, 1024 * 1024);
+	}
+	else
+	{
+		openErrorDialog({title:'错误',html:'请选择脚本文件'});
+	}
+}
+
+$('#addForm').button()
+.click(function() {
+	$('#upload_info').html('');
+	$("#addFormDiv").attr('title','新增').dialog({
+			autoOpen: true,
+			height: 270,
+			width: 400,
+			modal: true,
+			buttons: {			
+				'确定': function(){
+					OnAddScript();
+					
+				},
+				'取消': function(){
+					$(this).dialog('close');
+				}
+			},
+			close: function(){
+			}
+		});
+});
+
+$('#delForm')
+.button()
+.click(function() {
+	var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+	if (ids.length == 0) {
+		openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+		return;
+	}
+	var idstring = ids.join(',');
+	openConfirmDialog({
+		title: '确认信息',
+		html: '你确定要删除选择的脚本吗?',
+		onBeforeOK: function () {
+			var params = "a=delscripts&ids=" + idstring;
+			myAjaxPost('../autoverifytask_handle/', params, ReloadGridCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+$(function()
+{
+	$('#navigation').html('<div class="font_navigation">用户自定义验证脚本</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#userverifyscript" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	userverifyscritp_resize();
+
+});
+
+function userverifyscritp_resize()
+{
+	resizeright();
+	var width = $('.table_menu').width()-6;
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	userverifyscritp_resize();	
+});
+</script>

@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<script type="text/javascript" src="/static/js/noReload.js"></script>
+	<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+	<style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'microsoft yahei', Tahoma, Verdana, sans-serif, simsun;
+            font-size: 13px;
+            color: #505050;
+        }
+
+        h1, h2, h3, ul, li {
+            margin: 0;
+            padding: 0;
+        }
+
+        p {
+            margin: 0 0 10px;
+            line-height: 2;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        #hd {
+            background: #3D485A;
+            height: 65px;
+        }
+
+        .header {
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            padding: 20px 0 0;
+            font: bold 18px '微软雅黑','microsoft yahei', '黑体', '宋体';
+            color: #f5f8f9;
+        }
+
+        #ft {
+            background: #3D485A;
+            padding: 10px;
+            text-align: center;
+            color: #eee;
+            clear: both;
+        }
+
+        .wrap {
+            margin: 0 0 10px;
+            border: 1px solid #CDE1EF;
+            background: #fff;
+            padding: 10px;
+        }
+
+        .wrap-contact {
+            margin: 0;
+            padding: 10px 10px 10px 25px;
+        }
+
+        .block {
+            padding: 10px;
+        }
+
+        .block .hd {
+            padding: 0 0 3px 15px;
+            border-bottom: 1px solid #CEE1EE;
+        }
+
+        .block h3 {
+            padding: 6px 0;
+            color: #336699;
+            font-size: 16px;
+        }
+
+        .block h4 {
+            font-size: 14px;
+        }
+
+        .block h5 {
+            font-size: 13px;
+        }
+
+        .block .bd {
+            padding: 6px 0 0 15px;
+        }
+
+        .block .bd strong {
+            color: #000;
+            font-weight: normal;
+        }
+
+        .block .ft .imgMain {
+            padding: 10px 0 0;
+            text-align: center;
+        }
+
+        .block .ft ul {
+            height: 30px;
+            margin: 0 0 0 250px;
+        }
+
+        .block .ft li {
+            float: left;
+            margin: 0 50px 0 20px;
+        }
+
+        .block ul {
+            margin: 0 0 0 20px;
+        }
+
+        .block a {
+            text-decoration: none;
+        }
+
+        .block a:link {
+            color: #6D6D6D
+        }
+
+        .block a:visited {
+            color: #6D6D6D
+        }
+
+        .block a:hover {
+            color: #ff0000
+        }
+
+        .block a:active {
+            color: #6D6D6D
+        }
+
+        ul.index {
+            line-height: 1.8;
+        }
+
+        .block .bd p {
+            text-indent: 2em;
+            font-size: 13px;
+            line-height: 18px;
+        }
+
+        .block .bd img {
+            margin: 20px 0 20px 0;
+        }
+
+        .bd_right {
+            border: 1px solid #CDE1EF;
+			min-height:700px;
+            margin: 5px 0 0 0;
+			vertical-align:middle;
+        }
+
+        ul {
+            counter-reset: section;
+            list-style-type: none;
+        }
+
+        li::before {
+            content: counters(section, ".") " ";
+            counter-increment: section;
+        }
+        body{
+            counter-reset: h-section;
+        }
+        .block-title{
+            counter-reset: sub-section;
+        }
+
+    </style>
+    <title>{{title}}</title>
+	<script>
+		var g_countdown = 5;
+		var g_countdown_fun = null;
+		function countdown_fun()
+		{
+			g_countdown = g_countdown -1;
+			if(g_countdown<=0)
+			{
+				clearInterval(g_countdown_fun);
+				location.href = "/";
+			}
+			else
+			{
+				$('.process_info').empty();
+				$('.process_info').append($('<p>已完成，'+g_countdown+'秒后转入登录界面</p>'));
+			}
+		}
+		function get_check_info_callback(jsonobj) {
+			if (jsonobj.is_process == false) {
+				clearInterval(g_get_check_info);
+				g_countdown_fun = setInterval('countdown_fun()', 1000);
+				
+			}
+			else
+			{
+				$('.process_info').empty();
+				if(jsonobj.debug)
+				{
+					if(jsonobj.debug=='WatchPowerServ start...')
+					{
+						$('#watchpower_title').text('正在启动{{ title }}');
+						$('.process_info').hide();
+					}
+					else
+					{
+						$('#watchpower_title').text('检测到异常电源事件，正在进行修复，请不要关机或重启{{ title }}一体机');
+						$('.process_info').show();
+					}
+					$('#debug_info').text(jsonobj.debug);
+				}
+				if(jsonobj.current_status)
+				{
+					$('.process_info').append($('<p>当前：'+jsonobj.current_status+'</p>'));
+				}
+				if(jsonobj.total_process)
+				{
+					$('.process_info').append($('<p>进度：'+jsonobj.current_process+'/'+jsonobj.total_process+'</p>'));
+				}
+			}
+		}
+		function get_check_info(id) {
+			myAjaxGet('../watchpower_handle/?a=get_process', '', get_check_info_callback);
+		}
+		get_check_info();
+		var g_get_check_info = setInterval('get_check_info()', 5000);
+
+		$(document).keydown(function (event) {
+			if (event.ctrlKey && event.altKey && event.key == 'p') {
+				$('.fordebug').show();
+			}
+		});
+	</script>
+</head>
+<body>
+<div id="hd">
+    <div class="header">
+        <h1>{{title}}</h1>
+    </div>
+</div>
+<div id="bd">
+    <div class="bd_right">
+        <div class="block" id="netset">
+            <div class="hd" style="text-align:center;"><h4 id="watchpower_title">检测到异常电源事件，正在进行修复，请不要关机或重启{{ title }}一体机</h4></div>
+            <div class="bd process_info" style="width:600px;margin:0 auto;margin-top:10px;">
+            </div>
+			<div class="bd fordebug" style="width:600px;margin:0 auto;margin-top:10px;display:none;">
+				<p id="debug_info"></p>
+			</div>
+        </div>
+    </div>
+
+
+</div>
+<div id="ft">
+    <div class="footer">{{title}}</div>
+</div>
+
+</body>
+</html>

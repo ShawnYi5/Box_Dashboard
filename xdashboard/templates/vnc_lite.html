@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!--
+    noVNC example: lightweight example using minimal UI and features
+    Copyright (C) 2012 Joel Martin
+    Copyright (C) 2013 Samuel Mannehed for Cendio AB
+    noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+    This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+
+    Connect parameters are provided in query string:
+        http://example.com/?host=HOST&port=PORT&encrypt=1
+    or the fragment:
+        http://example.com/#host=HOST&port=PORT&encrypt=1
+    -->
+    <title>noVNC</title>
+
+    <meta charset="utf-8">
+
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+                Remove this if you use the .htaccess -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <!-- Apple iOS Safari settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <script type="text/javascript" src="/static/js/noReload.js"></script>
+
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/noVNC/app/styles/lite.css">
+    <link rel="stylesheet" href="/static/noVNC/default.css">
+
+    <!--
+   <script type='text/javascript'
+       src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+   -->
+
+    <!-- promise polyfills promises for IE11 -->
+    <script src="/static/noVNC/vendor/promise.js"></script>
+    <script type="text/javascript">
+        function setusb(vendorid, productid, deviceid, isin, id) {
+            var params = 'vendorid=' + vendorid;
+            params += '&productid=' + productid;
+            params += '&deviceid=' + deviceid;
+            if (isin) {
+                isin = 1;
+            }
+            else {
+                isin = 0;
+            }
+            params += '&isin=' + isin;
+            params += '&id=' + id;
+            myAjaxGet('../takeover_handle/?a=set_kvm_usb', params, SilenceCallback);
+            $('#usbbtn').siblings().remove();
+        }
+    </script>
+    <!-- ES2015/ES6 modules polyfill -->
+    <script type="module">
+        window._noVNC_has_module_support = true;
+    </script>
+    <script>
+        window.addEventListener("load", function () {
+            if (window._noVNC_has_module_support) return;
+            var loader = document.createElement("script");
+            loader.src = "/static/noVNC/vendor/browser-es-module-loader/dist/browser-es-module-loader.js";
+            document.head.appendChild(loader);
+        });
+    </script>
+
+    <!-- actual script modules -->
+    <script type="module" crossorigin="anonymous">
+        // Load supporting scripts
+        import * as WebUtil from '/static/noVNC/app/webutil.js';
+        import RFB from '/static/noVNC/core/rfb.js';
+
+        var rfb;
+        var resizeTimeout;
+        var desktopName;
+
+        function UIresize() {
+            if (WebUtil.getConfigVar('resize', false)) {
+                var innerW = window.innerWidth;
+                var innerH = window.innerHeight;
+                var controlbarH = document.getElementById('noVNC_status_bar').offsetHeight;
+                if (innerW !== undefined && innerH !== undefined)
+                    rfb.requestDesktopSize(innerW, innerH - controlbarH);
+            }
+        }
+
+        function FBUComplete(rfb, fbu) {
+            UIresize();
+            rfb.set_onFBUComplete(function () {
+            });
+        }
+
+        function updateDesktopName(rfb, name) {
+            desktopName = name;
+        }
+
+        function onFBResize(rfb, fb_width, fb_height) {
+            $('#MutiNav').css('width', fb_width);
+        }
+
+        function passwordRequired(rfb, msg) {
+            if (typeof msg === 'undefined') {
+                msg = 'Password Required: ';
+            }
+            var html;
+
+            var form = document.createElement('form');
+            form.style = 'margin-bottom: 0px';
+            form.innerHTML = '<label></label>'
+            form.innerHTML += '<input type=password size=10 id="password_input" class="noVNC_status">';
+            form.onsubmit = setPassword;
+
+            // bypass status() because it sets text content
+            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
+            document.getElementById('noVNC_status').innerHTML = '';
+            document.getElementById('noVNC_status').appendChild(form);
+            document.getElementById('noVNC_status').querySelector('label').textContent = msg;
+        }
+
+        function setPassword() {
+            rfb.sendPassword(document.getElementById('password_input').value);
+            return false;
+        }
+
+        function sendCtrlAltDel() {
+            rfb.sendCtrlAltDel();
+            return false;
+        }
+
+        function sendF8() {
+            rfb.sendF8();
+            return false;
+        }
+
+        function resetkvm() {
+            openConfirmDialog({
+                title: '确认信息',
+                html: '确定要重置该虚拟机吗?相当于计算机上的<span style="color:red;">复位(reset)键</span>。',
+                onBeforeOK: function () {
+                    var id = WebUtil.getConfigVar('id', '-1');
+                    var params = "id=" + id;
+                    myAjaxGet('../takeover_handle/?a=kvm_system_reset', params, SilenceCallback);
+                    $(this).dialog('close');
+                }
+            });
+        }
+
+        function shutdownkvm() {
+            openConfirmDialog({
+                title: '确认信息',
+                html: '确定要关闭该虚拟机吗?相当于计算机上的<span style="color:red;">电源键</span>。',
+                onBeforeOK: function () {
+                    var id = WebUtil.getConfigVar('id', '-1');
+                    var params="id="+id;
+                    myAjaxGet('../takeover_handle/?a=kvm_system_powerdown',params,SilenceCallback);
+                    $(this).dialog('close');
+                }
+            });
+        }
+
+        function poweroffkvm() {
+            openConfirmDialog({
+                title: '确认信息',
+                html: '<span style="color:red;">断电功能仅实用于操作系统不能正常关闭的情况。</span>你确定要断电吗?',
+                onBeforeOK: function () {
+                    var id = WebUtil.getConfigVar('id', '-1');
+                    var params = "id=" + id;
+                    myAjaxGet('../takeover_handle/?a=close_kvm', params, SilenceCallback);
+                    $(this).dialog('close');
+                }
+            });
+        }
+
+        function status(text, level) {
+            switch (level) {
+                case 'normal':
+                case 'warn':
+                case 'error':
+                    break;
+                default:
+                    level = "warn";
+            }
+            document.getElementById('noVNC_status_bar').setAttribute("class", "noVNC_status_" + level);
+            document.getElementById('noVNC_status').textContent = text;
+            if (text == 'Disconnected') {
+                try {
+                    window.opener.myopenErrorDialog(null);
+                }
+                catch (e) {
+                }
+                window.close();
+            }
+        }
+
+        function updateState(rfb, state, oldstate) {
+            var cad = document.getElementById('sendCtrlAltDelButton');
+            switch (state) {
+                case 'connecting':
+                    status("Connecting", "normal");
+                    break;
+                case 'connected':
+                    if (rfb && rfb.get_encrypt()) {
+                        status("Connected (encrypted) to " +
+                            desktopName, "normal");
+                    } else {
+                        status("Connected (unencrypted) to " +
+                            desktopName, "normal");
+                    }
+                    break;
+                case 'disconnecting':
+                    status("Disconnecting", "normal");
+                    break;
+                case 'disconnected':
+                    status("Disconnected", "normal");
+                    break;
+                default:
+                    status(state, "warn");
+                    break;
+            }
+
+            if (state === 'connected') {
+                cad.disabled = false;
+            } else {
+                cad.disabled = true;
+                xvpInit(0);
+            }
+
+        }
+
+        function disconnected(rfb, reason) {
+            if (typeof(reason) !== 'undefined') {
+                status(reason, "error");
+            }
+        }
+
+        function notification(rfb, msg, level, options) {
+            status(msg, level);
+        }
+
+        window.onresize = function () {
+            // When the window has been resized, wait until the size remains
+            // the same for 0.5 seconds before sending the request for changing
+            // the resolution of the session
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function () {
+                UIresize();
+            }, 500);
+        };
+
+        function xvpInit(ver) {
+        }
+
+        document.getElementById('resetbtn').onclick = resetkvm;
+        document.getElementById('shutdownbtn').onclick = shutdownkvm;
+        document.getElementById('poweroffbtn').onclick = poweroffkvm;
+        document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
+        document.getElementById('sendF8Button').onclick = sendF8;
+
+        WebUtil.init_logging(WebUtil.getConfigVar('logging', 'warn'));
+        document.title = WebUtil.getConfigVar('title', 'noVNC');
+        // By default, use the host and port of server that served this file
+        var host = WebUtil.getConfigVar('host', window.location.hostname);
+        var port = WebUtil.getConfigVar('port', 20004);
+
+        // if port == 80 (or 443) then it won't be present and should be
+        // set manually
+        if (!port) {
+            if (window.location.protocol.substring(0, 5) == 'https') {
+                port = 443;
+            }
+            else if (window.location.protocol.substring(0, 4) == 'http') {
+                port = 80;
+            }
+        }
+
+        var password = WebUtil.getConfigVar('password', '');
+        var path = WebUtil.getConfigVar('path', 'websockify');
+
+        // If a token variable is passed in, set the parameter in a cookie.
+        // This is used by nova-novncproxy.
+        var token = WebUtil.getConfigVar('token', null);
+        if (token) {
+            // if token is already present in the path we should use it
+            path = WebUtil.injectParamIfMissing(path, "token", token);
+
+            WebUtil.createCookie('token', token, 1)
+        }
+
+        (function () {
+
+            if ((!host) || (!port)) {
+                status('Must specify host and port in URL', 'error');
+            }
+
+            try {
+                rfb = new RFB({
+                    'target': document.getElementById('noVNC_canvas'),
+                    'encrypt': WebUtil.getConfigVar('encrypt',
+                        (window.location.protocol === "https:")),
+                    'repeaterID': WebUtil.getConfigVar('repeaterID', ''),
+                    'local_cursor': WebUtil.getConfigVar('cursor', true),
+                    'shared': WebUtil.getConfigVar('shared', true),
+                    'view_only': WebUtil.getConfigVar('view_only', false),
+                    'onNotification': notification,
+                    'onUpdateState': updateState,
+                    'onDisconnected': disconnected,
+                    'onXvpInit': xvpInit,
+                    'onPasswordRequired': passwordRequired,
+                    'onFBUComplete': FBUComplete,
+                    'onDesktopName': updateDesktopName,
+                    'onFBResize': onFBResize
+                });
+            } catch (exc) {
+                status('Unable to create RFB client -- ' + exc, 'error');
+                return; // don't continue trying to connect
+            }
+
+            rfb.connect(host, port, password, path);
+        })();
+
+        document.onkeydown = function (event) {
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            if (event.ctrlKey && event.altKey && event.key == 'p') {
+                document.getElementById('noVNC_canvas').style.cursor = "url('/static/images/cur.cur'),crosshair";
+            }
+        };
+
+        var mst;
+        jQuery(".multiUl li").hover(function () {
+            var curItem = jQuery(this);
+            mst = setTimeout(function () {//延时触发
+                curItem.find("blockquote").slideDown('fast');
+                mst = null;
+            });
+        }, function () {
+            if (mst != null) clearTimeout(mst);
+            jQuery(this).find("blockquote").slideUp('fast');
+        });
+
+        function get_kvm_usbinfo_callback(jsonobj) {
+            if (jsonobj.r != 0) {
+                openErrorDialog({title: '错误', html: jsonobj.e});
+                return;
+            }
+
+            var ChildNavInobj = $('<blockquote><div class="ChildNavIn"><div class="NavDeptInList"></div></div></blockquote>');
+            if (jsonobj.list.length == 0) {
+                ChildNavInobj.find('.NavDeptInList').append('<span>无USB设备</span>');
+            }
+            for (var i = 0; i < jsonobj.list.length; i++) {
+                var act = '连接 ';
+                if (jsonobj.list[i].in) {
+                    act = '断开 ';
+                }
+                var vendorid = jsonobj.list[i].vendorid;
+                var productid = jsonobj.list[i].productid;
+                var deviceid = jsonobj.list[i].id;
+                var isin = jsonobj.list[i].in;
+                var id = WebUtil.getConfigVar('id', '-1');
+                var f = 'setusb("' + vendorid + '","' + productid + '","' + deviceid + '",' + isin + ',"' + id + '")';
+                ChildNavInobj.find('.NavDeptInList').append('<span onclick=\'' + f + '\'>' + act + jsonobj.list[i].name + '</span>');
+            }
+            $('#usbbtn').siblings().remove();
+            $('#usbbtn').after(ChildNavInobj);
+            $('#usbbtn').parent().find("blockquote").slideDown('fast');
+        }
+
+        $('#usbbtn').click(function () {
+            $(this).siblings().remove();
+            var ChildNavInobj = $('<blockquote><div class="ChildNavIn"></div></blockquote>');
+            ChildNavInobj.find('.ChildNavIn').append('<span>正在查询</span>');
+            $(this).after(ChildNavInobj);
+            $(this).parent().find("blockquote").slideDown('fast');
+            var params = 'id=' + WebUtil.getConfigVar('id', '-1');
+            myAjaxGet('../takeover_handle/?a=get_kvm_usbinfo', params, get_kvm_usbinfo_callback);
+        });
+    </script>
+</head>
+
+<body style="margin: 0px;">
+<div id="noVNC_container">
+    <div id="MutiNav" style="margin-left:auto;margin-right:auto;">
+        <div style="float:right;">
+            <ul class="multiUl">
+                <li><span class="go" id="usbbtn" title="点击刷新USB设备">USB</span></li>
+                <li class="s">|</li>
+                <li><span class="go">快捷键</span>
+                    <blockquote>
+                        <div class="ChildNavIn">
+                            <span id="sendCtrlAltDelButton">Ctrl+Alt+Del</span>
+                            <span id="sendF8Button">F8</span>
+                        </div>
+                    </blockquote>
+                </li>
+                <li class="s">|</li>
+                <li><span class="go" id="shutdownbtn">关机</span></li>
+                <li class="s">|</li>
+                <li><span class="go" id="resetbtn">重启电源</span></li>
+                <li class="s">|</li>
+                <li><span class="go" id="poweroffbtn">关闭电源</span></li>
+            </ul>
+        </div>
+        <div class="clear"></div>
+    </div>
+
+    <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
+        <div id="noVNC_status" style="position: relative; height: auto;display:none;">正在加载</div>
+    </div>
+    <canvas id="noVNC_canvas" width="640px" height="20px" style="cursor:none;">
+        Canvas not supported.
+    </canvas>
+
+</body>
+</html>

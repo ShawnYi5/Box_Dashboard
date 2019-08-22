@@ -1,0 +1,321 @@
+<div class="right">
+	<div id="tabs">
+		<ul>
+		<li><a href="#tabs-1">邮件服务器</a></li>
+        <li><a href="#tabs-2">企业微信</a></li>
+		<li><a href="#tabs-3">发送通知范围</a></li>
+		</ul>
+		<div id="tabs-1" style="width:740px;">
+			<div style="width:90%;margin-left:20px;margin-top:20px;">邮件服务器作为{{ title }}向用户发送邮件的平台，可用于找回忘记的密码、告知{{ title }}各项任务的执行结果、产生的错误及其它重要的需要用户了解的信息。</div>
+			<div style="width:90%;margin-left:20px;margin-top:10px;">设置邮件服务器前，请先完成网络设置，确保{{ title }}可访问到邮件服务器；并核对发件人的邮箱/用户名/密码真实有效。</div>
+
+			<table width="100%" border="0" cellspacing="5" cellpadding="0" style="margin-top:30px;">
+			  <tr>
+				<td width="15%" align="right">邮件服务器地址</td>
+				<td width="85%"><input type="text" name="smtp_host" id="smtp_host" onblur="removespace(this)" /><span class="ui-icon ui-icon-help" style="display: inline-block;top: 2.5px;left: 2.5px;position: relative;" title="smtp.example.com"></span></td>
+			  </tr>
+			  <tr>
+				<td align="right">邮件服务器端口</td>
+				<td><input type="number" name="smtp_port" id="smtp_port" onblur="removespace(this)" /><span class="ui-icon ui-icon-help" style="display: inline-block;top: 2.5px;left: 2.5px;position: relative;" title="默认：25"></span></td>
+			  </tr>
+			  <tr>
+				<td align="right">发送人邮箱</td>
+				<td><input type="text" name="smtp_mail" id="smtp_mail" onblur="removespace(this)" /></td>
+			  </tr>
+			  <tr>
+				<td align="right">用户名</td>
+				<td><input type="text" name="smtp_user" id="smtp_user" onblur="removespace(this)" /></td>
+			  </tr>
+			  <tr>
+				<td align="right">密　码</td>
+				<td><input type="password" name="smtp_pass" id="smtp_pass"/></td>
+			  </tr>
+			  <tr>
+				<td>&nbsp;</td>
+				<td><label><input type="checkbox" id="smtp_ssl" name="smtp_ssl"/>使用SSL</label></td>
+			  </tr>
+			  <tr>
+				<td>&nbsp;</td>
+				<td><div class="menu_btn" style="float:right;margin-right:60px;" id="setbutton4">保存</div><div class="menu_btn" style="float:right;margin-right:20px;" id="setbutton1">发送测试邮件</div></td>
+			  </tr>
+			  <tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			  </tr>
+			</table>
+		</div>
+		<div id="tabs-3" style="width:740px;">
+			<div style="width:90%;margin-left:20px;margin-top:20px;">设置需要发送邮件通知的事件范围。如下的事件被勾选后，当发生此事件时，将会将此事件的相关信息发送到相关的超级/系统管理员账户邮箱，方便管理员及时了解{{ title }}工作状况。</div>
+			<div style="margin-left:20px;margin-top:20px;column-count: 3">
+				<div><input type="checkbox" name="range" value="1" id="checkbox_1" style="margin: 10px">存储点配额不足</div>
+				<div><input type="checkbox" name="range" value="2" id="checkbox_2" style="margin: 10px">存储点离线</div>
+				<div><input type="checkbox" name="range" value="3" id="checkbox_3" style="margin: 10px">存储点不可用</div>
+                <div><input type="checkbox" name="range" value="4" id="checkbox_4" style="margin: 10px">CDP保护停止</div>
+				<div><input type="checkbox" name="range" value="5" id="checkbox_5" style="margin: 10px">CDP保护失败</div>
+                <div><input type="checkbox" name="range" value="6" id="checkbox_6" style="margin: 10px">CDP保护暂停</div>
+                <div><input type="checkbox" name="range" value="8" id="checkbox_8" style="margin: 10px">备份失败</div>
+                <div><input type="checkbox" name="range" value="9" id="checkbox_9" style="margin: 10px">备份成功</div>
+                <div><input type="checkbox" name="range" value="10" id="checkbox_10" style="margin: 10px">迁移失败</div>
+                <div><input type="checkbox" name="range" value="11" id="checkbox_11" style="margin: 10px">迁移成功</div>
+                <div><input type="checkbox" name="range" value="12" id="checkbox_12" style="margin: 10px">还原失败</div>
+                <div><input type="checkbox" name="range" value="13" id="checkbox_13" style="margin: 10px">还原成功</div>
+				<div><input type="checkbox" name="range" value="14" id="checkbox_14" style="margin: 10px">日志空间告警</div>
+				<div><input type="checkbox" name="range" value="15" id="checkbox_15" style="margin: 10px">代理程序初始化失败</div>
+			</div>
+            <div class="menu_btn" style="float:right;margin-right:60px;" id="setbutton5">保存</div>
+		</div>
+        <div id="tabs-2" style="width:740px;">
+			<div style="width:90%;margin-left:20px;margin-top:20px;">企业微信作为{{ title }}向用户发送消息与通知的平台，可用于找回忘记的密码、告知{{ title }}各项任务的执行结果、产生的错误及其它重要的需要用户了解的信息。</div>
+			<div style="width:90%;margin-left:20px;margin-top:10px;">设置企业微信开放接口参数前，请先完成网络设置，确保{{ title }}可访问到企业微信开放接口服务；并在企业微信管理界面初始化基础配置。</div>
+
+			<table width="100%" border="0" cellspacing="5" cellpadding="0" style="margin-top:30px;">
+			  <tr>
+				<td width="15%" align="right" style="vertical-align: top">企业微信id</td>
+{#                <td><input style="width:500px" type="text" name="corp" id="corp" onblur="removespace(this)" /></td>#}
+                  <td><input style="width:500px" type="text" name="corp" id="corp" onblur="removespace(this)" /><br>
+                  <span>在企业微信管理后台->“我的企业”－“企业信息”页面中获取</span>
+                  </td>
+			  </tr>
+			  <tr>
+				<td align="right" style="vertical-align: top">应用秘钥</td>
+				<td><input style="width:500px" type="text" name="secret" id="secret" onblur="removespace(this)" /><br>
+                    <span>在企业微信管理后台->“企业应用”->点进应用页面获取</span>
+                </td>
+			  </tr>
+			  <tr>
+				<td align="right" style="vertical-align: top">企业应用id</td>
+				<td><input style="width:500px" type="text" name="agent" id="agent" onblur="removespace(this)" /><br>
+                    <span>在企业微信管理后台->“企业应用”->点进应用页面获取</span>
+                </td>
+			  </tr>
+                <tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			  </tr>
+			  <tr>
+				<td>&nbsp;</td>
+				<td><div class="menu_btn" style="float:right;margin-right:60px;" id="setbutton6">保存</div><div class="menu_btn" style="float:right;margin-right:20px;" id="setbutton2">测试连接</div></td>
+			  </tr>
+			  <tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			  </tr>
+
+			</table>
+		</div>
+
+	</div>
+</div>
+
+<div id="testSendEamilForm" title="测试发送邮件" class="ajaxForm">
+	<br />
+	将使用现有配置发送测试邮件<br /><br />
+	发送邮件至：<input type="text" class="input" id="eamilto" name="eamilto"/>&nbsp;&nbsp;&nbsp;&nbsp;<span id="testsendemail">发送</span>
+</div>
+
+<script language="javascript">
+
+function GetSMTPSet(retjson)
+{
+	$('#smtp_host').val(retjson.smtp_host);
+	$('#smtp_port').val(retjson.smtp_port);
+	$('#smtp_mail').val(retjson.smtp_mail);
+	$('#smtp_user').val(retjson.smtp_user);
+	$('#smtp_pass').val(retjson.smtp_pass);
+	if(retjson.smtp_ssl=='1')
+	{
+		$('#smtp_ssl').prop('checked',true);
+	}
+	else
+	{
+		$('#smtp_ssl').prop('checked',false);
+	}
+}
+
+function setWeiXinConf(retjson) {
+    if (JSON.stringify(retjson) == '{}'){
+        return;
+    }
+    $('#corp').val(retjson.corp);
+	$('#secret').val(retjson.secret);
+	$('#agent').val(retjson.agent);
+}
+
+function GetEmailRange(retjson)
+{
+    var mylist=retjson.active.split(',');
+    $('input[name=range]').prop('checked',false);
+    $.each(mylist,function (i,n) {
+        $('#checkbox_'+n).prop('checked',true);
+    })
+}
+
+function TestSMTPCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	$("#testSendEamilForm").dialog('close');
+	
+	openConfirmDialog({
+		title:'确认信息',
+		html:'发送邮件成功，按确定按钮保存邮件服务器配置。',
+		onBeforeOK:function(){
+			SaveSMTP();
+			$(this).dialog('close');
+		}
+	});
+
+	
+}
+
+$('#testsendemail')
+.button()
+.click(function() {
+	//服务器IP&Port
+	var params="smtp_host="+$('#smtp_host').val()+"&smtp_user="+$('#smtp_user').val()+"&smtp_pass="+$('#smtp_pass').val()+"&smtp_mail="+$('#smtp_mail').val();
+	if($('#smtp_ssl').prop('checked'))
+	{
+		params+='&smtp_ssl=1';
+	}
+	else
+	{
+		params+='&smtp_ssl=0';
+	}
+	if($('#smtp_port').val())
+	{
+		params+="&smtp_port="+$('#smtp_port').val();
+	}
+	params+="&eamilto="+$('#eamilto').val();
+	myAjaxPost("../syssetget_handle/","a=syssettestsendemail&"+params,TestSMTPCallback);
+});
+
+function set_wei_xin_conf() {
+        var corp = encodeURIComponent($('#corp').val());
+        var secret = encodeURIComponent($('#secret').val());
+        var agent = encodeURIComponent($('#agent').val());
+        if (corp == '' || secret == '' || agent == '') {
+            openErrorDialog({title: '错误', html: '不能为空'});
+            return;
+        }
+
+        var params = "a=wx_region&"+ "corp=" + corp + "&secret=" + secret + "&agent=" + agent;
+        myAjaxPost('../user_handle/', params, TipCallback);
+    }
+
+function SaveSMTP()
+{
+	var params="a=syssetsavesmtp&smtp_host="+$('#smtp_host').val()+"&smtp_user="+$('#smtp_user').val()+"&smtp_pass="+$('#smtp_pass').val()+"&smtp_mail="+$('#smtp_mail').val();
+	if($('#smtp_ssl').prop('checked'))
+	{
+		params+='&smtp_ssl=1';
+	}
+	else
+	{
+		params+='&smtp_ssl=0';
+	}
+	if($('#smtp_port').val())
+	{
+		params+="&smtp_port="+$('#smtp_port').val();
+	}
+	myAjaxPost('../syssetget_handle/',params,TipCallback);
+}
+
+
+$('#setbutton4')
+.button()
+.click(function() {
+	//保存
+	SaveSMTP();
+});
+
+$('#setbutton5')
+.button()
+.click(function() {
+	//邮件范围保存
+    var range = $("input[name='range']:checked").serialize();
+	var params="a=setemailrange&"+range
+	myAjaxGet('../syssetget_handle/',params,TipCallback);
+});
+
+$('#setbutton1')
+.button()
+.click(function() {
+	//测试邮件配置
+	$("#testSendEamilForm").attr('title','测试发送邮件').dialog({
+		autoOpen: true,
+		height: 200,
+		width: 400,
+		modal: true,
+		close: function(){
+		}
+	});
+});
+// TODO
+$('#setbutton6').button().click(function () {
+    //微信设置保存
+    set_wei_xin_conf()
+})
+$('#setbutton2').button().click(function () {
+    //连接测试
+    var corp = encodeURIComponent($('#corp').val());
+    var secret = encodeURIComponent($('#secret').val());
+    if (corp == '' || secret == '' ) {
+        openErrorDialog({title: '错误', html: '不能为空'});
+        return;
+    }
+
+    var params = "a=check_wx&"+ "corp=" + corp + "&secret=" + secret ;
+    myAjaxGet('../user_handle/', params,TipCallback);
+})
+
+function check_wei_xin_token(jsonobj) {
+    if(jsonobj.r != 0){
+        openErrorDialog({title:'测试连接',html:jsonobj.e});
+		return;
+    }else{
+        openSuccessDialog({title:'测试连接',html:jsonobj.e});
+		return;
+    }
+}
+
+$('#tabs').on('tabsbeforeactivate', function(event, ui) {
+    console.log(ui.newTab.index())
+	switch(ui.newTab.index())
+	{
+	    case 1:
+			myAjaxGet('../user_handle/','a=wx_list',setWeiXinConf);
+			break;
+		case 2:
+			myAjaxGet('../syssetget_handle/','a=getemailrange',GetEmailRange);
+			break;
+	}
+});
+
+$(function()
+{
+	$("#tabs").tabs();
+	$("#tabs").css('height',600);
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	myAjaxGet('../syssetget_handle/','a=sysgetsmtpset',GetSMTPSet);
+	$('#navigation').html('<div class="font_navigation">邮件服务器设置</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#smtp" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+    $( document ).tooltip({position: { my: "left+15 center", at: "right center" }});
+	smtp_resize();
+});
+
+function smtp_resize()
+{
+	resizeright();
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	smtp_resize();	
+});
+
+</script>

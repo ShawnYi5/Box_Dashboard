@@ -1,0 +1,265 @@
+<div class="ui-tabs ui-widget ui-widget-content ui-corner-all"
+	 style="min-height: 600px;overflow: auto;padding: 20px">
+	<div class="container">
+		<div class="header">
+		</div>
+		<div class="">
+			<p style="margin-top: 10px">
+				说明：不同的篡改风险等级，可配置使用多种或单种告警方式，在监控目标检测到异常，且未被处理前，以设定的间隔时间，指定的告警方式实时通知到管理员，为事件的及时处理提供必要的告警通知机制。</p>
+			<p style="margin-top: 10px">请设置不同<strong>篡改风险等级</strong>的，告警方式。</p>
+		</div>
+	</div>
+	<div id="tabs" style="margin-top: 10px;padding-bottom: 50px">
+		<ul>
+			<li><a href="#tabs-1">高篡改风险等级</a></li>
+			<li><a href="#tabs-2">中篡改风险等级</a></li>
+			<li><a href="#tabs-3">低篡改风险等级</a></li>
+		</ul>
+		<div id="tabs-1">
+			<div class="container email-container">
+				<div class="header">
+					<input type="checkbox" checked="true" class="ui-use-email"><label for="">使用邮件警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="email-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收邮件列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="email"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="email-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="container sms-container">
+				<div class="header">
+					<input type="checkbox" class="ui-use-sms" checked="true"><label for="">使用短信警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="sms-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收短信的手机号码列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="sms"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="phone-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="container phone-container">
+				<div class="header">
+					<input type="checkbox" class="ui-use-phone" checked="true"><label for="">使用语音警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="phone-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收语音的手机号码列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="phone"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="phone-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="tabs-2">
+			<div class="container email-container">
+				<div class="header">
+					<input type="checkbox" checked="true" class="ui-use-email"><label for="">使用邮件警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="email-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收邮件列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="email"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="email-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="container sms-container">
+				<div class="header">
+					<input type="checkbox" class="ui-use-sms" checked="true"><label for="">使用短信警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="sms-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收短信的手机号码列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="sms"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="phone-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="container phone-container">
+				<div class="header">
+					<input type="checkbox" class="ui-use-phone" checked="true"><label for="">使用语音警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="phone-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收语音的手机号码列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="phone"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="phone-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="tabs-3">
+			<div class="container email-container">
+				<div class="header">
+					<input type="checkbox" checked="true" class="ui-use-email"><label for="">使用邮件警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="email-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收邮件列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="email"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="email-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="container sms-container">
+				<div class="header">
+					<input type="checkbox" class="ui-use-sms" checked="true"><label for="">使用短信警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="sms-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收短信的手机号码列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="sms"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="phone-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="container phone-container">
+				<div class="header">
+					<input type="checkbox" class="ui-use-phone" checked="true"><label for="">使用语音警告</label>
+				</div>
+				<div class="content">
+					<label for="">告警循环发送间隔：</label><input type="number" value="1" style="width: 60px"
+														  class="phone-frequency"
+														  onblur="check_num(this)"><span> 分钟</span><span
+						class="err_msg"></span>
+					<div class="ul-container">
+						<div class="button-group">
+							<div style="float: left">接收语音的手机号码列表：</div>
+							<button class="del_button" style="padding: 1px 3px;float: right" title="删除"><span
+									class="ui-icon ui-icon-trash" style="padding: 0"></span>
+							</button>
+							<button class="add_button" style="padding: 1px 3px;margin-right:5px;float: right"
+									title="添加" data-type="phone"><span
+									class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+							</button>
+						</div>
+						<div class="clear"></div>
+						<ul style="padding-left: 20px" class="phone-list">
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+	<div class="container">
+		<div style="float: right;margin-right: 20px;margin-top: 10px">
+			<button id="save">保存</button>
+		</div>
+	</div>
+</div>

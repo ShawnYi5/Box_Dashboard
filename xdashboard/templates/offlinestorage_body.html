@@ -1,0 +1,68 @@
+<div class="right">
+	<div id="tabs">
+		<ul>
+		<li><a href="#tabs-1">磁带</a></li>
+		</ul>
+		<div id="tabs-1" style="width:740px;">
+			<div style="margin-top: 20px;">将{{ title }}备份数据导入/导出至磁带。</div>
+			<div style="margin-left:30px;margin-top:30px;">　 磁带：<input class="radio" type="text" id="path1" style="width:200px;" value="/dev/st0"/></div>
+			<div class="menu_btn" id="rebutton" style="float: right;margin-right: 40px;margin-top: 20px;">导入</div>
+			<div class="menu_btn" id="bakbutton" style="float: right;margin-right: 40px;margin-top: 20px;">导出</div>
+		</div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+	$("#tabs").tabs();
+	$("#tabs").css('height',600);
+	$('#navigation').html('<div class="font_navigation">离线存储</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#offlinestorage" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	offlinestorage_resize();
+
+});
+
+$('#bakbutton')
+.button()
+.click(function() {
+	var destpath = $('#path1').val();
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要导出至磁带'+destpath+'？',
+		onBeforeOK:function(){
+			var params='a=bakoffline&path='+destpath;
+			myAjaxGet('../storage_handle/',params,TipCallback);
+			$(this).dialog('close');
+		}
+	});
+
+});
+
+$('#rebutton')
+.button()
+.click(function() {
+
+	var destpath = $('#path1').val();
+
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要从磁带'+destpath+'导入?',
+		onBeforeOK:function(){
+			var params='a=reoffline&path='+destpath;
+			myAjaxGet('../storage_handle/',params,TipCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+function offlinestorage_resize()
+{
+	resizeright();
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	offlinestorage_resize();	
+});
+</script>

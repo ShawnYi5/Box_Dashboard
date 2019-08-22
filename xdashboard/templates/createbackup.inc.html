@@ -1,0 +1,553 @@
+<style type="text/css">
+.btn_nav{float:right;margin-top:10px;}
+.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+.myhiden{width:100px; height:32px;}
+.myoneday{width:32px; height:32px; line-height:32px; text-align:center;border:1px solid #d3d3d3; cursor:pointer;float:left}
+.myonedayselected{background-color:#8ccad5}
+.aciTree div{ padding: 0em;}
+.manage-item,.manage-item-4cdp{margin-top: 8px;}
+.manage{margin-bottom: 16px;margin-left: 16px}
+.pull-down-control{cursor: pointer;}
+div.centent {float: left;text-align: center;}
+span.moveBt{display: block;margin: 10px;padding: 4px 10px;background: #898989;cursor: pointer;font-size: 12px;color: white;}
+.selectCls{width:100px;height:122px;}
+.client_search{
+    border: 2px solid #dce4ec;
+    color: #34495e;
+    font-family: "Lato", sans-serif;
+    font-size:14px;
+    padding: 3px 0 3px 10px;
+    width: 200px;
+    background:#fff url(/static/images/icon_search_1649.gif) no-repeat right;
+}
+.src_host_tip_class{max-width:800px;}
+</style>
+
+<head>
+    <script type="text/javascript" src="/static/js/jquery.json.js"></script>
+</head>
+
+<div id="newbackupFormDiv" title="" class="ajaxForm">
+	<input type="hidden" id="taskid" name="taskid" />
+	<form id="newbackupForm" action="#" method="post">
+		<div id="tabs">
+			<ul>
+			<li><a href="#tabs-1">备份源</a></li>
+			<li><a href="#tabs-2">备份信息</a></li>
+			<li><a href="#tabs-3">备份计划</a></li>
+			<li><a href="#tabs-4">其它设置</a></li>
+            <li><a href="#tabs-shell">执行脚本</a></li>
+			<li><a href="#tabs-5">信息确认</a></li>
+			</ul>
+			<div id="tabs-1" style="margin-top:0px;margin-left:30px;">
+				<div style="margin-bottom:10px;float:left;">选择备份源客户端</div>
+				<div style="float:left;margin-left:5px;cursor:pointer;"><span id="src_host_tip" title="" class="ui-icon ui-icon-info"></span></div>
+				<div class="clear"></div>
+				<div style="float:left;"><input name="client_search" type="text" placeholder="搜索可选择的项" class="client_search"/></div>
+				<div style="margin-top:5px;float:left;">
+					<label><input type="checkbox" id="noplan" name="noplan"/>无计划任务</label>
+					<label><input type="checkbox" id="groupview" name="groupview"/>分组显示</label>
+				</div>
+                <div id="RefreshSrcServer" style="cursor:pointer;float:right;margin-right:0px;">刷新连接列表</div>
+				<div class="clear"></div>
+				<div id="Servers_Tree1" class="aciTree" style="width:100%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+				<div style="width:100%;height:295px;overflow:auto;">
+					<br />客户端详细描述<br />
+					<table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+						<tr height="25">
+							<td width="30%" align="left">客户端名称</td>
+							<td width="70%"><div id="show_servername"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">计算机名</td>
+							<td align="left"><div id="show_pcname"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">IP地址</td>
+							<td align="left"><div id="show_ip"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">MAC地址</td>
+							<td align="left"><div id="show_mac"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">操作系统</td>
+							<td align="left"><div id="show_os"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">Build Num</td>
+							<td align="left"><div id="show_buildnum"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">磁盘数量</td>
+							<td align="left"><div id="show_harddisknum"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">磁盘信息</td>
+							<td align="left"><div id="show_harddiskinfo"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">总容量</td>
+							<td align="left"><div id="show_total"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">已使用空间</td>
+							<td align="left"><div id="show_use"></div></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div id="tabs-2" style="margin-top:30px;margin-left:30px;">
+				<input type="hidden" id="uitasktype" value="task"/>
+				<div id="task_names"><span class="taskshowname">计划名称</span>：<input type="text" class="input" maxlength="120" id="taskname" name="taskname" style="width:400px;" onblur="removespace(this)" onmouseover="this.title=this.value"/></div>
+				<div style="margin-top:20px;" class="storagedevicediv">
+				选择备份存储设备：<input type="hidden" id="sel_storagedevice" />
+				<select id="storagedevice" name="storagedevice" >
+					<option value='-1'  selected="selected" >请稍候</option>
+				</select>
+				</div>
+				<div style="margin-top:20px;" class="csstaskpolicy">备份策略：
+					<select id="backuppolicy">
+						<option value='-1'  selected="selected" >请稍候</option>
+					</select><span class="form_tips">　（可选项）</span>
+				</div>
+				<div style="margin-top:10px;" class="csstaskpolicy"><span class="form_tips">　　选择已存在的策略，快速完成备份的各项设置。</span></div>
+				{% if backupobj %}
+				<div style="margin-top:10px;">备份对象：</div>
+				<div style="margin-top:10px;">　　<label><input class="radio" type="radio" value="0" checked="checked" name="backupobj" >整机备份</label></div>
+				<div style="margin-top:10px;display:none;">　　<label><input class="radio" type="radio" value="1" name="backupobj" >操作系统备份</label></div>
+				<div style="margin-top:10px;">　　<label><input class="radio" type="radio" value="2" name="backupobj" >卷备份</label></div>
+				<div id="volselectdiv" style="margin-top:-20px;display:none;">
+                <div id="RefreshSrcServer2" style="cursor:pointer;float:right;">刷新</div>
+				<div class="clear"></div>
+				<div id="Servers_Tree2" class="aciTree" style="width:100%;height:160px;border:1px solid #ccc;overflow:auto;"></div>
+				</div>
+				<div style="margin-top:10px;" class="storagedevicediv"><span class="form_tips">
+				{% else %}
+				<div style="margin-top:50px;" class="storagedevicediv"><span class="form_tips">
+				　　备份说明：{{ title }}基于磁盘快照技术，在线对客户端整机数据先做一次完整备份，后续根据设定的备份计划做增量备份或CDP保护，仅备份有改变或增加的数据，极大的减少了备份的数据总量，同时由于备份数据量的下降，通过网络传输的数据大幅减少，对网络带宽的影响同时被降到很低。虽然每次备份仅为增量的数据，但逻辑上每一个备份点都是客户端整个系统的一个历史点的完整状态，保留了OS中全部的业务系统和业务系统在此时间点对应的全部业务数据；无论是结构数据或非结构数据都做到了完备的备份，达到数据的一致性，完整性，可用性，实现应用级的容灾备份。
+				<br /><br /><br />
+				{% endif %}
+				　　提供整机备份技术备份整机应用状态，无需了解业务系统的类型、部署方法、业务系统间的数据交互机制、数据结构/逻辑关系和数据库的品牌/版本，支持基于Google File System，Hadoop 等技术开发的应用系统，实现对现有及未来新上业务系统的保护兼容性；提供对Oracle Rac、SAP HANA等应用的灾备保护，对其他运行在Windows Sever 2003及以上或Linux2.6.18及以上操作系统上的任意数据库的灾备保护，实现数据库的兼容性。
+				<br /><br />
+				　　支持的数据库如下：
+              <br /><br />
+                　　支持SQL Server、Oracle、Sybase、Exchange Server、MongoDB、Lotus Notes/Domino、DB2、MySQL、
+            AD等 国产数据库包括达梦数据库、神通数据、南大通用、人大金仓和Gbase等进行在线备份保护。
+				</span></div>
+			</div>
+			<div id="tabs-3" style="margin-top:30px;margin-left:30px;">
+                <div id="task_names_container"></div>
+				<div style="width:95%;overflow:auto;">
+					<table width="100%" border="0" cellspacing="5" cellpadding="0">
+						  <tr class="cdpchoices">
+							<td><label><input class="radio" type="radio" value="1" name="bakschedule" checked="checked">连续数据保护（CDP）</label></td>
+						  </tr>
+						  <tr class="cdpchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;连续数据保护(CDP)对数据源做连续的数据保护，可将被保护的数据源恢复到任意时间点（最小间隔可低于1秒）也需要更多的存储空间。</span><br /><br />
+                                <div id="bakschedule1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime0" type="text" class="textTime Wdate" id="stime0" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/></div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="2" name="bakschedule" >仅备份一次</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;仅执行一次备份计划，设定开始日期及时间即可，完成备份后任务即终结。</span><br /><br />
+							<div id="bakschedule2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime1" type="text" class="textTime Wdate" id="stime1" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/></div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="3" name="bakschedule"/>按间隔时间</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;备份间隔可设置为分/时/天，需设定备份的开始时间。</span>
+							<br /><br />
+							<div id="bakschedule3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime2" type="text" class="textTime Wdate" id="stime2" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							&nbsp;&nbsp;&nbsp;&nbsp;每<input type="number" min="1" max="365" class="input"  value="1" id="timeinterval" name="timeinterval" style="width:41px" onblur="removespace(this)"/>
+                                <select id="interval-unit">
+                                    <option value="min">分钟</option>
+                                    <option value="hour">小时</option>
+                                    <option value="day" selected="selected">天</option>
+                                </select>
+                                执行
+                            </div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="4" name="bakschedule" >每周</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;备份间隔为周，设定每周的星期x为备份时间，如：每周星期一、星期四备份。</span><br /><br />
+							<div id="bakschedule4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime3" type="text" class="textTime Wdate" id="stime3" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<br />
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox"value="1" name="perweek"/>星期一&nbsp;&nbsp;<input type="checkbox"value="2" name="perweek"/>星期二&nbsp;&nbsp;<input type="checkbox"value="3" name="perweek"/>星期三&nbsp;&nbsp;<input type="checkbox"value="4" name="perweek"/>星期四&nbsp;&nbsp;<input type="checkbox"value="5" name="perweek"/>星期五&nbsp;&nbsp;<input type="checkbox"value="6" name="perweek"/>星期六&nbsp;&nbsp;<input type="checkbox"value="7" name="perweek"/>星期日</div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="5" name="bakschedule" >每月</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;备份间隔为月，设定每月的x日备份，如：每月的10、20、29日备份。</span><br /><br />
+							<div id="bakschedule5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime4" type="text" class="textTime Wdate" id="stime4" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<div style="margin-left:10px;">
+								<br />每月备份日期：
+								<br /><div id="dayselect"></div>
+							</div>
+							</div>
+							</td>
+						  </tr>
+					</table>
+				</div>
+                <div id="taskpolicyintro"></div>
+			</div>
+			<div id="tabs-4" style="margin-top:30px;margin-left:30px;margin-right:30px">
+            <div style="width:100%;height:527px;overflow:auto;">
+                <label for="space-manage" style="font-weight: bold" class="pull-down-control"><span>▼</span>备份数据存储空间自动回收设置</label><br>
+                <div id="space-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        <div>
+                        ●备份数据保留期：<input type="number" min="3" name="retentionperiod" id="retentionperiod" style="width: 45px;height: 13px" value="1" onblur="removespace(this)" />
+                        <select id="retentionperiod-unit">
+                            <option value="day">天</option>
+                            <option value="month" selected="selected">月</option>
+                        </select>
+                            （<span id="retentionperiod-msg"></span>），超过此时间后的备份点将自动删除，不能再用做恢复，数据将被合并释放占用的磁盘空间;此时间至少大于“连续数据保护(CDP)数据保留窗口期”3天
+                        </div>
+                    </div>
+                    <div class="manage-item">
+                        ●本用户存储空间配额低于<input type="number" min="1" name="cleandata" id="cleandata" style="width: 45px;height: 13px" value="200" onblur="removespace(this)" />
+                        GB时（>=100GB），自动删除最早备份点数据，以释放更多的空间用于存放最新的数据状态变化。
+                    </div>
+                    <div class="manage-item">
+                        <div>
+                        ●至少保留<input type="number" oninput="if(value.length>3)value=value.slice(0,3)" min="1" max="999" maxlength="3" class="input" id="keepingpoint" value="5" style="width:45px;height: 13px" onblur="removespace(this)" />
+                        个备份点（1-999个），即使空间配额不够或超过保留期限也不做回收。
+                        </div>
+                    </div>
+                    <div class="manage-item-4cdp">
+                        ●连续数据保护(CDP)工作模式：<br>
+                         <input class="radio" type="radio" value="1" name="cdptype" checked="checked" style="margin-top:8px;margin-left:8px">
+                         业务优先：使用异步方式将实时备份数据传输到备份服务器中，提供对云主机、虚拟机的持续数据保护，备份时间粒度最小可达微秒级(百万分之一秒)， 实现RPO趋近于0，且对保护服务器性能影响小于1%，适用于对性能要求高的客户端。当CDP保护期间被保护的客户端有大量数据写入时，将自动暂停CDP保护；当数据写入速率降低后自动恢复为CDP保护。<br>
+                        <input class="radio" type="radio" value="0" name="cdptype" style="margin-top:8px;margin-left:8px">
+                         数据优先：RPO等于0，对服务的写性能有一定影响，适用于对数据丢失0容忍，且计算性能有富余的客户端。<br>
+                    </div>
+                    <div class="manage-item-4cdp">
+                        ●连续数据保护(CDP)数据保留窗口期：
+                        <select name="cdpperiod" id="cdpperiod">
+                            <option value='2' selected='selected'>2天</option>
+                            <option value='3'>3天</option>
+                            <option value='4'>4天</option>
+                            <option value='5'>5天</option>
+                            <option value='6'>6天</option>
+                            <option value='7'>7天</option>
+					    </select><br>
+                         <span class="form_tips" style="margin-left: 8px;">
+                            说明：CDP窗口期内会记录被保护的客户端磁盘上的每次写操作，磁盘任意时间点的状态都会被保留，使用窗口期内的CDP数据可将服务器恢复到最小微米级的时间状态；
+                             超过窗口期CDP数据每超过一天将被合并为一个备份点；同时，CDP对磁盘存储空间会有较大的需求，可根据需要连续保护时间长短的需求，结合可使用配额空间合理设置保留期。
+                        </span>
+                    </div>
+                </div>
+
+                <label for="bandwidth-manage" style="font-weight: bold" class="pull-down-control"><span>▼</span>备份时资源占用设置</label><br>
+                <div id="bandwidth-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        <div style="margin-top: 10px">
+                            <input type="checkbox" id="usemaxbandwidth" style="display: none" checked>
+                            ●备份时限定最大占用源主机的网络带宽：<input type="number" class="input" id="maxbandwidth" min="1" value="300" style="width:50px;height: 13px" onblur="removespace(this)" />Mbit/s。(-1为不限制)
+                        </div>
+                        <div style="margin-top: 10px">
+                            ●备份时限定最大占用源主机的存储性能的：<input type="number" id="BackupIOPercentage" style="width:50px;height:13px;" value="30"> %
+                        </div>
+                        <div style="margin-top: 10px">
+                           ●备份源存储读取队列深度：<input type="number" oninput="if(value.length>1)value=value.slice(0,1)" name="thread-count" min="2" max="8" id="thread-count" style="
+                           width:50px;height:13px;" value="4" />（2-8）
+                            <div>
+                                <span class="form_tips" style="margin-left: 8px;">
+                                    说明：当备份读取速度远小于源存储理论值时, 请调整该值以到达最优备份速度。
+                                    <div style="margin-left:48px;">--本地磁盘推荐值4</div>
+                                    <div style="margin-left:48px;">--高时延iSCSI磁盘推荐值6</div>
+                                    <div style="margin-left:48px;">--高速SAN磁盘推荐值4</div>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+				<div class="vmware_div">
+				<label for="vmware-manage" style="font-weight: bold" class="pull-down-control"><span>▼</span>VMware设置</label><br>
+                <div id="vmware-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        <div>●虚拟磁盘传输模式： 
+						 <label><input class="radio" type="radio" value="1" name="vmware_tranport_modes" >自动</label>
+						 <label><input class="radio" type="radio" value="2" name="vmware_tranport_modes" >SAN</label>
+						 <label><input class="radio" type="radio" value="3" name="vmware_tranport_modes" >HotAdd</label>
+						 <label><input class="radio" type="radio" value="4" checked="checked" name="vmware_tranport_modes" >NBD</label>
+						</div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：自动传输模式会依次尝试 SAN，HotAdd 和 NBD 三种模式，直到有一种成功或者全部失败。</span>
+                    </div>
+					<div class="manage-item">
+                        <div>●静默设置：　<input class="checkbox" type="checkbox" checked="checked" id="vmware_quiesce">静默（quiesce）虚拟机
+						</div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：启用静默且创建快照时虚拟机处于开机状态, VMware Tools 通常会静默虚拟机中的文件系统, 确保磁盘快照和 GuestOS 文件系统状态是一致。假如虚拟机的电源状态为关闭状态或 VMware Tools 不可用, 那么静默会被忽略。</span>
+                    </div>
+                </div>
+				</div>
+
+                <label for="security-manage" style="font-weight: bold" class="pull-down-control"><span id="security-manage-lab">▼</span>数据传输安全设置</label><br>
+                <div id="security-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        <div>●数据传输方式：<input type="text" value="加密" class="text6" id="isencipher" readonly></div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：在客户端管理中更改数据传输安全设置。若网络链路不安全，请选择加密方式。</span>
+                    </div>
+                </div>
+
+                <label for="advanced1-manage" style="font-weight: bold" class="pull-down-control"><span id="advanced1-lab">▶</span>备份策略设置</label><br>
+                <div id="advanced1-manage" class="manage"><hr>
+                    <div class="manage-item" id="full-back-options">
+                        ●<input class="checkbox" type="checkbox" id="full-bak-everytime">始终执行完整备份。<br>
+                        <span class="form_tips" style="margin-left: 8px;">说明：若勾选则每次进行完整备份；否则第一次进行完整备份，以后增量备份。</span>
+                    </div>
+                    <div class="manage-item">
+					{% if remove_duplicates_in_system_folder_available %}
+                        ●<input class="checkbox" type="checkbox" id="dup-sys-folder" checked="checked">去除操作系统重复数据。<br>
+					{% else %}
+						●<input class="checkbox" type="checkbox" id="dup-sys-folder">去除操作系统重复数据。<br>
+					{% endif %}
+                        <span class="form_tips" style="margin-left: 8px;">说明：若勾选则完整备份耗时较长，但占用空间较小；否则耗时较短但占用空间较大。</span>
+                    </div>
+                </div>
+
+
+                <label for="advanced1-manage_tt1" style="font-weight: bold" class="pull-down-control"><span id="advanced1-lab">▶</span>备份方式</label><br>
+                <div id="advanced1-manage_tt1" class="manage"><hr>
+                    <div class="manage-item" id="full-back-options">
+                        <span class="form_tips" style="margin-left: 8px;">采用整机磁盘快照备份技术对主机进行保护，运维部署、新增备份任务时无需了解业务类型和部署方式、数据库品牌和版本、数据结构和逻辑关系等。以RSA+AES256位加密算法对备份数据进行加密，确保备份数据传输和存储无泄密风险。</span>
+                    </div>
+                </div>
+                <label for="advanced3-manage" style="font-weight: bold" class="pull-down-control"><span
+                        id="advanced3-lab">▶</span>备份重试策略设置</label><br id="the-br-for-retry">
+                <div id="advanced3-manage" class="manage"><hr>
+                    <div class="manage-item" id="enable-options">
+                        ●<input class="checkbox" type="checkbox" id="enable-backup-retry"
+                                checked="checked"><label for="enable-backup-retry">启用备份重试策略</label><br>
+                        <div class="manage-item" style="margin-left: 8px;margin-bottom: 8px;">
+                            <label for="retry-counts">重试次数：<input type="number" oninput="if(value.length>3)value=value.slice(0,3)" id="retry-counts" value="5" min="0" max="999" style="width: 45px;height: 13px" onblur="removespace(this)" /></label>
+                            <label for="retry-interval" style="margin-left: 8px">间隔分钟：<input type="number" id="retry-interval" min="1" max="999" oninput="if(value.length>3)value=value.slice(0,3)" value="3" style="width: 45px;height: 13px;" onblur="removespace(this)" /></label>
+                        </div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：针对备份计划可启用备份重试策略，备份失败后会按照间隔重试一定的次数。</span>
+                    </div>
+                </div>
+
+                <label for="advanced2-manage" style="font-weight: bold" class="pull-down-control"><span id="advanced2-lab">▶</span>备份区域设置</label><br>
+                <div id="advanced2-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        <div id="waiting-tree-data" style="margin-bottom: 6px"></div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：当主机添加磁盘后，该磁盘会备份；若处于CDP保护中，需禁用CDP计划，数分钟后再启用CDP计划，则该磁盘会备份</span>
+                        <div id="disk-vol-tree" class="aciTree"></div>
+                    </div>
+                </div>
+
+            </div>
+			</div>
+
+            <div id="tabs-shell" style="margin-top:30px;margin-left:30px;">
+            </div>
+
+			<div id="tabs-5" style="margin-top:30px;margin-left:30px;">
+				<div style="width:95%;height:520px;overflow:auto;">
+					<table width="100%" cellpadding="10" cellspacing="1" class="border_table">
+						<tr height="25">
+							<td width="40%" align="left"><span class="taskshowname">计划名称</span></td>
+							<td width="60%"><div id="confirm_taskname">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="storagedevicediv">
+							<td align="left">备份存储设备</td>
+							<td align="left"><div id="confirm_storagedevice">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">备份类型</td>
+							<td align="left"><div id="confirm_backuptype">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="storagedevicediv">
+							<td align="left">备份源</td>
+							<td align="left"><div id="confirm_src">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">备份周期</td>
+							<td align="left"><div id="confirm_schedule">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">备份数据保留期限</td>
+							<td align="left"><div id="confirm_retentionperiod">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+							<td align="left">至少保留备份点</td>
+							<td align="left"><div id="confirm_keepPointNum">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">配额空间保留</td>
+							<td align="left"><div id="confirm_cleandata">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">连续数据保护(CDP)数据保留窗口时长</td>
+							<td align="left"><div id="confirm_cdpperiod">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">连续数据保护(CDP)方式</td>
+							<td align="left"><div id="confirm_cdptype">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">备份时限定占用的最大网络带宽</td>
+							<td align="left"><div id="confirm_maxbandwidth">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="vmware_div">
+							<td align="left">虚拟磁盘传输模式</td>
+							<td align="left"><div id="confirm_vmware_tranport_modes">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="vmware_div">
+							<td align="left">静默（quiesce）虚拟机</td>
+							<td align="left"><div id="confirm_vmware_quiesce">&nbsp;</div></td>
+						</tr>
+                        <tr height="25" class="encipher">
+							<td align="left">传输数据方式</td>
+							<td align="left"><div id="confirm_encipher">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="backupmode">
+							<td align="left">备份方式</td>
+							<td align="left"><div id="confirm_backupmode">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+							<td align="left">启用操作系统重复数据删除</td>
+							<td align="left"><div id="confirm_dupFolder">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+							<td align="left">启用备份重试策略</td>
+							<td align="left"><div id="confirm_backup_retry">&nbsp;</div></td>
+						</tr>
+                         <tr height="25">
+							<td align="left">备份源存储读取队列深度</td>
+							<td align="left"><div id="confirm_thread_count">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+							<td align="left">排除的磁盘</td>
+							<td align="left"><div id="confirm_excludeDisks">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+							<td align="left">排除的卷</td>
+							<td align="left"><div id="confirm_excludeVols">&nbsp;</div></td>
+						</tr>
+                        <tr height="25" id="shell_info_tr_id">
+                            {% verbatim %}
+							<td align="left">执行脚本</td>
+							<td align="left"><div id="confirm_shell">
+                            可执行文件名：　{{ exe_name }}<br>
+                            　　执行参数：　{{ params }}<br>
+                            　　执行路径：　{{ work_path }}<br>
+                            　　解压路径：　{{ unzip_path }}<br>
+                            上传文件路径：　{{ zip_file }}<br>
+                            忽略执行异常：　{{ ignore_shell_error }}
+                            </div></td>
+                            {% endverbatim %}
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div class="btn_nav">
+		<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="next" class="next" style="float:right" value="下一步&raquo;" />
+   </div>
+</div>
+
+<div id="finishFrom" title="完成" class="ajaxForm">
+点击“立即备份”，将会创建此计划任务，并立即备份。<br /><br />
+点击“完成设置”，将会创建此计划。
+</div>
+
+<div id="src_host_tip_from" style="display:none;">
+	<div style="width:800px;line-height:30px;">
+		<div>支持对Windows/Linux操作系统在以下场景的灾备保护功能：</div>
+		<div style="margin-top:10px;">★虚拟化主机：提供对Microsoft Hyper-V、VMware  vSphere（ESX\ESXi）、KVM、Citrix Xen、IBM Power VM、Red Hat Enterprise Virtulization、Huawei FusionSphere等虚拟化主机的灾备保护功能；</div>
+		<div style="margin-top:10px;">★私有云/超融合云：提供对基于Openstack、Vmware和KVM技术且采用Vmware Vsan、glusterfs 或ceph分布式存储技术搭建的私有云/超融合云的灾备保护功能；</div>
+		<div style="margin-top:10px;">★公有云主机：提供对基于KVM、Xen、Microsoft Hyper-V和Oracle VirtualBox技术的公有云主机（不限于：阿里云、腾讯云、百度云、华为云、AWS亚马逊、微软云、浪潮云、金山云、京东云、沃云、天翼云、移动云和Oracle Cloud）等云主机的灾备保护功能；</div>
+	</div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+
+<script language="javascript">
+$(function()
+{
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$(".ui-tabs-nav").hide();
+	$(".prev").hide();
+	$('#navigation').html('<div class="font_navigation">备份 > 新建备份计划 > 备份源</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#newbackupmission" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+
+    $("#tabs-shell").load("../../fun_htmls/ #preBackupShellUI");
+});
+
+var curTime='{{ now|date:"Y-m-d H:i:s" }}';
+
+$("input[name='backupobj']").change(function(){
+	if($(this).val()=='2')
+	{
+		RefreshSrcServer2();
+		$('#volselectdiv').slideDown(600);
+	}
+	else
+	{
+		$('#volselectdiv').slideUp(600);
+	}
+});
+
+$('.pull-down-control').click(function() {
+    var manage_id = $(this).attr('for');
+    var isShown = $('#' + manage_id).is(':visible');
+
+    if ( !isShown ) {
+        $('#'+manage_id).slideDown();
+        $(this).find("span").text('▼');
+    } else {
+        $('#'+manage_id).slideUp();
+        $(this).find("span").text('▶');
+    }
+});
+
+$(document).on('keyup', 'input[name=client_search]', function () {
+    var s_key = $('input[name=client_search]').val().toLowerCase();
+    var api = $('#Servers_Tree1').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+$('#enable-backup-retry').click(function () {
+    if ($('#enable-backup-retry').prop('checked')) {
+        $('#retry-counts').prop('disabled', false);
+        $('#retry-interval').prop('disabled', false);
+    }
+    else {
+        $('#retry-counts').prop('disabled', true);
+        $('#retry-interval').prop('disabled', true);
+    }
+});
+
+$( "#src_host_tip" ).tooltip({
+	tooltipClass:'src_host_tip_class',
+	content: function(){
+		return $('#src_host_tip_from').html();
+	}
+});
+
+</script>

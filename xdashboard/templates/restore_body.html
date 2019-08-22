@@ -1,0 +1,4771 @@
+<!--suppress JSUnresolvedVariable -->
+<style type="text/css">
+._box
+{
+	position: relative;
+	padding: 5px 5px;
+	border-radius: 6px;
+	border: none;
+	display: inline-block;
+	color: #fff;
+	text-decoration: none;
+	background-color: #28a8e0;
+	cursor:pointer;
+	overflow: hidden;
+	z-index: 1;
+}
+._box input
+{
+	position: absolute;
+	width: 119px;
+	height: 40px;
+	line-height: 40px;
+	font-size: 23px;
+	opacity: 0;
+	filter: "alpha(opacity=0)";
+	filter: alpha(opacity=0);
+	-moz-opacity: 0;
+	left: -5px;
+	cursor: pointer;
+	z-index: 2;
+}
+.choicepoint{
+    border: 1px #448fd0 solid;
+    margin-top:-2px;
+}
+
+.cdptime
+{
+	float:left;
+	height:30px;
+	margin-left:2px;
+	cursor:pointer;
+	border:1px solid #aaaaaa;
+}
+
+.redClass {
+    fill: #FF0000;
+}
+ .greenClass {
+    fill: #008000;
+}
+ .yellowClass {
+    fill: #FFFF00;
+}
+ .status_waiting_fonts{
+     background: url(/static/images/loading_zb.gif) no-repeat;
+     background-position: 170px 5px;
+     background-size: 20px;
+     font-size: 18px;
+     font-weight: bold;
+ }
+ .status_waiting_icon{
+     background: url(/static/images/arrow_right.png) no-repeat;
+     background-position: 17px;
+     width: 50px;
+     padding: 0;
+     background-size: 20px;
+ }
+
+ .status_checked_icon{
+     background: url(/static/images/check_mark.png) no-repeat;
+     background-position: 17px;
+     width: 50px;
+     padding: 0;
+     background-size: 15px;
+ }
+ .status_todo_icon{
+     background: url(/static/images/tripledots.png) no-repeat;
+     background-position: 17px;
+     width: 50px;
+     padding: 0;
+     background-size: 15px;
+ }
+.cdpdayselected{background-color:#8ccad5}
+
+.mybtn_nav{float:left;width:100%;margin-top:20px;}
+.myprev,.mynext{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+</style>
+
+<style type="text/css">
+.list {
+  font-family:sans-serif;
+  margin:0;
+  padding:20px 0 0;
+}
+.list > li {
+  display:block;
+  margin-bottom:10px;
+  border:1px dashed #84A9D6;
+  height:130px;
+  width:98%
+}
+.list > li:hover {
+  background-color:#C3DBF7;
+}
+p {
+  margin:0;
+}
+.list .list_preleft{
+    float: left;
+	margin-top: 4%;
+}
+.list .list_left{
+	width: 100px;
+    height: 100%;
+    float: left;
+    margin: 0 20px;
+	margin-top: 7px;
+}
+.list .list_content{float: left;}
+.list .list_right{
+float: right;
+margin-top: 42px;
+margin-right: 30px;
+}
+
+.list .button{
+	padding: 5px 5px;
+    border-radius: 6px;
+    border: none;
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+    background-color: #28a8e0;
+	cursor:pointer;
+}
+.pagination li {
+  display:inline-block;
+  padding:5px;
+}
+
+
+
+.mycloseview1{
+	border: 1px solid #d3d3d3;
+	float:left;
+	margin-left:10px;
+	margin-top:10px;
+}
+
+.mycloseview2{
+	border: 1px solid #d3d3d3;
+	float:right;
+	margin-left:10px;
+	margin-top:10px;
+}
+
+.myselectcss{
+	border:#999 1px solid;
+	height:20px;
+	background:#fff url(/static/images/sel.gif) no-repeat right;
+}
+.myselectcss::-ms-clear{display:none;}
+
+.client_search{
+    border: 2px solid #dce4ec;
+    color: #34495e;
+    font-family: "Lato", sans-serif;
+    font-size:14px;
+    padding: 3px 0 3px 10px;
+    width: 200px;
+    background:#fff url(/static/images/icon_search_1649.gif) no-repeat right;
+}
+
+.disk_table_container{
+    margin-bottom: 20px;
+}
+
+.disk_item_header div{
+    float: left;
+    height: 30px;
+    line-height: 30px;
+    vertical-align:middle;
+}
+
+.disk_item_body li{
+    list-style-type: none;
+    line-height: 27px;
+}
+.disk_item_body table{
+    border-left:1px solid #ddd;
+    border-bottom:1px solid #ddd;
+    border-right:1px solid #ddd;
+    background: #fff;
+    width: 100%
+}
+.header_button:hover{
+    color:orange;
+    text-decoration: underline;
+}
+#tabs-7{
+    padding:0 10px 0 10px;
+}
+.set_disk_step_button:hover{
+    color:orange;
+    text-decoration: underline;
+}
+.disk_item_body .li_warning{
+    color: red;
+}
+#tabs-6 input {
+    height: 18px;
+}
+.tiaozheng{
+    float:left;
+    padding-right:5px;
+    line-height:25px;
+}
+</style>
+
+{% include 'restore_migrate_cm.html' %}
+
+<div id="4debugDiv" title="调试信息" class="ajaxForm" style="margin: 16px; font-family: Monaco">
+    <div id="is_cdp">
+        CDP时间范围：<span id="cdp_range"></span><br>
+        输入时间点：<input id="cdp_time_point" onblur="removespace(this)">
+    </div>
+    <div id="paths" style="line-height: 20px; margin-top: 10px;">
+    </div>
+    <div id="chain" style="line-height: 20px; margin-top: 10px">
+    </div>
+</div>
+
+<div class="right">
+	<div id="errinfo" style="display:none;"></div>
+	<div id="restorediv">
+		<div class="table_menu">
+			<div class="menu_btn" style="margin-top: .6em;">数据源客户端：<input id="selservername" type="text" readonly="readonly" class="myselectcss" name="selservername" style="width:280px;padding-right: 30px;text-overflow: ellipsis;" onClick="serverTreeClick()"/>
+			时间：<input name="stime" type="text" class="textTime Wdate" id="stime" readonly="readonly" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:OnPointtime})"/>至<input name="endtime" type="text" class="textTime Wdate" id="endtime" readonly="readonly" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:OnPointtime})"/>
+			</div>
+			<div class="menu_btn" id="refershlinepoint" style="float: right;margin-top: 5px">刷新数据</div>
+		</div>
+		<div id='placement' style="width:100%;min-height:300px;"></div>
+		<div id="restorebuttondiv"  style="position: absolute;z-index:1000;width:320px;display:none;">
+			{% if takeover %}
+			<div style="float:left;color:blue;padding:0px 2px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_takeoverbtn">接管主机</div>
+			<div style="float:left;color:blue;padding:0px 2px;margin-left:8px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_filerestorebtn">文件恢复</div>
+			{% else %}
+			<div style="float:left;color:blue;padding:0px 2px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_filerestorebtn">文件恢复</div>
+			{% endif %}
+			<div style="float:left;color:blue;padding:0px 2px;margin-left:8px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_volrestorebtn">卷恢复</div>
+			<div style="float:left;color:blue;padding:0px 2px;margin-left:8px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_restorebtn">整机恢复</div>
+            {% if createtemplate %}
+            <div style="float:left;color:blue;padding:0px 2px;margin-left:8px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_createtemplate">创建为模板</div>
+            {% endif  %}
+		</div>
+		<div id="vmbuttondiv"  style="position: absolute;z-index:1000;width:300px;display:none;">
+			{% if takeover %}
+			<div style="float:left;color:blue;padding:0px 2px;line-height:19px;height:20px;cursor:pointer;display:none;" class="ui-state-highlight ui-corner-all" id="tip_takeoverbtn2">接管主机</div>
+			{% endif %}
+			<div style="float:left;color:blue;padding:0px 2px;line-height:19px;height:20px;cursor:pointer;display:none;" class="ui-state-highlight ui-corner-all" id="tip_vmfilerestorebtn">文件恢复</div>
+			<div style="float:left;color:blue;padding:0px 2px;margin-left:8px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_vmrestorebtn">vmware恢复</div>
+		</div>
+		<div id="nasbuttondiv"  style="position: absolute;z-index:1000;width:300px;display:none;">
+			<div style="float:left;color:blue;padding:0px 2px;margin-left:8px;line-height:19px;height:20px;cursor:pointer;" class="ui-state-highlight ui-corner-all" id="tip_nasfilerestorebtn">文件恢复</div>
+		</div>
+		<div class="clear"></div>
+		<div style="height:200px;margin-top:10px;overflow:auto;" id="pointdetaildiv">
+			<table width="90%" border="0" cellspacing="5" cellpadding="0">
+				<tr>
+					<td align="left" colspan=2>选定备份点信息<br /><br /></td>
+				</tr>
+				<tr>
+					<td align="right" width="20%">备份数据源：</td>
+					<td align="left"><div id="show_srcserver">&nbsp;</div></td>
+				</tr>
+				<tr>
+					<td align="right">备份计划名：</td>
+					<td align="left"><div id="show_taskname">&nbsp;</div></td>
+				</tr>
+				<tr>
+					<td align="right">备份时间：</td>
+					<td align="left"><div id="show_backuptime">&nbsp;</div></td>
+				</tr>
+				<tr>
+					<td align="right">备份类型：</td>
+					<td align="left"><div id="show_backuptype">&nbsp;</div></td>
+				</tr>
+				<tr class="point_os_info">
+					<td align="right">CDP：</td>
+					<td align="left"><div id="show_iscdp">&nbsp;</div></td>
+				</tr>
+				<tr class="point_os_info">
+					<td align="right">硬盘信息：</td>
+					<td align="left"><div id="show_size">&nbsp;</div></td>
+				</tr>
+				<tr class="point_os_info">
+					<td align="right">操作系统：</td>
+					<td align="left"><div id="show_os">&nbsp;</div></td>
+				</tr>
+			</table>
+		</div>
+		<div class="mybtn_nav" id="restorebtndiv">
+			<input type="button" id="restoreForm" class="myprev" style="float:right;margin-right:20px;" value="整机恢复"/>
+			<input type="button" id="vol_restore" class="myprev" style="float:right;margin-right:20px;" value="卷恢复" />
+            <input type="button" id="file_restore" class="myprev" style="float:right;margin-right:20px;" value="文件恢复" />
+			{% if takeover %}
+			<input type="button" id="takeoverbtn" class="myprev" style="float:right;margin-right:20px;" value="接管主机" />
+			{% endif %}
+             <input type="button" class="myprev 4debug" style="float:right;margin-right:20px;display: none" value="磁盘快照信息" />
+		</div>
+		<div class="mybtn_nav" id="vmrestorebtndiv">
+			<input type="button" id="vmrestorebtn" class="myprev" style="float:right;margin-right:20px;" value="vmware恢复"/>
+			<input type="button" id="file_restore3" class="myprev" style="float:right;margin-right:20px;display: none;" value="文件恢复" />
+			<input type="button" class="myprev 4debug" style="float:right;margin-right:20px;display: none" value="磁盘快照信息" />
+		</div>
+		<div class="mybtn_nav" id="restorenasbtndiv">
+            <input type="button" id="file_restore2" class="myprev" style="float:right;margin-right:20px;" value="文件恢复" />
+			<input type="button" class="myprev 4debug" style="float:right;margin-right:20px;display: none" value="磁盘快照信息" />
+		</div>
+	</div>
+	<div id="servertreediv" style="position: absolute; z-index: 100016; display: block;display:none;">
+		<div id="selServerTree" class="aciTree" style="border:1px solid #ccc;overflow:auto;background-color:#ffffff;max-height:600px;"></div>
+	</div>
+	<div id="validatediv">
+		<div style="float: left;margin-left: 10px;margin-top: 30px;">文件级验证，可将选定的备份点加载为网络共享路径、可直接在WEB浏览器中直接URL访问。<br><br>管理员可快速确认需被验证的备份点文件是否是符合预期，备份点是否可用、可靠。<span style="color:blue;cursor:pointer;" id="resetbutton">重置浏览备份点的用户名和密码</span></div>
+		<div class="menu_btn" id="viewdata2" style="float: right;margin-right: 10px;margin-top: 30px;">文件验证</div>
+		<div class="clear"></div>
+		<div class='rebuild_pc_validate_btn'>
+		{% if temporary_takeover_visible %}
+		<div style="float: left;margin-left: 10px;margin-top: 30px;">在虚拟化灾备验证系统中将选定验证的备份点整机启动（OS、业务系统和数据），一键操作即可实现自动化构建虚拟化灾备验证环境。<br><br>管理员可像真实生产环境中一样登录虚拟化灾备验证系统，极简验证备份系统的可靠性。</div>
+		<div class="menu_btn" id="validaterestoreForm2" style="float: right;margin-right: 10px;margin-top: 30px;">快速验证</div>
+		<div class="clear"></div>
+		{% endif %}
+		{% if not no_host_validate %}
+		<div style="float: left;margin-left: 10px;margin-top: 30px;">使用选定的备份点还原到指定的主机，在不影响原业务系统情况下，可长时间进行业务数据验证。</div>
+		<div class="menu_btn" id="validaterestoreForm" style="float: right;margin-right: 10px;margin-top: 30px;">主机验证</div>
+		{% endif %}
+		<div class="clear"></div>
+		</div>
+		<div style="display:none;margin-left: 10px;" id="errordiv"></div>
+		<div style="margin-left: 10px;" id="infodiv">
+			<div style="float: left;margin-top: 30px;"><span style="cursor:pointer;text-decoration:underline;" id="showhelp"><p>Tip1:不允许一个用户使用一个以上用户名与服务器或共享资源的多重连接。中断与此服务器或共享资源的所有连接，然后再试一次。</p><br>
+                <p>Tip2:Windows浏览备份点数据时，由于本地缓存、网络延迟等原因，可能会出现共享文件夹中文件显示不全的现象，出现这种情况请耐心等待。</p>
+            </span>
+				<div class="myhelptip"><span id="closehelp" style="cursor:pointer;margin-left:400px;">×</span><p>浏览备份点时，出现此错误提示，请尝试以下方法：<br />方法一：<br />重启计算机后再试。<br />方法二：<br />1.用net use命令查看你当前的网络资源连接<br />2.使用命令删除所有资源连接net use * /del /y<br />&nbsp;&nbsp;&nbsp;或者删除某一个特定的资源连接net use [远程连接名] /del /y<br />3.注销计算机或等待几分钟后再试。</p></div></div>
+			<div class="clear"></div>
+		</div>
+		<div id="imgs">
+			<ul class="list" style="overflow:auto;">
+			</ul>
+			<ul class="pagination"></ul>
+		</div>
+		<div style="display:none;">
+			<li id="mydata" class="mydata" onclick="myselimg(this);">
+				<div class="list_preleft">
+				<input style="display:none;" class="radio" type="radio" value="" name="img" />
+				</div>
+				<div class="list_content">
+				<h4 class="name"></h4>
+				<p class="desc"></p>
+				</div>
+				<div class="list_right" style="display:none;">
+				<div class="button" onclick="mydelimg(this);">关闭访问链接</div>
+				</div>
+				<div class="clear"></div>
+			</li>
+		</div>
+	</div>
+</div>
+
+<div id='IsShowCdpUI' class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 45%;left: 42%; z-index:1000;display:none;">
+    <p>
+        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <strong>请稍候</strong> <span id="Msg4CdpUI"></span>
+    </p>
+</div>
+
+<div id="restoreVMForm" title="备份点详细信息" class="ajaxForm" >
+	<div id="vmtabs">
+		<ul>
+			<li><a href="#vmtabs_1">恢复至</a></li>
+			<li><a href="#vmtabs_2">硬件配置</a></li>
+		</ul>
+		<div id="vmtabs_1">
+			<div style="margin-top:20px;margin-left:20px;">
+				<div>名称:　<input name="vmname" type="text" id="vmname" style="width:480px" onblur="removespace(this)"/></div>
+				<div style="margin-top:20px;">vCenter Server/ESXi:　<select id="vcenter" style="margin-left:75px;"><option value="-1" selected>--请选择--</option></select>　<a href="../mgrvcenter/" style="color: blue">添加Vmware连接配置</a></div>
+				<div style="margin-top:20px;">指定数据存储或数据存储集群:　
+					<select id="vm_datastore" style="margin-left:22px;">
+						<option value="-1" selected>--请先选择vCenter Server/ESXi--</option></select>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div id="vmtabs_2">
+			<div style="margin-top:20px;margin-left:20px;">
+				<div>内存:　<input type="text" id="vmmemoryMB" onblur="removespace(this)" style="width:60px;margin-left:85px"/> MB</div>
+				<div style="margin-top:20px;">CPU总核数：　<span id="vm_cpu_count" style="margin-left:33px;"></span> 核</div>
+				<div style="margin-top:20px;margin-left:20px;">虚拟插槽数:　
+					<select id="vm_cpu_sockets" style="margin-left:22px;">
+						<option value='1'  selected="selected" >1</option>
+						<option value='2'>2</option>
+						<option value='3'>3</option>
+						<option value='4'>4</option>
+						<option value='5'>5</option>
+						<option value='6'>6</option>
+						<option value='7'>7</option>
+						<option value='8'>8</option>
+					</select>
+				</div>
+				<div style="margin-top:20px;margin-left:20px;">每个插槽的内核:　
+					<select id="vm_cpu_cores" style="margin-left:-4px;">
+						<option value='1'>1</option>
+						<option value='2' selected="selected">2</option>
+						<option value='4'>4</option>
+						<option value='6'>6</option>
+						<option value='8'>8</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mybtn_nav">
+		<input type="button" id="vmnext" class="mynext" style="float:right;margin-left:20px" value="下一步&raquo;" />
+		<input type="button" id="vmprev" class="myprev" style="float:right" value="&laquo;上一步" />
+   </div>
+   <div class="mywaite_vm_restore ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+		<strong>请稍候</strong> <span id="vm_restore_msg"></span></p>
+   </div>
+</div>
+
+<div id="detailFormDiv" title="备份点详细信息" class="ajaxForm">
+	<input type="hidden" id="pointid" name="pointid" />
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1">CDP备份点选择</a></li>
+			<li><a href="#tabs-2">选择目标主机</a></li>
+            <li><a href="#tabs-3">平台检测</a></li>
+			<li><a href="#tabs-4">更新驱动</a></li>
+            <li><a href="#tabs-5">选择驱动版本</a></li>
+			<li><a href="#tabs-6">设置目标机网卡</a></li>
+			<li><a href="#tabs-7">设置目标机硬盘</a></li>
+			<li><a href="#tabs-8">kvm参数</a></li>
+            <li><a href="#tabs-9">创建模板参数</a></li>
+		</ul>
+		<div id="tabs-1">
+            <div id="cdp_ui_id">
+                <div style="height: 405px;">
+                    <div id="select_cdp_point" style="border:1px solid #D4D7CB;padding:10px;margin-top:10px;">
+					{% ifequal page 'validate' %}
+                    点击选择时间段：<span style="margin-left: 310px">支持鼠标滚轮缩放，按下左键拖动</span><br>
+					{% else %}
+					点击选择还原时间段：<span style="margin-left: 300px">支持鼠标滚轮缩放，按下左键拖动</span><br>
+					{% endifequal %}
+                    <div id="visualization" style="padding-top:10px" title="支持鼠标滚轮缩放，按下左键拖动"></div>
+                    <div id="timebar"></div>
+                    <div style="padding-top:10px">
+					{% ifequal page 'validate' %}
+                        时间段窗口长度：
+					{% else %}
+						还原时间段窗口长度：
+					{% endifequal %}
+                        <input  id="id2s" type="radio" name="windowSize" value="2" >2秒
+                        <input id="id20s" type="radio" name="windowSize" value="20" checked>20秒
+                        <input id="id180s" type="radio" name="windowSize" value="180">3分
+                        <div style="margin-top:10px">
+                            <div id="yDscr" style="float: left;"><p style="margin-top: 3px;">高&nbsp;</p><p style="margin-top: 70px;width: 16px">安全等级&nbsp;</p><p style="margin-top: 70px;">低&nbsp;</p></div>
+                            <div id="visualization2" title="支持鼠标滚轮缩放，按下左键拖动"></div>
+                            <div id="timebar2"></div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div style="margin-top:10px">
+					{% ifequal page 'validate' %}
+						时间点：<input name="restoretime" type="text" id="restoretime" style="width:180px" onblur="removespace(this)"/> 精确到微秒
+					{% else %}
+						还原时间点：<input name="restoretime" type="text" id="restoretime" style="width:180px" onblur="removespace(this)"/> 精确到微秒
+					{% endifequal %}
+                    <br />范围：<span id="show_cdpbackupstarttime"></span>&nbsp;&nbsp;-&nbsp;&nbsp;<span id="show_cdpbackupendtime"></span>
+                </div>
+            </div>
+		</div>
+		<div id="tabs-2">
+			<div style="margin-bottom:10px;float:left;">选择恢复目标</div>
+			<div style="margin-left:2px;float:left;cursor:pointer;"><span id="sel_target_host_tip" title="提供目标机无需预置任何灾难重建环境（目标机无操作系统、目标机和原机操作系统不一致、目标机无应用系统、目标机无数据库等）可即时开展自动化的灾难重建功能。" class="ui-icon ui-icon-info"></span></div>
+			<div class="clear"></div>
+			<div style="float:left;"><input name="client_search2" type="text" placeholder="开始搜索" class="client_search"/></div>
+            <div id="refershserverlist" style="cursor:pointer;float:right;margin-right:0px;">刷新客户端列表</div>
+
+			<div class="clear"></div>
+
+			<div id="Servers_Tree2" class="aciTree" style="width:675px;height:350px;border:1px solid #ccc;overflow:auto;"></div>
+            <div id="explain_test" style="cursor:pointer;margin-right:0px;margin-top:10px">提供无需启动介质整机全场景自动重建恢复功能</div>
+
+
+		</div>
+        <div id="tabs-3">
+            <div style="margin-bottom: 10px">平台检测</div>
+            <p style="text-indent: 2em;">还原、迁移和验证性还原过程中，需要对目标主机的硬件环境进行检测。</p>
+            <div class="ui-widget ui-widget-content ui-corner-all" style="margin-top:10px;overflow-y:auto;height:360px;padding: 20px">
+                <div id="check_left">
+                    <table width="80%" border="0" cellpadding="5" style="text-align: left; border-collapse:collapse;"  >
+                        <tr id="step1">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">分配资源中</td>
+                            <td></td>
+                        </tr>
+                        <tr  id="step2">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">检测是否异构平台</td>
+                            <td></td>
+                        </tr>
+                        <tr  id="step3">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">匹配硬件驱动</td>
+                            <td></td>
+                        </tr>
+                        <tr  id="step4">
+                            <td class="status_todo_icon"></td>
+                            <td style="width: 200px">查询最新驱动</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="check_intro" style="margin-top: 100px;">
+                    <p>1分配资源：还原目标机需要启动程序，分配资源。</p>
+                    <p style="margin-top: 12px;padding-left: 125px;text-indent: -125px ">2检测是否异构平台：检测目标机与源系统是否是异构系统，若为同构（硬件环境相同），则会跳过步骤三和四。</p>
+                    <p style="margin-top: 12px;padding-left: 100px;text-indent: -100px ">3匹配硬件驱动：为目标机做差异硬件驱动配置。步骤三中检测结果为异构（硬件环境不同），则会根据目标机中的硬件，在{{ title }}的驱动库中匹配相应的驱动，若完全匹配则跳过步骤四。</p>
+                    <p style="margin-top: 12px;padding-left: 100px;text-indent: -100px ">4查询最新驱动：若步骤三中未匹配完全，则会根据未匹配的硬件，去“{{ company }}在线驱动库”查询最新的驱动程序。</p>
+                </div>
+            </div>
+        </div>
+		<div id="tabs-4">
+			<input type="hidden" id="aiourl" />
+            <div>
+                <p>通过“{{ company }}在线驱动库”查询驱动结果：</p>
+                <p style="margin-left: 2em;line-height: 2em;">Tip1：若发现有匹配的驱动，点击“下一步”，会出现更新的对话框，请更新此驱动到{{ title }}。</p>
+                <p style="margin-left: 2em;line-height: 2em;">Tip2：若发现无法解析服务器，说明无法访问网络，请连接到互联网，重新做此步骤。</p>
+                <p style="margin-left: 2em;line-height: 2em;">Tip3：若发现有未匹配的驱动（可能导致目标机无法启动），请联系超级管理员更新未匹配的驱动。</p>
+                <p style="margin-left: 2em;line-height: 2em;">源操作系统：<span id="os_info"></span></p>
+            </div>
+            <div id="drivers_Tree" class="aciTree" style="width:100%;height:350px;border:1px solid #ccc;overflow:auto;"></div>
+            <div id="errinfo2" style="display:none;word-break: break-all;height: 75px;overflow: auto;"></div>
+		</div>
+        <div id="tabs-5">
+			<div>请选择驱动更新模式</div>
+			<div id="driver_update_method" class="ui-widget ui-widget-content ui-corner-all" style="margin-top:10px;margin-left:10px;overflow-y:auto;height:420px">
+                <div style="margin: 20px 0 10px 20px">默认情况请选择模式一，如果某次还原失败，再次还原时候，可以根据情况选择模式二去除可疑驱动。</div>
+                <div style="margin: 20px 0 10px 20px">
+                    <input type="radio" name="choice_method" value="1" checked="checked"> 模式一：智能匹配最新版本的设备驱动（推荐）
+                </div>
+                <div style="margin: 20px 0 10px 20px">
+                    <input type="radio" name="choice_method" value="2">模式二：选择指定版本的设备驱动（高级）
+                </div>
+                <div id="choice2_warp" style="margin: 20px 0 0 40px">
+                    <div id="driver_version_wrap" style="margin-top: 10px;display: none">
+                        <label for="driver_version">平台驱动筛选：</label>
+                        <select id="driver_version" style="color: red">
+                            <option value="" selected>请选择--</option>
+                        </select>
+                        <span style="color: red">(发现多个版本平台驱动，请选择特定版本的平台驱动。)</span>
+                    </div>
+                    <div id="driver_version_tree" class="aciTree" style="margin-top: 10px"></div>
+                </div>
+			</div>
+		</div>
+		<div id="tabs-6">
+			<div>设置恢复目标机的IP地址<br /></div>
+			<div style="overflow-y:auto;height:420px;padding-right: 10px;">
+                <div id="ipsetdiv"></div>
+                <div class="clear"></div>
+                <p style="margin: 20px 0 10px 0">配置目标机的路由</p>
+                <p style="margin: 0 0 10px 0">1：默认选择“使用备份源路由表”选项，还原后的路由表为备份源路由表。</p>
+                <p style="margin: 0 0 10px 0">2：选择“使用目标机路由表”选项，还原后的路由表为目标机路由表。</p>
+                <input type="radio" checked="checked" value="1" id="src_routers" name="choice_routers" ><label for="src_routers" style="margin-right: 20px">使用备份源路由表</label>
+                <input type="radio" value="2" id="dest_routers" name="choice_routers"><label for="dest_routers" style="margin-right: 20px">使用目标机路由表</label>
+                <div id="router_toogle">
+                    <div id="show_src_routers" style="margin-top: 20px;">
+                        <div id="src_routes_cfg">
+                            <div class="pre_route_cfg" style="border:1px solid #d3d3d3;margin-top:10px">
+                                <table width="100%" border="0" cellspacing="5" cellpadding="0">
+                                    <tr>
+                                        <td align="right" width="20%">目标网络：</td>
+                                        <td><input type="text" class="input" name="route_ip"  onblur="removespace(this)"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right">网络掩码：</td>
+                                        <td><input type="text" class="input" name="route_mask"  onblur="removespace(this)"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right">网关：</td>
+                                        <td><input type="text" class="input" name="route_gateway"  onblur="removespace(this)"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div style="float: right;margin-top: 10px" id="add_src_routes" title="增加下一条路由规则"
+                             class="text_button add">增加一条路由
+                        </div>
+                    </div>
+                    <div id="show_dest_routers" style="margin-top: 20px;display: none">
+                        <div id="dest_routes_cfg">
+                            <div class="pre_route_cfg" style="border:1px solid #d3d3d3;margin-top:10px">
+                                <table width="100%" border="0" cellspacing="5" cellpadding="0">
+                                    <tr>
+                                        <td align="right" width="20%">目标网络：</td>
+                                        <td><input type="text" class="input" name="route_ip"  onblur="removespace(this)"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right">网络掩码：</td>
+                                        <td><input type="text" class="input" name="route_mask"  onblur="removespace(this)"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right">网关：</td>
+                                        <td><input type="text" class="input" name="route_gateway"  onblur="removespace(this)"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div style="float: right;margin-top: 10px" id="add_dest_routes" title="增加下一条路由规则"
+                             class="text_button add">增加一条路由
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</div>
+		<div id="tabs-7" style="height: 480px;overflow: auto;">
+            {% include 'hard_disk_setting.html' %}
+            <div class="clear"></div>
+		</div>
+		<div id="tabs-8" style="height: 460px;overflow: auto;">
+			<input id="kvm_type" type="hidden" />
+			{% include 'takeover.inc.html' %}
+		</div>
+        <div id="tabs-9" style="height: 460px;overflow: auto;">
+            {% include 'createtemplate.inc.html' %}
+        </div>
+	</div>
+	<div class="mybtn_nav">
+		<input type="button" id="next" class="mynext" style="float:right;margin-left:20px" value="下一步&raquo;" />
+		<input type="button" id="prev" class="myprev" style="float:right" value="&laquo;上一步" />
+   </div>
+   <div class="mywaite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+		<strong>请稍候</strong> <span id="msg"></span></p>
+   </div>
+</div>
+
+<div id="divharddiskheader" style="display:none;">
+	<div style="border: 1px solid #d3d3d3;float:left;width:300px;height:27px;line-height:27px;text-align:center; vertical-align:middle;">源服务器名硬盘数据</div>
+	<div style="border: 1px solid #d3d3d3;float:left;width:60px;height:27px;line-height:27px;text-align:center; vertical-align:middle;">恢复到</div>
+	<div style="border: 1px solid #d3d3d3;float:left;width:300px;height:27px;line-height:27px;text-align:center; vertical-align:middle;">恢复目标机硬盘</div>
+</div>
+
+<div id="divharddisk" style="display:none;">
+	<div id="harddisk_div">
+		<div class="clear"></div>
+		<div style="margin-top:10px;"></div>
+		<div style="float:left;height:27px;line-height:27px;vertical-align:middle;width:302px;overflow:auto;"><input type="checkbox" name="srcharddisk"/><span id="srcharddiskname"></span></div>
+		<div style="float:left;height:27px;line-height:27px;vertical-align:middle;width:62px;text-align:center; vertical-align:middle;">恢复到</div>
+		<div style="float:right;height:27px;line-height:27px;vertical-align:middle;width:302px;">
+			<select id="storagedevice" name="storagedevice" style="width:260px;height:27px;line-height:27px;margin-left:35px;">
+			</select>
+		</div>
+	</div>
+</div>
+
+<div id="div_content" style="display:none;">
+	<div class="disk_table_container">
+        <div class="disk_item_header">
+            <table style="border:1px solid #ddd;background: #f5f5f5;padding: 0 5px;width: 100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="width:2%"><span style="margin: 0 3px;cursor:pointer" class="header_button">▼</span></td>
+                    <td style="width:2%"><input type="checkbox" class="header_check" checked="true"></td>
+                    <td style="width:46%;"><p style="word-break: break-all;padding: 10px 0" class="disk_name">(引导盘)(30.00GB)VMware Virtual disk SCSI Disk Device</p></td>
+                    <td style="width:20%;text-align: center;border-left:1px solid#ddd;color:grey">恢复到</td>
+                    <td style="width:30%;text-align: center;border-left:1px solid#ddd">
+                        <select width="100%">
+                            <option value="1">磁盘:0_40.0G(引导盘)</option>
+                            <option value="2">磁盘:1_40.0G</option>
+                            <option value="3">磁盘:2_60.0G</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="clear"></div>
+        <div class="disk_item_body">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="width:70%;">
+                        <ul style="padding: 0;margin:0;margin-left: 4em">
+                            <li><input type="checkbox" checked="true" name="current">系统保留:(容量0.1GB,已用0.1GB)</li>
+                            <li><input type="checkbox" checked="true" name="current">W2008R2(C:)(容量29.9GB,已用16.5GB)</li>
+                            <li ><input type="checkbox" >TEST(D:)(容量50GB,已用16.5GB)(<span class="li_warning">历史备份时间：2017-01-01 18:00:00</span>)</li>
+                            <li ><input type="checkbox" disabled="true">SOFT(E:)(容量60.9GB,已用16.5GB)(从未备份过)</li>
+                        </ul>
+                    </td>
+                    <td style="text-align: center;border-left:1px solid #ddd;width:30%;width:calc(30% + 20px); ">
+                        磁盘选择
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="clear"></div>
+	</div>
+</div>
+
+<div id="viewdataFormDiv" title="浏览备份数据" class="ajaxForm">
+    {% if smbencrypt %}
+    <div>浏览备份数据支持Windowns 8.1及以上版本的操作系统，或含有加密功能的smbclient客户端。</div>
+    {% endif %}
+    <div id="scan_cdp_data" style="display: none;"></div>
+
+    <div class="menu_btn" style="border: 1px solid #d3d3d3;position:relative;top:-25px;float:right" id="viewcdp">确定</div>
+	<div id="viewaddrdiv">
+		<input type="hidden" id="mountid" name="mountid" />
+		<div style="margin-top:10px;">计算机名：<span id="viewhost"></span></div>
+		<div style="margin-top:10px;">时&nbsp;&nbsp;&nbsp;间：<span id="viewtime" style="margin-left: 13px"></span></div>
+		<div style="margin-top:10px;">访问地址：<span id="viewurl"></span></div>
+        <div style="margin-top:10px;">在线访问地址：<span id="viewurl_from_web" ></span></div>
+		<div style="margin-top:10px;">用户名：<span id="viewusername" style="margin-left: 13px"></span></div>
+		<div style="margin-top:10px;">密&nbsp;&nbsp;&nbsp;码：<span id="viewpassword" style="margin-left: 13px"></span></div>
+		<div style="margin-top:10px;">任务名：<span id="viewtaskname" style="margin-left: 13px"></span></div>
+
+		<div>
+			<p style="text-indent: 2em;line-height: 28px;margin-top: 14px;cursor:pointer;text-decoration:underline;" onclick="show_help_msg(this)">Windows浏览备份点数据时，由于本地缓存、网络延迟等原因，可能会出现共享文件夹中文件显示不全的现象，出现这种情况请耐心等待。</p>
+		</div>
+
+		<div class="myhelptip">
+			<span onclick="close_helptip_div(this)" style="cursor:pointer;margin-left:400px;">X</span>
+			<p>浏览备份点时，出现此错误提示，请尝试以下方法：</p>
+			<dl>
+				<dt>方法一：</dt>
+				<dd>
+					重启计算机后再试。
+				</dd>
+				<dt>
+					方法二：
+				</dt>
+				<dd>
+					1.用net use命令查看你当前的网络资源连接
+				</dd>
+				<dd>
+					2.使用命令删除所有资源连接net use * /del /y, <br />
+					&nbsp;&nbsp;&nbsp;或者删除某一个特定的资源连接net use [远程连接名] /del /y
+				</dd>
+				<dd>
+					3.注销计算机或等待几分钟后再试。
+				</dd>
+			</dl>
+		</div>
+		<div class="menu_btn" id="closeview" style="margin-top: -100px;float:right">关闭访问链接</div>
+		<div style="margin-top:-18px;float:right" id="showallview"><span style="color:blue;cursor:pointer;" id="goallview">查看所有访问链接</span></div>
+	</div>
+</div>
+
+<div id="downloadForm" title="更新" class="ajaxForm">
+	<div style="margin-top: 10px;">下载更新文件后，请上传至服务器,服务器会立即执行更新命令</div>
+	<div style="margin-top: 10px;">点击<a id="imgurl" href="" target="_blank" style="color: blue">{{ company }}在线驱动库</a>下载最新驱动包</div>
+	<div style="margin-top: 10px;">点击“选择文件”按钮，选择刚下载的驱动包，然后点击“上传并更新”按钮。</div>
+    <div style="margin-top: 10px;">
+		<input type="file" id="localfile" />
+		<div style="margin-top: 10px;" id="info"></div>
+        <div class="mybtn_nav">
+			<input type="button" id="uploadImg" class="myprev" style="float:right;margin-top:40px;margin-right:3px;" value="上传并更新" />
+		</div>
+	</div>
+</div>
+
+<div id="downloadFormFlash" title="更新" class="ajaxForm">
+	<form id= "uploadForm" enctype="application/octet-stream">
+	<div style="margin-top: 10px;">下载更新文件后，请上传至服务器,服务器会立即执行更新命令</div>
+	<div style="margin-top: 10px;">镜像链接：<a id="imgurl2" href="" target="_blank">下载地址</a></div>
+	<div style="margin-top: 10px;">
+		<input type="file" id="localfileflash"/>
+		<div class="clear"></div>
+		<div id="info2" style="margin-top: 10px;"></div>
+	</div>
+	</form>
+</div>
+
+<div style="display: none" id="RouteMatherNode">
+    <div class="pre_route_cfg" style="border:1px solid #d3d3d3;margin-top:10px">
+        <span style="float: right;cursor:pointer" onclick="delRouteDiv(this);">关闭</span>
+        <table width="100%" border="0" cellspacing="5" cellpadding="0">
+            <tr>
+                <td align="right" width="20%">目标网络：</td>
+                <td><input type="text" class="input" name="route_ip"  onblur="removespace(this)"/></td>
+            </tr>
+            <tr>
+                <td align="right">网络掩码：</td>
+                <td><input type="text" class="input" name="route_mask"  onblur="removespace(this)"/></td>
+            </tr>
+            <tr>
+                <td align="right">网关：</td>
+                <td><input type="text" class="input" name="route_gateway"  onblur="removespace(this)"/></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="restoreVolFormDiv" title="部分恢复" class="ajaxForm">
+	<div id="voltabs">
+		<ul>
+            <li><a href="#voltabs-1">选择CDP时间点</a></li>
+			<li><a href="#voltabs-2">选择目标主机</a></li>
+			<li><a href="#voltabs-3">选择卷</a></li>
+		</ul>
+        <div id="voltabs-1">
+		</div>
+		<div id="voltabs-2">
+			<div style="margin-bottom:10px;">选择恢复目标</div>
+			<div style="float:left;"><input name="client_search3" type="text" placeholder="开始搜索" class="client_search"/></div>
+                <div id="volrefershserverlist" style="cursor:pointer;float:right;margin-right:0px;">刷新客户端列表</div>
+			<div class="clear"></div>
+			<div id="Servers_Tree3" class="aciTree" style="width:675px;height:400px;border:1px solid #ccc;overflow:auto;"></div>
+		</div>
+        <div id="voltabs-3">
+			<div>选择需要还原的卷</div>
+			<div id="disk_vol_div" class="ui-widget ui-widget-content ui-corner-all" style="margin-top:10px;margin-left:10px;overflow-y:auto;height:340px">
+                <div>
+                    <div style="border: 1px solid #d3d3d3;float:left;width:45%;height:27px;line-height:27px;
+                    text-align:center; vertical-align:middle;">数据源卷</div>
+                    <div style="border: 1px solid #d3d3d3;float:left;width:9%;height:27px;line-height:27px;
+                    text-align:center; vertical-align:middle;">恢复到</div>
+                    <div style="border: 1px solid #d3d3d3;float:left;width:45%;height:27px;line-height:27px;
+                    text-align:center; vertical-align:middle;">目标机卷</div>
+                </div>
+                <div class="clear"></div>
+                <div id="disk_vol_content">
+                    <ul style="margin:0;padding: 0"></ul>
+                </div>
+            </div>
+            <div style="margin-top: 10px">
+                <p style="margin-left: 1em;">Tip1：若卷的挂载点在['/boot', '/']中，此卷不支持卷还原。</p>
+                <p style="margin-left: 1em;margin-top: 10px">Tip2：若卷的文件系统是swap，此卷不支持卷还原。</p>
+                <p style="margin-left: 1em;margin-top: 10px">Tip3：若卷是系统卷，此卷不支持卷还原，若需要还原系统卷，请进行整机还原。</p>
+                <p style="margin-left: 1em;margin-top: 10px">Tip4：若发现无对应盘符，则说明备机的卷与源的卷在磁盘上的分布不相同。请对备机进行一次整机还原，使两者卷分布一致。</p>
+            </div>
+		</div>
+	</div>
+	<div class="mybtn_nav">
+		<input type="button" id="nextvol" class="mynext" style="float:right;margin-left:20px" value="下一步&raquo;" />
+		<input type="button" id="prevvol" class="myprev" style="float:right" value="&laquo;上一步" />
+   </div>
+    <div class="mywaite_vol ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+		<strong>请稍候</strong> <span id="msg_vol"></span></p>
+	</div>
+</div>
+
+<div id="get_info_tmp" style="display: none">
+    {% verbatim %}
+    <div id="get_info">
+        <h4>请确认下还原信息：</h4>
+        <p style="margin-left: 2em;line-height: 2em;">源主机：<span>{{ src_host }}</span></p>
+        <p style="margin-left: 2em;line-height: 2em;">目标主机：<span v-html="dst_host">{{ dst_host }}</span></p>
+        <p style="margin-left: 2em;line-height: 2em;">还原时间点：<span>{{ rt_time }}</span></p>
+        <p style="color:red;line-height: 2em;">提示：目标机被恢复区域的全部数据将被覆盖且不可恢复。</p>
+        <p style="line-height: 2em;">请输入:<span style="color: red">{{ cfm_info }}</span>,
+            后点击“确认”按钮执行还原操作,或者点击“取消”按钮放弃此次操作。</p>
+        <input type="text" v-model="i_value" style="margin-top: 10px;width: 500px;height: 20px" v-on:input="oninput">
+    </div>
+    {% endverbatim %}
+</div>
+
+<div id="pe-status-checking" class="my-pe-waite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 8px 1.5em;position: absolute;top: 40%;left: 50%; display:none;z-index: 9999;">
+    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong>请稍候</strong>&nbsp;正在连接目标客户端...</p>
+</div>
+
+<div id="drill_tip_form" style="display:none;">
+	<div style="line-height:30px;">
+	　　提供整机恢复的灾难重建功能，无需了解操作系统、应用系统、数据库和业务逻辑，也无需逐步手工安装、配置，即可完成灾难重建；提供原主机和异构目标机（X86物理机、虚拟机和云主机）之间的自动化灾难重建功能，可以实现P2P、P2V、P2C、V2P、V2V、V2C、C2C、C2P和C2V的灾难重建；灾难重建时可通过灾备系统Web管理界面完成所有操作，无需业务系统开发商工程师、数据库工程师和灾备系统工程师支持，实现任意品牌/技术的X86服务器、虚拟机和云主机之间的异构自动化灾难重建；千兆网络环境中，无预置灾难重建环境条件下，无论数据量大小可分钟级将灾备点应用系统重建至异构主机上并可以对外提供服务实现业务恢复。
+	</div>
+</div>
+
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/js/timeglider/Timeglider.css" />
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/js/timeglider/timeglider.datepicker.css" />
+
+<script type='text/javascript' src='/static/js/timeglider/js/underscore-min.js'></script>
+<script type="text/javascript" src="/static/js/timeglider/js/backbone-min.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/jquery.tmpl.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/ba-tinyPubSub.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/jquery.ui.ipad.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/globalize.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/ba-debug.min.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Date.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Org.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Timeline.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_TimelineView.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Mediator.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/timeglider.timeline.widget.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/timeglider.datepicker.js"></script>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/moment.js"></script>
+<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/list.js"></script>
+
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/css/morris.css" />
+<script type='text/javascript' src='/static/js/raphael-min.js'></script>
+<script type='text/javascript' src='/static/js/morris.js'></script>
+<script type="text/javascript" src="/static/js/mymorris.js"></script>
+<link href="/static/css/vis.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript">
+    {% include 'restore_migrate_cm.js' %}
+    {% include 'driver_verison_choice_cm.js' %}
+    {% include 'hard_disk_setting.js' %}
+</script>
+
+<script type="text/javascript">
+
+{% include 'takeover.js' %}
+
+// 数据源客户端改变触发事件
+$('#selServerTree').on('acitree', function(event, api, item, eventName, options) {
+	if (eventName == "selected") {
+        $('#pointid').val('');
+        $('div#show_srcserver').html('');
+        $('div#show_taskname').html('');
+        $('div#show_backuptime').html('');
+        $('div#show_backuptype').html('');
+        $('div#show_iscdp').html('');
+        $('div#show_size').html('');
+        $('div#show_os').html('');
+	}
+});
+
+$(document).keydown(function(event){
+    if(event.ctrlKey && event.altKey && event.key == 'p'){
+        $('.4debug').show();
+    }
+});
+
+$('.4debug').click(function () {
+    $('#paths').empty();
+    $('#chain').empty();
+    var point = $('#pointid').val();
+    if(point != ''){
+        var params = point.split('|');
+        if(params[0] == 'cdp'){
+            var start_time = params[2].replace('T',' ');
+            var end_time = params[3].replace('T',' ');
+            $('#cdp_range').text(start_time + '  --  ' + end_time);
+            $('#cdp_time_point').val(end_time);
+            $('#is_cdp').show();
+        }
+        else{
+            $('#is_cdp').hide();
+        }
+        myAjaxGet('../debuginfo_handle/?a=disk_snapshots_paths', 'point=' + point, diskSnapshotPathsCbk);
+    }
+});
+
+
+function show4debugDiv() {
+    $('#4debugDiv').attr('title', '调试信息').dialog({
+        autoOpen: true,
+        height: 380,
+        width: screen.width - 16,
+        modal: true,
+        buttons: {}
+    });
+}
+
+$(function () {
+    $('#paths').empty();
+    $('#chain').empty();
+});
+
+function diskSnapshotPathsCbk(jsonDt) {
+    $('#paths').empty();
+    $('#paths').append('Host Disks Current Base DiskSnapshot:<br>');
+    $.each(jsonDt, function (index, elem) {
+        var $pathDiv = $('<span style="cursor:pointer" onclick="getChain(this);"></span>').val(elem['id']).text('disk'+index+':'+elem['abs_path']).attr('title', '查询磁盘快照链');
+        var $nameDiv = $('<span style="float:right"></span>').text('ident:'+elem.snapshot_name);
+        $('#paths').append($pathDiv).append($nameDiv).append('<br>');
+    });
+    if(jsonDt.length > 0){
+        show4debugDiv();
+    }
+}
+
+function getChain(spanObj) {
+    var disk_snapshot_id = spanObj.value;
+    var host_snapshot_id = $('#pointid').val().split('|')[1];
+    var cdp_time_point = $('#cdp_time_point').val();
+    // param: 'a', 'disksnapshot_id'  maynot: 'cdp_time_point', 'hostsnapshot_id'
+    var params = 'disksnapshot_id=' + disk_snapshot_id;
+    if(!$('#is_cdp').is(':hidden')){
+        params += '&cdp_time_point={0}&hostsnapshot_id={1}'.replace('{0}', cdp_time_point).replace('{1}', host_snapshot_id);
+    }
+    myAjaxGet('../debuginfo_handle/?a=disk_snapshot_chain', params, getChainCbk);
+}
+
+function getChainCbk(jsonDt) {
+    $('#chain').empty();
+    $('#chain').append('Disk History DiskSnapshots Chain:<br>');
+    $.each(jsonDt, function (index, elem) {
+        $('#chain').append(elem.path);
+        $('#chain').append($('<span style="float:right"></span>').text('||ident:' + elem.snapshot_name));
+        $('#chain').append($('<span style="float:right"></span>').text(elem.status));
+        $('#chain').append('<br>');
+    });
+    show4debugDiv();
+}
+
+function OnPointtime()
+{
+	var starttime=$('#stime').val();
+	var endtime=$('#endtime').val();
+	var d1 = new Date(starttime.replace(/-/g, '/'));
+	var d2 = new Date(endtime.replace(/-/g, '/'));
+	var diff = d2-d1;
+	if(diff<0)
+	{
+		openErrorDialog('错误', '开始时间应小于结束时间');
+		return;
+	}
+	var id = getaciTreeChecked("selServerTree");
+	if(id)
+	{
+		ShowTimeLine(id,$('#stime').val(),$('#endtime').val());
+	}
+}
+g_tg1=null;
+lastemelent = null;
+
+function escapeJquery(srcString)
+{
+    // 转义之后的结果
+    var escapseResult = srcString;
+
+    // javascript正则表达式中的特殊字符
+    var jsSpecialChars = ["\\", "^", "$", "*", "?", ".", "+", "(", ")", "[",
+            "]", "|", "{", "}"];
+
+    // jquery中的特殊字符,不是正则表达式中的特殊字符
+    var jquerySpecialChars = ["~", "`", "@", "#", "%", "&", "=", "'", "\"",
+            ":", ";", "<", ">", ",", "/"];
+
+    for (var i = 0; i < jsSpecialChars.length; i++) {
+        escapseResult = escapseResult.replace(new RegExp("\\"
+                                + jsSpecialChars[i], "g"), "\\"
+                        + jsSpecialChars[i]);
+    }
+
+    for (var i = 0; i < jquerySpecialChars.length; i++) {
+        escapseResult = escapseResult.replace(new RegExp(jquerySpecialChars[i],
+                        "g"), "\\" + jquerySpecialChars[i]);
+    }
+
+    return escapseResult;
+}
+
+function ShowTimeLine(serverid,starttime,endtime)
+{
+	if(g_tg1)
+	{
+		var tg_instance = g_tg1.data("timeline");
+		tg_instance.destroy();
+	}
+	g_tg1 = $("#placement").timeline({
+		 "data_source":"../restore_handle/?a=getpoint&serverid="+serverid+"&starttime="+starttime+"&endtime="+endtime,
+		 "timezone":"+00:00",
+		 "min_zoom":1,
+		 "max_zoom":40,
+		 "icon_folder":"/static/js/timeglider/icons/",
+		 show_footer:false,
+		 show_centerline:false,
+		 display_single_timeline_info:false,
+		 eventClick: function($ev, ev) {
+            if(lastemelent){
+                lastemelent.removeClass('choicepoint');
+            }
+			var tmplast = $ev.find('.timeglider-event-title');
+			if( !tmplast )
+			{
+				tmplast = $ev;
+			}
+			tmplast.addClass('choicepoint');
+
+			OnDetail(ev.id);
+            lastemelent = tmplast;
+			return false;
+		}
+	 });
+
+ }
+
+function restoresuccess(jsonstr)
+{
+    $('.mywaite').hide();
+	if(jsonstr.audit == 'audit')
+	{
+		openSuccessDialog({title:'信息',html:jsonstr.e});
+	}
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$("#detailFormDiv").dialog('close');
+	successTipBox("操作成功");
+}
+
+function isRepeat(arr)
+{
+	var hash = {};
+
+	for(var i in arr)
+	{
+		if(hash[arr[i]])
+			return true;
+		hash[arr[i]] = true;
+	}
+	return false;
+}
+
+function CheckDisks(disks)
+{
+	var destdisk = new Array();
+	for(var i=0;i<disks.length;i++)
+	{
+		destdisk.push(disks[i].dest);
+	}
+
+	if( isRepeat(destdisk) )
+	{
+		openErrorDialog({title:'错误',html:'多个源硬盘不能恢复到同一目标硬盘'});
+		unlock_btns();
+		return false;
+	}
+
+	return true;
+}
+
+function OnRestore()
+{
+    myAjaxPost('../syssetget_handle/?a=get_ssh_kvm','',get_remote_kvm_call_back);
+}
+
+function get_remote_kvm_call_back(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		unlock_btns();
+		return;
+	}
+
+	OnRealRestore(jsonstr);
+}
+
+
+function OnRealRestore(remote_kvm_params)
+{
+	var pointid=$('#pointid').val();
+    var page ='{{ page }}';
+	var params = '';
+	destserverid=getaciTreeChecked('Servers_Tree2');
+	var tmpid=GetAciTreeParent('Servers_Tree2',destserverid);
+	if(tmpid=='ui_1')
+	{
+		destserverid=GetAciTreeValue('Servers_Tree2',destserverid,'peserverid');
+	}
+    var is_valiade = 0;
+    if (page == 'validate'){
+        is_valiade = 1;
+    }
+
+	params="enablekvm="+remote_kvm_params.enablekvm;
+	params+="&ssh_ip="+remote_kvm_params.ssh_ip;
+	params+="&ssh_port="+remote_kvm_params.ssh_port;
+	params+="&ssh_key="+encodeURIComponent(remote_kvm_params.ssh_key);
+	params+="&aio_ip="+remote_kvm_params.aio_ip;
+	params+="&ssh_path="+remote_kvm_params.ssh_path;
+	params+="&ssh_os_type="+remote_kvm_params.ssh_os_type;
+
+    params+="&is_valiade="+is_valiade;
+	params+="&destserverid="+destserverid;
+
+	params+="&pointid="+pointid;
+
+	params+="&restoretime="+$('#restoretime').val();
+
+    var router_list = []
+    var routers = {"is_save":1,"router_list":router_list};
+    acquire_routers(router_list, routers);
+    params += "&routers=" + JSON.stringify(routers);
+	params += "&adapters=" + encodeURIComponent(JSON.stringify(g_adapter_list));
+	
+	var change_disk = $('#change_disk').prop('checked');
+	params += '&change_disk='+(change_disk ? 1 : 0);
+	if(change_disk)
+	{
+		params += "&diskpartition_info=" + get_resize_vol_result();
+	}
+	else
+	{
+		var disk_info = verify_disks();
+		if (!disk_info){
+			unlock_btns();
+			return;
+		}
+
+		params+="&disks="+JSON.stringify(disk_info.disks);
+		params+="&ex_vols="+JSON.stringify(disk_info.ex_vols);
+	}
+	params+="&disable_fast_boot="+get_restore_mod();
+	params+="&replace_efi="+($('#replace_efi').is(':checked') ? 1 : 0);
+	params+="&is_same="+(is_same() ? 1 : 0);
+	params+="&is_restore_to_self="+(is_restore_to_self() ? 1 : 0);
+    var drivers_ids = '';
+    var drivers_type = '1';
+    var drivers_ids_force = '';
+    if($('input[name=choice_method]:checked').val() ==2){
+        drivers_ids = getAciTreeBoxChecked('driver_version_tree');
+        drivers_ids_force = getaciTreeChecked('driver_version_tree');
+        drivers_type = '2';
+    }
+    params+="&drivers_ids="+encodeURIComponent(drivers_ids)+'&drivers_type='+drivers_type;
+    params+="&drivers_ids_force="+encodeURIComponent(drivers_ids_force);
+    if ( is_no_bootable_to_bootable_disk()){
+        openConfirmDialog({
+		title:'确认信息',
+        width: 500,
+		height: 250,
+		html:'&nbsp;&nbsp;&nbsp;&nbsp;检测到快照中的引导盘恢复到目标主机的非引导盘，当还原完成目标主机重启时，可能无法进入恢复后的系统。<br>&nbsp;&nbsp;&nbsp;&nbsp;点击确定执行此操作，还原完成后，请进入BIOS配置，将当前选择的目标硬盘设置为启动硬盘。<br>&nbsp;&nbsp;&nbsp;&nbsp;点击取消，放弃此次操作。',
+		onBeforeOK:function(){
+			$(this).dialog('close');
+            $('#msg').html('正在执行还原任务。');
+            $('.mywaite').show();
+			myAjaxPost('../restore_handle/?a=startrestore',params,restoresuccess);
+            return;
+		    },
+        onCancel: function(){
+		    unlock_btns();
+        }
+	    });
+    }
+    else{
+        $('#msg').html('正在执行还原任务。');
+        $('.mywaite').show();
+        myAjaxPost('../restore_handle/?a=startrestore',params,restoresuccess);
+    }
+}
+
+function get_restore_mod() {
+    // 界面勾选， 代表使用快速还原技术
+	{% if no_fast_boot %}
+	return 1;
+	{% else %}
+    return $('#restore_model').is(':checked') ? 0 : 1;
+	{% endif %}
+}
+
+function acquire_routers(router_list, routers){
+    if($("input[name=choice_routers]:checked").val()=="1"){ //源路由
+        routers['is_save'] = 0;
+        get_all_routes_src(router_list);
+    }
+    else{ //目标路由
+        routers['is_save'] = 0;
+        get_all_routes_dest(router_list);
+    }
+}
+
+function is_no_bootable_to_bootable_disk() {
+    //  有科力锐启动盘时候，忽略检测
+    if ($('#use_clw_boot:checked').is(':visible')){
+        return false;
+    }
+    var user_checked_disks = $('#HardDisks .header_check:checked:visible');
+    for(var i=0;i<user_checked_disks.length;i++)
+	{
+	    var div_container = $(user_checked_disks[i]).parents('.disk_table_container');
+        var src=$(div_container).find('.header_check').hasClass('isbootable');
+        var dest=$(div_container).find('option:selected').hasClass('isbootable');
+        if((src==true) && (dest==false)){
+            return true;
+        }
+
+	}
+    return false;
+}
+
+function GetPointDetail(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		$('div#show_srcserver').html(jsonstr.e);
+		return;
+	}
+
+	$('div#show_srcserver').html(jsonstr.srcserver);
+	$('div#show_taskname').html(jsonstr.taskname);
+	$('div#show_backuptype').html(jsonstr.backuptype);
+	if(jsonstr.iscdp==1)
+	{
+		$('div#show_iscdp').html('是');
+		$('div#viewselcdptime').show();
+		$('#restoretime').prop('disabled',false);
+		$('#show_cdpbackupstarttime').html(jsonstr.cdpbackupstarttime);
+		$('#show_cdpbackupendtime').html(jsonstr.cdpbackupendtime);
+		$('#view_cdpbackupstarttime').html(jsonstr.cdpbackupstarttime);
+		$('#view_cdpbackupendtime').html(jsonstr.cdpbackupendtime);
+		$('#restoretime').val(jsonstr.cdpbackupendtime);
+		$('#viewrestoretime').val(jsonstr.cdpbackupendtime);
+		$('div#show_backuptime').html(jsonstr.cdpbackupstarttime+' ─ '+jsonstr.cdpbackupendtime);
+		GenCDPSelTime();
+	}
+	else
+	{
+		$('div#show_iscdp').html('否');
+		$('div#viewselcdptime').hide();
+		$('#restoretime').prop('disabled',true);
+		$('div#show_backuptime').html(jsonstr.backuptime);
+	}
+	$('div#show_size').html(jsonstr.size);
+	$('div#show_os').html(jsonstr.system);
+	var page = '{{ page }}';
+    if( page != 'validate' )
+    {
+		var pointid = $('#pointid').val();
+		var div_id = 'restorebuttondiv';
+		if(jsonstr.type==2)
+		{
+			//免代理备份点
+			div_id = 'vmbuttondiv';
+		}
+		else if(jsonstr.type==4)
+		{
+			//NAS客户端
+			div_id = 'nasbuttondiv';
+		}
+		$( "#"+div_id ).css('top',$('div #'+escapeJquery(pointid)).offset().top-25);
+		$( "#"+div_id ).css('left',$('div #'+escapeJquery(pointid)).offset().left);
+		$("#"+div_id).show();
+		if (div_id == 'restorebuttondiv'){
+		    if (jsonstr.iscdp==1){
+		        $('#tip_createtemplate').hide();  // cdp 的点不可创建成模板
+            }else{
+		        $('#tip_createtemplate').show();
+            }
+        }
+		$("#"+div_id).delay(5000).hide(0);
+    }
+
+
+}
+
+// 点击快照点时
+function OnDetail(id)
+{
+	$('#pointid').val(id);
+	$('div#show_srcserver').html('');
+	$('div#show_taskname').html('');
+	$('div#show_backuptype').html('');
+	$('div#show_iscdp').html('');
+	$('#show_cdpbackupstarttime').html('');
+	$('#show_cdpbackupendtime').html('');
+	$('#view_cdpbackupstarttime').html('');
+	$('#view_cdpbackupendtime').html('');
+	$('#restoretime').val('');
+	$('#viewrestoretime').val('');
+	$('div#show_backuptime').html('');
+	$('div#show_size').html('');
+	$('div#show_os').html('');
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	var params="a=gepointdetail&pointid="+$('#pointid').val();
+	myAjaxGet('../restore_handle/',params,GetPointDetail);
+}
+
+function showopbutton(type)
+{
+	var page = '{{ page }}';
+	if( page == 'validate' )
+	{
+		if(type==4)
+		{
+			//NAS客户端
+			$('.rebuild_pc_validate_btn').hide();
+		}
+		else
+		{
+			$('.rebuild_pc_validate_btn').show();
+		}
+		return;
+	}
+
+	if(type==2)
+	{
+		//免代理客户端
+		$('#restorebtndiv').hide();
+		$('#restorenasbtndiv').hide();
+		$('#vmrestorebtndiv').show();
+		$('.point_os_info').show();
+	}
+	else if(type==4)
+	{
+		//NAS客户端
+		$('#restorebtndiv').hide();
+		$('#vmrestorebtndiv').hide();
+		$('#restorenasbtndiv').show();
+		$('.point_os_info').hide();
+	}
+	else
+	{
+		$('#restorebtndiv').show();
+		$('#vmrestorebtndiv').hide();
+		$('#restorenasbtndiv').hide();
+		$('.point_os_info').show();
+	}
+}
+
+function Add_Group_2_Tree(retjson,root,i)
+{
+	if(i<retjson.group_list.length)
+	{
+		var api = $('#selServerTree').aciTree('api');
+		var item = retjson.group_list[i];
+		var Inode_group={
+			id:item.id,
+			label:item.name,
+			icon:'group',
+			inode: true,
+			radio:false,
+			agent_type:'group',
+			open:false};
+			api.append(root,{itemData:Inode_group,
+				success: function(tmpitem, options) {
+					Add_Group_2_Tree(retjson,root,i+1);
+				}
+			});
+	}
+	else
+	{
+		ShowselServerTree2(retjson,root);
+	}
+}
+
+function ShowselServerTree2(retjson,root)
+{
+	var api = $('#selServerTree').aciTree('api');
+	var serverid = -1;
+	var page = '{{ page }}';
+
+	for(i=0;i<retjson.list.length;i++)
+	{
+		var item = retjson.list[i];
+
+		if( page == 'validate' )
+		{
+			if(item.type==2)
+			{
+				//免代理客户端
+				continue;
+			}
+		}
+
+		var Inode={
+			id:item.id,
+			label:item.name,
+			icon:'pc',
+			inode: false,
+			radio:true,
+			checked:true,
+			agent_type:item.type,
+			open:false};
+		var Inode2={
+				id:item.id,
+				label:item.name,
+				icon:'pc',
+				inode: false,
+				radio:true,
+				checked:false,
+				agent_type:item.type,
+				open:false};
+		var Inode3={
+				id:item.id,
+				label:item.name,
+				icon:'pc',
+				inode: false,
+				radio:true,
+				checked:true,
+				agent_type:item.type,
+				open:false};
+
+		var inode = Inode2;
+
+		if(serverid == -1 )
+		{
+			$("#selservername").val(item.name);
+			showopbutton(item.type);
+			serverid = item.id;
+			ShowTimeLine(serverid,$('#stime').val(),$('#endtime').val());
+			inode = Inode3;
+		}
+		
+		var group_item = getInode('selServerTree',item.group_id);
+		var par = root;
+		if(group_item)
+		{
+			par= group_item;
+		}
+
+		api.append(par,{itemData:inode,
+			success: function(item, options) {
+				this.open(item);
+			}
+		});
+
+	}
+}
+
+function ShowselServerTree(retjson)
+{
+	var api = $('#selServerTree').aciTree('api');
+
+	var Inoderoot={
+			id:'ui_root',
+			label:'数据源客户端',
+			icon:'pcroot',
+			inode: true,
+			radio:false,
+			checked:false,
+			open:true};
+	var root = null;
+
+	api.append(null,{itemData:Inoderoot,
+		success: function(item, options) {
+			root=getInode('selServerTree','ui_root');
+			Add_Group_2_Tree(retjson,root,0);
+			api.open(root);
+		}
+	});
+}
+
+function SetServerList(retjson)
+{
+	if(retjson.r!=0)
+	{
+		$('#errinfo').show();
+		$('#restorediv').hide();
+		$('#errinfo').html(retjson.e);
+		return;
+	}
+
+	$('#errinfo').hide();
+	$('#restorediv').show();
+	var s_emlt = $('<input name="client_search" type="text" placeholder="开始搜索" style="margin:10px;" class="client_search"/>');
+	$('#selServerTree').append(s_emlt);
+
+	RefreshAciTree("selServerTree",null,ShowselServerTree,retjson);
+}
+
+$('#selservername').change(function(){
+	var serverid=$(this).children('option:selected').val();
+	ShowTimeLine(serverid,$('#stime').val(),$('#endtime').val());
+});
+
+// 还原提示信息：源主机、还原时间、目标主机
+function get_init_vue_data() {
+    // 源主机名称
+    var data = {};
+    data.src_host = $("div#show_srcserver").html();
+
+    // 整机恢复、卷恢复：目标机
+    var targetName = getaciTreeNameChecked('Servers_Tree2');
+    if(targetName == ''){
+        targetName = getaciTreeNameChecked('Servers_Tree3')
+    }
+    data.dst_host = targetName;
+
+    // 找到计算机名如：HOSTNAME(NAME2)(172.16.6.33|192.168.1.1)里面含的IP。
+    var ip_matcher = targetName.match(/(?:\d+\.){3}(?:\d+)/);
+    data.cfm_info = ip_matcher ? ip_matcher[0]:Math.random().toString(36).substr(2, 6).toUpperCase();
+
+    // 普通备份、cdp备份：还原点时间
+    var restoreTime = '';
+    if ($('div#show_iscdp').html()=='是'){
+        restoreTime = $('#restoretime').val();
+    }
+    else{
+        restoreTime = $('div#show_backuptime').html();
+    }
+    data.rt_time = restoreTime;
+    data.i_value = '';
+    return data;
+}
+
+function open_cfm_dialog(func) {
+    $('#get_info_tmp').dialog({
+        title: '确认信息',
+        autoOpen: true,
+        modal: true,
+        width: 560,
+        height: 360,
+        buttons: [
+            {
+                text: '确认',
+                click: function () {
+                    $(this).dialog('close');
+                    lock_btns();
+                    func();
+                },
+                id: 'get_info_tmp_cfm'
+            },
+            {
+                text: '取消',
+                click: function () {
+                    $(this).dialog('close');
+                },
+            }
+        ]
+    });
+}
+function Onfinish(func)
+{
+    vue_i1.init(get_init_vue_data());
+	open_cfm_dialog(func);
+	vue_i1.oninput();
+}
+
+$('#prev').click(function() {
+	if($('.mywaite').is(":visible"))
+	{
+		return;
+	}
+	var selindex=$("#tabs").tabs('option', 'active');
+
+	if(selindex==0)
+	{
+	    return;
+	}
+	clearInterval(rt_t1);
+    if (selindex == 1) {
+
+        if ($('div#show_iscdp').html()=='是'){
+            $("#tabs").tabs("option", "active", 0);
+            getRestoreTimeInit($('#pointid').val());
+         }
+        else{
+            return;
+        }
+
+    }
+    if(selindex==2)
+	{
+		var f1 = $('#check_left td').hasClass('status_waiting_fonts');
+		if (f1){ //正在进行任务，不可以跳转。
+		    return;
+        }
+	}
+    if(selindex == 4){
+	    if(g_same){
+	        $( "#tabs" ).tabs( "option", "active", selindex-2 );
+	        return;
+        }
+        else{
+	        $( "#tabs" ).tabs( "option", "active", selindex-1 );
+	        return;
+        }
+    }
+    if(selindex == 5){
+	    if(src_is_linux()){
+	        $( "#tabs" ).tabs( "option", "active", selindex-3);
+        }else {
+	        $( "#tabs" ).tabs( "option", "active", selindex-1);
+        }
+		return;
+    }
+	if(selindex == 7)
+	{
+		$( "#tabs" ).tabs( "option", "active", 1 );
+		return;
+	}
+
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", selindex-1 );
+
+
+});
+
+function _isTime(input)
+{
+	//判断是不是日期和时间的：yyyy-MM-dd HH:CC:SS.000000
+	var patrn= /^([1][7-9][0-9][0-9]|[2][0][0-9][0-9])(\-)([0][1-9]|[1][0-2])(\-)([0][1-9]|[1-2][0-9]|[3][0-1])(.)([0-1][0-9]|[2][0-3])(:)([0-5][0-9])(:)([0-5][0-9])(\.)(\d{1,6})$/g;
+	if( patrn.exec(input) )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function CheckData(selindex)
+{
+    if(selindex==0)
+	{
+		var times = $('#restoretime').val();
+		if(times=='')
+		{
+			openErrorDialog({title:'错误',html:"请填写还原时间点"});
+			return false;
+		}
+		if(!_isTime(times))
+		{
+			openErrorDialog({title:'错误',html:"请填写正确的时间格式：YYYY-MM-DD hh:ss:ii.dddddd"});
+			return false;
+		}
+		var starttime=$('#show_cdpbackupstarttime').html();
+		var endtime=$('#show_cdpbackupendtime').html();
+		var d1 = new Date(starttime.replace(/T/g, ' '));
+		var d2 = new Date(endtime.replace(/T/g, ' '));
+		var d3 = new Date(times.replace(/T/g, ' '));
+		var diff1 = d2-d3;
+		var diff2 = d3-d1;
+		if(diff1<0 || diff2<0 )
+		{
+			openErrorDialog('错误', '还原时间点应该在范围之内');
+			return false;
+		}
+
+	}
+	else if(selindex==1)
+	{
+		if(getaciTreeChecked('Servers_Tree2')=='')
+		{
+			openErrorDialog({title:'错误',html:"请选择客户端"});
+			return false;
+		}
+	}
+	else if(selindex==5)
+	{
+		return check_and_update_g_adapter_list();
+	}
+	else if(selindex==8)
+	{
+		if ($('#template_name').val() == ''){
+		    openErrorDialog({title:'错误',html:"模板名称不能为空"});
+			return false;
+        }
+	}
+	return true;
+}
+
+function GetAciTreeValue(treeid,id,key)
+{
+	var api = $('#'+treeid).aciTree('api');
+	var parentid='none';
+	var children=api.children(null, true, true);
+	var value='';
+	api.radios(children).each(api.proxy(function(element) {
+		var item = $(element);
+		if(id == this.getId(item))
+		{
+			value=this.itemData(item)[key];
+			return false;
+		}
+
+	}, true));
+
+	return value;
+
+}
+
+function SetAciTreeValue(treeid,id,key,value)
+{
+	var api = $('#'+treeid).aciTree('api');
+	var parentid='none';
+	var children=api.children(null, true, true);
+	var ids='';
+	api.radios(children).each(api.proxy(function(element) {
+		var item = $(element);
+		if(id == this.getId(item))
+		{
+			this.itemData(item)[key]=value;
+			return false;
+		}
+
+	}, true));
+
+}
+
+function GetServerId(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+        $("#detailFormDiv").dialog('close');
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	SetAciTreeValue('Servers_Tree2',jsonstr.serverid,'peserverid',jsonstr.destserverid);
+	if (src_is_linux()){
+        change_to_checked(1,'已分配');
+    }else {
+	    change_to_waiting(2, '已分配');
+	    check_is_same(jsonstr.destserverid);
+    }
+
+}
+
+function check_is_same(t_id) {
+    var params="serverid="+t_id;//pe ident
+	var pointid=$('#pointid').val();
+	params+='&pointid='+pointid;
+	myAjaxGet('../restore_handle/?a=check_is_same_computer&need_check_local_db=1',params,check_is_same_call_back, t_id);
+}
+
+function check_is_same_call_back(jsonstr, t_id) {
+    if (jsonstr.r != 0){
+        $("#detailFormDiv").dialog('close');
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+    }
+    /*
+    // 还原是用新的接口 判断是否是本机还原，因为使用mac判断，不能准确的判断是否是本机。
+    if (jsonstr.restore_to_self){
+        $('#step2').attr('data-restore-to-self', '1');
+    }else{
+        $('#step2').attr('data-restore-to-self', '0');
+    }
+    */
+
+    if (is_source_machine_from_ui('Servers_Tree2')){
+        $('#step2').attr('data-restore-to-self', '1');
+    }else{
+        $('#step2').attr('data-restore-to-self', '0');
+    }
+
+    if (jsonstr.is_same ==0 ){
+        change_to_checked(2, '同构');
+        g_same = true;
+        return;
+    }
+    else{
+        change_to_waiting(3,'异构');
+        CheackAgentOrPeDriver(t_id);
+    }
+}
+
+function CheackAgentOrPeDriver(t_id) {
+    var params="serverid="+t_id;//pe ident
+	var pointid=$('#pointid').val();
+	params+='&pointid='+pointid;
+	myAjaxGet('../restore_handle/?a=checkpedriver',params,checkagentorpedriver);
+}
+
+
+function getInode(treeid,id)
+{
+	var api = $('#'+treeid).aciTree('api');
+
+	var Inode = null;
+	var children=api.children(null, true, true);
+	children.each(api.proxy(function(element) {
+		var item = $(element);
+		var tmpid=this.getId(item);
+		if(id==tmpid)
+		{
+			Inode=api.itemFrom(item);
+			api.setInode(Inode,{inode:true});
+			return false;
+		}
+	}, true));
+
+	return Inode;
+}
+
+function NewItem(id,label,radio,checked)
+{
+	var itemData = {
+		id:id,
+		label:label,
+		icon:'adapter',
+		checkbox:radio,
+		checked:checked,
+		inode: false
+	};
+	return itemData;
+}
+
+function SearchDriverCallback(jsonstr,p)
+{
+    if (!has_set_interval){
+        change_to_checked(4,'查询完成');
+    }
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	var node_id=p.node_id;
+	var Inode=getInode('drivers_Tree',node_id);
+	if( Inode == null)
+	{
+		return;
+	}
+	var api = $('#drivers_Tree').aciTree('api');
+	if( jsonstr.list.length > 0 )
+	{
+		for(var i=0;i<jsonstr.list.length;i++)
+		{
+			var id = jsonstr.list[i].id;
+			var name = jsonstr.list[i].name+'('+jsonstr.id+')';
+			var checked=false;
+			if(i==0)
+			{
+				checked = true;
+			}
+			var newitem=NewItem(id,name,true,checked);
+			api.append(Inode,{itemData:newitem,
+					success: function() {
+						this.open(Inode);
+					}
+				}
+			);
+		}
+		return;
+	}
+	if( p.ids.length > 0 )
+	{
+		var url =$('#aiourl').val()+'/index.php/api/drivers/?a=search&id='+encodeURIComponent(p.ids.pop())+'&os='+encodeURIComponent(p.os);
+		myJsonp(url,'errinfo2',SearchDriverCallback,p,30*1000);
+	}
+	else
+	{
+		//没有匹配成功
+        update_driver_info(true, p.os);
+		p.org_ids.sort(function(a,b){
+            return b.length-a.length;
+		});
+		var label=api.getLabel(Inode);
+		api.setLabel(Inode,{label: label+'<span style="color:red;">(未匹配)</span>'});
+		for(var i=0;i<p.org_ids.length;i++)
+		{
+			var api = $('#drivers_Tree').aciTree('api');
+			var id = p.org_ids[i];
+			var name = p.org_ids[i];
+			var checked=false;
+			var newitem=NewItem(id,name,false,checked);
+			api.append(Inode,{itemData:newitem,
+					success: function() {
+						//this.open(Inode);
+					}
+				}
+			);
+		}
+	}
+}
+
+function SearchDriver(node_id,hardids,compatibleids,os)
+{
+	var ids = hardids.concat(compatibleids);
+	ids.sort(function(a,b){
+            return a.length-b.length;
+	});
+	if( ids.length > 0 )
+	{
+		var p={
+			org_ids:ids.concat(),
+			node_id:node_id,
+			ids:ids,
+			os:os
+		};
+		var url =$('#aiourl').val()+'/index.php/api/drivers/?a=search&id='+encodeURIComponent(p.ids.pop())+'&os='+encodeURIComponent(p.os);
+		myJsonp(url,'errinfo2',SearchDriverCallback,p,30*1000);
+	}
+}
+
+function ShowDriverTree(jsonstr)
+{
+	var api = $('#drivers_Tree').aciTree('api');
+
+	for(i=0;i<jsonstr.list.length;i++)
+	{
+		var Inode={
+			id:'ui_'+i,
+			label:jsonstr.list[i].hardware,
+			icon:'adapter',
+			inode: false,
+			hardid:jsonstr.list[i].id,
+			compatibleid:jsonstr.list[i].compatible,
+			os:jsonstr.list[i].windows,
+			open:false};
+
+		api.append(null,{itemData:Inode,
+			success: function(item, options) {
+				var id=options.itemData.id;
+				var hardid=options.itemData.hardid;
+				var compatibleid=options.itemData.compatibleid;
+				var os=options.itemData.os;
+				SearchDriver(id,hardid,compatibleid,os);
+			}
+		});
+	}
+}
+
+function UrlCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	jsonstr.url = window.location.protocol + "//" + jsonstr.url;
+	$('#aiourl').val(jsonstr.url);
+}
+
+function ShowDriverList(jsonstr)
+{
+	RefreshAciTree("drivers_Tree",null,ShowDriverTree,jsonstr);
+}
+
+var g_same = false;
+function checkagentorpedriver(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	if(jsonstr.update==1)
+	{
+	    var strs = '发现{}个硬件未匹配到驱动'.replace('{}', jsonstr.list.length);
+        change_to_waiting(4, strs);
+		$('#errinfo2').html('');
+		update_driver_info(false, '');
+		ShowDriverList(jsonstr);
+	}
+	else
+	{
+        g_same = true;
+        change_to_checked(3, '完全匹配');
+	}
+}
+
+function CheckPEDriver()
+{
+
+    var destserverid=getaciTreeChecked('Servers_Tree2');
+    var tmpid=GetAciTreeParent('Servers_Tree2',destserverid);
+    if(tmpid=='ui_1')
+    {
+        destserverid=GetAciTreeValue('Servers_Tree2',destserverid,'peserverid');
+    }
+	check_is_same(destserverid);
+}
+
+function src_is_linux() {
+    return $('#show_os').html().toLowerCase().indexOf('linux')!=-1;
+}
+
+var driver_info = {'is_no_driver':false, 'os':''};
+function update_driver_info(is_no_driver, os){
+    driver_info = {'is_no_driver':is_no_driver, 'os':os};
+    $('#os_info').text(os);
+}
+
+function is_no_driver() {
+    return driver_info['is_no_driver']
+}
+
+function notify_no_driver() {
+    var msg = '发现有未匹配的驱动，继续操作可能导致目标机无法启动。点击“确定”忽略此次警告，继续任务；点击“取消”关闭此对话框。';
+    var msg1 = '请联系超级管理员下载操作系统：[' + '<span style="color:red">'+ driver_info['os'] +'</span>' + ']的驱动，更新至{{ title }}后，再次进行操作。';
+    var p = $('<p style="text-indent:2em;margin-top:10px;"></p>').html(msg);
+    var p1 = $('<p style="text-indent:2em;margin-top:10px;"></p>').html(msg1);
+    var html = $('<div></div>').append(p).append(p1);
+    openConfirmDialog({
+        title: '警告',
+        html: html,
+        height: 300,
+        width:600,
+        onBeforeOK: function () {
+            $(this).dialog('close');
+            $("#tabs").tabs("option", "active", 4);
+        },
+        onCancel: function () {
+            return;
+        }
+    });
+}
+
+var g_create_kvm_ing = false;
+
+function create_kvm_callback(jsonobj)
+{
+	g_create_kvm_ing = false;
+	if(jsonobj.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonobj.e});
+		return;
+	}
+	$("#detailFormDiv").dialog('close');
+	if(jsonobj.id>0)
+	{
+		$.cookie('run_takeover_id', jsonobj.id, {path: '/'});
+	}
+	if(jsonobj.audit == 'audit')
+	{
+		openSuccessDialog({title:'信息',html:jsonobj.e});
+		return;
+	}
+	location.href='../takeover/';
+}
+
+function Onkvmfinish()
+{
+	if(g_create_kvm_ing)
+	{
+		return;
+	}
+
+	if(!kvm_checkdata() )
+	{
+		return;
+	}
+	var html = "点击“确认”，创建虚拟机。";
+	html += '<br/><br/><label><input class="radio" type="checkbox" checked="checked" id="run_kvm" >立即启动虚拟机</label>';
+	openConfirmDialog({
+        title: '确认',
+        html: html,
+        height: 200,
+        width:350,
+        onBeforeOK: function () {
+			var pointid=$('#pointid').val();
+			var kvm_type=$('#kvm_type').val();
+			var snapshot_time = $('#restoretime').val();
+			var params = 'a=create_kvm';
+			if( $('#run_kvm').prop('checked'))
+			{
+				params += '&run=1';
+			}
+			else
+			{
+				params += '&run=0';
+			}
+			params += '&pointid='+pointid;
+			params += '&snapshot_time='+snapshot_time;
+			params += '&kvm_name='+encodeURIComponent($("#kvm_name").val());
+			params += '&kvm_cpu_sockets='+$("#kvm_cpu_sockets").val();
+			params += '&kvm_cpu_cores='+$("#kvm_cpu_cores").val();
+			params += '&kvm_memory_size='+$("#kvm_memory_size").val();
+			params += '&kvm_memory_unit='+$("#kvm_memory_unit").val();
+			params += '&kvm_storagedevice='+$("#kvm_storagedevice").val();
+			params += '&kvm_adpter='+get_kvm_adpter();
+			params += '&kvm_route='+get_kvm_route();
+			params += '&kvm_gateway='+get_kvm_gateway();
+			params += '&kvm_dns='+get_kvm_dns();
+			params += '&kvm_type='+kvm_type;
+			params += '&hddctl='+$('#hddctl').val();
+			params += '&vga='+$('#vga').val();
+			params += '&net='+$('#net').val();
+			params += '&cpu='+$('#cpu').val();
+			if($('#boot_firmware').val() != 'auto')
+			{
+				params += '&boot_firmware='+$('#boot_firmware').val();
+			}
+			g_create_kvm_ing = true;
+			myAjaxPost('../takeover_handle/',params,create_kvm_callback);
+            $(this).dialog('close');
+        },
+        onCancel: function () {
+            return;
+        }
+    });
+}
+
+function Getstoragedevice(retjson)
+{
+	$("#kvm_storagedevice").empty();
+	$.each(retjson, function(i, item){
+		var free_GB = (item.free / Math.pow(1024, 1)).toFixed(2);
+        free_GB = (item.value == -1) ? 0 : free_GB;
+
+		var html="（可用：{3}）";
+		html = html.replace('{3}', free_GB+'GB');
+
+		if($('#kvm_sel_storagedevice').val()==item.value)
+		{
+			$("#kvm_storagedevice").append("<option value='"+item.value+"'  selected=\"selected\" >"+item.name+"</option>");
+		}
+		else
+		{
+			$("#kvm_storagedevice").append("<option value='"+item.value+"'>"+item.name+html+"</option>");
+		}
+	});
+}
+
+function get_adapter_name(retjson)
+{
+	var page = '{{ page }}';
+	var obj = $('div.class_kvm_adpter select[name="adpter_name"]');
+	for(var j=0;j<obj.length;j++)
+	{
+		$(obj[j]).empty();
+
+		$(obj[j]).append($('<option></option>').val('private_aio').text('私有网络'));
+
+		for(var i=0;i<retjson.adapter_names.length;i++)
+		{
+			var name = retjson.adapter_names[i];
+			if(name.indexOf('bond0') != -1 )
+			{
+				$(obj[j]).append($('<option></option>').val(name).text('聚合网卡'));
+			}
+			else if(name.indexOf('bond') != -1 )
+			{
+				var tmpname = name.replace('bond','聚合网卡');
+				$(obj[j]).append($('<option></option>').val(name).text('聚合网卡'));
+			}
+			else
+			{
+				$(obj[j]).append($('<option></option>').val(name).text(name));
+			}
+		}
+
+	}
+}
+
+function get_hardware_info(retjson)
+{
+	info = retjson.info;
+	$('#phy_cpu_count').html(info.phy_cpu_count);
+	$('#phy_available').html(info.phy_available);
+}
+
+function get_hardware_recommend(retjson)
+{
+	myAjaxGet('../backup_handle/','a=getstoragedevice',Getstoragedevice);
+	if(retjson.logic=='windows')
+	{
+		$('#hddctl').find('[value=IDE]').prop('disabled',true);
+		$('#hddctl').find('[value=virtio-blk]').prop('disabled',true);
+	}
+	else
+	{
+		$('#hddctl').find('[value=IDE]').prop('disabled',false);
+		$('#hddctl').find('[value=virtio-blk]').prop('disabled',false);
+	}
+	$('#hddctl').val(retjson.hddctl);
+	$('#vga').val(retjson.vga);
+	$('#net').val(retjson.net);
+}
+
+function show_kvm_tab(type)
+{
+	var tmpname = '';
+	if(type=='forever_kvm')
+	{
+		tmpname = '接管-';
+	}
+	else
+	{
+		tmpname = '快速验证-';
+	}
+	var time_str = $('#restoretime').val() ? $('#restoretime').val() : $('#pointid').val().split('|')[2];
+	tmpname += $('#selservername').val()+time_str;
+	$('#kvm_name').val(tmpname);
+	$('.class_kvm_adpter_parent').find('.class_kvm_adpter').remove();
+	var html = $('.class_kvm_adpter').prop('outerHTML');
+	var kvm_adpter_div_obj = jQuery.extend(true, {}, $(html));
+	var kvm_ip_html = $('.class_kvm_ip').prop('outerHTML');
+	var kvm_ip = jQuery.extend(true, {}, $(kvm_ip_html));
+	kvm_ip.show();
+	kvm_adpter_div_obj.find(".class_kvm_ip_parent").prepend(kvm_ip);
+	kvm_adpter_div_obj.show();
+	$('.class_kvm_adpter_parent').prepend(kvm_adpter_div_obj);
+
+	$('.class_kvm_route_parent').find('.class_kvm_route').remove();
+	var kvm_route_html = $('.class_kvm_route').prop('outerHTML');
+	var kvm_route_div_obj = jQuery.extend(true, {}, $(kvm_route_html));
+	kvm_route_div_obj.show();
+	$('.class_kvm_route_parent').prepend(kvm_route_div_obj);
+
+	$('div.class_kvm_dns').find('input[name=kvm_gateway]').val('');
+	$('div.class_kvm_dns').find('.class_kvm_dns_s').remove();
+	var kvm_dns_html = $('.class_kvm_dns_s').prop('outerHTML');
+	var kvm_dns_obj = jQuery.extend(true, {}, $(kvm_dns_html));
+	kvm_dns_obj.show();
+	$($('div.class_kvm_dns').find('div')[0]).after(kvm_dns_obj);
+
+	var kvm_cpu_count = $("#kvm_cpu_sockets").val()*$("#kvm_cpu_cores").val();
+	$('#kvm_cpu_count').html(kvm_cpu_count);
+
+	var pointid=$('#pointid').val();
+	myAjaxGet('../takeover_handle/','a=get_hardware_recommend&pointid='+pointid,get_hardware_recommend);
+	myAjaxGet('../takeover_handle/','a=get_adapter_name',get_adapter_name);
+	myAjaxGet('../takeover_handle/','a=get_max_hardware_canuse',get_hardware_info);
+	$( "#tabs" ).tabs( "option", "active", 7 );
+	gen_mac();
+	return;
+}
+
+function dest_host_in_audit_callback(jsonobj)
+{
+	if(jsonobj.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonobj.e});
+		$( "#tabs" ).tabs( "option", "active", 1 );
+		return;
+	}
+	if (src_is_linux()){ // 源是linux,  不走驱动检测与匹配的流程！
+		change_to_checked(1,'已分配');
+	}else{
+		change_to_waiting(2,'已分配');
+		CheckPEDriver();
+	}
+}
+
+function show_cratetemplate_tab()
+{
+    $('#create_template_params_div .user-input').val('');
+	var tmpname = '模板-';
+	var tlist = $('#pointid').val().split('|');
+    var type = tlist[0];
+    if (type == 'normal'){
+        var time = tlist[2];
+        var snapshot = '整机备份';
+    }else{
+        var time =  $('#restoretime').val();
+        var snapshot = 'CDP备份';
+    }
+	tmpname += $('#selservername').val()+ '-' + time;
+	$('#template_name').val(tmpname);
+    $('#template_host').html($('#selservername').val());
+    $('#template_snapshot').html(snapshot + ' ' + time);
+    $( "#tabs" ).tabs( "option", "active", 8);
+	return;
+}
+
+function toRunIndex1() {
+    var destserverid='none';
+    destserverid=getaciTreeChecked('Servers_Tree2');
+    var tmpid=GetAciTreeParent('Servers_Tree2',destserverid);
+    g_same = false;
+    has_set_interval=false;
+    change_all_to_todo();
+    if(tmpid=='ui_1') // 选择是host 需要分配pe
+    {
+        change_to_waiting(1);
+        params="a=getserverid&agentserverid="+destserverid;
+        myAjaxGet('../migrate_handle/',params,GetServerId);
+    }
+    else
+    {
+		//检查使用该PE还原的任务是否正在等待审批
+		params="a=dest_host_in_audit&agentserverid="+destserverid;
+        myAjaxGet('../migrate_handle/',params,dest_host_in_audit_callback);
+    }
+}
+
+var disk_checker = new DiskCheck();
+
+$('#next').click(function() {
+    if($('.mywaite').is(":visible"))
+	{
+		return;
+	}
+
+	if(isShowedCheckingPeMsg()){
+        return;
+    }
+
+	clearInterval(rt_t1);
+	var selindex=$("#tabs").tabs('option', 'active');
+	if(!CheckData(selindex))
+	{
+		return;
+	}
+
+    if(selindex === 1 && isTargetPe('Servers_Tree2')){
+        disk_checker.init();
+        checkingPeStatus($("#tabs"), selindex + 1, getaciTreeChecked('Servers_Tree2'), toRunIndex1);
+        return;
+    }
+
+	if(selindex==0)
+	{
+		var type = $('#kvm_type').val();
+		if(type=='forever_kvm' || type=='temporary_kvm') //kvm
+		{
+			show_kvm_tab(type);
+			return;
+		}else if (type=='createtemplate'){
+		    show_cratetemplate_tab();
+			return;
+        }
+	}
+
+	if(selindex==1)
+	{
+		toRunIndex1();
+		disk_checker.init();
+	}
+	if(selindex==2)
+	{
+		var f1 = $('#check_left td').hasClass('status_waiting_fonts');
+		var trs = $('#check_left tr');
+		var re = /\(/;
+
+		if (f1){ //正在进行任务，不可以跳转。
+		    return;
+        }
+        else{
+		    $.each(trs, function (index, item) {
+            var td_html = $(item).children().last().html();
+            var rs = re.exec(td_html);
+            if (rs != null){
+                $(item).children().last().html(td_html.slice(0,rs.index)); //去掉后面的计时括号
+                }
+            })
+
+            if (src_is_linux()){
+                $("#tabs").tabs("option", "active", 5);
+                init_tab5();
+                return;
+            }
+		    if (g_same){ //是相同平台，跳转到 4
+		        $( "#tabs" ).tabs( "option", "active", 4 );
+		        return;
+            }
+            else {
+		        $( "#tabs" ).tabs( "option", "active", 3 );
+		        return;
+            }
+        }
+	}
+	if(selindex==3)
+	{
+		var driverfileid=getAciTreeBoxChecked('drivers_Tree');
+		if(driverfileid)
+		{
+		    var content = $('<div></div>');
+		    var p = $('<p style="margin-top:10px;text-indent:2em"></p>').text('在"{{ company }}在线驱动库"中找到与恢复目标机硬件匹配的驱动，点击"导入驱动"按钮，做驱动更新。');
+		    var p1 = $('<p style="margin-top:10px;"></p>').html('注：<span style="color:red">如果放弃驱动导入，恢复后目标机可能无法启动。</span>');
+			content.append(p).append(p1);
+			openConfirmDialog({
+				title:'导入驱动',
+				html:content,
+				height:270,
+				width:500,
+				confirm_text:'导入驱动',
+				onBeforeOK:function(){
+					myupdate();
+					$(this).dialog('close');
+				},
+				onCancel:function(){
+                    $( "#tabs" ).tabs( "option", "active", 4 );
+					return;
+				}
+			});
+			return;
+		}
+		if (is_no_driver()){
+		     notify_no_driver();
+		    return;
+        }
+	}
+	if(selindex==4)
+	{
+		init_tab5();
+		if ($('#driver_update_method input:checked').val() == 2){
+			ret = has_choice_driver();
+		    if(ret.r!=0)
+			{	var html = '设备';
+				html += ret.driverAray.join(',');
+				html += '没有勾选对应的驱动！你确定忽略吗?';
+				openConfirmDialog({
+					title:'确认信息',
+					html:html,
+					onBeforeOK:function(){
+						$( "#tabs" ).tabs( "option", "active", selindex+1 );
+						unlock_btns();
+						$(this).dialog('close');
+					}
+				});
+				return;
+			}
+        }
+        $( "#tabs" ).tabs( "option", "active", selindex+1 );
+
+	}
+	if(selindex==5)
+	{
+        //params="srcserverid="+$('#selservername').val();
+		var pointid=$('#pointid').val();
+		params="pointid="+pointid;
+		var destserverid=getaciTreeChecked('Servers_Tree2');
+		var tmpid=GetAciTreeParent('Servers_Tree2',destserverid);
+		if(tmpid=='ui_1')
+		{
+			destserverid=GetAciTreeValue('Servers_Tree2',destserverid,'peserverid');
+		}
+		$('#msg').html('正在获取硬盘信息。');
+		$('.mywaite').show();
+		params+="&destserverid="+destserverid;
+		$('div#HardDisks').empty();
+        $('#current_point_time').text('');
+		$('#waring_type_describe').text('');
+		myAjaxGet('../restore_handle/?a=harddisksettings&disk_type=1',params,GetHardDisks);
+	}
+    if(selindex==6){
+        Onfinish(OnRestore);
+    }
+	else if(selindex==7){
+        var params = 'a=check_disk_number';
+	    params += '&pointid='+$('#pointid').val();
+        params += '&hddctl='+$('#hddctl').val();
+        params += '&kvm_type='+$('#kvm_type').val();
+	    myAjaxPost('../takeover_handle/',params,check_disk_number_callbak);
+    }
+	else if(selindex==8){
+        var params = 'a=create_template';
+	    params += '&pointid='+$('#pointid').val();
+	    params += '&time='+$('#restoretime').val();
+        params += '&name='+$('#template_name').val();
+        params += '&desc='+$('#template_desc').val();
+	    myAjaxPost('../mgrtemplate_handle/',params, create_template_callbak);
+	    $("#detailFormDiv").dialog('close');
+    }
+	else
+	{
+		$( "#tabs" ).tabs( "option", "active", selindex+1 );
+		unlock_btns();
+	}
+});
+
+function create_template_callbak(jsonstr) {
+    if (jsonstr.r != 0){
+        openErrorDialog('错误', jsonstr.e);
+    }else{
+        var html='新建模板成功，您可在<a href="../mgrtemplate" style="color:blue;">模板管理</a>中查看已创建的模板。';
+		openSuccessDialog({title:'完成',html:html});
+    }
+}
+
+function check_disk_number_callbak(jsonstr) {
+	if(jsonstr.r==99)
+	{
+		 openConfirmDialog({
+			title: '确认信息',
+			html: jsonstr.e,
+			onBeforeOK: function () {
+				$(this).dialog('close');
+				Onkvmfinish();
+			}
+		});
+		return;
+	}
+    if(jsonstr.r!=0)
+    {
+        openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+    }
+	Onkvmfinish();
+    
+}
+function lock_btns(){
+    $('#next').attr("disabled",true);
+    $('#prev').attr("disabled",true);
+}
+
+function unlock_btns(){
+    $('#next').attr("disabled",false);
+    $('#prev').attr("disabled",false);
+}
+
+function change_to_waiting(id, result) {
+    var obj = $('#step' + id);
+    var childs = obj.children();
+    $(childs[0]).attr('class','status_waiting_icon');
+    $(childs[1]).attr('class','status_waiting_fonts');
+    $(childs[2]).html('正在进行');
+    var obj_brother = $('#step' + (id-1));
+    if (obj_brother.length > 0){
+        var childs_b = obj_brother.children();
+        $(childs_b[0]).attr('class','status_checked_icon');
+        $(childs_b[1]).attr('class','');
+        $(childs_b[2]).html(result);
+    }
+}
+var rt_t1=null;
+var has_set_interval=false;
+function change_to_checked(id, result) {
+    if (has_set_interval){
+        return;
+    }
+    has_set_interval=true;
+    var obj = $('#step' + id);
+    var childs = obj.children();
+    $(childs[0]).attr('class','status_checked_icon');
+    $(childs[1]).attr('class','');
+    $(childs[2]).html(result);
+    var time = 8;
+    rt_t1 = setInterval(function () {
+                if (time <= 0) {
+                    go_to_next_tabs(id);
+                    $(childs[2]).html(result);
+                    return ;
+                }
+                var  msg = result + '({}秒后跳转下一个界面)';
+                msg = msg.replace('{}',time);
+                $(childs[2]).html(msg);
+                time = time - 1;
+            }, 1000);
+}
+
+function adapternamescallback(jsonstr,params)
+{
+	myAjaxGet('../restore_handle/?a=adaptersettings',params,GetAdapters);
+	for(var i=0;i<jsonstr.nic.length;i++)
+	{
+		var label = jsonstr.nic[i].Name;
+		var value = label;
+		$('#nic-name-list').append('<option label="' + label + '" value="' + value + '"></option>');
+	}
+}
+
+function init_tab5() {
+    $('#msg').html('正在获取网卡信息。');
+    $('.mywaite').show();
+    var destserverid=getaciTreeChecked('Servers_Tree2');
+    var tmpid=GetAciTreeParent('Servers_Tree2',destserverid);
+    var srcIdent = $('#pointid').val().split("|")[1]; //snapshot_id
+    var destIdent = destserverid;
+    if(tmpid=='ui_1'){
+        destserverid=GetAciTreeValue('Servers_Tree2',destserverid,'peserverid');
+    }
+    else{
+        destIdent = ''; //还原到PE，无路由信息
+    }
+    params="serverid="+destserverid;
+    params+="&needadapterset=0";
+    params+="&hostsnapshot=" + $('#pointid').val();
+    params+="&srcIdent=" + srcIdent;
+    params+="&destIdent=" + destIdent;
+
+    g_adapter_list = null;
+
+	myAjaxGet('../restore_handle/?a=adapternames','hostsnapshot='+$('#pointid').val(),adapternamescallback,params);
+}
+
+function go_to_next_tabs(id) {
+    if (src_is_linux()){
+        $("#tabs").tabs("option", "active", 5);
+        init_tab5();
+    }else {
+        if (id == 4) {
+            $("#tabs").tabs("option", "active", 3);
+        }
+        else {
+            $("#tabs").tabs("option", "active", 4);
+        }
+    }
+    clearInterval(rt_t1);
+}
+
+function change_all_to_todo(){
+    var trs = $('#check_left tr');
+    $.each(trs, function (index, item) {
+        var childs = $(item).children();
+        $(childs[0]).attr('class','status_todo_icon');
+        $(childs[1]).attr('class','');
+        $(childs[2]).html('未开始');
+    })
+}
+
+function GenCDPSelTime()
+{
+	//$('#show_cdpbackupstarttime').html('2016-12-30T10:50:11.294000');
+	//$('#show_cdpbackupendtime').html('2017-1-21T14:54:19.810116');
+	var stime = $('#show_cdpbackupstarttime').html().replace(/-/g, '/').replace(/T/g, ' ').split('.')[0];
+	var etime = $('#show_cdpbackupendtime').html().replace(/-/g, '/').replace(/T/g, ' ').split('.')[0];
+	var st = new Date(stime);
+	var et = new Date(etime);
+
+	var daydiff = Math.floor((et.getTime() - st.getTime())/(24*3600*1000)) + 1;
+
+	var html='<div style="width:670px;overflow:auto;">';
+	html+='<div style="width:'+daydiff*70+'px;">';
+	for(var i=0;i<daydiff;i++)
+	{
+		var d = new Date(stime);
+		d.setDate(st.getDate() + i);
+		html+='<div class="cdptime">'+FromatTime(d)+'</div>';
+	}
+	html+='</div>';
+	html+='</div>';
+	$('#selcdptime').html(html);
+	setcdpuievent();
+}
+
+function getrestoreserverlisturl()
+{
+	var url='../restore_handle/?a=getrestoreserverlist';
+	var page = '{{ page }}';
+	//if( page == 'validate' )
+	//{
+	//	url += "&kvmtype=temporary_kvm";
+	//}
+	//else
+	//{
+	//	url += "&kvmtype=forever_kvm";
+	//}
+	return url;
+}
+
+function restore(type)
+{
+	if($('#pointid').val()=='')
+	{
+		openErrorDialog({title:'错误',html:'请先选择一个备份点。'});
+		return;
+	}
+	if(type=='temporary_kvm' || type=='forever_kvm' || type == 'createtemplate')
+	{
+	}
+	else
+	{
+		$('#change_disk').prop('checked',false);
+		UnInitChangeHardDisk();
+		$('#HardDisks').show();
+		$('#ChangeHardDisks').hide();
+
+		$('#driver_update_method input[value=1]').click();
+		var url= getrestoreserverlisturl();
+		url += '&pointid='+$('#pointid').val();
+		url += '&id=';
+		RefreshAciTree("Servers_Tree2",url);
+	}
+
+	$("#restorebuttondiv").hide();
+
+	if($('div#show_iscdp').html()=='')
+	{
+		return;
+	}
+	var title_str = (type == 'restore') ? '整机恢复' : '主机验证';
+	if(type=='temporary_kvm')
+	{
+		title_str = '快速验证';
+	}
+	else if(type=='forever_kvm')
+	{
+		title_str = '接管参数配置';
+	}
+	else if(type=='createtemplate')
+	{
+		title_str = '模板参数设置';
+	}
+	else if(type=='deploy')
+	{
+		title_str = '从 '+ $('div#show_srcserver').html() +' 进行部署';
+	}
+	$("#detailFormDiv").dialog({
+		title:title_str,
+		autoOpen: true,
+		height: 600,
+		width: 750,
+		modal: true,
+		close: function(){
+		},
+		resizeStop: function( event, ui ) {
+			var height = ui.size.height - 120;
+			$('#tabs-7').css('height',height+'px');
+			$('.src_disk').empty();
+			$('.dest_disk').empty();
+			draw_src_diskpartition_info();
+			draw_dest_diskpartition_info();
+
+		}
+	});
+	if (type=='deploy'){
+	    $( "#tabs" ).tabs( "option", "active", 1 );
+	    return;
+    }
+
+	$('#kvm_type').val(type);
+	if($('div#show_iscdp').html()=='是')
+	{
+        move_cdp_div_to_here('tabs-1');
+		$( "#tabs" ).tabs( "option", "active", 0 );
+        getRestoreTimeInit($('#pointid').val());
+	}
+	else
+	{
+		if(type=='forever_kvm' || type=='temporary_kvm')
+		{
+			show_kvm_tab(type);
+		}
+		else if(type=='createtemplate')
+		{
+			show_cratetemplate_tab();
+		}
+		else
+		{
+			$( "#tabs" ).tabs( "option", "active", 1 );
+		}
+	}
+}
+
+$('#restoreForm')
+	.click(function() {
+	$('#prev').show();
+	unlock_btns();
+	restore('restore');
+});
+
+$('#tip_restorebtn').click(function(){
+	$('#restorebuttondiv').hide();
+	$('#prev').show();
+	unlock_btns();
+	restore('restore');
+});
+
+$('#tip_createtemplate').click(function(){
+    $('#restorebuttondiv').hide();
+	$('#prev').hide();
+	unlock_btns();
+	restore('createtemplate');
+});
+
+function set_vmconfig(jsonobj)
+{
+	var mac = "XXXXXXXXXXXX_".replace(/X/g, function() {
+			  return "0123456789ABCDEF".charAt(Math.floor(Math.random() * 16))
+			});
+	$('#vmname').val(mac+jsonobj.vmconfig.vmname);
+
+	var vcenter = $('#vcenter');
+    vcenter.empty();
+	vcenter.append($('<option selected="selected"></option>').val(-1).text('--请选择--'));
+	for(var i=0;i<jsonobj.vcenterlist.length;i++)
+	{
+		vcenter.append($('<option></option>').val(jsonobj.vcenterlist[i].id).text(jsonobj.vcenterlist[i].address));
+	}
+
+	var vm_datastore = $('#vm_datastore');
+    vm_datastore.empty();
+	vm_datastore.append($('<option selected="selected"></option>').val(-1).text('--请先选择vCenter Server/ESXi--'));
+
+	$('#vmmemoryMB').val(jsonobj.vmconfig.hardware.memoryMB);
+
+	var numCoresPerSocket = jsonobj.vmconfig.hardware.numCoresPerSocket;
+	var vm_cpu_cores = jsonobj.vmconfig.hardware.numCPU/numCoresPerSocket;
+	$('#vm_cpu_sockets').val(vm_cpu_cores);
+	$('#vm_cpu_cores').val(numCoresPerSocket);
+	$('#vm_cpu_count').html(jsonobj.vmconfig.hardware.numCPU);
+}
+
+function get_vmware_config_callback(jsonobj)
+{
+	if(jsonobj.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonobj.e});
+		return;
+	}
+
+	$( "#vmtabs" ).tabs( "option", "active", 0 );
+	
+	set_vmconfig(jsonobj);
+
+	$("#restoreVMForm").dialog({
+		title:'vmware恢复',
+		autoOpen: true,
+		height: 600,
+		width: 750,
+		modal: true,
+		close: function(){
+		}
+	});
+}
+
+function onVmRestore()
+{
+	$('#vmbuttondiv').hide();
+	if($('#pointid').val()=='')
+	{
+		openErrorDialog({title:'错误',html:'请先选择一个备份点。'});
+		return;
+	}
+	var params = "a=get_vmware_config";
+	params += "&pointid="+$('#pointid').val();
+	myAjaxGet('../vmrestore_handle/', params, get_vmware_config_callback);
+}
+
+$('#tip_vmrestorebtn').click(function(){
+	onVmRestore();
+});
+
+$('#vmrestorebtn').click(function(){
+	onVmRestore();
+});
+
+
+$('#tip_takeoverbtn').click(function(){
+	$('#prev').hide();
+	unlock_btns();
+	restore('forever_kvm');
+});
+
+$('#tip_takeoverbtn2').click(function(){
+	$('#prev').hide();
+	unlock_btns();
+	restore('forever_kvm');
+});
+
+$('#tip_filerestorebtn').click(function(){
+    unlock_btns();
+	viewdata();
+});
+
+$('#tip_nasfilerestorebtn').click(function(){
+    unlock_btns();
+	viewdata();
+});
+
+
+$('#tip_vmfilerestorebtn').click(function(){
+	$('#vmbuttondiv').hide();
+    unlock_btns();
+	viewdata();
+});
+
+$('#tip_volrestorebtn').click(function(){
+    unlock_btns();
+	volrestore();
+});
+
+$('#validaterestoreForm').button().click(function(){
+	$('#prev').show();
+	restore('validate');
+});
+
+$('#validaterestoreForm2').button().click(function(){
+	$('#prev').hide();
+	restore('temporary_kvm');
+});
+
+$('#takeoverbtn').click(function() {
+	$('#prev').hide();
+	restore('forever_kvm');
+});
+
+$(function () {
+    $('#select_cdp_point').hide();
+});
+
+// 初始化会存在实例
+var timelineObj = null;
+var graph2d = null;
+function getRestoreTimeInit(pointid) {
+    // 浏览器是否支持vis.js
+    $.getScript("/static/js/vis.js")
+    .done(function() {
+        $('#yDscr').hide();
+        $('#visualization').empty();
+        $('#visualization2').empty();
+        var parms = pointid.split('|');
+        var minTime = parms[2];
+        var maxTime = parms[3];
+        var container = $('#visualization')[0];
+        var items = new vis.DataSet([]);
+
+        var options = {
+            showCurrentTime: false,
+            min: minTime,
+            max: maxTime,
+            start: minTime,
+            end: maxTime,
+            format: {
+                minorLabels: {
+                    millisecond: 'SSSSSS',
+                    second: 'ss',
+                    minute: 'HH:mm',
+                    hour: 'HH:mm',
+                    weekday: 'DD[日]',
+                    day: 'DD[日]',
+                    month: 'MM[月]',
+                    year: 'YYYY[年]'
+                },
+                majorLabels: {
+                    millisecond: 'YYYY[年]MM[月]DD[日] HH:mm:ss',
+                    second: 'YYYY[年]MM[月]DD[日] HH:mm',
+                    minute: 'YYYY[年]MM[月]DD[日]',
+                    hour: 'YYYY[年]MM[月]DD[日]',
+                    weekday: 'YYYY[年]MM[月]',
+                    day: 'YYYY[年]MM[月]',
+                    month: 'YYYY[年]',
+                    year: ''
+                }
+            },
+            height: '45px'
+        };
+        timelineObj = new vis.Timeline(container, items, options);
+        var inputTime = $('#restoretime').val();
+        timelineObj.addCustomTime(inputTime, 'timebar');  // 初始以“输入时间”作默认位置
+
+        toGetTimesScores();
+    })
+    .fail(function() {
+        $('#select_cdp_point').empty();
+        $('#select_cdp_point').append('请更换高版本浏览器');
+        $('#select_cdp_point').show();
+    });
+}
+
+// 选择大致时间：1.作为窗口轴值  2.作为还原点时间
+$('#visualization').click(function (event) {
+    var props = timelineObj.getEventProperties(event);
+    timelineObj.removeCustomTime('timebar');
+    timelineObj.addCustomTime(props.time, 'timebar');
+    var centreTimeStp = props.time.getTime();
+
+    var _Date = new Date(centreTimeStp);
+    var time = _Date.Format("yyyy-MM-dd hh:mm:ss.S");
+    $('#restoretime').val(time);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    toGetTimesScores()
+});
+
+// 点击曲线图，作为还原点时间
+$('#visualization2').click(function (event){
+    if(window.waiting){
+        return;
+    }
+    var props = graph2d.getEventProperties(event);
+    var timeSelectedStp = props.time.getTime();
+
+    try{
+        graph2d.addCustomTime(props.time, 'timebar2');
+    }
+    // 存在bar，异常的处理
+    catch(err) {
+        graph2d.removeCustomTime('timebar2');
+        graph2d.addCustomTime(props.time, 'timebar2');
+    }
+
+    var _Date = new Date(timeSelectedStp);
+    var time = _Date.Format("yyyy-MM-dd hh:mm:ss.S");
+    $('#restoretime').val(time);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+});
+
+function check_input_time(time) {
+    if(!_isTime(time)){
+        openErrorDialog({title:'错误',html:"请填写正确的时间格式：YYYY-MM-DD hh:ss:ii.dddddd"});
+        return false;
+    }
+    return true;
+}
+
+function holdWhenCdpUI(hold) {
+    if(hold){
+        $('#Msg4CdpUI').text('读取数据中...');
+        $('#IsShowCdpUI').show();
+    }
+    else {
+        $('#IsShowCdpUI').hide();
+    }
+}
+
+// 触发：初始，切换窗口，选择窗口轴
+function toGetTimesScores() {
+    var _pointParms = $('#pointid').val().split('|');
+    var _windowSize = $("input[name='windowSize']:checked").val();
+    var _centreTime = $('#restoretime').val();  // 始终取还原时间作为：窗口轴
+    if(!check_input_time(_centreTime)){
+            return;
+    }
+    var _centreTimeStp = moment(_centreTime).toDate().getTime();
+
+    var params = 'a=getiodaychart&centre={0}&window={1}&id={2}&sliceend={3}'
+        .replace('{0}', _centreTimeStp).replace('{1}', _windowSize).replace('{2}', _pointParms[1]).replace('{3}', _pointParms[3]);
+    holdWhenCdpUI(true);
+    window.waiting = true;
+    myAjaxGet('../restore_handle/', params, drawScore);
+}
+
+$("input[name='windowSize']").change(toGetTimesScores);
+
+function is_input_time_out_range(time) {
+    var cdpStarTime = $('#pointid').val().split('|')[2];
+    var cdpEndTime = $('#pointid').val().split('|')[3];
+    cdpStarTime = moment(cdpStarTime).toDate().getTime();
+    cdpEndTime = moment(cdpEndTime).toDate().getTime();
+    var inputTime = moment(time).toDate().getTime();
+    if(inputTime < cdpStarTime || inputTime > cdpEndTime){
+        openErrorDialog({title:'错误',html:"输入时间不在范围内"});
+        return true;
+    }
+    return false;
+}
+
+// 监听“还原时间点”输入控件：回车事件
+$('#restoretime').keypress(function (event) {
+    if(event.key == "Enter"){
+        // 设置窗口轴值
+        var inputTime = $('#restoretime').val();
+        if(!check_input_time(inputTime)){           // 格式
+            return;
+        }
+        if(is_input_time_out_range(inputTime)){     // 范围
+            return;
+        }
+        timelineObj.removeCustomTime('timebar');
+        timelineObj.addCustomTime(inputTime, 'timebar');
+        getRestoreTimeInit($('#pointid').val());
+    }
+});
+
+function drawScore(jstr) {
+    window.waiting = false;
+    holdWhenCdpUI(false);
+    $('#yDscr').show();
+    $('#visualization2').empty();
+    var _container = $('#visualization2')[0];
+    var _dataset = new vis.DataSet([]);
+
+    // jstr.times_scores长度始终：>=1
+    // 向其尾后追加一元素
+    var lastElem = jstr.times_scores[jstr.times_scores.length - 1];
+    var lastTime = new Date(moment(lastElem.time).toDate().getTime() + 100).Format("yyyy-MM-dd hh:mm:ss.S");
+    var lastScore = lastElem.score;
+    jstr.times_scores.push({'time':lastTime, 'score': lastScore});
+
+    // 首尾添加最值：固定高度
+    var Elem0 = jstr.times_scores[0];
+    var Elemn = jstr.times_scores[jstr.times_scores.length - 1];
+    var starT = new Date(moment(Elem0.time).toDate().getTime() - 1).Format("yyyy-MM-dd hh:mm:ss.S");
+    var endT = new Date(moment(Elemn.time).toDate().getTime() + 1).Format("yyyy-MM-dd hh:mm:ss.S");
+    jstr.times_scores.unshift({'time':starT, 'score': -1});
+    jstr.times_scores.push({'time':endT, 'score': -1});
+
+    var max_secs = 1;
+    var vtime = null;
+    var vsecs = null;
+    $.each(jstr.times_scores, function (i, time_score) {
+        vtime = time_score.time;
+        vsecs = time_score.score;
+        if(vsecs > max_secs || vsecs == -1){
+            vsecs = max_secs;
+        }
+        _dataset.add({x: vtime, y: vsecs * 1000, group: 0});
+    });
+
+    var groupData = {
+        id: 0,
+        options: {
+            drawPoints: {
+                style: 'circle',
+                size: 3
+            },
+            shaded: {
+                orientation: 'bottom'
+            }
+        }
+    };
+    var _groups = new vis.DataSet([groupData]);
+    var minTime = jstr.times_scores[0].time;
+    var maxTime = jstr.times_scores.pop().time;
+
+    var pointParams = $('#pointid').val().split('|');
+    var pointEndTime = moment(pointParams[3].replace('T', ' ')).toDate();
+    var _maxTime = moment(maxTime).toDate();
+    if (_maxTime > pointEndTime){
+        maxTime = pointEndTime;
+    }
+
+    var _options = {
+        showCurrentTime: false,
+        interpolation: false,
+        start: minTime,
+        min: minTime,
+        end: maxTime,
+        max: maxTime,
+        dataAxis: {
+            visible: false,
+            icons: false,
+            left: {
+                range: {
+                    min: 0,
+                    max: 1000 + 50
+                }
+            }
+        },
+        height: '270px'
+    };
+    graph2d = new vis.Graph2d(_container, _dataset, _groups, _options);
+
+    graph2d.addCustomTime($('#restoretime').val(), 'timebar2');
+    $('#select_cdp_point').show();
+}
+
+$('#refershserverlist').button().click(function(){
+	var url= getrestoreserverlisturl();
+	url += '&pointid='+$('#pointid').val();
+	url += '&id=';
+	RefreshAciTree("Servers_Tree2",url);
+});
+
+function getviewaddr(jsonstr)
+{
+	if(jsonstr.audit == 'audit')
+	{
+		$("#viewdataFormDiv").dialog('close');
+		openSuccessDialog({title:'信息',html:jsonstr.e});
+		return;
+	}
+    $('#viewcdp').button("option", "disabled", false);
+	if(jsonstr.r!=0)
+	{
+		$("#viewdataFormDiv").dialog('close');
+
+        var pattInt = new RegExp("超过授权允许值");
+        if (pattInt.test(jsonstr.e) && '{{ page }}' != 'validate') {
+            openErrorDialog({title:'错误',html: jsonstr.e + '  \n[点击查看所有访问链接](../validate/)'});
+        }
+        else{
+            openErrorDialog({title:'错误',html:jsonstr.e});
+        }
+
+		$('#viewurl').html('');
+        $('#viewurl_from_web').html('');
+		$('#viewusername').html('');
+		$('#viewpassword').html('');
+		$('#viewhost').html('');
+		$('#viewtime').html('');
+		$('#viewtaskname').html('');
+		return;
+	}
+	if (jsonstr.share_status == 'init'){
+	    console.log('share_status is init');
+	    return;
+    }
+
+	var link = window.location.origin + '/xdashboard/filebrowser_handle/?a=home&schedule='+jsonstr.id;
+    var web_link = $('<a target="_blank" />').attr('href', link).text(link);
+	$('#viewdataFormDiv').scrollTop(500);
+	$('#closeview').show();
+	$('#viewurl').html(jsonstr.addr);
+	$('#viewurl_from_web').html(web_link);
+	$('#viewusername').html(jsonstr.name);
+	$('#viewpassword').html(jsonstr.pwd);
+	$('#mountid').val(jsonstr.id);
+	$('#viewhost').html(jsonstr.hostname);
+	$('#viewtime').html(jsonstr.time);
+	$('#viewtaskname').html(jsonstr.task_name);
+	initimg();
+}
+
+function viewdata()
+{
+	if($('#pointid').val()=='')
+	{
+		openErrorDialog({title:'错误',html:'请先选择一个备份点。'});
+		return;
+	}
+
+	$("#restorebuttondiv").hide();
+
+	$('#closeview').hide();
+	$('#viewurl').html('');
+	$('#viewurl_from_web').html('');
+	$('#viewusername').html('');
+	$('#viewpassword').html('');
+	$('#viewhost').html('');
+	$('#viewtime').html('');
+	$('#viewtaskname').html('');
+
+	var height = 320;
+	var width = 600;
+	var filetype = 'normal';
+
+	if($('div#show_iscdp').html()=='是')
+	{
+		height = 570;
+		width = 700;
+		filetype = 'cdp';
+		$('#showallview').css('margin-left','250px');
+        move_cdp_div_to_here('scan_cdp_data');
+        $('#scan_cdp_data').show();
+        $('#viewcdp').show();
+        getRestoreTimeInit($('#pointid').val());
+		$('#viewaddrdiv').hide();
+	}
+	else if($('div#show_iscdp').html()=='否')
+	{
+        $('#scan_cdp_data').hide();
+        $('#viewcdp').hide();
+		$('#showallview').css('margin-left','170px');
+		$('#viewurl').html('正在获取...');
+		$('#viewurl_from_web').html('正在获取...');
+		$('#viewusername').html('正在获取...');
+		$('#viewpassword').html('正在获取...');
+		$('#viewhost').html('正在获取...');
+		$('#viewtime').html('正在获取...');
+		$('#viewtaskname').html('正在获取...');
+		$('#viewaddrdiv').show();
+		myAjaxGet('../restore_handle/','a=mountpoint&pointid='+$('#pointid').val()+'&filetype='+filetype+'&isWin='+isWinPlatform()+'&page={{ page }}', getviewaddr);
+	}
+	else
+	{
+		debugger;
+		return;
+	}
+
+	$("#viewdataFormDiv").attr('title','备份数据访问地址').dialog({
+		autoOpen: true,
+		height: height,
+		width: width,
+		modal: true,
+		close: function(){
+		}
+	});
+}
+
+$('#volrefershserverlist').button().click(function(){
+	var url=getrestoreserverlisturl();
+	url += '&need_linux=1&showtype=nope';
+	url += '&pointid='+$('#pointid').val();
+	url += '&id=';
+	RefreshAciTree("Servers_Tree3",url);
+});
+
+function volrestore()
+{
+	if($('#pointid').val()=='')
+	{
+		openErrorDialog({title:'错误',html:'请先选择一个备份点。'});
+		return;
+	}
+	$("#restorebuttondiv").hide();
+	var url=getrestoreserverlisturl();
+	url += '&need_linux=1&showtype=nope';
+	url += '&pointid='+$('#pointid').val();
+	url += '&id=';
+	RefreshAciTree("Servers_Tree3",url);
+	$("#restoreVolFormDiv").attr('title','卷恢复').dialog({
+		autoOpen: true,
+		height: 600,
+		width: 750,
+		modal: true,
+		close: function(){
+		}
+	});
+	if($('div#show_iscdp').html()=='是')
+	{
+        move_cdp_div_to_here('voltabs-1');
+		$( "#voltabs" ).tabs( "option", "active", 0 );
+        getRestoreTimeInit($('#pointid').val());
+	}
+	else
+	{
+		$( "#voltabs" ).tabs( "option", "active", 1 );
+	}
+}
+
+function restore_vol_clback(jsonstr) {
+
+	if(jsonstr.audit == 'audit')
+	{
+		$("#viewdataFormDiv").dialog('close');
+		openSuccessDialog({title:'信息',html:jsonstr.e});
+		return;
+	}
+
+    if (jsonstr.r != 0){
+        openErrorDialog('失败','操作失败');
+        return;
+    }
+    else{
+        successTipBox('操作成功');
+    }
+}
+
+function OnRestorVol(pointid,serverid,choices_maps) {
+    var params = 'a=restorevol';
+    params += '&pointid=' + pointid;
+    params += '&serverid=' + serverid;
+    params += '&vol_maps=' + JSON.stringify(g_maps);
+    params += '&index_list=' + JSON.stringify(choices_maps);
+    params += "&restore_time="+$('#restoretime').val();
+    myAjaxPost('../restore_handle/', params, restore_vol_clback);
+}
+
+function start_vol_restore() {
+    var lines = $('#disk_vol_div li');
+    var choice_maps = [];
+    $.each(lines, function (index, item) {
+        if ($(item).find('input').is(':checked')) {
+            var c_val = $(item).find('select').val();
+            choice_maps.push(c_val);
+        } else {
+            choice_maps.push(null);
+        }
+    });
+    var serverid = getaciTreeChecked('Servers_Tree3');
+    OnRestorVol($('#pointid').val(), serverid, choice_maps);
+    $("#restoreVolFormDiv").dialog('close');
+}
+
+$('#nextvol').click(function() {
+    var selindex=$("#voltabs").tabs('option', 'active');
+    if (selindex == 0){
+        if(!CheckData(0))
+		    return;
+    }
+    if (selindex==1){
+        var id = getaciTreeChecked('Servers_Tree3');
+        if(id == '')
+        {
+            openErrorDialog({title:'错误',html:"请选择客户端"});
+            return ;
+        }
+        else{
+            volRefreshSrcServer();
+        }
+    }
+	else if(selindex==2){
+	    var choose = $('#disk_vol_div input:checked').val();
+		if(g_maps == null)
+		{
+			return;
+		}
+		else if(choose == undefined){
+		    openErrorDialog('错误','请勾选对应的卷目标。');
+		    return;
+        }
+		else
+		{
+            Onfinish(start_vol_restore);
+            return;
+		}
+	}
+    $( "#voltabs" ).tabs( "option", "active", selindex+1 );
+});
+
+$('#prevvol').click(function() {
+	var selindex=$("#voltabs").tabs('option', 'active');
+	if (selindex==0){
+	    return;
+    }
+	else if(selindex==1 && $('div#show_iscdp').html() != '是')
+	{
+	    return;
+	}
+	else
+	{
+		$( "#voltabs" ).tabs( "option", "active", selindex-1 );
+		return;
+	}
+});
+
+function volRefreshSrcServer()
+{
+	var serverid = getaciTreeChecked('Servers_Tree3');
+	var pointid = $('#pointid').val();
+	var parms = 'server_id=' + serverid + '&point_id=' + pointid;
+	$('#msg_vol').text('获取磁盘信息中...');
+    $('.mywaite_vol').show();
+    $('#disk_vol_content ul').empty();
+    g_maps = null;
+	myAjaxGet('../restore_handle/?a=get_disk_vol_maps', parms, show_disk_vol);
+}
+
+var g_maps = null;
+
+function show_disk_vol(jsonstr) {
+    $('.mywaite_vol').hide();
+    if (jsonstr.r !=0){
+        openErrorDialog('错误',jsonstr.e);
+        $("#restoreVolFormDiv").dialog('close');
+        return;
+    }
+    else{
+        if (jsonstr.maps.length ==0){
+           openErrorDialog('错误','获取卷对应关系失败！');
+            $("#restoreVolFormDiv").dialog('close');
+            return;
+        }
+        g_maps = jsonstr.maps;
+        $.each(jsonstr.maps, function (index, item) {
+            var line = $('<li></li>').css({'margin':'10px 5px 0 5px','padding':0,'list-style-type':'none'});
+            var left_div = $('<div style="float:left;height:27px;line-height:27px;vertical-align:middle;width:45%;' +
+                'overflow:auto;"></div>');
+            var right_div = $('<div style="float:right;height:27px;line-height:27px;vertical-align:middle;width:45%;' +
+                '"></div>');
+            var check_box = $('<input type="checkbox"/>').attr('value', index);
+            var img_contenter = $('<span></span>');
+            var src_show_name = $('<span style="word-break:break-all"></span>').text(item.display_name).attr('title',item.display_name);
+            if (item.target_vol.length){
+                var select = $('<select style="width:100%;height:100%"></select>');
+                $.each(item.target_vol, function (_index, _item) {
+                    var name = _item.target_display_name;
+                    var option = $('<option></option>').text(name).attr({'value': _index,'title':name});
+                    select.append(option);
+                });
+                right_div.append(select);
+            }
+            else{
+                right_div.append('无对应盘符。');
+                check_box.attr('disabled',true);
+            }
+            if (!item.valid){
+                check_box.attr('disabled',true);
+            }
+            var _msg = $('<div style="float:left;height:27px;line-height:27px;vertical-align:middle;width:9%;' +
+                'text-align:center; vertical-align:middle;">恢复到</div>');
+            left_div.append(check_box).append(img_contenter).append(src_show_name);
+            line.append(left_div).append(_msg).append(right_div);
+            $('#disk_vol_content ul').append(line);
+            $('#disk_vol_content ul').append('<div class="clear"></div>');
+        })
+    }
+}
+
+
+$('#volRefreshSrcServer').button().click(function(){
+	volRefreshSrcServer();
+});
+
+$('#vol_restore').click(function(){
+	volrestore();
+});
+
+$('#file_restore').click(function(){
+	unlock_btns();
+	viewdata();
+});
+
+$('#file_restore2').click(function(){
+	unlock_btns();
+	viewdata();
+});
+
+$('#file_restore3').click(function(){
+	unlock_btns();
+	viewdata();
+});
+
+$('#viewdata2').button().click(function(){
+	unlock_btns();
+	viewdata();
+});
+
+// 浏览备份数据，填写cdp时间，点击确认按钮
+$('#viewcdp').button().click(function(){
+	var viewrestoretime = $('#restoretime').val().replace(/ /g, 'T');
+	if(!_isTime(viewrestoretime))
+	{
+		openErrorDialog({title:'错误',html:"请填写正确的时间格式：YYYY-MM-DD hh:ss:ii.dddddd"});
+		return false;
+	}
+	var starttime=$('#show_cdpbackupstarttime').html();
+	var endtime=$('#show_cdpbackupendtime').html();
+	var d1 = new Date(starttime.replace(/T/g, ' '));
+	var d2 = new Date(endtime.replace(/T/g, ' '));
+	var d3 = new Date(viewrestoretime.replace(/T/g, ' '));
+	var diff1 = d2-d3;
+	var diff2 = d3-d1;
+	if(diff1<0 || diff2<0 )
+	{
+		openErrorDialog('错误', '还原时间点应该在范围之内');
+		return false;
+	}
+	$('#viewaddrdiv').show();
+    $('#viewurl').html('正在获取...');
+    $('#viewurl_from_web').html('正在获取...');
+	$('#viewusername').html('正在获取...');
+	$('#viewpassword').html('正在获取...');
+	$('#viewhost').html('正在获取...');
+	$('#viewtime').html('正在获取...');
+	$('#viewtaskname').html('正在获取...');
+	myAjaxGet('../restore_handle/','a=mountpoint&pointid='+$('#pointid').val()+'&time='+viewrestoretime+'&filetype=cdp'+'&isWin='+isWinPlatform()+'&page={{ page }}', getviewaddr);
+    $('#viewcdp').button("option", "disabled", true);
+});
+
+$('#goallview').click(function(){
+	location.href='../validate/';
+});
+
+function unmountCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	initimg();
+}
+
+$('#closeview').button().click(function(){
+	openConfirmDialog({
+		title:'确认信息',
+		html:'关闭后，备份点文件本次将不能访问，你确定要关闭吗?',
+		onBeforeOK:function(){
+			myAjaxGet('../restore_handle/','a=unmountpoint&id='+$('#mountid').val(),unmountCallback);
+			$(this).dialog('close');
+            $("#viewdataFormDiv").dialog('close');
+		}
+	});
+
+});
+
+$('#updateButton')
+	.button()
+	.click(function() {
+});
+
+$('#refershlinepoint').button().click(function(){
+	$('#pointid').val('');
+	$('div#show_srcserver').html('');
+	$('div#show_taskname').html('');
+	$('div#show_backuptype').html('');
+	$('div#show_iscdp').html('');
+	$('#show_cdpbackupstarttime').html('');
+	$('#show_cdpbackupendtime').html('');
+	$('#view_cdpbackupstarttime').html('');
+	$('#view_cdpbackupendtime').html('');
+	$('#restoretime').val('');
+	$('#viewrestoretime').val('');
+	$('div#show_backuptime').html('');
+	$('div#show_size').html('');
+	$('div#show_os').html('');
+	OnPointtime();
+});
+
+function FmtSize(size)
+{
+	return (size/(1024*1024)).toFixed(2);
+}
+
+function UploadCallback(jsonstr)
+{
+	if(jsonstr.r==200)
+	{
+		$('#downloadForm').dialog('close');
+		return;
+	}
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	var file = $('#localfile').get(0).files[0];
+	var start=jsonstr.start;
+	var total = file.size;
+	var html= '<div>' + '上传进度：' + FmtSize(start)+"/"+FmtSize(total)+'（MB）' + '</div>';
+	html += '<div style="margin-top:10px;">上传过程中，请勿关闭或刷新浏览器。</div>';
+	$('#info').html(html);
+	if(start<total)
+	{
+		FileReaderReadFile(file,start,1024*1024);
+	}
+}
+
+function FileReaderReadFile(file,start,step)
+{
+	var reader = new FileReader();
+	var buffer = null;
+	var total = file.size;
+	reader.onload = function(e)
+	{
+		buffer=e.target.result;
+	};
+	reader.onloadend = function(e)
+	{
+		var url='../restore_handle/?a=upload';
+		url+='&type=FileReader';
+		url+='&name='+file.name;
+		url+='&start='+start;
+		url+='&step='+1024*1024;
+		url+='&total='+total;
+		url+='&sync='+1; // 同步1 异步0
+		myPostBinary(url,buffer,UploadCallback);
+	};
+	//var slicer = fileOrBlob.slice || fileOrBlob.mozSlice || fileOrBlob.webkitSlice;
+	var blob = file.slice(start,start+step);
+	reader.readAsDataURL(blob);
+}
+
+$('#uploadImg').click(function(){
+	//html5
+	var file = $('#localfile').get(0).files[0];
+	if (!file){
+	    return;
+    }
+	FileReaderReadFile(file,0,1024*1024);
+});
+
+function getdownloadCallback(jsonstr)
+{
+	$('.mywaite').hide();
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	var url = jsonstr.url;
+	$('#imgurl').attr('href',url);
+	$('#imgurl2').attr('href',url);
+	var formid='downloadForm';
+	var height = 320;
+	if (!window.FileReader)
+	{
+		var head = document.getElementsByTagName('head')[0];
+		var link = document.createElement('link');
+		link.href = '/static/js/uploadify/uploadify.css';
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		head.appendChild(link);
+
+		formid='downloadFormFlash';
+		height = 250;
+		$.getScript('/static/js/uploadify/jquery.uploadify.min.js',function(){
+			$('#localfileflash').uploadify({
+				'formData'     : {
+					'csrfmiddlewaretoken' : $.cookie('csrftoken')
+				},
+				'swf'      : '/static/js/uploadify/uploadify.swf',
+				'uploader' : '../version_handle/?a=uploadbyflash',
+				'multi'    : false,
+				'auto': true,
+				'buttonText': '选择并上传镜像文件'
+			});
+		});
+	}
+	$("#"+formid).attr('title','更新').dialog({
+		autoOpen: true,
+		height: height,
+		width: 420,
+		modal: true,
+		close: function(){
+		}
+	});
+}
+
+function myupdate()
+{
+	var driverfileid=getAciTreeBoxChecked('drivers_Tree');
+	var url = $('#aiourl').val()+'/index.php/api/drivers/?a=getdownload&ids='+driverfileid;
+	$('#msg').html('正在生成驱动压缩包，这可能需要几分钟的时间。');
+	$('.mywaite').show();
+	myJsonp(url,'errinfo2',getdownloadCallback,null,10*60*1000);
+}
+
+$('#Servers_Tree2').on('acitree', function(event, api, item, eventName, options) {
+	if (eventName == 'selected'){
+		var itemData = api.itemData(item);
+		var id=api.getId(item);
+		UnCheckAllAciTreeRadios('Servers_Tree2',id);
+	}
+});
+
+g_hoursmorrisline = null;
+g_ra_path = null;
+
+function getValidTime(seltime)
+{
+	var stime = $('#show_cdpbackupstarttime').html().replace(/-/g, '/').replace(/T/g, ' ').split('.')[0];
+	var etime = $('#show_cdpbackupendtime').html().replace(/-/g, '/').replace(/T/g, ' ').split('.')[0];
+
+	var d1 = new Date(seltime);
+	var d2 = new Date(stime);
+	var d3 = new Date(etime);
+	if( d2>d1)
+	{
+		return stime.replace(/\//g, '-');
+	}
+	if( d1>d3)
+	{
+		return etime.replace(/\//g, '-');
+	}
+
+	return seltime;
+}
+
+function IOHoursClick(index, src, x, y)
+{
+	var _x = (x - g_hoursmorrisline.left) /g_hoursmorrisline.dx + g_hoursmorrisline.xmin;
+	var seldate = new Date(_x);
+	label = FromatTime2(seldate);
+	if(g_ra_path)
+	{
+		g_ra_path.remove();
+		g_ra_path = null;
+	}
+
+	var color = '#005a04';
+	var eventStrokeWidth = 5;
+	g_ra_path = g_hoursmorrisline.raphael.path("M" + (x) + "," + g_hoursmorrisline.bottom + "V" + g_hoursmorrisline.top).attr('stroke', color).attr('stroke-width',eventStrokeWidth);
+	g_ra_path.drag(move, start1, up);
+	g_ra_path.attr("cursor","e-resize");
+	var html="<div class='morris-hover-row-label'>" + label + "</div>";
+	g_hoursmorrisline.hover.update(html,x,y);
+	$('#restoretime').val(getValidTime(label)+'.000000');
+}
+
+
+function GeIOZoomChart(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	if(g_hoursmorrisline)
+	{
+		g_hoursmorrisline.handlers = {};
+	}
+
+	if(g_ra_path)
+	{
+		g_ra_path.remove();
+		g_ra_path = null;
+	}
+
+	g_hoursmorrisline = ShowMorris('IOHourstatus',jsonstr.list,'hour',['value1'],['写入(MByte/s)']);
+	handlers = g_hoursmorrisline.on('click',IOHoursClick).handlers;
+	handlers.hovermove = null;
+	handlers.hoverout = null;
+}
+
+function ShowIOZoomChart(seltime)
+{
+	var stime = $('#show_cdpbackupstarttime').html().replace(/-/g, '/').replace(/T/g, ' ').split('.')[0];
+	var etime = $('#show_cdpbackupendtime').html().replace(/-/g, '/').replace(/T/g, ' ').split('.')[0];
+	var starttime = seltime;
+	var endtime = seltime;
+
+	starttime = DateAddSeconds(seltime,-150);
+	endtime = DateAddSeconds(seltime,150);
+
+	var d1 = new Date(starttime);
+	var d2 = new Date(stime);
+	var d3 = new Date(etime);
+	if( d2>d1)
+	{
+		starttime = stime.replace(/\//g, '-');
+	}
+	if( new Date(endtime)>d3)
+	{
+		endtime = etime.replace(/\//g, '-');
+	}
+
+	var url='../restore_handle/?a=getiodaychart&starttime='+starttime+'&endtime='+endtime;
+	url+="&pointid="+$('#pointid').val();
+    myAjaxGet(url,'',GeIOZoomChart);
+}
+
+g_morrisline = null;
+g_tmp = null;
+
+var start = function (x, y) {
+  this.attr({opacity: 1});
+  this.lastX = x;
+  this.lastY = y;
+  g_morrisline.hover.update(false,x,y);
+},
+start1 = function (x, y) {
+  this.attr({opacity: 1});
+  this.lastX = x;
+  this.lastY = y;
+  g_hoursmorrisline.hover.update(false,x,y);
+},
+move = function (dx, dy, x, y) {
+  var deltaX = x - this.lastX;
+  var deltaY = y - this.lastY;
+  deltaY = 0;
+  this.translate(deltaX, deltaY);
+  this.lastX = x;
+  this.lastY = y;
+},
+up = function () {
+  this.attr({opacity: 0.8});
+};
+
+function IODayClick(index, src, x, y)
+{
+	var _x = (x - g_morrisline.left) /g_morrisline.dx + g_morrisline.xmin;
+	var seldate = new Date(_x);
+	label = FromatTime2(seldate);
+	if(g_tmp)
+	{
+		g_tmp.remove();
+		g_tmp = null;
+	}
+
+	var color = '#005a04';
+	var eventStrokeWidth = 5;
+	g_tmp = g_morrisline.raphael.path("M" + (x) + "," + g_morrisline.bottom + "V" + g_morrisline.top).attr('stroke', color).attr('stroke-width',eventStrokeWidth);
+	g_tmp.drag(move, start, up);
+	g_tmp.attr("cursor","e-resize");
+	var html="<div class='morris-hover-row-label'>" + label + "</div>";
+	g_morrisline.hover.update(html,x,g_morrisline.top-49);
+	ShowIOZoomChart(label);
+	$('#restoretime').val(getValidTime(label)+'.000000');
+}
+
+
+function GeIODayChart(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	if(g_morrisline)
+	{
+		g_morrisline.handlers = {};
+	}
+
+	if(g_tmp)
+	{
+		g_tmp.remove();
+		g_tmp = null;
+	}
+
+	g_morrisline = ShowMorris('IODaystatus',jsonstr.list,'hour',['value1'],['写入(MByte/s)']);
+	handlers = g_morrisline.on('click',IODayClick).handlers;
+	handlers.hovermove = null;
+	handlers.hoverout = null;
+}
+
+function setcdpuievent()
+{
+	g_lastcdptime = null;
+	$("div.cdptime").click(function(){
+		if($(this).hasClass("cdpdayselected"))
+		{
+		}
+		else
+		{
+			$(this).addClass("cdpdayselected");
+		}
+
+		if( g_lastcdptime != this )
+		{
+			$(g_lastcdptime).removeClass("cdpdayselected");
+		}
+		g_lastcdptime = this;
+
+		var day = $(this).html();
+		var starttime = day+' 0:0:0.000000';
+		var endtime = day+' 23:59:59.999999';
+
+		var st = new Date($('#show_cdpbackupstarttime').html().replace(/T/g, ' '));
+		var et = new Date($('#show_cdpbackupendtime').html().replace(/T/g, ' '));
+
+		var d1 = new Date(starttime);
+		var d2 = new Date(endtime);
+
+		if( d1-st < 0 )
+		{
+			starttime = $('#show_cdpbackupstarttime').html().replace(/T/g, ' ');
+		}
+		if( d2-et > 0 )
+		{
+			endtime = $('#show_cdpbackupendtime').html().replace(/T/g, ' ');
+		}
+
+
+		var url='../restore_handle/?a=getiodaychart&starttime='+starttime+'&endtime='+endtime;
+		url+="&pointid="+$('#pointid').val();
+        myAjaxGet(url,'',GeIODayChart);
+	});
+}
+
+$('#driver_update_method input[value=2]').click(function () {
+
+    var pointid=$('#pointid').val();
+	var destserverid=getaciTreeChecked('Servers_Tree2');
+	var tmpid=GetAciTreeParent('Servers_Tree2',destserverid);
+	if(tmpid=='ui_1')
+	{
+		destserverid=GetAciTreeValue('Servers_Tree2',destserverid,'peserverid');
+	}
+	var params="destserverid="+destserverid;
+
+	params+="&pointid="+pointid;
+    $('#driver_version_tree').html('');
+    RefreshAciTree("driver_version_tree",'../restore_handle/?a=get_driver_version&'+params, initCallback);
+    $('#msg').text('获取驱动版本中');
+    $('.mywaite').show();
+});
+
+function initCallback() {
+    $('#choice2_warp').show();
+}
+
+$('#driver_update_method input[value=1]').click(function () {
+    $('#choice2_warp').hide();
+    $('.mywaite').hide();
+});
+
+function ShowDriverVersionTree(jsonstr)
+{
+	var api = $('#driver_version_tree').aciTree('api');
+
+	for(i=0;i<jsonstr.list.length;i++)
+	{
+
+		var Inode={
+			id:'ui_'+i,
+			label:jsonstr.list[i].hardware,
+			icon:'adapter',
+			inode: false,
+			hardid:jsonstr.list[i].id,
+			compatibleid:jsonstr.list[i].compatible,
+			os:jsonstr.list[i].windows,
+			open:false};
+
+		api.append(null,{itemData:Inode,
+			success: function(item, options) {
+				var id=options.itemData.id;
+				var hardid=options.itemData.hardid;
+				var compatibleid=options.itemData.compatibleid;
+				var os=options.itemData.os;
+				SearchDriver(id,hardid,compatibleid,os);
+			}
+		});
+	}
+}
+
+function InitRestorePage()
+{
+$('#navigation').html('<div class="font_navigation"><div class="tiaozheng">恢复</div> 　　<div style="float:left;"><img src="/static/images/header_notes_icon_1.png" height="24" width="24" class="show_support_dlg" style="color:blue;cursor:pointer;"></img></div></div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#restore" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	$('#validatediv').hide();
+	$('#closeview').addClass('mycloseview1');
+}
+
+
+
+
+function ExistImgListCallback(jsonstr)
+{
+	$('#errordiv').hide();
+	var options = {
+		valueNames: [
+			'name',
+			'desc',
+			{
+				attr: 'value',
+				name: 'radio'
+			}
+		],
+		item: 'mydata'
+	};
+	var imgList = new List('imgs', options);
+	imgList.clear();
+	if(jsonstr.r!=0)
+	{
+		//openErrorDialog({title:'错误',html:jsonstr.e});
+		$('#errordiv').html('');
+		$('#errordiv').show();
+		return;
+	}
+
+	if(jsonstr.list.length)
+	{
+		$('#infodiv').show();
+	}
+
+	for(i=0;i<jsonstr.list.length;i++)
+	{
+		imgList.add({
+			name: jsonstr.list[i].url,
+			desc: jsonstr.list[i].auth,
+			radio:jsonstr.list[i].id
+		});
+	}
+
+	$('.mydata').hover(function(){
+			var row=$(this);
+			if(row.find('.list_right').length)
+			{
+				var list_right=$(row.find('.list_right')[0]);
+				list_right.show();
+			}
+		},function(){
+			//mouseleaver
+			var row=$(this);
+			if(row.find('.list_right').length)
+			{
+				var list_right=$(row.find('.list_right')[0]);
+				list_right.hide();
+			}
+	});
+}
+
+// 是否为win平台
+function isWinPlatform() {
+	var plat = String(navigator.platform).toUpperCase();
+	return plat.indexOf('WIN') >= 0;
+}
+
+function initimg()
+{
+	$('#errordiv').html('请稍候...');
+	$('#errordiv').show();
+	$('#infodiv').hide();
+	var params='a=getlinklist&isWin=' + isWinPlatform();
+	params+='&origin='+window.location.origin;
+	myAjaxGet('../restore_handle/',params,ExistImgListCallback);
+}
+
+function DelCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	initimg();
+}
+
+function mydelimg(li)
+{
+	var row=$(li).parent().parent();
+	if(row.find('.radio').length)
+	{
+		var radio=$(row.find('.radio')[0]);
+		openConfirmDialog({
+			title:'确认信息',
+			html:'你确定要关闭访问链接吗?',
+			onBeforeOK:function(){
+				var params='a=unmountpoint&id='+radio.val();
+				myAjaxGet('../restore_handle/',params,DelCallback);
+				$(this).dialog('close');
+				row.remove();
+			}
+		});
+	}
+}
+
+$('#resetbutton')
+.click(function() {
+	if($('#errordiv').is(":hidden"))
+	{
+		openErrorDialog({title:'错误',html: '* 存在正在使用的备份点共享连接，不能完成重置。  \n  \n* 请先点击此页面底部区域中的“关闭访问连接”按钮，关闭所有的连接后重试。'});
+		return;
+	}
+	openConfirmDialog({
+		title:'确认信息',
+		html:'需要重启计算机或使用net use命令清除缓存才能生效，详见帮助文档。',
+		onBeforeOK:function(){
+			var params='a=resetpwd';
+			myAjaxGet('../restore_handle/',params,TipCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+$('#showhelp').click(function(){
+	if($('.myhelptip').is(":visible"))
+	{
+		$('.myhelptip').hide();
+	}
+	else
+	{
+		$('.myhelptip').show();
+	}
+});
+
+$('#closehelp').click(function(){
+	$('.myhelptip').hide();
+});
+
+function InitValidatePage()
+{
+	$('#navigation').html('<div class="font_navigation"><div class="tiaozheng">验证</div>　　<div style="float:left;"><img src="/static/images/header_notes_icon_1.png" height="24" width="24" class="show_support_dlg" style="color:blue;cursor:pointer;"></img></div></div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#validate" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	$('div #restorediv .mybtn_nav').hide();
+	$('#pointdetaildiv').hide();
+	$('#showallview').hide();
+	$('#closeview').addClass('mycloseview2');
+	initimg();
+}
+
+function serverTreeClick()
+{
+	if( $("#servertreediv").is(":hidden") )
+	{
+		var h = $('#selservername').outerHeight();
+		$("#servertreediv").css('top',$('#selservername').offset().top+h);
+		$("#servertreediv").css('left',$('#selservername').offset().left);
+		$("#servertreediv").slideDown(600);
+	}
+	else
+	{
+		$("#servertreediv").slideUp(600);
+	}
+}
+
+$('#selServerTree').on('acitree', function(event, api, item, eventName, options) {
+	if (eventName == 'selected'){
+		var id = api.getId(item);
+		var name = api.getLabel(item);
+		if(id.substring(0,3)!='ui_')
+		{
+			UnCheckAllAciTreeRadios('selServerTree',null);
+			$('#selservername').val(name);
+			var agent_type = GetAciTreeValue('selServerTree',id,'agent_type');
+			showopbutton(agent_type);
+			setTimeout(function() {
+				$("#servertreediv").slideUp(600);
+				ShowTimeLine(id,$('#stime').val(),$('#endtime').val());
+			}, 300);
+		}
+	}
+});
+
+$("input[name=choice_routers]").click(function () {
+    if( $(this).val() == 1){
+        $('#show_src_routers').show();
+        $('#show_src_routers').siblings().hide();
+
+    }
+    else{
+        $('#show_dest_routers').show();
+        $('#show_dest_routers').siblings().hide();
+    }
+
+});
+
+$('#add_src_routes').click(function () {
+    var last_div = $('#src_routes_cfg .pre_route_cfg:visible').last();
+    if (!check_route_is_valid(last_div)){
+        openWarningDialog({title:'网络配置无效',html:'当前路由配置无效 <br>请正确配置后重试'})
+        return;
+    }
+    var new_html = $('#RouteMatherNode').html();
+    $('#src_routes_cfg').append(new_html);
+});
+
+$('#add_dest_routes').click(function () {
+    var last_div = $('#dest_routes_cfg .pre_route_cfg:visible').last();
+    if (!check_route_is_valid(last_div)){
+        openWarningDialog({title:'网络配置无效',html:'当前路由配置无效 <br>请正确配置后重试'})
+        return;
+    }
+    var new_html = $('#RouteMatherNode').html();
+    $('#dest_routes_cfg').append(new_html);
+});
+
+function delRouteDiv(spanobj) {
+    $(spanobj).parent().remove();
+}
+
+function check_route_is_valid(jqeuryobj){
+    var v1 = jqeuryobj.find('input[name=route_ip]').val();
+    var v2 = jqeuryobj.find('input[name=route_mask]').val();
+    var v3 = jqeuryobj.find('input[name=route_gateway]').val();
+    return isIPV4(v1) && isIPV4(v2) && isIPV4(v3)
+}
+
+function get_all_routes_src(routes) {
+    $('#src_routes_cfg .pre_route_cfg').each(function () {
+        if (!check_route_is_valid($(this))){
+            return;
+        }
+        var one_route = {};
+        one_route.route_ip = $(this).find('input[name=route_ip]').val();
+        one_route.route_mask = $(this).find('input[name=route_mask]').val();
+        one_route.route_gateway = $(this).find('input[name=route_gateway]').val();
+        routes.push(one_route);
+    });
+}
+
+function get_all_routes_dest(routes) {
+    $('#dest_routes_cfg .pre_route_cfg').each(function () {
+        if (!check_route_is_valid($(this))){
+            return;
+        }
+        var one_route = {};
+        one_route.route_ip = $(this).find('input[name=route_ip]').val();
+        one_route.route_mask = $(this).find('input[name=route_mask]').val();
+        one_route.route_gateway = $(this).find('input[name=route_gateway]').val();
+        routes.push(one_route);
+    });
+}
+
+function show_routers_to_page(jsonstr) {
+    $("#src_routes_cfg div:gt(0)").remove();
+    $("#dest_routes_cfg div:gt(0)").remove();
+    $("#src_routes_cfg div:first input").val();
+    $("#dest_routes_cfg div:first input").val();
+    $.each(jsonstr.src_routers, function (index, oneroute) {
+        if (index == 0) {
+            var first_div = $("#src_routes_cfg div:first");
+            first_div.find('input[name=route_ip]').val(oneroute[0]);
+            first_div.find('input[name=route_mask]').val(oneroute[1]);
+            first_div.find('input[name=route_gateway]').val(oneroute[2]);
+        }
+        else {
+            var new_html = $('#RouteMatherNode').html();
+            $('#src_routes_cfg').append(new_html);
+            var last_div = $('#src_routes_cfg div').last();
+            last_div.find('input[name=route_ip]').val(oneroute[0]);
+            last_div.find('input[name=route_mask]').val(oneroute[1]);
+            last_div.find('input[name=route_gateway]').val(oneroute[2]);
+        }
+    });
+    $.each(jsonstr.dest_routers, function (index, oneroute) {
+        if (index == 0) {
+            var first_div = $("#dest_routes_cfg div:first");
+            first_div.find('input[name=route_ip]').val(oneroute[0]);
+            first_div.find('input[name=route_mask]').val(oneroute[1]);
+            first_div.find('input[name=route_gateway]').val(oneroute[2]);
+        }
+        else {
+            var new_html = $('#RouteMatherNode').html();
+            $('#dest_routes_cfg').append(new_html);
+            var last_div = $('#dest_routes_cfg div').last();
+            last_div.find('input[name=route_ip]').val(oneroute[0]);
+            last_div.find('input[name=route_mask]').val(oneroute[1]);
+            last_div.find('input[name=route_gateway]').val(oneroute[2]);
+        }
+    });
+}
+
+$(document).bind('click',function(e){
+	var e = e || window.event;
+	var elem = e.target || e.srcElement;
+	while (elem) { //循环判断至跟节点，防止点击的是div子元素
+		if (elem.id && (elem.id=='servertreediv' || elem.id=='selservername')) {
+			return;
+		}
+		elem = elem.parentNode;
+	}
+	$("#servertreediv").slideUp(600);
+});
+
+$(function() {
+	var page = '{{ page }}';
+	if( page == 'validate' )
+	{
+		InitValidatePage();
+        $('#errordiv').hide();
+	}
+	else
+	{
+		InitRestorePage();
+	}
+	$('#voltabs').tabs();
+	$("#voltabs").css('min-height',480);
+	$("#tabs").tabs();
+	$("#tabs").css('min-height',480);
+	$("#vmtabs").tabs();
+	$("#vmtabs").css('min-height',480);
+	$(".ui-tabs-nav").hide();
+	var curTime='{{ now|date:"Y-m-d" }}';
+	$('#stime').val(DateSubDay(curTime,180));
+	$('#endtime').val(curTime);
+	myAjaxGet('../restore_handle/','a=getserverlist&group=group',SetServerList);
+	var params='a=url';
+	myAjaxGet('../version_handle/',params,UrlCallback);
+    $('#driver_version_tree').on('acitree', function(event, api, item, eventName, options) {
+        // get the item ID
+        //console.log(eventName);
+        if (eventName == 'beforeappend'){
+            $('.mywaite').hide();
+        }
+        if (eventName == 'loadfail'){
+            $('.mywaite').hide();
+            if(check_multi_version){
+                $('#driver_update_method input[value=1]').click();
+                check_multi_version = false;
+                return ;
+            }
+            $('#driver_version_tree').html('未获取到匹配的驱动版本。');
+            $('#driver_version_tree').height('32px');
+        }
+        if (eventName === 'loaded'){
+            uncheck_box_of_drivers_tree($('#driver_version_tree'));
+            append_choice($('#driver_version_tree'));
+            append_force_install_button($('#driver_version_tree'));
+        }
+    });
+
+    $('.show_support_dlg').click(function(){
+        var html = $('#drill_tip_form').html();
+        openCommonDialog({width:600,height:400,title: '灾难重建', html: html});
+    });
+
+    deploy_template();
+
+	restore_resize();
+});
+
+function restore_resize()
+{
+	resizeright();
+	var height=$(window).height()-430;
+	$('#placement').height(height);
+	baseresize();
+}
+
+// 将cdp_div移动到targetParentId下
+function move_cdp_div_to_here(targetParentId) {
+    var curParentId = $('#cdp_ui_id').parent().attr("id");
+    if(curParentId != targetParentId){
+        $('#cdp_ui_id').appendTo($('#'+targetParentId));
+    }
+}
+
+
+$('#HardDisks').on('click', '.header_button', function () {
+    var tbody = $(this).parents('.disk_table_container').find('.disk_item_body');
+    if (tbody.is(':visible')){
+        tbody.hide('blind', 800);
+        $(this).text('►');
+    }
+    else{
+        tbody.show('blind', 800);
+        $(this).text('▼');
+    }
+});
+
+$('#HardDisks').on('click', '.header_check', function () {
+    if ($(this).is('.isbootable')){
+        return;
+    }
+    var child_inputs = $(this).parents('.disk_table_container').find('.disk_item_body input[name=current]');
+    if ($(this).is(':checked')){
+        child_inputs.prop('checked', true);
+        child_inputs.each(function () {
+            change_same_vol_status(this);
+        })
+    }
+    else{
+        child_inputs.prop('checked', false);
+        child_inputs.each(function () {
+            change_same_vol_status(this);
+        })
+    }
+});
+
+function change_same_vol_status(obj){
+    var status = $(obj).prop('checked');
+    var vol_name = $(obj).attr('vol_name');
+    $('.disk_item_body input').each(function () {
+        if ($(this).attr('vol_name') == vol_name){
+            $(this).prop('checked', status);
+            var div_container = $(this).parents('.disk_table_container');
+            if (status){
+                div_container.find('.header_check').prop('checked', true);
+                div_container.find('.disk_item_body').show('blind', 800);
+                div_container.find('.header_button').text('▼');
+            }
+        }
+    });
+}
+
+$('#HardDisks').on('click', '.disk_item_body input', function () {
+    change_same_vol_status(this);
+});
+
+$('#tabs-7').on('click', '.set_disk_step_button', function () {
+    var tbody = $(this).parent().siblings();
+    if (tbody.is(':visible')){
+        tbody.hide('blind', 800);
+        $(this).text('►');
+    }
+    else{
+        tbody.show('blind', 800);
+        $(this).text('▼');
+    }
+});
+
+$(window).resize(function() {
+	restore_resize();
+});
+
+$(document).on('keyup', 'input[name=client_search]', function () {
+    var s_key = $('input[name=client_search]').val().toLowerCase();
+    var api = $('#selServerTree').aciTree('api');
+    var childs = api.children(null,true,true);
+	var show_item = new Array();
+	var hide_item = new Array();
+
+    $.each(childs, function (index, item) {
+        var node = $(item);
+        if (api.isLeaf(node)){
+            var label = api.getLabel(node).toLowerCase();
+            if (label.indexOf(s_key) ==-1){
+				hide_item.push(node);
+            }
+            else{
+				show_item.push(node);
+            }
+        }
+    })
+
+	for(var i=0;i<hide_item.length;i++)
+	{
+		var node = hide_item[i];
+		api.hide(node);
+		api.hide(api.parent(node));
+	}
+
+	for(var i=0;i<show_item.length;i++)
+	{
+		var node = show_item[i];
+		api.show(api.parent(node));
+		api.show(show_item[i]);
+	}
+});
+
+$(document).on('keyup', 'input[name=client_search2]', function () {
+    var s_key = $('input[name=client_search2]').val().toLowerCase();
+    var api = $('#Servers_Tree2').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+$(document).on('keyup', 'input[name=client_search3]', function () {
+    var s_key = $('input[name=client_search3]').val().toLowerCase();
+    var api = $('#Servers_Tree3').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+var vue_i1 = new Vue({
+    el: '#get_info',
+    data:function(){
+        return {
+        src_host:'WIN-4D22BCC7KHS(172.16.6.26)',
+        dst_host:'WIN-4D22BCC7KHS(172.16.6.31)',
+        rt_time:'2017-07-13 16:21:14',
+        cfm_info:'172.16.6.31',
+        i_value:''
+        }
+    },
+    methods:{
+        oninput:function () {
+            if (this.i_value != this.cfm_info){
+                console.log('not same');
+                $("#get_info_tmp_cfm").button("option", "disabled", true);
+            }else{
+                console.log('same');
+                $("#get_info_tmp_cfm").button("option", "disabled", false);
+            }
+        },
+        init:function (data) {
+            this.src_host = data.src_host;
+            this.dst_host = data.dst_host;
+            this.rt_time = data.rt_time;
+            this.cfm_info = data.cfm_info;
+            this.i_value = data.i_value;
+        }
+    }
+});
+
+function show_help_msg(obj){
+    var target_div = $(obj).parent().next('.myhelptip');
+    if(target_div.is(':visible')){
+        target_div.hide();
+    }else {
+        target_div.show();
+        $('#viewdataFormDiv').scrollTop(500);
+    }
+}
+
+function close_helptip_div(obj) {
+    $(obj).parent('.myhelptip').hide();
+}
+
+function restorevm_callback(jsonobj)
+{
+	if(jsonobj.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonobj.e});
+		return;
+	}
+	successTipBox("操作成功");
+	$("#restoreVMForm").dialog('close');
+}
+
+function OnRestoreVm()
+{
+	var params = "a=restorevm";
+	params += "&pointid="+$('#pointid').val();
+	params += "&vmname="+encodeURIComponent($('#vmname').val());
+	params += "&vcenter_id="+$('#vcenter').val();
+	params += "&memoryMB="+$('#vmmemoryMB').val();
+	params += "&vm_datastore="+encodeURIComponent($('#vm_datastore').val());
+	params += "&numCPU="+$('#vm_cpu_sockets').val()*$('#vm_cpu_cores').val();
+	params += "&numCoresPerSocket="+$('#vm_cpu_cores').val();
+	myAjaxPost('../vmrestore_handle/', params, restorevm_callback);
+}
+
+function check_vm_input(selindex)
+{
+	if(selindex == 0)
+	{
+		if( $('#vmname').val() == "" )
+		{
+			openErrorDialog({title: '错误',html: '名称不能为空。'});
+			return false;
+		}
+
+		if( $('#vcenter').val() == -1 )
+		{
+			openErrorDialog({title: '错误',html: '请选择vCenter Server/ESXi。'});
+			return false;
+		}
+
+		if( $('#vm_datastore').val() == -1 )
+		{
+			openErrorDialog({title: '错误',html: '请选择数据存储或数据存储集群。'});
+			return false;
+		}
+		$('#vm_restore_msg').html('正在检查名称是否合法');
+		$('.mywaite_vm_restore').show();
+		var params = "vmname="+encodeURIComponent($('#vmname').val());
+		params += "&vcenter_id="+$('#vcenter').val();
+		myAjaxGet('../vmrestore_handle/?a=check_vmname', params, check_vmname_callback,selindex);
+		return false;
+	}
+	else if(selindex == 1)
+	{
+		if( !isNum($('#vmmemoryMB').val()) )
+		{
+			openErrorDialog({title: '错误',html: '内存值不合法。'});
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function check_vmname_callback(jsonobj,selindex)
+{
+	$('.mywaite_vm_restore').hide();
+	if(jsonobj.r!=0)
+	{
+		openErrorDialog({title: '错误',html: jsonobj.e});
+		return;
+	}
+	$( "#vmtabs" ).tabs( "option", "active", selindex+1 );
+}
+
+$('#vmnext').click(function(){
+	var selindex=$("#vmtabs").tabs('option', 'active');
+	if(!check_vm_input(selindex))
+	{
+		return;
+	}
+	if(selindex==1)
+	{
+		openConfirmDialog({
+			title:'确认信息',
+			html:'是否要恢复至虚拟机',
+			onBeforeOK:function(){
+				OnRestoreVm();
+				$(this).dialog('close');
+			}
+		});
+		
+		return;	
+	}
+	if(selindex <= 1)
+	{
+		$( "#vmtabs" ).tabs( "option", "active", selindex+1 );
+	}
+});
+
+$('#vmprev').click(function() {
+	var selindex=$("#vmtabs").tabs('option', 'active');
+	if (selindex!=0)
+	{
+		$( "#vmtabs" ).tabs( "option", "active", selindex-1 );
+    }
+});
+
+$('#vm_cpu_sockets,#vm_cpu_cores').change(function(){
+	var vm_cpu_count = $('#vm_cpu_sockets').val()*$('#vm_cpu_cores').val();
+	$('#vm_cpu_count').html(vm_cpu_count);
+});
+
+function getdatastore_callback(jsonobj)
+{
+	var datastore = $('#vm_datastore');
+    datastore.empty();
+	if(jsonobj.r != 0 )
+	{
+		datastore.append($('<option selected="selected"></option>').val(-1).text(jsonobj.e));
+		return;
+	}
+	
+	datastore.append($('<option selected="selected"></option>').val(-1).text('--请选择--'));
+	for(var i=0;i<jsonobj.datastorelist.length;i++)
+	{
+		datastore.append($('<option></option>').val(jsonobj.datastorelist[i].id).text(jsonobj.datastorelist[i].name));
+	}
+}
+
+$('#vcenter').change(function(){
+	var id = $('#vcenter').val();
+	if(id==-1)
+	{
+		return;
+	}
+
+	var params = "a=getdatastore";
+	params += "&vcenter_id="+$('#vcenter').val();
+	myAjaxGet('../vmrestore_handle/', params, getdatastore_callback);
+
+});
+
+function get_restore_time() {
+    var time_str = $('#restoretime').val() ? $('#restoretime').val() : $('#pointid').val().split('|')[2];
+    return time_str;
+}
+
+function deploy_template() {
+    var params = $.cookie('deploy_template_params');
+    $.cookie('deploy_template_params', null, {'path': '/'});
+    if (params){
+        params = JSON.parse(params);
+        $('#pointid').val(params['pointid']);
+        $('div#show_os').html(params['host_os']);
+        $('div#show_srcserver').html(params['host_name']);
+        $('div#show_backuptime').html(params['snapshot_time']);
+        $('#selservername').val('');
+        restore('deploy');
+    }
+}
+
+</script>

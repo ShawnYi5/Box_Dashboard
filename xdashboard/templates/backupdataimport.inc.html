@@ -1,0 +1,320 @@
+<style>
+    .btn_nav {
+        float: right;
+        margin-top: 10px;
+    }
+
+    .prev, .next {
+        width: 100px;
+        height: 32px;
+        line-height: 32px;
+        background: url(btn_bg.gif) repeat-x bottom;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+    }
+
+    .myhiden {
+        width: 100px;
+        height: 32px;
+    }
+
+    .myoneday {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+        float: left
+    }
+
+    .myonedayselected {
+        background-color: #8ccad5
+    }
+
+    .aciTree div {
+        padding: 0em;
+    }
+
+    .manage-item, .manage-item-4cdp {
+        margin-top: 8px;
+    }
+
+    .manage {
+        margin-bottom: 16px;
+        margin-left: 16px
+    }
+
+    .pull-down-control {
+        cursor: pointer;
+    }
+
+    div.centent {
+        float: left;
+        text-align: center;
+    }
+
+    span.moveBt {
+        display: block;
+        margin: 10px;
+        padding: 4px 10px;
+        background: #898989;
+        cursor: pointer;
+        font-size: 12px;
+        color: white;
+    }
+
+    .selectCls {
+        width: 100px;
+        height: 122px;
+    }
+
+    .client_search {
+        border: 2px solid #dce4ec;
+        color: #34495e;
+        font-family: "Lato", sans-serif;
+        font-size: 14px;
+        padding: 3px 0 3px 10px;
+        width: 200px;
+        background: #fff url(/static/images/icon_search_1649.gif) no-repeat right;
+    }
+
+    li {
+        list-style-type: none;
+    }
+
+    .des {
+        margin: 20px;
+        color: grey;
+    }
+</style>
+<div id="newimportFormDiv" title="" class="ajaxForm">
+	<div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">导入方式选择</a></li>
+		<li><a href="#tabs-2">导出任务选择</a></li>
+	</ul>
+	<div id="tabs-1" style="margin-top:30px;margin-left:30px;">
+		<div style="margin-top:20px;" class="storagedevicediv">
+			选择备份存储设备：<input type="hidden" id="sel_storagedevice"/>
+			<select id="storagedevice" name="storagedevice">
+				<option value='-1' selected="selected">请稍候</option>
+			</select>
+			<div class="des">说明：选择合适存储设备来存放导入数据。</div>
+		</div>
+		<p>请选择导入方式</p>
+		<ul>
+			<li>
+				<div><label for="src_type1"><input type="radio" value="1" id="src_type1" name="src_type" checked>
+					从导出任务</label></div>
+				<div class="des">说明：从导出计划导入数据，需要导出介质在线。</div>
+			</li>
+			<li>
+				<div><label for="src_type2"><input type="radio" value="2" id="src_type2" name="src_type" disabled="disabled">
+					从磁带库</label></div>
+				<div class="des">说明：直接从磁带库导入数据，适用于本机不存在导出计划。</div>
+			</li>
+			<li>
+				<div><label for="src_type3"><input type="radio" value="3" id="src_type3" name="src_type" disabled="disabled">
+					从文件</label></div>
+				<div class="des">说明：直接从文件导入。</div>
+			</li>
+		</ul>
+	</div>
+	<div id="tabs-2" style="margin-top:30px;margin-left:30px;">
+		<p>请选择导出任务</p>
+		<div class="clear"></div>
+		<div style="float:left;"><input name="client_search" type="text" placeholder="开始搜索" class="client_search"/>
+		</div>
+		<div id="RefreshSrcServer" style="cursor:pointer;float:right;margin-right:0px;">刷新连接列表</div>
+		<div class="clear"></div>
+		<div id="Servers_Tree1" class="aciTree"
+			 style="width:100%;height:400px;border:1px solid #ccc;overflow:auto;"></div>
+	</div>
+</div>
+<div class="btn_nav">
+	<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input
+		type="button" id="next" class="next" style="float:right" value="下一步&raquo;"/>
+</div>
+</div>
+{% include 'tree.inc.html' %}
+
+<script language="javascript">
+    function panel_map() {
+        this._map = {
+            '1': [0, 1],  // 从任务导入
+            '2': [],  // 从磁带导入
+            '3': []  // 从文件导入
+        };
+        this._current_map = null;
+        this.next = function (i) {
+            var index = this._current_map.indexOf(i);
+            if (index == -1) {
+                return null;
+            }
+            else {
+                return index + 1;
+            }
+        };
+        this.is_end = function (i) {
+            var index = this._current_map.indexOf(i);
+            if (index != -1 && (index + 1) == this._current_map.length) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+        this.prev = function (i) {
+            var index = this._current_map.indexOf(i);
+            if (index == -1) {
+                return null;
+            }
+            else {
+                return index - 1;
+            }
+        };
+        this.set_map = function (src_type) {
+            this._current_map = this._map[src_type];
+        }
+    }
+
+    var g_map_obj = new panel_map();
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").tabs("option", "active", 0);
+        $("#tabs").css('height', 610);
+        $(".ui-tabs-nav").hide();
+        $(".prev").hide();
+        myAjaxGet('../backup_handle/', 'a=getstoragedevice', Getstoragedevice);
+    });
+
+    $('#next').click(function () {
+        var selindex = $("#tabs").tabs('option', 'active');
+        if (!CheckData(selindex)) {
+            return false;
+        } else {
+            if (selindex == 0) {
+                var src_type = $('input[name=src_type]:checked').val();
+                g_map_obj.set_map(src_type)
+            }
+            var next_index = g_map_obj.next(selindex);
+            if (g_map_obj.is_end(selindex)) {
+                onfinish(selindex);
+            } else {
+                $("#tabs").tabs('option', 'active', next_index);
+                setControlStatus(next_index);
+            }
+            $(".prev").show();
+        }
+    });
+
+    function onfinish(selindex) {
+        if (selindex == 1) {
+            var src_type = $('input[name=src_type]:checked').val();
+            var params = 'a=start_import&src_type=' + src_type;
+            var uuid = getaciTreeChecked('Servers_Tree1');
+            params += '&task_uuid=' + uuid;
+			params += '&storagedevice=' + $('#storagedevice').val();
+            myAjaxGet('../archive_handle/', params, start_import_cb);
+        }
+    }
+
+    function start_import_cb(json_str) {
+        if (json_str.r != 0) {
+            openErrorDialog('错误', json_str.e);
+            return;
+        }
+        var html = '执行任务成功，您可在<a href="../home" style="color:blue;">系统状态</a>中查看任务执行情况';
+        openSuccessDialog({title: '完成', html: html});
+		$("#newimportFormDiv").dialog('close');
+		setTimeout(function () {
+           ReloadGridCallback({'r':0});
+        }, 2000);
+		
+    };
+
+    function setControlStatus(selindex) {
+        if (selindex == 0) {
+            $(".prev").hide();
+            myAjaxGet('../backup_handle/', 'a=getstoragedevice', Getstoragedevice);
+        }
+        if (selindex == 1) {
+            RefreshAciTree("Servers_Tree1", '../archive_handle/?a=list_archive_task&key=');
+            $('#next').attr("value", "开始导入");
+        }
+    }
+
+    $('#prev').click(function () {
+        var selindex = $("#tabs").tabs('option', 'active');
+        var prev_index = g_map_obj.prev(selindex);
+        $("#tabs").tabs("option", "active", prev_index);
+        setControlStatus(prev_index);
+        $('#next').attr("value", "下一步»");
+    });
+
+    function Getstoragedevice(retjson) {
+        $("#storagedevice").empty();
+        $.each(retjson, function (i, item) {
+            var free_GB = (item.free / Math.pow(1024, 1)).toFixed(2);
+            free_GB = (item.value == -1) ? 0 : free_GB;
+
+            var html = "（可用：{3}）";
+            html = html.replace('{3}', free_GB + 'GB');
+
+            if ($('#sel_storagedevice').val() == item.value) {
+                $("#storagedevice").append("<option value='" + item.value + "'  selected=\"selected\" >" + item.name + "</option>");
+            }
+            else {
+                $("#storagedevice").append("<option value='" + item.value + "'>" + item.name + html + "</option>");
+            }
+        });
+    }
+
+    function CheckData(selindex) {
+        if (selindex == 0) {
+            if ($("#storagedevice").val() == -1) {
+                openErrorDialog({title: '错误', html: '选择备份存储设备。'});
+                return false;
+            }
+        }
+        if (selindex == 1) {
+            var uuid = getaciTreeChecked('Servers_Tree1');
+            if (!uuid) {
+                openErrorDialog({title: '错误', html: '选择导出任务。'});
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    $('#RefreshSrcServer').button().click(function () {
+        RefreshAciTree("Servers_Tree1", '../archive_handle/?a=list_archive_task&key=');
+    });
+
+    $(document).on('keyup', 'input[name=client_search]', function () {
+        var s_key = $('input[name=client_search]').val().toLowerCase();
+        var api = $('#Servers_Tree1').aciTree('api');
+        var children = api.children(null, true, true);
+        api.radios(children).each(api.proxy(function (element) {
+            var node = $(element);
+            var label = this.getLabel(node).toLowerCase();
+            if (label.indexOf(s_key) == -1) {
+                api.hide(node);
+            }
+            else {
+                api.show(node);
+            }
+        }, true));
+    });
+
+
+    $('#Servers_Tree1').on('acitree', function (event, api, item, eventName, options) {
+        if (eventName == 'selected') {
+            var itemData = api.itemData(item);
+            var id = api.getId(item);
+            UnCheckAllAciTreeRadios('Servers_Tree1', id);
+        }
+    });
+</script>

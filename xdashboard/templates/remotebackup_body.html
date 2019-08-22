@@ -1,0 +1,30 @@
+<div class="right">
+	{% include 'remotebackup.inc.html' %}
+</div>
+
+<script type="text/javascript">
+
+{% include 'remotebackup.js' %}
+
+function remotebackup_resize()
+{
+	resizeright();
+	var height=$(window).height()-200;
+	$("#tabs").css('height', height);
+	$('#Servers_Tree1').css('height', height-375);
+	$('#Servers_Tree2').css('height', height-90);
+	$('#disk_vol_div').css('height', height-130);
+	baseresize();
+}
+
+$(function () {
+	$('#navigation').html('<div class="font_navigation">新建远程容灾计划<span style="color:red;">{{ remotebackup_license }}</span></div>');
+	$('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#remotebackup" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	$('#newremotebackupFormDiv').show();
+	remotebackup_resize();
+});
+
+$(window).resize(function() {
+	remotebackup_resize();	
+});
+</script>

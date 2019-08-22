@@ -1,0 +1,559 @@
+<style type="text/css">
+.mybtn_nav{float:left;width:100%;}
+.myprev,.mynext{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+._box 
+{ 
+	position: relative; 
+	padding: 5px 5px;
+    border-radius: 6px;
+    border: none;
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+    background-color: #28a8e0;
+	cursor:pointer;
+	overflow: hidden; 
+	z-index: 1; 
+} 
+._box input 
+{ 
+	position: absolute; 
+	width: 119px; 
+	height: 40px; 
+	line-height: 40px; 
+	font-size: 23px; 
+	opacity: 0; 
+	filter: "alpha(opacity=0)"; 
+	filter: alpha(opacity=0); 
+	-moz-opacity: 0; 
+	left: -5px; 
+	cursor: pointer; 
+	z-index: 2; 
+} 
+.list {
+  font-family:sans-serif;
+  margin:0;
+  padding:20px 0 0;
+}
+.list > li {
+  display:block;
+  margin-bottom:10px;
+  border:1px dashed #84A9D6;
+  height:80px;
+  width:100%
+}
+.list > li:hover {
+  background-color:#C3DBF7;
+}
+p {
+  margin:0;
+}
+.list .list_preleft{
+    float: left;
+	margin-top: 4%;
+}
+.list .list_left{
+	width: 100px;
+    height: 100%;
+    float: left;
+    margin: 0 20px;
+	margin-top: 7px;
+}
+.list .list_content{float: left;}
+.list .list_right{
+float: right;
+margin-top: 25px;
+margin-right: 30px;
+}
+
+.list .button{
+	padding: 5px 5px;
+    border-radius: 6px;
+    border: none;
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+    background-color: #28a8e0;
+	cursor:pointer;
+}
+
+.list img {
+    border: 0;
+    display: block;
+	width: 100px;
+}
+.pagination li {
+  display:inline-block;
+  padding:5px;
+}
+</style>
+<div class="right">
+	<div id="tabs">
+		<ul>
+		<li><a href="#tabs-1">从备份点添加</a></li>
+		<li><a href="#tabs-2">从互联网添加</a></li>
+		</ul>
+		<div id="tabs-1" style="width:740px;">
+			<div style="display:none;" id="errordiv1">
+			</div>
+			<div id="addimgdiv">
+				<div class="table_menu">
+					<br />数据源客户端：<select id="selservername" name="selservername" ></select>
+					时间：<input name="stime" type="text" class="textTime Wdate" id="stime" readonly="readonly" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:OnPointtime})"/>至<input name="endtime" type="text" class="textTime Wdate" id="endtime" readonly="readonly" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:OnPointtime})"/>
+				</div>
+				<input type="hidden" id="pointid" name="pointid" />
+				<div id='placement' style="width:730px;height:300px;"></div>
+				<div style="margin-top:30px">
+					<table width="90%" border="0" cellspacing="5" cellpadding="0">
+						<tr>
+							<td align="left" colspan=2>选定备份点信息<br /><br /></td>
+						</tr>
+						<tr>
+							<td align="right" width="20%">备份数据源：</td>
+							<td align="left"><div id="show_srcserver">&nbsp;</div></td>
+						</tr>
+						<tr>
+							<td align="right">备份任务名：</td>
+							<td align="left"><div id="show_taskname">&nbsp;</div></td>  
+						</tr>
+						<tr>
+							<td align="right">备份时间：</td>
+							<td align="left"><div id="show_backuptime">&nbsp;</div></td>  
+						</tr>
+						<tr>
+							<td align="right">备份类型：</td>
+							<td align="left"><div id="show_backuptype">&nbsp;</div></td>
+						</tr>
+						<tr>
+							<td align="right">CDP：</td>
+							<td align="left"><div id="show_iscdp">&nbsp;</div></td>
+						</tr>
+						<tr>
+							<td align="right">备份点大小：</td>
+							<td align="left"><div id="show_size">&nbsp;</div></td>
+						</tr>
+					</table>
+				</div>
+				<div class="mybtn_nav">
+					<input type="button" id="addForm" class="myprev" style="float:right;margin-right:60px;" value="添加到镜像" />
+				</div>
+			</div>
+		</div>
+		<div id="tabs-2" style="width:740px;">
+			<div style="display:none;" id="errordiv">
+			</div>
+			<div id="imgs">
+				<ul class="list" style="height:450px;">
+				</ul>
+				<ul class="pagination"></ul>
+			</div>
+			<div style="display:none;">
+				<li id="mydata" class="mydata" onclick="myselimg(this);">
+					<div class="list_preleft">
+					<input class="radio" type="radio" value="" name="img" />
+					<input class="filepath" type="input" value="" name="filepath" style="display:none;" />
+					</div>
+					<div class="list_left">
+					<img class="image" src="">
+					</div>
+					<div class="list_content">
+					<h4 class="name"></h4>
+					<p class="desc"></p>
+					</div>
+					<div class="list_right" style="display:none;">
+					<div class="button" onclick="myaddimg(this);">添加</div> <div class="button">查看详细</div>
+					</div>
+					<div class="clear"></div>
+				</li>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="addCDPFormDiv" title="添加到镜像" class="ajaxForm">
+	<div style="margin-top: 30px;">镜像时间点：<input name="restoretime" type="text" id="restoretime" style="width:180px"/> 精确到微秒</div>
+	<div>范围：<span id="show_cdpbackupstarttime"></span>&nbsp;&nbsp;-&nbsp;&nbsp;<span id="show_cdpbackupendtime"></span></div>
+</div>
+
+<div id="downloadForm" title="添加到镜像" class="ajaxForm">
+	<div style="margin-top: 30px;">镜像链接：<a id="imgurl" href="">下载地址</a></div>
+	<div style="margin-top: 10px;">
+		<div style="float:left;margin-top: 2px;">
+		<input type='text' id='localfilepath' style="width:300px" /> 
+		</div>
+		<div style="float:left;margin-left: 5px;" class="_box"> 
+		<input type="file" onchange="document.getElementById('localfilepath').value=this.value" /> 
+			选择文件
+		</div> 
+		<div class="mybtn_nav">
+			<input type="button" id="addRomteImg" class="myprev" style="float:right;margin-top:60px;margin-right:3px;" value="添加到镜像" />
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="/static/js/list.js"></script>
+<script type="text/javascript" src="/static/js/list.pagination.min.js"></script>
+
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/js/timeglider/Timeglider.css" />
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/js/timeglider/timeglider.datepicker.css" />
+
+<script type='text/javascript' src='/static/js/timeglider/js/underscore-min.js'></script>
+<script type="text/javascript" src="/static/js/timeglider/js/backbone-min.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/jquery.tmpl.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/ba-tinyPubSub.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/jquery.ui.ipad.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/globalize.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/ba-debug.min.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Date.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Org.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Timeline.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_TimelineView.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/TG_Mediator.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/timeglider.timeline.widget.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/timeglider.datepicker.js"></script>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+
+<script type="text/javascript">
+function OnPointtime()
+{
+	var starttime=$('#stime').val();
+	var endtime=$('#endtime').val();
+	var d1 = new Date(starttime.replace(/-/g, '/'));
+	var d2 = new Date(endtime.replace(/-/g, '/'));
+	var diff = d2-d1;
+	if(diff<0)
+	{
+		openErrorDialog('错误', '开始时间应小于结束时间');
+		return;
+	}
+	ShowTimeLine($("#selservername").val(),$('#stime').val(),$('#endtime').val());
+}
+g_tg1=null;
+function ShowTimeLine(serverid,starttime,endtime)
+{
+	if(g_tg1)
+	{
+		var tg_instance = g_tg1.data("timeline");
+		tg_instance.destroy();
+	}
+	g_tg1 = $("#placement").timeline({
+		 "data_source":"../restore_handle/?a=getpoint&serverid="+serverid+"&starttime="+starttime+"&endtime="+endtime,
+		 "timezone":"+00:00",
+		 "min_zoom":1,
+		 "max_zoom":40, 
+		 "icon_folder":"/static/js/timeglider/icons/",
+		 show_footer:false,
+		 show_centerline:false,
+		 display_single_timeline_info:false,
+		 eventClick: function($ev, ev) {
+			OnDetail(ev.id);
+			return false;
+		}
+	 });
+
+ }
+
+ function GetPointDetail(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$( "#tabs" ).tabs( "option", "active", 0 );
+
+	$('div#show_srcserver').html(jsonstr.srcserver);
+	$('div#show_taskname').html(jsonstr.taskname);
+	$('div#show_backuptype').html(jsonstr.backuptype);
+	if(jsonstr.iscdp==1)
+	{
+		$('div#show_iscdp').html('是');
+		$('#show_cdpbackupstarttime').html(jsonstr.cdpbackupstarttime);
+		$('#show_cdpbackupendtime').html(jsonstr.cdpbackupendtime);
+		$('#restoretime').val(jsonstr.cdpbackupstarttime);
+		$('div#show_backuptime').html(jsonstr.cdpbackupstarttime+' ─ '+jsonstr.cdpbackupendtime);
+	}
+	else
+	{
+		$('div#show_iscdp').html('否');
+		$('div#show_backuptime').html(jsonstr.backuptime);
+	}
+	$('div#show_size').html(jsonstr.size+"GB");
+
+}
+
+ function OnDetail(id)
+{
+	$('#pointid').val(id);
+	var params="a=gepointdetail&pointid="+$('#pointid').val();
+	myAjaxGet('../restore_handle/',params,GetPointDetail);
+}
+
+function SetServerList(retjson)
+{
+	if(retjson.r!=0)
+	{
+		$('#addimgdiv').hide();
+		$('#errordiv1').html(retjson.e);
+		$('#errordiv1').show();
+		return;
+	}
+	$('#addimgdiv').show();
+	$('#errordiv1').hide();
+	$("#selservername").empty();
+	$.each(retjson.list, function(i, item){
+		if(item.mydefault==1)
+		{
+			$("#selservername").append("<option value='"+item.id+"'  selected=\"selected\" >"+item.name+"</option>"); 	
+		}
+		else
+		{
+			$("#selservername").append("<option value='"+item.id+"'>"+item.name+"</option>"); 
+		}
+	});
+
+	ShowTimeLine($("#selservername").val(),$('#stime').val(),$('#endtime').val());
+}
+
+$('#selservername').change(function(){ 
+	var serverid=$(this).children('option:selected').val();
+	ShowTimeLine(serverid,$('#stime').val(),$('#endtime').val());
+});
+
+function AddImgCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	openSuccessDialog({title:'完成',html:jsonstr.e});
+
+}
+
+function AddPointToImg()
+{
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要添加到镜像吗?添加后该点不会被自动删除。',
+		onBeforeOK:function(){
+			var params = 'a=addpointimg';
+			params+="&pointid="+$('#pointid').val();
+			params+="&time="+$('#restoretime').val();
+			myAjaxGet('../deploy_handle/',params,AddImgCallback);
+			$(this).dialog('close');
+		}
+	});
+}
+
+$('#addForm').click(function(){
+	if($('#pointid').val()=='')
+	{
+		openErrorDialog({title:'错误',html:'请先选择一个备份点。'});
+		return;
+	}
+
+	if($('div#show_iscdp').html() == '是')
+	{
+		$("#addCDPFormDiv").attr('title','恢复').dialog({
+			autoOpen: true,
+			height: 250,
+			width: 400,
+			modal: true,
+			buttons: {			
+				'确定': function(){
+					AddPointToImg();
+					$(this).dialog('close');
+					
+				},
+				'取消': function(){
+					$(this).dialog('close');
+				}
+			},
+			close: function(){
+			}
+		});
+	}
+	else
+	{
+		AddPointToImg();	
+	}
+
+});
+
+function ImgListCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	var options = {
+		valueNames: [
+			'name',
+			'desc',
+			{
+				attr: 'src',
+				name: 'image'
+			},
+			{
+				attr: 'value',
+				name: 'radio'
+			},
+			{
+				attr: 'value',
+				name: 'filepath'
+			}
+		],
+		item: 'mydata',
+		page: 5,
+		plugins: [
+		  ListPagination({outerWindow:1})
+		]
+	};
+
+
+	var imgList = new List('imgs', options);
+
+	imgList.clear();
+
+	for(i=0;i<jsonstr.list.length;i++)
+	{
+		imgList.add({
+			name: jsonstr.list[i].name,
+			desc: jsonstr.list[i].desc,
+			image: jsonstr.list[i].image,
+			filepath: jsonstr.list[i].filepath,
+			radio:jsonstr.list[i].id
+		});
+	}
+
+	$('.mydata').hover(function(){
+			var row=$(this);
+			if(row.find('.list_right').length)
+			{
+				var list_right=$(row.find('.list_right')[0]);
+				list_right.show();
+			}
+		},function(){
+			//mouseleaver
+			var row=$(this);
+			if(row.find('.list_right').length)
+			{
+				var list_right=$(row.find('.list_right')[0]);
+				list_right.hide();
+			}
+	});
+}
+
+function ImgUrlCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#errordiv').html('请稍候...');
+	$('#errordiv').show();
+	$.ajax({  
+        url:jsonstr.url,  
+        dataType:'jsonp',  
+        data:'',  
+        jsonp:'callback',  
+        success:function(result) { 
+			$('#errordiv').html('选择需要添加的镜像');
+			$('#errordiv').show();
+			ImgListCallback(result);
+        },
+		error:function(x,e){
+			var html='无法解析服务器数据：'+jsonstr.url+"<br /><br />";
+			html+="状态："+x.status+",错误描述："+e;
+			$('#errordiv').html(html);
+			$('#errordiv').show();
+		},
+        timeout:3000 
+    });
+}
+
+function initimg()
+{
+	var params='a=imgurl';
+	myAjaxGet('../deploy_handle/',params,ImgUrlCallback);
+}
+
+function myselimg(li)
+{
+	var row=$(li);
+	if(row.find('.radio').length)
+	{
+		var radio=$(row.find('.radio')[0]);
+		radio.prop("checked",true);
+	}
+}
+
+$('#tabs').on('tabsbeforeactivate', function(event, ui) {
+	switch(ui.newTab.index())
+	{
+		case 1:
+			$('#errordiv').hide();
+			initimg();
+			break;
+	}
+});
+
+function myaddimg(li)
+{
+	var row=$(li).parent().parent();
+	if(row.find('.filepath').length)
+	{
+		var filepath=$(row.find('.filepath')[0]);
+		$('#imgurl').html($(row.find('.name')[0]).html());
+		$('#imgurl').attr('href',filepath.val());
+		$("#downloadForm").attr('title','添加镜像').dialog({
+			autoOpen: true,
+			height: 250,
+			width: 400,
+			modal: true,
+			close: function(){
+			}
+		});
+	}
+}
+
+$('#addRomteImg').click(function(){
+	try
+    {
+        ado_stream = new ActiveXObject("ADODB.Stream");
+        ado_stream.Type = 1;
+        ado_stream.Open();
+    }
+    catch(ex)
+    {
+		return openErrorDialog({title:'错误',html:"创建数据流对象失败，原因："+ex.description});
+    }
+
+    try
+    {
+        ado_stream.LoadFromFile($('#localfilepath').val());
+    }
+    catch(ex)
+    {
+        return openErrorDialog({title:'错误',html:"无法打开文件 "+$('#localfilepath').val()+",传输将终止，原因"+ex.description});
+    }
+});
+
+$(function() {
+	$("#tabs").tabs();
+	$("#tabs").css('height',650);
+	var curTime='{{ now|date:"Y-m-d" }}';
+	$('#stime').val(DateSubDay(curTime,7));
+	$('#endtime').val(curTime);
+	myAjaxGet('../restore_handle/','a=getserverlist',SetServerList);
+	$('#navigation').html('<div class="font_navigation">添加镜像</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#addmirror" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+
+});
+</script>

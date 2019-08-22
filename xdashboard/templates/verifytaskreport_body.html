@@ -1,0 +1,446 @@
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/css/vis-timeline-graph2d.min.css" />
+<style type="text/css">
+.myselectcss{
+	border:#999 1px solid;
+	height:20px;
+	background:#fff url(/static/images/sel.gif) no-repeat right;
+}
+.myselectcss::-ms-clear{display:none;}
+.vis-item .vis-item-overflow {
+  overflow: visible;
+}
+.vis-item .vis-item-content{
+	cursor:pointer;
+}
+
+.vis-time-axis .vis-grid.vis-minor {
+  border-width: 0px;
+}
+
+
+</style>
+<div class="right">
+	<div class="table_menu">
+		<div class="menu_btn" style="margin-top: .6em;">数据源客户端：<input id="selservername" type="text" readonly="readonly" class="myselectcss" name="selservername" style="width:280px;padding-right: 30px;text-overflow: ellipsis;" onClick="serverTreeClick()"/>
+		时间：<input name="stime" type="text" class="textTime Wdate" id="stime" readonly="readonly" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:OnPointtime})"/>至<input name="endtime" type="text" class="textTime Wdate" id="endtime" readonly="readonly" onClick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:OnPointtime})"/>
+		</div>
+		<div class="menu_btn" id="refershlinepoint" style="float: right;margin-top: 5px">刷新数据</div>
+	</div>
+	<div id="servertreediv" style="position: absolute; z-index: 100016; display: block;display:none;">
+		<div id="selServerTree" class="aciTree" style="border:1px solid #ccc;overflow:auto;background-color:#ffffff;max-height:600px;"></div>
+	</div>
+	<div style="margin-top:10px;">当前共有<span id="all_verify_ing_count"></span>个任务正在验证，<span id="all_verify_count"></span>个任务正在排队验证；其中你有<span id="current_user_verify_ing_count"></span>个任务正在验证，<span id="current_user_verify_count"></span>个任务正在排队验证</div>
+	<div id="visualization" style="margin-top:10px;"></div>
+	<div id="pointdetaildiv"></div>
+	<div id="pointdetailtempl" style="display:none;">
+	<div style="margin-top:10px;overflow:auto;">
+		<table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+			<tr height="25">
+				<td align="right" width="20%">自动验证计划名称：</td>
+				<td align="left"><div class="show_verifytask_name"></div></td>
+			</tr>
+			<tr height="25">
+				<td align="right" width="20%">执行时间：</td>
+				<td align="left"><div class="show_sttime"></div></td>
+			</tr>
+			<tr height="25">
+				<td align="right">验证项及结果：</td>
+				<td align="left"><div class="show_task_result"></div></td>
+			</tr>
+		</table>
+	</div>
+	</div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type='text/javascript' src='/static/js/vis.min.js'></script>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+
+<script type="text/javascript">
+var g_items = null;
+var g_timeline = null;
+$(function() {
+	$('#navigation').html('<div class="font_navigation"><div class="tiaozheng">验证报告</div></div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#restore" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	var curTime='{{ now|date:"Y-m-d" }}';
+	var stime = DateSubDay(curTime,7)
+	$('#stime').val(stime);
+	$('#endtime').val(curTime);
+	var start_timstamp = new Date(stime+' 00:00:00').getTime();
+	var end_timestamp = new Date(curTime+' 23:59:59').getTime();
+	var options = {
+		showCurrentTime: false,
+		//start: start_timstamp,
+		//end: end_timestamp,
+		//min: start_timstamp,
+		//max: end_timestamp,
+		format: {
+			minorLabels: {
+				millisecond: 'SSSSSS',
+				second: 'ss',
+				minute: 'HH:mm',
+				hour: 'HH:mm',
+				weekday: 'DD[日]',
+				day: 'DD[日]',
+				month: 'MM[月]',
+				year: 'YYYY[年]'
+			},
+			majorLabels: {
+				millisecond: 'YYYY[年]MM[月]DD[日] HH:mm:ss',
+				second: 'YYYY[年]MM[月]DD[日] HH:mm',
+				minute: 'YYYY[年]MM[月]DD[日]',
+				hour: 'YYYY[年]MM[月]DD[日]',
+				weekday: 'YYYY[年]MM[月]',
+				day: 'YYYY[年]MM[月]',
+				month: 'YYYY[年]',
+				year: ''
+			}
+		}
+	};
+	g_items = new vis.DataSet();
+	g_items.add({"id": "0", "group": "not_need_verify", "content": "正在加载", "type": "point", "start": stime+' 00:00:00'});
+	// Create a Timeline
+	g_timeline = new vis.Timeline($('#visualization')[0], g_items, options);
+
+	// create a data set with groups
+	var groups = new vis.DataSet();
+	groups.add({id: 'no_point', content: '生成备份失败'});
+	groups.add({id: 'verify_failed', content: '验证失败'});
+	groups.add({id: 'verify_pass', content: '验证通过'});
+	groups.add({id: 'not_need_verify', content: '等待验证'});
+	
+	g_timeline.setGroups(groups);
+	g_items.clear();
+	myAjaxGet('../restore_handle/','a=getserverlist&group=group',SetServerList);
+
+	verifytaskreport_resize();
+});
+
+$('#refershlinepoint').button().click(function(){
+	OnPointtime();
+});
+
+function ShowTimeLineCallback(jsonobj)
+{
+	g_items.clear();
+	if (jsonobj.r != 0) {
+		openErrorDialog({title: '错误', html: jsonobj.e});
+		return;
+	}
+    g_items.add(jsonobj.report);
+	g_timeline.fit();
+	setTimeout(function () {
+		verifytaskreport_resize();
+    }, 1000);
+	
+	
+}
+
+function get_report_detail_callback(jsonobj,group)
+{
+	if (jsonobj.r != 0) {
+		openErrorDialog({title: '错误', html: jsonobj.e});
+		return;
+	}
+	for(var i=0;i<jsonobj.result.length;i++)
+	{
+		var obj = $('#pointdetailtempl').find('div').clone();
+		obj.find('.show_verifytask_name').html(jsonobj.result[i].schedule_name);
+		obj.find('.show_sttime').html(jsonobj.result[i].stime);
+		obj.find('.show_task_result').html(jsonobj.result[i].verify_result_list.join('<br>'));
+		$('#pointdetaildiv').append(obj);
+	}
+	setTimeout(function () {
+		verifytaskreport_resize();
+    }, 1000);
+}
+
+g_timeline.on('select', function (properties) {
+	$('#pointdetaildiv').empty();
+	var id = properties.items[0];
+	myAjaxGet('../autoverifytask_handle/','a=get_report_detail&id='+id,get_report_detail_callback,g_items._data[id]['group']);
+
+});
+
+function get_lineup_tasks_Callback(jsonobj)
+{
+	$('#all_verify_count').text(jsonobj.all_verify_count);
+	$('#current_user_verify_count').text(jsonobj.current_user_verify_count);
+	$('#all_verify_ing_count').text(jsonobj.all_verify_ing_count);
+	$('#current_user_verify_ing_count').text(jsonobj.current_user_verify_ing_count);
+}
+
+function ShowTimeLine(host_ident,stime,endtime)
+{
+	var params = 'host_ident='+host_ident;
+	params += '&stime='+stime;
+	params += '&endtime='+endtime;
+	myAjaxGet('../autoverifytask_handle/?a=get_report', params, ShowTimeLineCallback);
+	myAjaxGet('../autoverifytask_handle/?a=get_lineup_tasks', params, get_lineup_tasks_Callback);
+}
+
+function OnPointtime()
+{
+	var starttime=$('#stime').val();
+	var endtime=$('#endtime').val();
+	var d1 = new Date(starttime.replace(/-/g, '/'));
+	var d2 = new Date(endtime.replace(/-/g, '/'));
+	var diff = d2-d1;
+	if(diff<0)
+	{
+		openErrorDialog('错误', '开始时间应小于结束时间');
+		return;
+	}
+	var id = getaciTreeChecked("selServerTree");
+	if(id)
+	{
+		ShowTimeLine(id,$('#stime').val(),$('#endtime').val());
+	}
+}
+
+$('#selservername').change(function(){
+	var serverid=$(this).children('option:selected').val();
+	ShowTimeLine(serverid,$('#stime').val(),$('#endtime').val());
+});
+
+function serverTreeClick()
+{
+	if( $("#servertreediv").is(":hidden") )
+	{
+		var h = $('#selservername').outerHeight();
+		$("#servertreediv").css('top',$('#selservername').offset().top+h);
+		$("#servertreediv").css('left',$('#selservername').offset().left);
+		$("#servertreediv").slideDown(600);
+	}
+	else
+	{
+		$("#servertreediv").slideUp(600);
+	}
+}
+
+function getInode(treeid,id)
+{
+	var api = $('#'+treeid).aciTree('api');
+
+	var Inode = null;
+	var children=api.children(null, true, true);
+	children.each(api.proxy(function(element) {
+		var item = $(element);
+		var tmpid=this.getId(item);
+		if(id==tmpid)
+		{
+			Inode=api.itemFrom(item);
+			api.setInode(Inode,{inode:true});
+			return false;
+		}
+	}, true));
+
+	return Inode;
+}
+
+function NewItem(id,label,radio,checked)
+{
+	var itemData = {
+		id:id,
+		label:label,
+		icon:'adapter',
+		checkbox:radio,
+		checked:checked,
+		inode: false
+	};
+	return itemData;
+}
+
+function Add_Group_2_Tree(retjson,root,i)
+{
+	if(i<retjson.group_list.length)
+	{
+		var api = $('#selServerTree').aciTree('api');
+		var item = retjson.group_list[i];
+		var Inode_group={
+			id:item.id,
+			label:item.name,
+			icon:'group',
+			inode: true,
+			radio:false,
+			agent_type:'group',
+			open:false};
+			api.append(root,{itemData:Inode_group,
+				success: function(tmpitem, options) {
+					Add_Group_2_Tree(retjson,root,i+1);
+				}
+			});
+	}
+	else
+	{
+		ShowselServerTree2(retjson,root);
+	}
+}
+
+function ShowselServerTree2(retjson,root)
+{
+	var api = $('#selServerTree').aciTree('api');
+	var serverid = -1;
+	var page = '{{ page }}';
+	var verify_host_ident = $.cookie('verify_host_ident');
+	$.cookie('verify_host_ident', null, {path: '/'});
+
+	for(i=0;i<retjson.list.length;i++)
+	{
+		var item = retjson.list[i];
+
+		if( page == 'validate' )
+		{
+			if(item.type==2)
+			{
+				//免代理客户端
+				continue;
+			}
+		}
+
+		var Inode={
+			id:item.id,
+			label:item.name,
+			icon:'pc',
+			inode: false,
+			radio:true,
+			checked:true,
+			agent_type:item.type,
+			open:false};
+		var Inode2={
+				id:item.id,
+				label:item.name,
+				icon:'pc',
+				inode: false,
+				radio:true,
+				checked:false,
+				agent_type:item.type,
+				open:false};
+		var Inode3={
+				id:item.id,
+				label:item.name,
+				icon:'pc',
+				inode: false,
+				radio:true,
+				checked:true,
+				agent_type:item.type,
+				open:false};
+
+		var inode = Inode2;
+
+		if(verify_host_ident)
+		{
+			if(verify_host_ident==item.id)
+			{
+				$("#selservername").val(item.name);
+				serverid = item.id;
+				ShowTimeLine(serverid,$('#stime').val(),$('#endtime').val());
+				inode = Inode3;
+			}
+		}
+		else if(serverid == -1 )
+		{
+			$("#selservername").val(item.name);
+			serverid = item.id;
+			ShowTimeLine(serverid,$('#stime').val(),$('#endtime').val());
+			inode = Inode3;
+		}
+		
+		var group_item = getInode('selServerTree',item.group_id);
+		var par = root;
+		if(group_item)
+		{
+			par= group_item;
+		}
+
+		api.append(par,{itemData:inode,
+			success: function(item, options) {
+				this.open(item);
+			}
+		});
+
+	}
+}
+
+function ShowselServerTree(retjson)
+{
+	var api = $('#selServerTree').aciTree('api');
+
+	var Inoderoot={
+			id:'ui_root',
+			label:'数据源客户端',
+			icon:'pcroot',
+			inode: true,
+			radio:false,
+			checked:false,
+			open:true};
+	var root = null;
+
+	api.append(null,{itemData:Inoderoot,
+		success: function(item, options) {
+			root=getInode('selServerTree','ui_root');
+			Add_Group_2_Tree(retjson,root,0);
+			api.open(root);
+		}
+	});
+}
+
+function SetServerList(retjson)
+{
+	if(retjson.r!=0)
+	{
+		return;
+	}
+
+	$('#restorediv').show();
+	var s_emlt = $('<input name="client_search" type="text" placeholder="开始搜索" style="margin:10px;" class="client_search"/>');
+	$('#selServerTree').append(s_emlt);
+
+	RefreshAciTree("selServerTree",null,ShowselServerTree,retjson);
+}
+
+$('#selServerTree').on('acitree', function(event, api, item, eventName, options) {
+	if (eventName == 'selected'){
+		var id = api.getId(item);
+		var name = api.getLabel(item);
+		if(id.substring(0,3)!='ui_')
+		{
+			UnCheckAllAciTreeRadios('selServerTree',null);
+			$('#selservername').val(name);
+			setTimeout(function() {
+				$("#servertreediv").slideUp(600);
+				ShowTimeLine(id,$('#stime').val(),$('#endtime').val());
+			}, 300);
+		}
+	}
+});
+
+function show_more_debug(obj)
+{
+	$(obj).siblings("div").show();
+	$(obj).hide();
+}
+
+$(document).bind('click',function(e){
+	var e = e || window.event;
+	var elem = e.target || e.srcElement;
+	while (elem) { //循环判断至跟节点，防止点击的是div子元素
+		if (elem.id && (elem.id=='servertreediv' || elem.id=='selservername')) {
+			return;
+		}
+		elem = elem.parentNode;
+	}
+	$("#servertreediv").slideUp(600);
+});
+
+function verifytaskreport_resize()
+{
+	resizeright();
+	baseresize();
+}
+
+$(window).resize(function() {
+	verifytaskreport_resize();
+});
+
+</script>

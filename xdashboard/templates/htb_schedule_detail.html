@@ -1,0 +1,70 @@
+<div>
+    <table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+        <tr height="25">
+            <td width="30%" align="left">计划名称</td>
+            <td width="70%">
+                <div id="htb_task_name">&nbsp;</div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">任务类型</td>
+            <td align="left">
+                <div id="htb_task_restore_type"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">数据同步方式</td>
+            <td align="left">
+                <div id="htb_task_task_type"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">切换方式</td>
+            <td align="left">
+                <div id="htb_task_switch_type"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">源IP信息</td>
+            <td align="left">
+                <div id="htb_task_src_ip"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">目标IP信息</td>
+            <td align="left">
+                <div id="htb_task_dest_ip"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">热备的卷</td>
+            <td align="left">
+                <div id="htb_task_contain_vols"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">启动脚本</td>
+            <td align="left">
+                <div id="htb_task_start_script"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">停止脚本</td>
+            <td align="left">
+                <div id="htb_task_stop_script"></div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<script>
+    function GetBackupInfo(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog('错误', jsonstr.e);
+        }
+        $.each(Object.keys(jsonstr.data), function (index, item) {
+            $('#' + item).html(jsonstr.data[item]);
+        })
+    }
+</script>

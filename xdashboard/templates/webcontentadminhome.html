@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>网页修改模式</title>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <style>
+        .nav {
+            width: 100%;
+            height: 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .head-item {
+            margin-right: 16px;
+            float: right;
+        }
+    </style>
+    <script type="text/javascript" src="/static/js/noReload.js"></script>
+    <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+</head>
+
+<body>
+<div style="display: none" id="task-uuid" value="{{ task_uuid }}"></div>
+
+<div id="dialog-addtimes" title="增加时长" style="display: none">
+    <div style="margin: 10px">
+        用户密码：<input type="password" style="width: 100px" onblur="removespace(this)" id="user-passwd">
+        <p>默认增加30分钟<span style="color: red;display: none;margin-left: 16px" id="showMsg">密码错误</span></p>
+    </div>
+</div>
+
+<div class="nav" style="border:1px solid #ccc;">
+    <div style="margin-top: 4px;">
+        <button class="head-item">
+            <a href="../logout" target="_top">退出修改模式<span id="remain" value="{{ remain }}"></span></a>
+        </button>
+        <button class="head-item" id="add-times">增加时长</button>
+        <span class="head-item">内容管理员:{{ admin }}</span>
+    </div>
+</div>
+
+<div style="height: 30px"></div>
+
+<iframe id="mainFrame" frameborder="0" width="100%" height="3000" marginheight="0" marginwidth="0" src="{{ entry }}">
+</iframe>
+</body>
+
+<script type="text/javascript">
+    String.prototype.toHHMMSS = function () {
+        var sec_num = parseInt(this, 10);
+        var hours = Math.floor(sec_num / 3600);
+        var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+        var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+        if (hours < 10) {
+            hours = "0" + hours;
+        }
+        if (minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        if (seconds < 10) {
+            seconds = "0" + seconds;
+        }
+        return hours + ':' + minutes + ':' + seconds;
+    };
+
+    var isAddTimeDivOpened = false;
+
+    $('#add-times').click(function () {
+        addTimes();
+    });
+
+    function decrease_remain_secs_and_show_it() {
+        var secs = parseInt($('#remain').attr('value'));
+        if (secs <= -1) {
+            addTimes();
+        }
+        else {
+            showRemainTime(secs);
+            $('#remain').attr('value', secs - 1);
+        }
+    }
+
+    function set_remain_secs(secs) {
+        $('#remain').attr('value', parseInt(secs));
+    }
+
+    function heartBeating() {
+        $.ajax({url: '/web_guard/update_session/', type: 'get', dataType: 'json', data: ''});
+    }
+
+    // 初始化: 1.时间递减  2.发送心跳
+    $(function () {
+        setInterval(decrease_remain_secs_and_show_it, 1000);
+        setInterval(heartBeating, 3000);
+    });
+
+    function showRemainTime(secs) {
+        $('#remain').text(String(secs).toHHMMSS());
+    }
+
+    // 添加时间回调
+    function addTimeCallbk(jsdata) {
+        var remain_secs = parseInt(jsdata.remain_secs);
+        if (remain_secs === -1) {
+            $('#showMsg').show();
+            addTimes()
+        }
+        else {
+            $('#showMsg').hide();
+            set_remain_secs(jsdata.remain_secs);
+            $('#task-uuid').attr('value', jsdata.task_uuid);
+        }
+    }
+
+    function addTimes() {
+        if (isAddTimeDivOpened) {
+            return false;
+        }
+        console.log('open once ...');
+        isAddTimeDivOpened = true;
+        var closeType = '';
+        $("#dialog-addtimes").dialog({
+            autoOpen: true,
+            height: 190,
+            width: 'auto',
+            modal: true,
+            buttons: {
+                '继续': function () {
+                    var url = '/web_guard/modify_entry_tasks/{0}/'.replace('{0}', $('#task-uuid').attr('value'));
+                    myAjaxGet(url, 'ps=' + $('#user-passwd').val(), addTimeCallbk);
+                    closeType = 'continue';
+                    $(this).dialog('close');
+                },
+                '注销': function () {
+                    closeType = 'logout';
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+                isAddTimeDivOpened = false;
+                var secs = parseInt($('#remain').attr('value'));
+
+                if (closeType === 'continue') { // 不登出
+                    return false;
+                }
+                if (closeType === 'logout' || secs <= 1) {  // 会登出
+                    window.location.href = "../logout";
+                    return false;
+                }
+            }
+        });
+    }
+</script>
+</html>

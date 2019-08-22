@@ -1,0 +1,451 @@
+<style type="text/css">
+.btn_nav{float:right;margin-top:10px;}
+.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+.myhiden{width:100px; height:32px;}
+.myoneday{width:32px; height:32px; line-height:32px; text-align:center;border:1px solid #d3d3d3; cursor:pointer;float:left}
+.myonedayselected{background-color:#8ccad5}
+.aciTree div{ padding: 0em;}
+.manage-item,.manage-item-4cdp{margin-top: 8px;}
+.manage{margin-bottom: 16px;margin-left: 16px}
+.pull-down-control{cursor: pointer;}
+div.centent {float: left;text-align: center;}
+span.moveBt{display: block;margin: 10px;padding: 4px 10px;background: #898989;cursor: pointer;font-size: 12px;color: white;}
+.selectCls{width:100px;height:122px;}
+.client_search{
+    border: 2px solid #dce4ec;
+    color: #34495e;
+    font-family: "Lato", sans-serif;
+    font-size:14px;
+    padding: 3px 0 3px 10px;
+    width: 200px;
+    background:#fff url(/static/images/icon_search_1649.gif) no-repeat right;
+}
+.src_host_tip_class{max-width:800px;}
+</style>
+
+<head>
+    <script type="text/javascript" src="/static/js/jquery.json.js"></script>
+</head>
+
+<div id="newbackupFormDiv" title="" class="ajaxForm">
+	<input type="hidden" id="taskid" name="taskid" />
+	<form id="newbackupForm" action="#" method="post">
+		<div id="tabs">
+			<ul>
+			<li><a href="#tabs-1">导出源</a></li>
+			<li><a href="#tabs-2">导出信息</a></li>
+			<li><a href="#tabs-3">导出计划</a></li>
+			<li><a href="#tabs-4">其它设置</a></li>
+			<li><a href="#tabs-5">信息确认</a></li>
+			</ul>
+			<div id="tabs-1" style="margin-top:0px;margin-left:30px;">
+				<div style="margin-bottom:10px;float:left;">选择导出源客户端</div>
+				<div style="float:left;margin-left:5px;cursor:pointer;"><span id="src_host_tip" title="" class="ui-icon ui-icon-info"></span></div>
+				<div class="clear"></div>
+				<div style="float:left;"><input name="client_search" type="text" placeholder="开始搜索" class="client_search"/></div>
+                <div id="RefreshSrcServer" style="cursor:pointer;float:right;margin-right:0px;">刷新连接列表</div>
+				<div class="clear"></div>
+				<div id="Servers_Tree1" class="aciTree" style="width:100%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+				<div style="width:100%;height:295px;overflow:auto;">
+					<br />客户端详细描述<br />
+					<table width="100%" cellpadding="0" cellspacing="1" id="normal_table_info" class="border_table">
+						<tr height="25">
+							<td width="30%" align="left">客户端名称</td>
+							<td width="70%"><div id="show_servername"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">计算机名</td>
+							<td align="left"><div id="show_pcname"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">IP地址</td>
+							<td align="left"><div id="show_ip"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">MAC地址</td>
+							<td align="left"><div id="show_mac"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">操作系统</td>
+							<td align="left"><div id="show_os"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">Build Num</td>
+							<td align="left"><div id="show_buildnum"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">磁盘数量</td>
+							<td align="left"><div id="show_harddisknum"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">磁盘信息</td>
+							<td align="left"><div id="show_harddiskinfo"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">总容量</td>
+							<td align="left"><div id="show_total"></div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">已使用空间</td>
+							<td align="left"><div id="show_use"></div></td>
+						</tr>
+					</table>
+                    <table width="100%" cellpadding="0" cellspacing="1" id="nas_table_info" class="border_table" style="display:none;">
+                        <tr height="25">
+                            <td width="30%" align="left">客户端名称</td>
+                            <td width="70%">
+                                <div id="show_nas_servername"></div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td width="30%" align="left">协议</td>
+                            <td width="70%">
+                                <div id="show_nas_protocol"></div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td width="30%" align="left">NAS路径</td>
+                            <td width="70%">
+                                <div id="show_nas_path"></div>
+                            </td>
+                        </tr>
+				    </table>
+				</div>
+			</div>
+			<div id="tabs-2" style="margin-top:30px;margin-left:30px;">
+				<input type="hidden" id="uitasktype" value="task"/>
+				<div id="task_names"><span class="taskshowname">计划名称</span>：<input type="text" class="input" maxlength="120" id="taskname" name="taskname" style="width:400px;" onblur="removespace(this)" onmouseover="this.title=this.value"/></div>
+				<div style="margin-top:20px;" class="storagedevicediv">
+				选择导出存储设备：<input type="hidden" id="sel_storagedevice" />
+				<select id="storagedevice" name="storagedevice" >
+					<option value='-1'  selected="selected" >请稍候</option>
+				</select>
+				</div>
+                <!--
+				<div style="margin-top:20px;" class="csstaskpolicy">导出策略：
+					<select id="backuppolicy">
+						<option value='-1'  selected="selected" >请稍候</option>
+					</select><span class="form_tips">　（可选项）</span>
+				</div>
+				<div style="margin-top:10px;" class="csstaskpolicy"><span class="form_tips">　　选择已存在的策略，快速完成导出的各项设置。</span></div>
+				-->
+			</div>
+			<div id="tabs-3" style="margin-top:30px;margin-left:30px;">
+                <div id="task_names_container"></div>
+				<div style="width:95%;overflow:auto;">
+					<table width="100%" border="0" cellspacing="5" cellpadding="0">
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="2" name="bakschedule" checked="checked">仅导出一次</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;仅执行一次导出计划，设定开始日期及时间即可，完成导出后任务即终结。</span><br /><br />
+							<div id="bakschedule2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime1" type="text" class="textTime Wdate" id="stime1" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/></div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="3" name="bakschedule"/>按间隔时间</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出间隔可设置为分/时/天，需设定导出的开始时间。</span>
+							<br /><br />
+							<div id="bakschedule3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime2" type="text" class="textTime Wdate" id="stime2" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							&nbsp;&nbsp;&nbsp;&nbsp;每<input type="number" min="1" max="365" class="input"  value="1" id="timeinterval" name="timeinterval" style="width:41px" onblur="removespace(this)"/>
+                                <select id="interval-unit">
+                                    <option value="hour">小时</option>
+                                    <option value="day" selected="selected">天</option>
+                                </select>
+                                执行
+                            </div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="4" name="bakschedule" >每周</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出间隔为周，设定每周的星期x为导出时间，如：每周星期一、星期四导出。</span><br /><br />
+							<div id="bakschedule4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime3" type="text" class="textTime Wdate" id="stime3" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<br />
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox"value="1" name="perweek"/>星期一&nbsp;&nbsp;<input type="checkbox"value="2" name="perweek"/>星期二&nbsp;&nbsp;<input type="checkbox"value="3" name="perweek"/>星期三&nbsp;&nbsp;<input type="checkbox"value="4" name="perweek"/>星期四&nbsp;&nbsp;<input type="checkbox"value="5" name="perweek"/>星期五&nbsp;&nbsp;<input type="checkbox"value="6" name="perweek"/>星期六&nbsp;&nbsp;<input type="checkbox"value="7" name="perweek"/>星期日</div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="5" name="bakschedule" >每月</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出间隔为月，设定每月的x日导出，如：每月的10、20、29日导出。</span><br /><br />
+							<div id="bakschedule5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime4" type="text" class="textTime Wdate" id="stime4" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<div style="margin-left:10px;">
+								<br />每月导出日期：
+								<br /><div id="dayselect"></div>
+							</div>
+							</div>
+							</td>
+						  </tr>
+					</table>
+				</div>
+                <div id="taskpolicyintro"></div>
+			</div>
+			<div id="tabs-4" style="margin-top:30px;margin-left:30px;margin-right:30px">
+            <div style="width:100%;height:527px;overflow:auto;">
+                <div style="display: none">
+                    <label for="space-manage" style="font-weight: bold;display: none" class="pull-down-control" ><span>▼</span>导出数据存储空间自动回收设置</label><br>
+                    <div id="space-manage" class="manage" style="display: none"><hr>
+                        <div class="manage-item">
+                            <div>
+                            ●导出数据保留期：<input type="number" min="3" name="retentionperiod" id="retentionperiod" style="width: 45px;height: 13px" value="1" onblur="removespace(this)" />
+                            <select id="retentionperiod-unit">
+                                <option value="day">天</option>
+                                <option value="month" selected="selected">月</option>
+                            </select>
+                                （<span id="retentionperiod-msg"></span>），超过此时间后的导出点将自动删除，不能再用做恢复，数据将被合并释放占用的磁盘空间;
+                            </div>
+                        </div>
+                        <div class="manage-item">
+                            ●本用户存储空间配额低于<input type="number" min="1" name="cleandata" id="cleandata" style="width: 45px;height: 13px" value="200" onblur="removespace(this)" />
+                            GB时（>=100GB），自动删除最早导出点数据，以释放更多的空间用于存放最新的数据状态变化。
+                        </div>
+                    </div>
+                </div>
+                <div style="display: none">
+                    <label for="bandwidth-manage" style="font-weight: bold;display: none" class="pull-down-control"><span>▼</span>导出时资源占用设置</label><br>
+                    <div id="bandwidth-manage" class="manage" style="display: none"><hr>
+                        <div class="manage-item">
+                            <div style="margin-top: 10px">
+                                <input type="checkbox" id="usemaxbandwidth" style="display: none" checked>
+                                ●导出时限定最大占用源主机的网络带宽：<input type="number" class="input" id="maxbandwidth" min="1" value="300" style="width:50px;height: 13px" onblur="removespace(this)" />Mbit/s。(-1为不限制)
+                            </div>
+                            <div style="margin-top: 10px">
+                                ●导出时限定最大占用源主机的存储性能的：<input type="number" id="BackupIOPercentage" style="width:50px;height:13px;" value="30"> %
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+				<div class="vmware_div" style="display: none">
+                    <label for="vmware-manage" style="font-weight: bold;" class="pull-down-control"><span>▼</span>VMware设置</label><br>
+                    <div id="vmware-manage" class="manage" ><hr>
+                        <div class="manage-item">
+                            <div>●虚拟磁盘传输模式：
+                             <label><input class="radio" type="radio" value="1" name="vmware_tranport_modes" >自动</label>
+                             <label><input class="radio" type="radio" value="2" name="vmware_tranport_modes" >SAN</label>
+                             <label><input class="radio" type="radio" value="3" name="vmware_tranport_modes" >HotAdd</label>
+                             <label><input class="radio" type="radio" value="4" checked="checked" name="vmware_tranport_modes" >NBD</label>
+                            </div>
+                            <span class="form_tips" style="margin-left: 8px;">说明：自动传输模式会依次尝试 SAN，HotAdd 和 NBD 三种模式，直到有一种成功或者全部失败。</span>
+                        </div>
+                        <div class="manage-item">
+                            <div>●静默设置：　<input class="checkbox" type="checkbox" checked="checked" id="vmware_quiesce">静默（quiesce）虚拟机
+                            </div>
+                            <span class="form_tips" style="margin-left: 8px;">说明：启用静默且创建快照时虚拟机处于开机状态, VMware Tools 通常会静默虚拟机中的文件系统, 确保磁盘快照和 GuestOS 文件系统状态是一致。假如虚拟机的电源状态为关闭状态或 VMware Tools 不可用, 那么静默会被忽略。</span>
+                        </div>
+                    </div>
+				</div>
+
+                <!--
+                <div style="display: none;">
+                    <label for="security-manage" style="font-weight: bold" class="pull-down-control"><span id="security-manage-lab">▼</span>数据传输安全设置</label><br>
+                    <div id="security-manage" class="manage"><hr>
+                        <div class="manage-item">
+                            <div>●数据传输方式：<input type="text" value="加密" class="text6" id="isencipher" readonly></div>
+                            <span class="form_tips" style="margin-left: 8px;">说明：在客户端管理中更改数据传输安全设置。若网络链路不安全，请选择加密方式。</span>
+                        </div>
+                    </div>
+                </div>
+                -->
+                <label for="advanced1-manage" style="font-weight: bold" class="pull-down-control"><span id="advanced1-lab">▼</span>其它设置</label><br>
+                <div id="advanced1-manage" class="manage"><hr>
+                      <div style="margin-top: 10px">
+                            ●导出时每间隔：<input type="number" class="input" id="full_interval" min="1" value="-1" style="width:50px;height: 13px" onblur="removespace(this)" />次做一次完整导出。<br>
+                          <span class="form_tips" style="margin-left: 8px;">说明：第一次进行完整导出。-1为第一次进行完整导出，以后增量导出</span>
+                        </div>
+                </div>
+                <label for="advanced1-manage_tt1" style="font-weight: bold" class="pull-down-control"><span id="advanced1-lab">▼</span>导出方式</label><br>
+                <div id="advanced1-manage_tt1" class="manage"><hr>
+                    <div class="manage-item" id="full-back-options">
+                         ●<input class="checkbox" type="checkbox" id="isencipher" checked>加密<br>
+                        <span class="form_tips" style="margin-left: 8px;">加密导出，导出整个过程加密。</span>
+                    </div>
+                    <div class="manage-item">
+                         ●<input class="checkbox" type="checkbox" id="iscompress" checked disabled>压缩<br>
+                        <span class="form_tips" style="margin-left: 8px;">导出时压缩数据。</span>
+                    </div>
+                </div>
+                <div style="display: none">
+                    <label for="advanced3-manage" style="font-weight: bold" class="pull-down-control"><span
+                            id="advanced3-lab">▶</span>导出重试策略设置</label><br id="the-br-for-retry">
+                    <div id="advanced3-manage" class="manage"><hr>
+                        <div class="manage-item" id="enable-options">
+                            ●<input class="checkbox" type="checkbox" id="enable-backup-retry"
+                                    checked="checked"><label for="enable-backup-retry">启用导出重试策略</label><br>
+                            <div class="manage-item" style="margin-left: 8px;margin-bottom: 8px;">
+                                <label for="retry-counts">重试次数：<input type="number" oninput="if(value.length>3)value=value.slice(0,3)" id="retry-counts" value="5" min="0" max="999" style="width: 45px;height: 13px" onblur="removespace(this)" /></label>
+                                <label for="retry-interval" style="margin-left: 8px">间隔分钟：<input type="number" id="retry-interval" min="1" max="999" oninput="if(value.length>3)value=value.slice(0,3)" value="10" style="width: 45px;height: 13px;" onblur="removespace(this)" /></label>
+                            </div>
+                            <span class="form_tips" style="margin-left: 8px;">说明：针对周期性导出计划可启用导出重试策略，导出失败后会按照间隔重试一定的次数。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			</div>
+
+			<div id="tabs-5" style="margin-top:30px;margin-left:30px;">
+				<div style="width:95%;height:520px;overflow:auto;">
+					<table width="100%" cellpadding="10" cellspacing="1" class="border_table">
+						<tr height="25">
+							<td width="40%" align="left"><span class="taskshowname">计划名称</span></td>
+							<td width="60%"><div id="confirm_taskname">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="storagedevicediv">
+							<td align="left">导出存储设备</td>
+							<td align="left"><div id="confirm_storagedevice">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="storagedevicediv">
+							<td align="left">导出源</td>
+							<td align="left"><div id="confirm_src">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">导出周期</td>
+							<td align="left"><div id="confirm_schedule">&nbsp;</div></td>
+						</tr>
+                        <!--
+                        <tr height="25">
+							<td align="left">导出数据保留期限</td>
+							<td align="left"><div id="confirm_retentionperiod">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">配额空间保留</td>
+							<td align="left"><div id="confirm_cleandata">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">导出时限定占用的最大网络带宽</td>
+							<td align="left"><div id="confirm_maxbandwidth">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="vmware_div">
+							<td align="left">虚拟磁盘传输模式</td>
+							<td align="left"><div id="confirm_vmware_tranport_modes">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="vmware_div">
+							<td align="left">静默（quiesce）虚拟机</td>
+							<td align="left"><div id="confirm_vmware_quiesce">&nbsp;</div></td>
+						</tr>
+                        <tr height="25" class="encipher">
+							<td align="left">传输数据方式</td>
+							<td align="left"><div id="confirm_encipher">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="backupmode">
+							<td align="left">导出方式</td>
+							<td align="left"><div id="confirm_backupmode">&nbsp;</div></td>
+						</tr>
+                        -->
+                        <tr height="25">
+                            <td align="left">导出策略</td>
+                            <td align="left"><div id="confirm_full_interval">&nbsp;</div></td>
+                        </tr>
+                        <tr height="25" class="encipher">
+							<td align="left">导出数据加密</td>
+							<td align="left"><div id="confirm_isencipher">&nbsp;</div></td>
+						</tr>
+                        <tr height="25" >
+							<td align="left">导出数据压缩</td>
+							<td align="left"><div id="confirm_iscompress">&nbsp;</div></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div class="btn_nav">
+		<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="next" class="next" style="float:right" value="下一步&raquo;" />
+   </div>
+</div>
+
+<div id="finishFrom" title="完成" class="ajaxForm">
+点击“立即导出”，将会创建此计划任务，并立即导出。<br /><br />
+点击“完成设置”，将会创建此计划。
+</div>
+
+<div id="src_host_tip_from" style="display:none;">
+	<div style="width:800px;line-height:30px;">
+		<div>支持对Windows/Linux操作系统在以下场景的灾备保护功能：</div>
+		<div style="margin-top:10px;">★虚拟化主机：提供对Microsoft Hyper-V、VMware  vSphere（ESX\ESXi）、KVM、Citrix Xen、IBM Power VM、Red Hat Enterprise Virtulization、Huawei FusionSphere等虚拟化主机的灾备保护功能；</div>
+		<div style="margin-top:10px;">★私有云/超融合云：提供对基于Openstack、Vmware和KVM技术且采用Vmware Vsan、glusterfs 或ceph分布式存储技术搭建的私有云/超融合云的灾备保护功能；</div>
+		<div style="margin-top:10px;">★公有云主机：提供对基于KVM、Xen、Microsoft Hyper-V和Oracle VirtualBox技术的公有云主机（不限于：阿里云、腾讯云、百度云、华为云、AWS亚马逊、微软云、浪潮云、金山云、京东云、沃云、天翼云、移动云和Oracle Cloud）等云主机的灾备保护功能；</div>
+	</div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+
+<script language="javascript">
+$(function()
+{
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$(".ui-tabs-nav").hide();
+	$(".prev").hide();
+	$('#navigation').html('<div class="font_navigation">导出 > 新建导出计划 > 导出源</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#newbackupmission" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+});
+
+var curTime='{{ now|date:"Y-m-d H:i:s" }}';
+
+$("input[name='backupobj']").change(function(){
+	if($(this).val()=='2')
+	{
+		RefreshSrcServer2();
+		$('#volselectdiv').slideDown(600);
+	}
+	else
+	{
+		$('#volselectdiv').slideUp(600);
+	}
+});
+
+$('.pull-down-control').click(function() {
+    var manage_id = $(this).attr('for');
+    var isShown = $('#' + manage_id).is(':visible');
+
+    if ( !isShown ) {
+        $('#'+manage_id).slideDown();
+        $(this).find("span").text('▼');
+    } else {
+        $('#'+manage_id).slideUp();
+        $(this).find("span").text('▶');
+    }
+});
+
+$(document).on('keyup', 'input[name=client_search]', function () {
+    var s_key = $('input[name=client_search]').val().toLowerCase();
+    var api = $('#Servers_Tree1').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+$('#enable-backup-retry').click(function () {
+    if ($('#enable-backup-retry').prop('checked')) {
+        $('#retry-counts').prop('disabled', false);
+        $('#retry-interval').prop('disabled', false);
+    }
+    else {
+        $('#retry-counts').prop('disabled', true);
+        $('#retry-interval').prop('disabled', true);
+    }
+});
+
+$( "#src_host_tip" ).tooltip({
+	tooltipClass:'src_host_tip_class',
+	content: function(){
+		return $('#src_host_tip_from').html();
+	}
+});
+
+</script>

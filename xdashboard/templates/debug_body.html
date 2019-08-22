@@ -1,0 +1,190 @@
+<div class="right">
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">KVM</a></li>
+        </ul>
+        <div id="tabs-1">
+            <div style="float:left;margin-top:10px;">windows串口：</div>
+            <div style="float:left;margin-top:10px;"><span id="kvm_serial_status"></span></div>
+            <div class="clear"></div>
+            <div style="float:left;margin-top:10px;">启动延时：</div>
+            <div style="float:left;margin-top:10px;margin-left:28px;"><input type="number" id="splash_time" value="5" style="width:32px;">秒（0为不使用）</div>
+            <div class="clear"></div>
+            <div style="margin-top:10px;">当前调试状态：<span id="kvm_debug_status"></span></div>
+            <div class="menu_btn" style="float:left;margin-left:500px;margin-top:20px;" id='save_kvm_debug_btn'>保存设置</div>
+            <div class="menu_btn" style="float:left;margin-left:20px;margin-top:20px;" id='clear_kvm_debug_btn'>清除设置</div>
+            <hr style="margin-top: 60px;border: 1px solid #ccc;">
+            <div style="float:left;margin-top:10px;">pe所在的路径:</div>
+            <div style="float:left;margin-top:10px;"><input type="text" id="pe_path" style="width: 500px;">
+            </div>
+            <div class="clear"></div>
+            <div style="margin-top:10px;">当前调试状态：<span id="pe_debug_status"></span></div>
+            <div class="menu_btn" style="float:left;margin-left:500px;margin-top:20px;" id='enable'>启用</div>
+            <div class="menu_btn" style="float:left;margin-left:20px;margin-top:20px;" id='disable'>禁用</div>
+            <hr style="margin-top: 60px;border: 1px solid #ccc;">
+            <div class="clear"></div>
+            <div style="margin-top:30px;">还原kvm一览　<span style="color:blue;cursor:pointer;" id="refresh_kvm_list">刷新</span></div>
+            <div>
+                <table id="restore_kvm_list"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").tabs("option", "active", 0);
+        $('#navigation').html('<div class="font_navigation">内部功能</div>');
+        myAjaxGet('../debuginfo_handle/', 'a=get_debug_kvm_cfg', get_debug_kvm_cfg_callback);
+        myAjaxGet('../debuginfo_handle/', 'a=get_pe_default_path', get_pe_default_path_callback);
+        debug_resize();
+    });
+
+	$(function(){
+	jQuery("#restore_kvm_list").jqGrid({
+		url:'../debuginfo_handle/?a=restore_kvm_list',
+		datatype: "json",
+		colNames:['主机名','时间','目标机IP','状态','资源号'],
+
+		colModel:[
+			{name:'hostname',index:'0',align:"center", width:210,sortable: false},
+			{name:'starttime',index:'0',align:"center", width:210,sortable: false},
+			{name:'target_ip',index:'1',align:"center", width:210,sortable: false},
+			{name:'status',index:'1',align:"center", width:210,sortable: false},
+			{name:'vnc_port',index:'2',align:"center", width:120,sortable: false,formatter:vncPortFmatter}
+		],
+		width:700,
+		height:250,
+		rowNum:300,
+		rowList:[100,200,300],
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc"
+	});
+});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' });
+
+
+function vncPortFmatter(cellvalue, options, rowObjec)
+{
+	var vnc_port = cellvalue;
+	var title = rowObjec[0];
+	if(vnc_port=='-')
+	{
+		return '-';
+	}
+	vnc_port += 5900;
+	return '<a target=_blank style="color:blue;" href="'+'/xdashboard/vnclite/?title='+title+'&token='+vnc_port+'">'+cellvalue+'</a>';
+}
+
+
+	$('#refresh_kvm_list').click(function(){
+		$('#restore_kvm_list').trigger("reloadGrid",[{
+			current:true
+		}]);
+	});
+
+	function save_kvm_callback(jsonobj)
+	{
+		if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+		myAjaxGet('../debuginfo_handle/', 'a=get_debug_kvm_cfg', get_debug_kvm_cfg_callback);
+	}
+
+    function save_pe_path(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+        myAjaxGet('../debuginfo_handle/', 'a=get_pe_default_path', get_pe_default_path_callback);
+    }
+
+    function clear_kvm_callback(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+		myAjaxGet('../debuginfo_handle/', 'a=get_debug_kvm_cfg', get_debug_kvm_cfg_callback);
+	}
+
+    function clear_pe_path(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+        myAjaxGet('../debuginfo_handle/', 'a=get_pe_default_path', get_pe_default_path_callback);
+    }
+
+    function get_debug_kvm_cfg_callback(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+        $('#kvm_debug_status').text(jsonobj.kvm_debug_status);
+        $('#kvm_serial_status').text(jsonobj.kvm_serial_status);
+        $('#splash_time').val(jsonobj.splash_time);
+    }
+
+    function get_pe_default_path_callback(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+        $('#pe_path').val(jsonobj.pe_path);
+        $('#pe_debug_status').text(jsonobj.debug_file);
+    }
+
+	$('#save_kvm_debug_btn')
+	.button()
+	.click(function () {
+		var params = 'a=save_debug_kvm';
+		params+='&splash_time='+$('#splash_time').val();
+		myAjaxPost('../debuginfo_handle/', params, save_kvm_callback);
+
+	});
+
+    $('#clear_kvm_debug_btn')
+        .button()
+        .click(function () {
+            myAjaxPost('../debuginfo_handle/', 'a=clear_debug_kvm', clear_kvm_callback);
+        });
+    $('#enable')
+        .button()
+        .click(function () {
+            var params = 'a=enable_pe_path';
+            params += '&pe_path=' + $('#pe_path').val();
+            debugger;
+            myAjaxPost('../debuginfo_handle/', params, save_pe_path);
+        });
+    $('#disable')
+        .button()
+        .click(function () {
+            myAjaxPost('../debuginfo_handle/', 'a=disable_pe_path', clear_pe_path);
+        });
+    $('#tabs').on('tabsbeforeactivate', function (event, ui) {
+        var newPanel = ui.newPanel.attr('id');
+        switch (newPanel) {
+            case 'tabs-1':
+                myAjaxGet('../debuginfo_handle/', 'a=get_debug_kvm_cfg', get_debug_kvm_cfg_callback);
+                myAjaxGet('../debuginfo_handle/', 'a=get_pe_default_path', get_pe_default_path_callback);
+                break;
+            default:
+                break;
+        }
+    });
+
+function debug_resize()
+{
+	resizeright();
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	debug_resize();
+});
+</script>

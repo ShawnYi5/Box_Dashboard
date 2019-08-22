@@ -1,0 +1,1125 @@
+<div class="right">
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">维护</a></li>
+            <li><a href="#tabs-2">电源管理</a></li>
+            <li><a href="#tabs-3">密码策略</a></li>
+            <li><a href="#tabs-4">登录设置</a></li>
+            <li><a href="#tabs-5">时间设置</a></li>
+            {% if show_auxiliary_tab %}
+                <li><a href="#tabs-6">辅助系统</a></li>
+            {% endif %}
+            {% if show_take_over_tab %}
+                <li><a href="#tabs-7">接管网段</a></li>
+            {% endif %}
+            <li><a href="#tabs-8">空间策略</a></li>
+            <li><a href="#tabs-9">并发策略</a></li>
+            <li><a href="#tabs-10">VT</a></li>
+            <!--<li><a href="#tabs-11">数据库备份</a></li>-->
+            <li><a href="#tabs-12">添加第三方驱动</a></li>
+            <li><a href="#tabs-13">备份参数</a></li>
+            <li><a href="#tabs-14">网络设置</a></li>
+        </ul>
+        <div id="tabs-1">
+            <div style="margin-left:30px;">
+                <div style="margin-top:30px;">
+                    　　系统维护后台采用动态口令机制，不存在固定口令账户，动态口令由设备管理员和原厂口令组成，原厂口令随着设备管理员的改密码操作而变化，保障灾备系统后台不被非法登入。
+                </div>
+                <div id="qrcode" style="margin:0 auto;margin-top:20px; width: 256px;"></div>
+                <div id="showkey"
+                     style="height:100;margin-top:10px;word-break:break-all;word-wrap: break-word; word-break: normal;"></div>
+            </div>
+            <div style="margin-left:30px;">
+                <div style="color:blue;cursor: pointer;margin-top: 32px;text-decoration: underline;" id="query-aio-log">
+                    获取系统日志文件
+                </div>
+            </div>
+            {% if show_vt_alert_msg %}
+                <div style="margin-left:30px;margin-top:32px;">
+                    <span style="color:red;">本系统没有VT支持</span>
+                </div>
+            {% endif %}
+        </div>
+        <div id="tabs-2">
+            <div style="margin-left:30px;">
+                <div style="margin-top:30px;">
+                    <div style="float:left;">1分钟后重启服务器</div>
+                    <div class="menu_btn" style="float:right;margin-right:200px;" id='rebootbutton'>重启</div>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-top:20px;">
+                    <div style="float:left;">1分钟后关闭服务器</div>
+                    <div class="menu_btn" style="float:right;margin-right:200px;" id='shutdownbutton'>关机</div>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-top:20px;">
+                    <div style="float:left;">在1分钟内，可以取消重启或关机命令</div>
+                    <div class="menu_btn" style="float:right;margin-right:200px;" id='cancelbutton'>取消</div>
+                </div>
+                <div class="clear"></div>
+				<div style="margin-top:20px;" id="openssh_div">
+                    <div style="float:left;">
+					<input type="radio" value="1" id="enable_ssh" name="enable_ssh"><label for="enable_ssh" style="margin-right: 20px">启用OpenSSH</label>
+					<input type="radio" value="2" id="enable_ssh" name="enable_ssh"><label for="enable_ssh" style="margin-right: 20px">禁用OpenSSH</label></div>
+                    <div class="menu_btn" style="float:right;margin-right:200px;" id='sshbutton'>保存</div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div id="tabs-3">
+            <div style="margin-left:30px;margin-top:30px;">
+                <div>　　设置密码安全等级，设置后用户新设置的密码必须符合设定的安全等级的要求；而已经设定的密码仍然可用，无论是否符合安全等级的要求。</div>
+                <div style="margin-top:20px;">
+                    <div style="float:left;">密码字符复杂度</div>
+                    <div style="float:left;">
+                        <div><input class="radio" type="radio" value="1" name="pwdtype"/>强</div>
+                        <div><span class="form_tips">注：密码强必须包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等），且密码长度为10-32个字符</span>
+                        </div>
+                        <div><input class="radio" type="radio" value="2" name="pwdtype"/>中</div>
+                        <div><span class="form_tips">注：密码中至少包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等）中的三种，且密码长度为10-32个字符</span>
+                        </div>
+                        {% if not strict_password_policy %}
+                            <div><input class="radio" type="radio" value="3" name="pwdtype"/>弱</div>
+                            <div><span class="form_tips">注：密码字符类型不限定，密码长度为1-32个字符</span></div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-top:20px;">
+                    <div style="">用户密码周期</div>
+                    <div style="margin-left:90px;">
+                        <div>密码使用期限<input class="radio" type="number" id="pwdcycle" style="width:50px;"/>天
+                            {% if strict_password_policy %}(1-7){% else %}(为0时密码永不过期){% endif %}</div>
+                        <div><span class="form_tips">注：更改用户密码周期，用户下次登录时须更改密码</span></div>
+                    </div>
+                </div>
+                <div class="clear"></div>
+                <div class="menu_btn" style="float:right;margin-right:100px;" id="setbutton2">保存</div>
+            </div>
+        </div>
+        <div id="tabs-4">
+            <div style="margin-left:30px;margin-top:30px;">连续登录失败<input class="radio" type="number" id="lockcount"
+                                                                        style="width:50px;"/>次，将锁定帐号。
+                {% if strict_password_policy %}（3-5）{% else %}（≥3）{% endif %}</div>
+            <div style="margin-left:30px;margin-top:20px;">锁定<input class="radio" type="number" id="locktime" style="width:50px;
+"/>分钟后，自动解锁。也可以在用户管理中，手动解锁。（≥5）
+            </div>
+            <div style="margin-left:30px;margin-top:20px;">管理员登录Web管理页面后，如未主动退出，超过<input class="radio" type="number"
+                                                                                         id="expiry"
+                                                                                         style="width:50px;"/>分钟后，需要重新登录认证（0或空不限制）。
+            </div>
+            <div class="menu_btn" style="float:right;margin-right:100px;margin-top:20px;" id="setbutton1">保存</div>
+        </div>
+        <div id="tabs-5" style="padding: 45px">
+            <span id="current_ip"></span><br><br>
+            NTP服务器:<br>
+            <input id="radio_list" type="radio" value="list" name="mod"/>列表选择:
+            <select id="ntp_avail" style="margin-top: 12px"></select><br>
+
+            <input id="radio_manual" type="radio" value="manual" name="mod"/>手动输入:
+            <input type="text" id="ntp_new" style="width:140px;height:14px;margin-top: 12px" onblur="removespace(this)"><br>
+
+            <div id="update" style="margin-top: 12px">立即更新</div>
+            <div id="dscr" style="margin-top: 12px"></div>
+        </div>
+        {% if show_auxiliary_tab %}
+            <div id="tabs-6" style="padding: 45px">
+                <div id="remote_kvm_div" style="width:700px;">
+                    <div style="margin-top:20px;"><label><input type="checkbox" id="enablekvm">启动第三方KVM</label></div>
+                    <div class="clear"></div>
+                    <div style="margin-top:10px;float:left;">{{ title }}IP地址：</div>
+                    <div style="margin-top:10px;float:left;"><input type="text" class="input" id="aio_ip"
+                                                                    style="width:200px;" onblur="removespace(this)"/>
+                    </div>
+                    <div class="clear"></div>
+                    <div style="margin-top:10px;margin-left:78px;float:left;">远程IP地址：</div>
+                    <div style="margin-top:10px;float:left;"><input type="text" class="input" id="ssh_ip"
+                                                                    style="width:200px;" onblur="removespace(this)"/>
+                    </div>
+                    <div class="clear"></div>
+                    <div style="margin-top:10px;margin-left:92px;float:left;">远程端口：</div>
+                    <div style="margin-top:10px;float:left;"><input type="text" class="input" id="ssh_port"
+                                                                    style="width:200px;" onblur="removespace(this)"/>
+                    </div>
+                    <div class="clear"></div>
+                    <div style="margin-top:10px;margin-left:92px;float:left;">远程私钥：</div>
+                    <div style="margin-top:10px;float:left;"><textarea spellcheck="false" rows="18" cols="70"
+                                                                       id="ssh_key"
+                                                                       style="font-family:monospace;"></textarea></div>
+                    <div class="clear"></div>
+                    <div style="margin-top:10px;margin-left:38px;float:left;">远程可使用的路径：</div>
+                    <div style="margin-top:10px;float:left;"><input type="text" class="input" id="ssh_path"
+                                                                    style="width:300px;" onblur="removespace(this)"/>
+                    </div>
+                    <div class="clear"></div>
+                    <div style="margin-top:10px;margin-left:50px;float:left;">远程运行的组件：</div>
+                    <div style="margin-top:10px;float:left;">
+                        <select id="ssh_os_type" title="">
+                            <option value='-1' selected="selected">请稍候</option>
+                        </select>
+                    </div>
+                    <div class="menu_btn" style="float:right;margin-right:30px;" id="ssh_kvm_btn">保存</div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        {% endif %}
+        {% if show_take_over_tab %}
+            <div id="tabs-7" style="padding: 45px">
+                <div>此网段为接管主机使用的专用网段，如果与现有业务使用的网段冲突，请更改此网段。</div>
+                <div style="margin-top:20px;">更新后，已开启的接管主机将失去与{{ title }}的网络连接，请关机后再开机。</div>
+                <div style="margin-top:20px;">网段：<input type="text" id="takeover_segment" onblur="removespace(this)"
+                                                        style="width:48px;">.0.0/16
+                </div>
+                <div id="update_takeover_segment" style="margin-top: 12px">立即更新</div>
+            </div>
+        {% endif %}
+        <div id="tabs-8" style="padding: 45px">
+            <div style="margin-top:20px;">
+                <label for="partial_exp_days">备份点过期天数：　 </label><input type="number" id="partial_exp_days"
+                                                                       onblur="removespace(this)" style="width:48px;"
+                                                                       value="7">(>=0)
+            </div>
+            <div style="margin-top:10px;"><span class="form_tips">注：根据设定的过期天数，系统将自动回收过期备份点。此回收机制只针对备份中途失败的备份点。</span>
+            </div>
+            {% if database_use_policy %}
+                <div style="margin-top:20px;">
+                    <label for="database_can_use_size">日志数据存储空间： </label><input type="number" id="database_can_use_size"
+                                                                                onblur="removespace(this)"
+                                                                                style="width:48px;">MB（当前已用<span
+                        id="database_used_size"></span>MB）
+                </div>
+                <div style="margin-top:10px;"><span class="form_tips">注：日志数据存储空间将满时(剩余5％)，并有告警提示(邮件/日志)，空间满时，自动覆盖最早的日志数据。</span>
+                </div>
+            {% endif %}
+            <div id="update_partial_exp_days" style="margin-top: 12px">保存</div>
+        </div>
+        <div id="tabs-9" style="padding: 45px">
+            <div>当同时执行备份任务的数量达到配置值时，新启动的备份任务将进入排队状态，直到执行中的任务完成。</div>
+            <div style="margin-top:20px;">先进入排队状态的任务，将优先离开排队状态、进入执行状态。</div>
+            <div style="margin-top:20px;">任务队列数量：<input type="number" id="task_queue_num" onblur="removespace(this)"
+                                                        style="width:48px;"></div>
+            <div id="task_queue_num_btn" style="margin-top: 12px">保存</div>
+        </div>
+        <div id="tabs-10" style="padding: 45px">
+            {% if show_vt_alert_msg %}
+                <div style="margin-left:30px;margin-top:10px;">
+                    <span style="color:red;">本系统没有VT支持</span>，推荐不使用VT支持。开启VT支持可能导致还原及接管功能异常。
+                </div>
+            {% else %}
+                <div style="margin-left:30px;margin-top:32px;">
+                    检测到本系统有VT支持，推荐使用VT支持。
+                </div>
+            {% endif %}
+            <div style="margin-left:30px;margin-top:32px;">
+                <input type="radio" value="1" id="disable_vt" name="disable_vt"><label for="disable_vt"
+                                                                                       style="margin-right: 20px">使用VT
+                {% if not show_vt_alert_msg %}（推荐）{% endif %}</label> <br/><br/>
+                <input type="radio" value="2" id="disable_vt" name="disable_vt"><label for="disable_vt"
+                                                                                       style="margin-right: 20px">不使用VT
+                {% if show_vt_alert_msg %}（推荐）{% endif %}</label>
+            </div>
+            <div id="disable_vt_btn" style="margin-left:30px;margin-top: 12px;">保存</div>
+        </div>
+        <!--<div id="tabs-11" style="padding: 45px">
+            <div style="margin-top:20px;">
+                <input type="checkbox" id="enable_database_backup" name="enable_database_backup"/>启用数据库备份
+            </div>
+            <div style="margin-left:20px;">
+                <div style="margin-top:20px;">备份文件存放位置：<input type="hidden" id="pgsql_sel_backup_storagedevice"/>
+                    <select id="pgsql_backup_storagedevice" name="pgsql_backup_storagedevice" style="margin-left:-4px;">
+                        <option value='-1' selected="selected">请稍候</option>
+                    </select>
+                </div>
+                <div style="margin-top:20px;">
+                    每 <input type="number" id="increment_database_backup_interval_hour" style="width:35px;"/>
+                    小时进行一次增量备份（0为不备份）
+                </div>
+                <div style="margin-top:20px;">
+                    每 <input type="number" id="full_database_backup_interval_day" style="width:35px;"/> 天进行一次全量备份（0为不备份）
+                </div>
+                <div style="margin-top:20px;">
+                    保留最近 <input type="number" id="database_retention_day" style="width:35px;"/> 天的数据
+                </div>
+                <div>
+                    <div id="database_backup_btn" style="float:left;margin-top: 20px;">保存并立即备份</div>
+                    <div id="save_database_backup_btn" style="float:left;margin-left:30px;margin-top: 20px;">保存</div>
+                </div>
+            </div>
+        </div>-->
+        <div id="tabs-12">
+            <table id="drive_list">
+            </table>
+            <div id="pager"></div>
+			<div style="margin-top:10px;float:right;">
+				<div class="menu_btn" id="createForm">添加第三方驱动</div>
+				<div class="menu_btn" id="delForm">删除驱动</div>
+				<div class="menu_btn" id="search_form">查询</div>
+				<div class="menu_btn" id="refresh">刷新</div>
+			</div>
+        </div>
+        <div id="tabs-13" style="padding: 45px">
+            <div style="margin-top:20px;">
+                <div><label for="BackupIOCyclicity">客户端存储性能采样周期：<input type="number" value="200" id="BackupIOCyclicity" style="width: 100px"> 毫秒</label></div>
+                <div id="BackupIOCyclicity_btn" style="margin-top: 12px">保存</div>
+            </div>
+        </div>
+        <div id="tabs-14" style="padding: 45px">
+            <div style="margin-top:20px;">
+                <p><label for="aio_mtu">{{ title }} MTU:</p>
+                <ul>
+                    <li style="list-style: none;margin-top: 10px">
+                        <label for="use_default"><input type="radio" value="1" id="use_default" name="set_mtu_type" checked>不修正</label>
+                    </li>
+                    <li style="list-style: none;margin-top: 10px">
+                        <label for="use_special"><input type="radio" value="2" id="use_special" name="set_mtu_type">自定义</label>
+                        <label id="aio_mtu_wrapper" for="aio_mtu" style="margin-left: 20px"><input type="number" value="1500" id="aio_mtu" style="width: 100px"> (700-1600)</label>
+                    </li>
+                    <li style="list-style: none;margin-top: 10px">
+                        <div id="aio_mtu_btn" style="margin-top: 12px">保存</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div id="search_form_div" title="查询" class="ajaxForm">
+    <div style="margin-top: 40px">
+        <label for="search_input">关键词：</label>
+        <input type="text" maxlength="100" placeholder="驱动名字" id="search_key" style="width: 260px">
+    </div>
+</div>
+<div id="add_form_div" title="添加">
+    <div style="margin-top: 10px">
+        <label for="search_input">驱动名字：</label>
+        <input type="text" maxlength="100" placeholder="如eraser.sys|avgNetSec.sys" id="add_key" style="width: 200px">
+        <p>注:可以一次添加多个驱动名,用|隔开,添加时带扩展名</p>
+    </div>
+</div>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript">
+    $(function () {
+        jQuery("#drive_list").jqGrid({
+            url: '',
+            datatype: "local",
+            colNames: ['编号', '驱动名字'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 50, sortable: true, hidden: true},
+                {name: 'fileMark', index: '1', align: "center", width: 300, sortable: true}
+            ],
+            width: 748,
+            height: 250,
+            rowNum: 300,
+            rowList: [25, 50, 100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (ids) {
+                var params = "a=getplandetail&taskid=" + ids;
+                myAjaxGet('../backupmgr_handle/', params, GetBackupInfo);
+            }
+        });
+    });
+    jQuery("#drive_list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#drive_list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+    $('#createForm').button().click(function () {
+        $('#add_key').val('');
+        $("#add_form_div").dialog('open');
+    });
+
+	function add_drive_list_callback(jsonstr)
+	{
+		if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+		$('#drive_list').trigger("reloadGrid", [{
+            current: true
+        }]);
+	}
+
+    $("#add_form_div").attr('title', '添加').dialog({
+        autoOpen: false,
+        height: 220,
+        width: 350,
+        modal: true,
+        buttons: {
+            '保存': function () {
+                var add_key = $('#add_key').val();
+                var params = 'add_key=' + add_key;
+                myAjaxGet('../backupmgr_handle/?a=add_drive_list', params, add_drive_list_callback);
+                $(this).dialog('close');
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+    $('#delForm')
+        .button()
+        .click(function () {
+            var ids = $('#drive_list').jqGrid('getGridParam', 'selarrrow');
+            console.log(ids)
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            openConfirmDialog({
+                title: '确认信息',
+                html: '点击确认按钮，执行删除操作；点击取消按钮，放弃删除操作。',
+                onBeforeOK: function () {
+                    var params = "a=deldrive&taskid=" + idstring;
+                    myAjaxGet('../backupmgr_handle/', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+            $('#dialog-confirm .dialog-icon').html('<img src="/static/images/tip_icon_warning.png" width="45"/>');
+            $('#dialog-confirm .dialog-msg').css('width', '260px');
+            $('#dialog-confirm').css('height', '110px');
+        });
+
+    function ReloadGridCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#drive_list').trigger("reloadGrid", [{
+            current: true
+        }]);
+    }
+
+    $('#refresh').button().click(function () {
+        var new_url = '../backupmgr_handle/?a=drive_list';
+        $('#drive_list').setGridParam({url: new_url});
+        $('#drive_list').trigger("reloadGrid", [{page: 1}]);
+    })
+    $("#search_form_div").attr('title', '查询').dialog({
+        autoOpen: false,
+        height: 200,
+        width: 350,
+        modal: true,
+        buttons: {
+            '查询': function () {
+                search_worker();
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+    $('#search_form').button().click(function () {
+        $("#search_form_div").dialog('open');
+    });
+
+    function search_worker() {
+        var s_key = $('#search_key').val();
+        $("#search_form_div").dialog('close');
+        var new_url = '../backupmgr_handle/?a=drive_list&s_key=' + s_key;
+        $('#drive_list').setGridParam({url: new_url});
+        $('#drive_list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function GetAllstoragedevice(retjson) {
+        $("#pgsql_backup_storagedevice").empty();
+        for (var i = 0; i < retjson.rows.length; i++) {
+            var html = "（可用：{3}）";
+            html = html.replace('{3}', retjson.rows[i].cell[4]);
+            var name = retjson.rows[i].cell[0] + html;
+            var value = retjson.rows[i].ident;
+            if ($('#pgsql_sel_backup_storagedevice').val() == value) {
+                $("#pgsql_backup_storagedevice").append("<option value='" + value + "' selected=\"selected\" >" + name + "</option>");
+            }
+            else {
+                $("#pgsql_backup_storagedevice").append("<option value='" + value + "'>" + name + "</option>");
+            }
+        }
+    }
+
+    function get_database_backup_info_callback(retjson) {
+        $('#pgsql_sel_backup_storagedevice').val(retjson.database_backup_storagedevice);
+        if (retjson.enable_database_backup == "1") {
+            $('#enable_database_backup').prop('checked', true);
+        }
+        else {
+            $('#enable_database_backup').prop('checked', false);
+        }
+        $('#increment_database_backup_interval_hour').val(retjson.increment_database_backup_interval_hour);
+        $('#full_database_backup_interval_day').val(retjson.full_database_backup_interval_day);
+        $('#database_retention_day').val(retjson.database_retention_day);
+        if (retjson.enable_database_backup == 0) {
+            $('#increment_database_backup_interval_hour').prop('disabled', true);
+            $('#full_database_backup_interval_day').prop('disabled', true);
+            $('#database_retention_day').prop('disabled', true);
+            $('#pgsql_backup_storagedevice').prop('disabled', true);
+            $('#database_backup_btn').attr('disabled', true);
+        }
+        else {
+            $('#increment_database_backup_interval_hour').prop('disabled', false);
+            $('#full_database_backup_interval_day').prop('disabled', false);
+            $('#database_retention_day').prop('disabled', false);
+            $('#pgsql_backup_storagedevice').prop('disabled', false);
+            $('#database_backup_btn').attr('disabled', false);
+        }
+        myAjaxGet('../storage_handle/', 'a=list&rows=300&page=1', GetAllstoragedevice);
+    }
+
+
+    $('input[name=enable_database_backup]').click(function () {
+        if ($(this).is(':checked')) {
+            $('#increment_database_backup_interval_hour').prop('disabled', false);
+            $('#full_database_backup_interval_day').prop('disabled', false);
+            $('#database_retention_day').prop('disabled', false);
+            $('#pgsql_backup_storagedevice').prop('disabled', false);
+            $('#database_backup_btn').attr('disabled', false);
+        }
+        else {
+            $('#increment_database_backup_interval_hour').prop('disabled', true);
+            $('#full_database_backup_interval_day').prop('disabled', true);
+            $('#database_retention_day').prop('disabled', true);
+            $('#pgsql_backup_storagedevice').prop('disabled', true);
+            $('#database_backup_btn').attr('disabled', true);
+        }
+    });
+
+    function save_database_backup(run_immediately) {
+        var enable_database_backup = $('input[name=enable_database_backup]').is(':checked') ? 1 : 0;
+        var database_backup_storagedevice = $('#pgsql_backup_storagedevice').val();
+        var increment_database_backup_interval_hour = $('#increment_database_backup_interval_hour').val();
+        var full_database_backup_interval_day = $('#full_database_backup_interval_day').val();
+        var database_retention_day = $('#database_retention_day').val();
+
+        if (enable_database_backup == 1) {
+            if (database_backup_storagedevice == -1) {
+                openErrorDialog({title: '错误', html: '请选择备份文件存放位置'});
+                return false;
+            }
+            if (!isNum(increment_database_backup_interval_hour)) {
+                openErrorDialog({title: '错误', html: '请输入多少小时进行一次增量备份'});
+                return false;
+            }
+
+            if (!isNum(full_database_backup_interval_day)) {
+                openErrorDialog({title: '错误', html: '请输入多少天进行一次全量备份'});
+                return false;
+            }
+
+            if (!isNum(database_retention_day)) {
+                openErrorDialog({title: '错误', html: '请输入数据保留天数'});
+                return false;
+            }
+        }
+        else {
+            database_backup_storagedevice = 0;
+            increment_database_backup_interval_hour = 0;
+            full_database_backup_interval_day = 0;
+        }
+
+        var params = 'enable_database_backup=' + enable_database_backup;
+        params += '&database_backup_storagedevice=' + database_backup_storagedevice;
+        params += '&increment_database_backup_interval_hour=' + increment_database_backup_interval_hour;
+        params += '&full_database_backup_interval_day=' + full_database_backup_interval_day;
+        params += '&database_retention_day=' + database_retention_day;
+        params += '&run_immediately=' + run_immediately;
+
+        myAjaxPost('../syssetget_handle/?a=save_database_backup_info', params, TipCallback);
+    }
+
+    $('#save_database_backup_btn').button().click(function () {
+        save_database_backup(0);
+    });
+
+
+    $('#database_backup_btn').button().click(function () {
+        save_database_backup(1);
+    });
+
+    $('#query-aio-log').click(function () {
+        getDebugLogZip('get_aio_log_file_zip');
+    });
+
+    $(function () {
+        $('#radio_list').attr('checked', 'checked');
+        $('#ntp_new').attr('disabled', 'disabled');
+    });
+
+    $('#radio_list').click(function () {
+        $('#ntp_new').attr('disabled', 'disabled');
+        $('#ntp_avail').removeAttr('disabled');
+    });
+
+    $('#radio_manual').click(function () {
+        $('#ntp_avail').attr('disabled', 'disabled');
+        $('#ntp_new').removeAttr('disabled');
+    });
+
+    $('#update').button().click(function () {
+        var radio_val = $("input[name='mod']:checked").val();
+        var ntp_ip = '';
+        if (radio_val == 'list') {
+            ntp_ip = $('#ntp_avail').val();
+        }
+        else {
+            ntp_ip = $('#ntp_new').val();
+        }
+        if (ntp_ip == '') {
+            return;
+        }
+
+        var parm = 'a=updatesystime&ntp_ip=' + ntp_ip;
+        myAjaxGet('../syssetget_handle/', parm, isUpdateSuccessful);
+
+        $('#dscr').text('请等待，系统正在与{0}同步...'.replace('{0}', ntp_ip))
+    });
+
+    function isUpdateSuccessful(jsonstr) {
+        var radio_val = $("input[name='mod']:checked").val();
+        var ip = '';
+        if (radio_val == 'list') {
+            ip = $('#ntp_avail').val();
+        }
+        else {
+            ip = $('#ntp_new').val();
+        }
+
+        if (jsonstr.e == 1) {
+
+            $('#dscr').text('系统在与{0}进行同步时出错'.replace('{0}', ip))
+        }
+        else {
+            $('#dscr').text('时钟在{0}与{1}同步成功'.replace('{0}', jsonstr.time).replace('{1}', ip));
+            $('#current_ip').text('已将系统设置为自动与"{0}"同步。'.replace('{0}', ip));
+        }
+    }
+
+    function getkey(jsonstr) {
+
+        $('#showkey').html(jsonstr);
+        $('#qrcode').html('');
+
+        $.getScript('/static/js/jquery.qrcode.min.js', function () {
+            $('#qrcode').qrcode({width: 256, height: 256, text: jsonstr})
+        });
+    }
+
+    $('#rebootbutton')
+        .button()
+        .click(function () {
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要重启{{ title }}吗?',
+                onBeforeOK: function () {
+                    myAjaxPost('../syssetget_handle/', 'a=reboot&p=123456', TipCallback);
+                    $(this).dialog('close');
+                }
+            });
+
+        });
+
+    $('#shutdownbutton')
+        .button()
+        .click(function () {
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要关闭{{ title }}吗?',
+                onBeforeOK: function () {
+                    myAjaxPost('../syssetget_handle/', 'a=halt&p=123456', TipCallback);
+                    $(this).dialog('close');
+                }
+            });
+
+        });
+
+    $('#cancelbutton')
+        .button()
+        .click(function () {
+            myAjaxPost('../syssetget_handle/', 'a=cancel&p=123456', TipCallback);
+
+        });
+
+	$('#sshbutton').button()
+	.click(function () {
+		var enable_ssh = $("input[name='enable_ssh']:checked").val();
+		myAjaxPost('../syssetget_handle/', 'a=set_openssl&enable_ssh='+enable_ssh, TipCallback);
+	});
+
+    $('#setbutton1')
+        .button()
+        .click(function () {
+            //过期时间
+            var expiry = $('#expiry').val();
+            var lockcount = $('#lockcount').val();
+            var locktime = $('#locktime').val();
+            if (expiry != '' && !isNum(expiry)) {
+                openErrorDialog('错误', '保存失败，输入不合法。Web超时时间只能为空、零或正整数。');
+                return;
+            }
+            if (lockcount == '' || !isNum(lockcount)) {
+                openErrorDialog('错误', '保存失败，输入不合法。连续登录失败次数只能为零或正整数。');
+                return;
+            }
+            if (lockcount < 3) {
+                openErrorDialog('错误', '保存失败，输入不合法。连续登录失败次数至少要大于3次。');
+                return;
+            }
+            if (locktime == '' || !isNum(locktime)) {
+                openErrorDialog('错误', '保存失败，输入不合法。锁定时间只能为零或正整数。');
+                return;
+            }
+            if (locktime < 5) {
+                openErrorDialog('错误', '保存失败，输入不合法。锁定时间至少要大于5分钟。');
+                return;
+            }
+            var params = 'a=setexpiry&time=' + expiry;
+            params += '&lockcount=' + lockcount;
+            params += '&locktime=' + locktime;
+            myAjaxPost('../syssetget_handle/', params, TipCallback);
+        });
+
+    function getexpiry(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+
+        $('#expiry').val(jsonstr.expiry);
+        $('#lockcount').val(jsonstr.lockcount);
+        $('#locktime').val(jsonstr.locktime);
+
+    }
+
+    $('#setbutton2')
+        .button()
+        .click(function () {
+            //密码策略
+            var params = 'a=setpwdpolicy&policy=' + $("input[name='pwdtype']:checked").val();
+            params += "&pwdcycle=" + $('#pwdcycle').val();
+            if ($('#pwdcycle').val() < 0 || $('#pwdcycle').val() > 365) {
+                openErrorDialog('失败', '请输入0-365的整数作为密码周期。');
+                return;
+            }
+            myAjaxPost('../syssetget_handle/', params, TipCallback);
+        });
+
+
+    function verify_form() {
+        if ($('#tabs-6').is(':visible') && $('#enablekvm').is(':checked')) {
+            if (!isIPV4($('#aio_ip').val())) {
+                openErrorDialog({title: '错误', html: '**IP地址**  \n输入无效, 请重新输入'});
+                return false;
+            }
+            if (!isIPV4($('#ssh_ip').val())) {
+                openErrorDialog({title: '错误', html: '**远程IP地址**  \n输入无效, 请重新输入'});
+                return false;
+            }
+            if (!isNum($('#ssh_port').val())) {
+                openErrorDialog({title: '错误', html: '**远程端口**  \n输入无效, 请重新输入'});
+                return false;
+            }
+            if (!$('#ssh_os_type').val()) {
+                openErrorDialog({title: '错误', html: '**远程运行的组件**  \n输入无效, 请重新输入'});
+                return false;
+            }
+        }
+        return true;
+    }
+
+    $('#ssh_kvm_btn')
+        .button()
+        .click(function () {
+            if (!verify_form()) {
+                return false;
+            }
+
+            //KVM设置
+            var enablekvm = 0;
+            var params = 'a=set_ssh_kvm';
+            if ($('#enablekvm').is(':checked')) {
+                enablekvm = 1;
+
+            }
+            params += "&enablekvm=" + enablekvm;
+            params += "&ssh_ip=" + $('#ssh_ip').val();
+            params += "&ssh_port=" + $('#ssh_port').val();
+            params += "&ssh_key=" + encodeURIComponent($('#ssh_key').val());
+            params += "&ssh_path=" + $('#ssh_path').val();
+            params += "&ssh_os_type=" + $('#ssh_os_type').val();
+            params += "&aio_ip=" + $('#aio_ip').val();
+
+            myAjaxPost('../syssetget_handle/', params, TipCallback);
+        });
+
+    $('#enablekvm').change(function () {
+        if ($('#enablekvm').is(':checked')) {
+            $('#aio_ip').prop('disabled', '');
+            $('#ssh_ip').prop('disabled', '');
+            $('#ssh_port').prop('disabled', '');
+            $('#ssh_key').prop('disabled', '');
+            $('#ssh_path').prop('disabled', '');
+            $('#ssh_os_type').prop('disabled', '');
+
+            $('#aio_ip').prop('enabled', 'enabled');
+            $('#ssh_ip').prop('enabled', 'enabled');
+            $('#ssh_port').prop('enabled', 'enabled');
+            $('#ssh_key').prop('enabled', 'enabled');
+            $('#ssh_path').prop('enabled', 'enabled');
+            $('#ssh_os_type').prop('enabled', 'enabled');
+        }
+        else {
+            $('#aio_ip').prop('enabled', '');
+            $('#ssh_ip').prop('enabled', '');
+            $('#ssh_port').prop('enabled', '');
+            $('#ssh_key').prop('enabled', '');
+            $('#ssh_path').prop('enabled', '');
+            $('#ssh_os_type').prop('enabled', '');
+
+            $('#aio_ip').prop('disabled', 'disabled');
+            $('#ssh_ip').prop('disabled', 'disabled');
+            $('#ssh_port').prop('disabled', 'disabled');
+            $('#ssh_key').prop('disabled', 'disabled');
+            $('#ssh_path').prop('disabled', 'disabled');
+            $('#ssh_os_type').prop('disabled', 'disabled');
+        }
+    });
+
+
+    function getpwdpolicy(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        switch (jsonstr.policy) {
+            case "1":
+                $($("input[name=pwdtype]")[0]).click();
+                break;
+            case "2":
+                $($("input[name=pwdtype]")[1]).click();
+                break;
+            case "3":
+                $($("input[name=pwdtype]")[2]).click();
+                break;
+        }
+
+        $('#pwdcycle').val(jsonstr.pwdcycle);
+
+    }
+
+    function get_remote_kvm_call_back(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+
+        $("#ssh_os_type").empty();
+        for (var i = 0; i < jsonstr.all_os_type.length; i++) {
+            var id = jsonstr.all_os_type[i].id;
+            var name = jsonstr.all_os_type[i].name;
+            if (jsonstr.ssh_os_type == id) {
+                $("#ssh_os_type").append("<option value='" + id + "'  selected=\"selected\" >" + name + "</option>");
+            }
+            else {
+                $("#ssh_os_type").append("<option value='" + id + "'>" + name + "</option>");
+            }
+        }
+        if (jsonstr.enablekvm == "1") {
+            $("#enablekvm").prop('checked', 'checked');
+            $('#ssh_ip').val(jsonstr.ssh_ip);
+            $('#ssh_port').val(jsonstr.ssh_port);
+            $('#ssh_key').val(jsonstr.ssh_key);
+            $('#ssh_path').val(jsonstr.ssh_path);
+            if (jsonstr.ssh_os_type) {
+                $('#ssh_os_type').val(jsonstr.ssh_os_type);
+            }
+            $('#aio_ip').val(jsonstr.aio_ip);
+
+            $('#ssh_ip').prop('enabled', 'enabled');
+            $('#ssh_port').prop('enabled', 'enabled');
+            $('#ssh_key').prop('enabled', 'enabled');
+            $('#ssh_path').prop('enabled', 'enabled');
+            $('#ssh_os_type').prop('enabled', 'enabled');
+            $('#aio_ip').prop('enabled', 'enabled');
+        }
+        else {
+            $("#enablekvm").prop('checked', false);
+            $('#ssh_ip').val(jsonstr.ssh_ip);
+            $('#ssh_port').val(jsonstr.ssh_port);
+            $('#ssh_key').val(jsonstr.ssh_key);
+            $('#ssh_path').val(jsonstr.ssh_path);
+            if (jsonstr.ssh_os_type) {
+                $('#ssh_os_type').val(jsonstr.ssh_os_type);
+            }
+            $('#aio_ip').val(jsonstr.aio_ip);
+
+
+            $('#ssh_ip').prop('disabled', 'disabled');
+            $('#ssh_port').prop('disabled', 'disabled');
+            $('#ssh_key').prop('disabled', 'disabled');
+            $('#ssh_path').prop('disabled', 'disabled');
+            $('#ssh_os_type').prop('disabled', 'disabled');
+            $('#aio_ip').prop('disabled', 'disabled');
+        }
+    }
+
+    function setTakeoverSegment(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#takeover_segment').val(jsonstr.segment);
+    }
+
+    function setPartialExp(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#partial_exp_days').val(jsonstr.exp);
+        $('#database_can_use_size').val(jsonstr.database_can_use_size);
+        $('#database_used_size').html(jsonstr.database_used_MB);
+    }
+
+    function get_task_queue_num_callback(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+        $('#task_queue_num').val(jsonobj.task_queue_num);
+    }
+
+    function get_vt_status_callback(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+
+        if (jsonobj.enable_vt) {
+            $("input[name='disable_vt'][value=1]").prop('checked', true);
+            $("input[name='disable_vt'][value=2]").prop('checked', false);
+        }
+        else {
+            $("input[name='disable_vt'][value=1]").prop('checked', false);
+            $("input[name='disable_vt'][value=2]").prop('checked', true);
+        }
+    }
+
+	function get_openssl_callback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+		if(jsonstr.benable)
+		{
+			$("input[name='enable_ssh'][value=1]").prop('checked', true);
+            $("input[name='enable_ssh'][value=2]").prop('checked', false);
+		}
+		else
+		{
+			{
+			$("input[name='enable_ssh'][value=1]").prop('checked', false);
+            $("input[name='enable_ssh'][value=2]").prop('checked', true);
+		}
+		}
+    }
+
+    $('#tabs').on('tabsbeforeactivate', function (event, ui) {
+        var newPanel = ui.newPanel.attr('id');
+        switch (newPanel) {
+			case 'tabs-2':
+                myAjaxGet('../syssetget_handle/', 'a=get_openssl', get_openssl_callback);
+                break;
+            case 'tabs-3':
+                myAjaxGet('../syssetget_handle/', 'a=getpwdpolicy', getpwdpolicy);
+                break;
+            case 'tabs-4':
+                myAjaxGet('../syssetget_handle/', 'a=getexpiry', getexpiry);
+                break;
+            case 'tabs-5':
+                myAjaxGet('../syssetget_handle/', 'a=getavailntpips', setAvailNTPIps);
+                break;
+            case 'tabs-6':
+                myAjaxPost('../syssetget_handle/?a=get_ssh_kvm', '', get_remote_kvm_call_back);
+                break;
+            case 'tabs-7':
+                myAjaxGet('../syssetget_handle/', 'a=get_takeover_segment', setTakeoverSegment);
+                break;
+            case 'tabs-8':
+                myAjaxGet('../syssetget_handle/', 'a=get_partial_disk_snapshot_exp_days', setPartialExp);
+                break;
+            case 'tabs-9':
+                myAjaxGet('../syssetget_handle/', 'a=get_task_queue_num', get_task_queue_num_callback);
+                break;
+            case 'tabs-10':
+                myAjaxGet('../syssetget_handle/', 'a=get_vt_status', get_vt_status_callback);
+                break;
+            case 'tabs-11':
+                myAjaxGet('../syssetget_handle/', 'a=get_database_backup_info', get_database_backup_info_callback);
+                break;
+			case 'tabs-12':
+				$("#drive_list").jqGrid('setGridParam',{datatype:"json",url:"../backupmgr_handle/?a=drive_list"});
+				$('#drive_list').trigger("reloadGrid",[{
+					current:true
+				}]);
+				break;
+            case 'tabs-13':
+				myAjaxGet('../syssetget_handle/', 'a=get_backup_io_cyclicity', get_backup_io_cyclicity_cb);
+				break;
+            case 'tabs-14':
+				myAjaxGet('../syssetget_handle/', 'a=get_aio_mtu', get_aio_mtu_cb);
+				break;
+            default:
+                break;
+        }
+    });
+
+    function setAvailNTPIps(jsonstr) {
+        $('#ntp_avail').empty();
+        $.each(jsonstr.ntp_ips, function (index, elem) {
+            $('<option></option>').val(elem).text(elem).appendTo($('#ntp_avail'));
+        });
+        if (jsonstr.conf_ip == null) {
+            $('#current_ip').text('请设置NTP服务器。');
+        }
+        else {
+            $('#current_ip').text('已将系统设置为自动与"{0}"同步。'.replace('{0}', jsonstr.conf_ip));
+        }
+    }
+
+    $('#update_takeover_segment').button().click(function () {
+
+        var parm = 'a=set_takeover_segment&segment=' + $('#takeover_segment').val();
+        myAjaxGet('../syssetget_handle/', parm, TipCallback);
+    });
+
+    $('#update_partial_exp_days').button().click(function () {
+
+        var days = $('#partial_exp_days').val();
+        if (!isNum(days) || parseInt(days) < 0) {
+            openErrorDialog('错误', '立即更新失败，输入值必须是大于等于零的整数。');
+            return;
+        }
+		var parm = 'a=set_partial_disk_snapshot_exp_days&exp_days=' + days;
+		{% if database_use_policy %}
+        var database_can_use_size = $('#database_can_use_size').val();
+        if (!isNum(database_can_use_size) || parseInt(database_can_use_size) < 0) {
+            openErrorDialog('错误', '日志数据存储空间必须是整数。');
+            return;
+        }
+		parm += "&database_can_use_size=" + database_can_use_size;
+		{% endif %}
+        myAjaxGet('../syssetget_handle/', parm, TipCallback);
+    });
+
+    $('#task_queue_num_btn').button().click(function () {
+        var task_queue_num = $('#task_queue_num').val();
+        if (!isNum(task_queue_num) || parseInt(task_queue_num) < 1) {
+            openErrorDialog('错误', '输入值必须是大于等于1的整数。');
+            return;
+        }
+        var parm = 'a=set_task_queue_num&task_queue_num=' + task_queue_num;
+        myAjaxGet('../syssetget_handle/', parm, TipCallback);
+    });
+
+    $('#disable_vt_btn').button().click(function () {
+
+        var disable_vt = $("input[name='disable_vt']:checked").val();
+
+        var parm = 'a=disable_vt&disable_vt=' + disable_vt;
+        myAjaxGet('../syssetget_handle/', parm, TipCallback);
+    });
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 600);
+        $("#tabs").tabs("option", "active", 0);
+        var params = "a=getkey";
+        myAjaxGet('../user_handle/', params, getkey);
+        $('#navigation').html('<div class="font_navigation">系统设置</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#sysset" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        system_resize();
+
+    });
+
+    function system_resize() {
+        resizeright();
+		var width = $("#tabs").width() - 50;
+		$("#drive_list").setGridWidth(width);
+		$("#drive_list").setGridHeight(400);
+        baseresize();
+    }
+
+    function get_backup_io_cyclicity_cb(jsonstr){
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#BackupIOCyclicity').val(jsonstr.BackupIOCyclicity);
+    }
+
+    $('#BackupIOCyclicity_btn').button().click(function () {
+        var n = $('#BackupIOCyclicity').val();
+        if (!n){
+            openErrorDialog({title: '错误', html: '输入不能为空'});
+            return;
+        }
+        myAjaxGet('../syssetget_handle/', 'a=set_backup_io_cyclicity&BackupIOCyclicity=' + n , TipCallback);
+    });
+
+    $('#aio_mtu_btn').button().click(function () {
+        if ($('input[name=set_mtu_type]:checked').val() === '1'){ //  默认
+            var mtu = -1;
+        }else{ // 自定义 需要校验输入值
+            var n = $('#aio_mtu').val();
+            if (!n){
+                openErrorDialog({title: '错误', html: '输入不能为空'});
+                return;
+            }
+            var n_int = parseInt(n);
+            if (n_int<700 || n_int >1600){
+                openErrorDialog('错误', 'MTU值应该在700到1600之间');
+                return
+            }
+            var mtu = n_int;
+        }
+        myAjaxGet('../syssetget_handle/', 'a=set_aio_mtu&mtu=' + mtu , TipCallback);
+    });
+
+    function get_aio_mtu_cb(jsonstr){
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        if (jsonstr.aio_mtu == -1){
+            $('#use_default').click();
+        }else{
+            $('#use_special').click();
+            $('#aio_mtu').val(jsonstr.aio_mtu);
+        }
+    }
+
+    $('input[name=set_mtu_type]').on('click',function () {
+        if ($(this).val() === '1'){ // 默认
+            $('#aio_mtu_wrapper').hide()
+        }else{ // 自定义
+            $('#aio_mtu_wrapper').show()
+        }
+    });
+
+    $(window).resize(function () {
+        system_resize();
+    });
+</script>

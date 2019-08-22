@@ -1,0 +1,15 @@
+[Unit]
+Description=BoxDashboard.service
+After=network.target
+
+[Service]
+WorkingDirectory=/sbin/aio/box_dashboard
+ExecStart=/root/.pyenv/shims/uwsgi --ini uwsgi.ini
+Restart=always
+Type=notify
+NotifyAccess=all
+Environment=MALLOC_ARENA_MAX=2
+Environment=MALLOC_MMAP_MAX_=655360
+
+[Install]
+WantedBy=multi-user.target

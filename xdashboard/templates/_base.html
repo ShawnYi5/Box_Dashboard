@@ -1,0 +1,903 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/static/images/favicon.ico" />
+    <title>{{title}}</title>
+    <script type="text/javascript" src="/static/js/noReload.js"></script>
+    <script type="text/javascript" src="/static/js/base64.js"></script>
+    <script type="text/javascript" src="/static/js/vue.js"></script>
+	<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+	<script type="text/javascript" src="/static/element-ui/index.js"></script>
+    <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/element-ui/index.css">
+    <style>
+	.my-ui-menu {cursor: pointer; text-align:left;line-height:32px;}
+	.header .head1{ float:left;display:inline;width:621px;height:70px; background:url({{ top_bg1 }}) no-repeat; overflow:hidden;}
+	.header .head2{ float:left; display:inline;height:70px; background:url({{ top_bg2 }}); overflow:hidden;}
+	.header .head3{ float:left;display:inline;width:287px;height:70px; background:url({{ top_bg3 }}) no-repeat; overflow:hidden;}
+    .myhelptip{
+    display: none;
+    text-align: left;
+    background-color: #1E2021;
+    padding: 5px 20px 20px;
+    width: 400px;
+    position: absolute;
+    border-radius: 3px;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    color: #FFF;
+    font-size: 13px;
+    line-height: 1.4;
+	cursor:text;
+	z-index: 99;
+    }
+
+	.support_os_tip_class{max-width:500px;}
+    body {
+        padding-right: 0px !important;
+    }
+    .input-is-invalid{border:none;border: 2px solid #dc3545;}
+	/* left*/
+	.base_left{
+		width:200px; display:block; float:left; background:url(/static/images/bg-color.gif) repeat;margin:10px 10px 0px 0px;
+	}
+
+	.left .left_a{width:200px;	height:37px;display:block;background:#6D6D6D;}
+	a.left_a5{width:200px;height:37px; display:block;text-indent:42px; vertical-align:middle; line-height:37px; text-decoration:none;}
+	a.left_a5_s{width:200px;height:37px; display:block;text-indent:42px; vertical-align:middle; line-height:37px; text-decoration:none;}
+	a.left_a5:link { background:url(/static/images/content_left_top_bg_yuanshi.jpg) no-repeat;}
+	a.left_a5:visited {background:url(/static/images/content_left_top_bg_yuanshi.jpg) no-repeat; }
+	a.left_a5:hover {	background:url(/static/images/content_left_top_bg_yishang.jpg) no-repeat;}
+	a.left_a5:active {background:url(/static/images/content_left_top_bg_yuanshi.jpg) no-repeat;}
+	a.left_a5_s:link { background:url(/static/images/content_left_top_bg_yishang.jpg) no-repeat;}
+	a.left_a5_s:visited {background:url(/static/images/content_left_top_bg_yishang.jpg) no-repeat;}
+	a.left_a5_s:hover {	background:url(/static/images/content_left_top_bg_yishang.jpg) no-repeat;}
+	a.left_a5_s:active {background:url(/static/images/content_left_top_bg_yishang.jpg) no-repeat;}
+
+	.left .left_b{width:200px;display:block;background:url(/static/images/bg-color.gif) repeat;}
+	.left_b_top{ background-image:url(/static/images/content_left_all_bg.jpg);background-repeat:no-repeat;margin:0px 0px 0px 0px;padding:0px 0px 0px 0px;width:198px; text-indent:10px; height:35px; display:block; vertical-align:middle; line-height:35px;cursor: pointer;}
+	.left_c_text{position:absolute;height:37px;_width:200px;_float:left;}
+	.left_img{position:absolute;top :15px;margin:0px 0px 0px 10px;*margin:0px 0px 0px 0px;_margin:0px 0px 0px 0px;}
+	.left_b_c{width:194px;margin:0px 3px 0px 3px;padding:0px 0px 0px 0px; display:block;}
+	a.left_a6{width:194px;height:26px; display:block;text-indent:42px; vertical-align:middle; line-height:26px; text-decoration:none;}
+	a.left_a6_s{width:194px;height:26px; display:block;text-indent:42px; vertical-align:middle; line-height:26px; text-decoration:none;}
+	a.left_a6:link {  border-bottom:#91BEF0 1px solid; color:#FFFFFF;}
+	a.left_a6:visited { border-bottom:#91BEF0 1px solid;  color:#FFFFFF;}
+	a.left_a6:hover {background:url(/static/images/content_left_yishang.gif) no-repeat; color:#fff; font-weight:bold;}
+	a.left_a6:active { border-bottom:#91BEF0 1px solid; color:#477BC9;}
+	a.left_a6_s:link { background:url(/static/images/content_left_yishang.gif) no-repeat;color:#fff; font-weight:bold;}
+	a.left_a6_s:visited {background:url(/static/images/content_left_yishang.gif) no-repeat;color:#fff; font-weight:bold;}
+	a.left_a6_s:hover {	background:url(/static/images/content_left_yishang.gif) no-repeat;color:#fff; font-weight:bold;}
+	a.left_a6_s:active {background:url(/static/images/content_left_yishang.gif) no-repeat;color:#fff; font-weight:bold;}
+    table tr{word-break: break-all; }
+    </style>
+</head>
+<body style="overflow-y:scroll;">
+<div class="spmc_box">
+    <div class="header">
+        <div class="head1"></div>
+		<div class="head2"></div>
+		<div class="head3">
+			<div style="position:relative;left:67px;top:38px;"><span class="font_fff">服务器时间：<span id="servertime">{{ now|date:"Y-m-d H:i:s" }}</span></span></div>
+		</div>
+		<div class="login" id="logoutdiv" style="position:relative;left:0px;top:-53px;display:none;height:50px;">
+			<span class="font_f60" id="base_user_name_span">{{user_type_name}}：<a id="setemail" class="headera">{{ loginusername }}</a>{% if loginrealname %}({{ loginrealname }}){% endif %}</span>&nbsp;&nbsp;<img
+						src="/static/images/right_jt.gif" height="7" width="4"/>
+					&nbsp;&nbsp;<a id="HEADpasswd-SYS" class="headera">修改登录密码</a>
+					{% ifequal user_type 'normal-admin' %}&nbsp;&nbsp;<a id="downloadclient" class="headera">客户端下载</a>{% endifequal %}
+					&nbsp;&nbsp;<a href="../logout" class="headera" target="_top">注销</a>
+		</div>
+    </div>
+    <div class="clear"></div>
+
+
+    <div class="base_left">
+		<div id="left_bg">
+			{% ifequal user_type 'audit-admin' %}
+			<div class="left_a"><a href="#" class="left_a5" target="_top"><span class="font_fff_blod">首页</span></a>
+			</div>
+			{% endifequal %}
+			{% ifequal user_type 'sec-admin' %}
+			<div class="left_a"><a href="../admin/" class="left_a5" target="_top"><span class="font_fff_blod">配置向导</span></a>
+			</div>
+			{% endifequal %}
+			{% ifequal user_type 'normal-admin' %}
+			{% ifnotequal user_type_name '业务管理员' %}
+			<div class="left_a"><a href="../home/" class="left_a5" target="_top"><span class="font_fff_blod">系统状态</span></a>
+			</div>
+			{% endifnotequal %}
+			{% endifequal %}
+			{% ifequal user_type 'aud-admin' %}
+			<div class="left_a"><a href="#" class="left_a5" target="_top"><span class="font_fff_blod">首页</span></a>
+			</div>
+			{% endifequal %}
+			{% for item in menulist %}
+			<div class='left_b'>
+				{% if item.subList %}
+				<div class='left_b_top' id='left_1' onclick='javascript:onMenuClick(this);'>
+					<div id='left_text' class='left_c_text'>
+						<img src='/static/images/bottom_jt.gif' class='left_img'/>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='font_ccc_blod'>{{ item.CATEGORY }}</span>
+					</div>
+				</div>
+				<div class='left_b_c' id='b_left_{{ item.id }}'>
+					{% for subitem in item.subList %}
+						<a href='{{ subitem.page_name }}' realhref='{{ subitem.page_name }}' class='left_a6'>{{subitem.page_title }}</a>
+					{% endfor %}
+				</div>
+				{% endif %}
+			</div>
+			{% endfor %}
+		</div>
+		<div class='left_b'>
+			<div style="background-image:url('/static/images/content_left_bottom_bg.gif');height:11px;"></div>
+		</div>
+    </div>
+    <div id="navigation"></div>
+    <div id="xAjaxRight"></div>
+    <div class="clear"></div>
+
+    <div class="footer">
+		<div class="dy_bottom">
+            <div style="position:relative;top:34px;margin-left: 20px;text-align: left;line-height:0px;" id="login_status">
+    {#					<span class="font_fff">最近登录时间：{{ last_login|date:"Y-m-d H:i:s" }}</span>#}
+                    <span class="font_fff">上一次登录情况：{{r_detail}}，{{r_ip}}，{{ r_datetime |date:"Y-m-d H:i:s" }} </span>
+                    <span class="font_fff">&nbsp;&nbsp;&nbsp;&nbsp;密码距失效日期的天数：{{ exp_days }}</span>
+            </div>
+			<div class="bottom1">
+			</div>
+			<div class="bottom2"></div>
+			<div class="bottom3">
+				<div style="position:relative;left:30px;top:5px;"><span class="font_fff"><span id="is_authorized"></span>{{ version }}</span></div>
+			</div>
+		</div>
+    </div>
+</div>
+
+<div id="menudiv" style="position:absolute;z-index:1;display:none;">
+	<ul id="downloadmenu" style="min-width: 180px">
+		<li style="height:32px" onclick="download('winclient')">Windows客户端（32/64位）</li>
+		{% if not nolinux %}
+		<li style="height:32px" onclick="download('linuxclient32')">Linux客户端（32位）</li>
+		<li style="height:32px" onclick="download('linuxclient64')">Linux客户端（64位）</li>
+		{% endif %}
+	</ul>
+</div>
+
+<div id="HEADpasswd-form" title="修改密码" class="ajaxForm">
+	<div id="headpwdpolicy" style="margin-top:20px;margin-left:20px;" >
+	</div>
+	<div class="form-std" style="margin-top:20px;">
+		<div class="row-std"><b>旧密码</b>
+			<input type="password" name="OPass" id="OPass" class="text ui-widget-content ui-corner-all"/>
+		</div>
+		<div class="row-std"><b>新密码</b>
+			<input type="password" name="NPass" id="NPass" class="text ui-widget-content ui-corner-all"/>
+		</div>
+		<div class="row-std"><b>重复新密码</b>
+			<input type="password" name="NPass2" id="NPass2" class="text ui-widget-content ui-corner-all"/>
+		</div>
+		<div style="margin-top:20px;margin-left:20px;"><span id="pwdexpire"></span></div>
+		<div class="validateTips"></div>
+	</div>
+</div>
+
+<div id="selipFormDiv" title="连接模式选择" class="ajaxForm" style="margin: 16px">
+	<input type="hidden" id="dowloadclientact" value=""/>
+	<div>
+		<span style="cursor:pointer;text-decoration:underline;font-weight: bold;" id="support_os_tip" title="">支持的操作系统</span>
+    </div>
+    <div style="margin-top: 30px;">
+        <span style="font-weight: bold">客户端主动连接版本：</span><br>
+        <div style="margin-top: 6px; margin-bottom: 6px;">
+        安装后客户端会主动连接“{{ title }}”的TCP端口20000－20003(包含)，需要指定连接的“{{ title }}”IP。<br>
+        本版本适用于客户端与“{{ title }}”在同一局域网，或经路由可链接“{{ title }}”的网络场景。<br>
+        </div>
+        {{ title }}IP：<select id="aio-ip"></select>
+        <span id="downloadAgt1" style="float: right">下载</span>
+    </div>
+    <br><hr><br>
+    <div>
+        <span style="font-weight: bold">客户端被动连接版本：</span><br>
+        <div style="margin-top: 6px; margin-bottom: 6px;">
+        “{{ title }}”会主动反复向客户端发起连接请求；而客户端为被动接受连接请求。<br>
+        请在客户端所在操作系统和防火墙中允许TCP端口<input id="tunnel_port" type="text" style="width:41px;margin-top: 6px" value="3345"/>被连接。<br>
+        本版本适用于客户端所在操作系统无法访问到“{{ title }}”的网络，比如为公网IP时。<br>
+        </div>
+        <div style="display: none;">
+            客户端监听本地IP:Port：
+            <input id="tunnel_ip" type="text" style="width:122px;margin-top: 6px;margin-left: 12px;" value="0.0.0.0"/>：
+        </div>
+        <div>
+            <span style="background-color: yellow;font-weight: bold">注：安装客户端前，必须先在“<a href="../tunnel" style="color: blue">连接管理</a>”界面设置客户端所在公网IP</span>
+        </div>
+        <span id="downloadAgt2" style="float: right">下载</span>
+    </div>
+	
+	<div id="support_os_from" style="display:none;">
+	<div style="line-height:30px;">
+		<div>灾备系统满足对32/64位系统平台及应用支持，满足工控系统复杂性和兼容性需求，具体如下：</div>
+		<div style="margin-top:10px;">（1）	Windows Sever 2003 SP1/2003 R2/2008/2008 R2/2012/2012 R2/2016；</div>
+		<div style="margin-top:10px;">（2）	WindowsXP SP2/VISTA/7/8/10;</div>
+		<div style="margin-top:10px;">（3）	Redhat / Centos / Oracle Linux 5.x及其之后;</div>
+		<div style="margin-top:10px;">（4）	Suse 10 sp1~sp4 / 11 sp1~sp4 / 12 sp1~sp4;</div>
+		<div style="margin-top:10px;">（5）	Ubuntu 12~16;</div>
+		<div style="margin-top:10px;">（6）	Debian 8.x 9.x;</div>
+		<div style="margin-top:10px;">（7）	中标麒麟 5.x 6.x</div>
+		</div>
+	</div>
+
+
+
+
+    <div style="margin-top: 6px;display: none;">
+        <input type="checkbox" name="encryption" value="encryption" checked="checked" />网络传输链路加密: 如果是在不安全的网络环境中，请启用。
+    </div>
+</div>
+
+<div id="selipFormDiv2" title="连接模式选择" class="ajaxForm" style="margin: 16px">
+    <div style="margin-top: 6px; margin-bottom: 6px;word-break: break-all;line-height: 26px">
+        客户端下载链接地址: <br><a href="" id="agent_url"></a><br>
+		<a href="" id="agent_https_url" target='_blank'></a><br>
+		MD5值：<span id="windows_client_md5"></span><br>
+        安装步骤：<br>
+        <div id="4win" style="display: none">
+            1.下载上述链接地址对应的ZIP压缩文件到本地。<br>
+            2.解压下载的ZIP压缩文件到本地指定目录中。<br>
+            3.进入解压后的目录。<br>
+            4.运行该目录下的setup应用程序以安装客户端。<br>
+        </div>
+        <div id="4linux" style="display: none">
+            1.下载上述链接地址对应的sh文件，https协议的wget下载加上参数--no-check-certificate<br>
+            2.执行sh {{ PREFIX_DR_CLIENT }}*.sh<br>
+            3.客户端默认将安装在/opt/{{ PREFIX_DR_CLIENT }}*文件夹中<br>
+            4.需要更多帮助，请执行sh {{ PREFIX_DR_CLIENT }}*.sh --help<br>
+        </div>
+    </div>
+</div>
+
+<div id="setEmailFormDiv" title="设置邮箱地址" class="ajaxForm">
+	<div style="margin-top:20px;margin-left:20px;">设置{{ loginusername }}的邮件地址，用于接收{{ title }}发送各种通知和找回密码</div>
+	<div style="margin-top:10px;margin-left:20px;">邮箱地址：<input type="text" name="email" id="email"/></div>
+</div>
+
+<div class="mybasewaite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 50%; display:none;z-index:999;">
+	<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+	<strong>请稍候</strong>&nbsp;正在准备中...</p>
+</div>
+
+<script type="text/javascript">
+
+function click_head_reset_pwd_btn()
+{
+	$.each($("#HEADpasswd-form").parent().find('button'),function(i,e){
+			var btn = $(e).find('.ui-button-text');
+			if(btn.html() == '确定')
+			{
+				btn.click();
+			}
+		});
+}
+
+$('#HEADpasswd-form #NPass').keypress(function(event){
+	if(event.key == "Enter"){
+		click_head_reset_pwd_btn();
+	}
+});
+
+$('#HEADpasswd-form #NPass2').keypress(function(event){
+	if(event.key == "Enter"){
+		click_head_reset_pwd_btn();
+	}
+});
+
+$( "#support_os_tip" ).tooltip({
+	tooltipClass:'support_os_tip_class',
+	content: function(){
+		return $('#support_os_from').html();
+	}
+});
+
+function showexplain(a) {
+    if(a == 1){
+        
+    }
+    if(a == 2){
+            if($('#closehelp2').is(":visible"))
+        {
+            $('#closehelp2').hide();
+        }
+        else
+        {
+            $('#closehelp2').show();
+        }
+    }
+
+}
+
+function closexplain(a) {
+    if(a==1){
+    }else{
+        $('#closehelp2').hide();
+    }
+
+
+}
+
+
+// -------------------
+
+function is_Evaluation(jsonStr) {
+    var isEvaluation = jsonStr.is_evaluation;
+    if(isEvaluation === 'yes'){
+        $('#is_authorized').text('试用版本：');
+    }
+    else if(isEvaluation === 'no'){
+        $('#is_authorized').text('已授权版本：');
+    }
+    else if(isEvaluation === 'error'){
+        openErrorDialog({title:'错误', html:'读取授权信息异常，请联系管理员'});
+    }
+	else
+	{
+		$('#is_authorized').text('未知版本：');
+	}
+}
+
+// 主界面右下角：试用版本/已授权版本
+$(function () {
+    var timestmp = new Date().getTime();
+    myAjaxGet('../evaluation/?rnd='+ timestmp, '', is_Evaluation);
+});
+
+// 直连模式
+$('#downloadAgt1').button().click(function () {
+    var encryption = 'no';
+    var uuid = Math.floor(Math.random() * 10000000);
+    $('[name=encryption]:checkbox:checked').each(function (){
+        if($(this).val() == 'encryption'){
+            encryption = 'yes';
+        }
+    });
+	if($("#aio-ip").val()==-1)
+	{
+		openErrorDialog({title:'错误',html:'请选择{{ title }}IP'});
+		return;
+	}
+	var act = $('#dowloadclientact').val();
+    var params="a="+act+"&ip={0}&tunnelip={1}&tunnelport={2}&mod={3}&encryption={4}&uuid={5}"
+        .replace('{0}', $("#aio-ip").val())
+        .replace('{1}', $('#tunnel_ip').val())
+        .replace('{2}', $('#tunnel_port').val())
+        .replace('{3}','direct-md')
+        .replace('{4}', encryption)
+        .replace('{5}', uuid);
+    $('.mybasewaite').show();
+    $('.mybasewaite').attr('uuid', uuid);
+    myAjaxGet('../download_handle/',params,downloadclient);
+});
+
+// 隧道模式
+$('#downloadAgt2').button().click(function () {
+    if(!checks_tunnel_parms()) {
+        return false;
+    }
+    var encryption = 'no';
+    var uuid = Math.floor(Math.random() * 10000000);
+    $('[name=encryption]:checkbox:checked').each(function (){
+        if($(this).val() == 'encryption'){
+            encryption = 'yes';
+        }
+    });
+	var act = $('#dowloadclientact').val();
+    var params="a="+act+"&ip={0}&tunnelip={1}&tunnelport={2}&mod={3}&encryption={4}&uuid={5}"
+        .replace('{0}', $("#aio-ip").val())
+        .replace('{1}', $('#tunnel_ip').val())
+        .replace('{2}', $('#tunnel_port').val())
+        .replace('{3}','tunnel-md')
+        .replace('{4}', encryption)
+        .replace('{5}', uuid);
+    $('.mybasewaite').show();
+    $('.mybasewaite').attr('uuid', uuid);
+    myAjaxGet('../download_handle/',params,downloadclient);
+});
+
+
+function getcurrenttime_callback(jsonstr)
+{
+	$('#servertime').html(jsonstr.time);
+	g_get_server_time_ing = false;
+
+}
+
+function getcurrenttime()
+{
+	g_get_server_time_ing = true;
+	myAjaxGet('../syssetget_handle/?a=getcurrenttime','',getcurrenttime_callback);
+}
+
+var g_time_count = 0;
+var g_get_server_time_ing = false;
+
+$(function() {
+	$( "#downloadmenu" ).addClass("my-ui-menu ui-menu ui-widget ui-widget-content ui-corner-all");
+	$( "#menudiv" ).hide();
+	setInterval(function(){
+		if(g_get_server_time_ing)
+		{
+			return;
+		}
+		g_time_count++;
+		if(g_time_count>300)
+		{
+			g_time_count = 0;
+			getcurrenttime();
+		}
+		else
+		{
+			var servertime =  $('#servertime').html();
+			servertime = DateAddSeconds(servertime,1);
+			$('#servertime').html(servertime);
+		}
+	},1000);
+});
+
+function removeByValue(arr, val) {
+  for(var i=0; i<arr.length; i++) {
+    if(arr[i] == val) {
+      arr.splice(i, 1);
+      break;
+    }
+  }
+}
+
+function onMenuClick(obj)
+{
+	var left_menu_status = $.cookie('left_menu_status');
+	if(left_menu_status)
+	{
+		left_menu_status = JSON.parse(left_menu_status);
+	}
+	else
+	{
+		left_menu_status={"slideUp":[],"slideDown":[]};
+	}
+
+	var crobj = $(obj).parent().find('.left_b_c');
+	removeByValue(left_menu_status["slideUp"],crobj.attr("id"));
+	removeByValue(left_menu_status["slideDown"],crobj.attr("id"));
+	if($(obj).parent().attr("slide")=="slideUp")
+	{
+		crobj.slideDown(600);
+		left_menu_status["slideDown"].push(crobj.attr("id"));
+		$(obj).parent().attr("slide","slideDown");
+		$(obj).parent().find('.left_img').attr('src','/static/images/bottom_jt.gif');
+	}
+	else
+	{
+		crobj.slideUp(600);
+		left_menu_status["slideUp"].push(crobj.attr("id"));
+		$(obj).parent().attr("slide","slideUp");
+		$(obj).parent().find('.left_img').attr('src','/static/images/right_jt.gif');
+	}
+
+	$.cookie('left_menu_status', JSON.stringify(left_menu_status), {path: '/'});
+}
+
+$('#downloadclient').click(function(){
+	$( "#menudiv" ).css('top',$('#downloadclient').offset().top+14);
+	$( "#menudiv" ).css('left',$('#downloadclient').offset().left-50);
+	$( "#menudiv" ).slideDown(600);
+});
+
+$("#menudiv").mouseleave(function(){
+	$(this).slideUp(600);
+});
+
+$("#downloadmenu li").mouseover(function(){
+	$(this).addClass('ui-state-focus ui-corner-all');
+});
+
+$("#downloadmenu li").mouseleave(function(){
+	$(this).removeClass('ui-state-focus ui-corner-all');
+});
+
+function changePwdCallback(jsonObj)
+{
+	if(jsonObj.r!=0)
+	{
+		$('.validateTips').html('<font color="#ff0000">'+jsonObj.e+'</font>');
+		return;
+	}
+	$('#HEADpasswd-form').dialog('close');
+	successTipBox("操作成功");
+	//location.href='../login/';
+}
+
+function OnChangePwd(policy)
+{
+	var oldpwd=$('#OPass').val();
+	var NPass=$('#NPass').val();
+	var NPass2=$('#NPass2').val();
+	if(NPass=='')
+	{
+		openErrorDialog({title:'错误',html:'新密码不能为空。'});
+		return;
+	}
+	if(NPass!=NPass2)
+	{
+		openErrorDialog({title:'错误',html:'两次密码不相同，请重新输入。'});
+		return;
+	}
+	if( policy == '1')
+	{
+		var re=/^\s*\S{10,32}\s*$/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码长度不符合要求。'});
+			return;
+		}
+
+		re=/[A-Z]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含A-Z'});
+			return;
+		}
+
+		re=/[a-z]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含a-z'});
+			return;
+		}
+
+		re=/[0-9]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含0-9'});
+			return;
+		}
+
+		re=/[~!@#\'\"\/\\,.<>`%\$\(\)\*\+\.\[\]\?\\\^\{\}\|]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含特殊字符。'});
+			return;
+		}
+	}
+	else if( policy == '2')
+	{
+		var re=/^\s*\S{10,32}\s*$/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码长度不符合要求。'});
+			return;
+		}
+		var n=0;
+		re=/[A-Z]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+		re=/[a-z]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+
+		re=/[0-9]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+
+		re=/[~!@#\'\"\/\\,.<>`%\$\(\)\*\+\.\[\]\?\\\^\{\}\|]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+
+		if (n<3)
+		{
+			openErrorDialog({title:'错误',html:'密码必须包含3种字符。'});
+			return;
+		}
+	}
+	else if( policy == '3')
+	{
+		var re=/^\s*\S{1,32}\s*$/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码不符合要求。'});
+			return;
+		}
+	}
+    var oldpass = new Base64().encode(oldpwd);
+    var newpass = new Base64().encode(NPass);
+    oldpass = encodeURIComponent(oldpass);
+    newpass = encodeURIComponent(newpass);
+	var params='a=changepwd&oldpwd='+oldpass;
+	params+="&newpwd="+newpass;
+	myAjaxPost('../user_handle/',params,changePwdCallback);
+}
+
+function mygetpwdpolicy(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	switch(jsonstr.policy)
+	{
+		case "1":
+			$('#headpwdpolicy').html('密码强必须包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等），且密码长度为10-32个字符');
+			break;
+		case "2":
+			$('#headpwdpolicy').html('密码中至少包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等）中的三种，且密码长度为10-32个字符');
+			break;
+		case "3":
+			$('#headpwdpolicy').html('密码字符类型不限定，密码长度为1-32个字符');
+			break;
+	}
+	if( jsonstr.pwdcycle > 0 )
+	{
+		var pwdexpriy = jsonstr.pwdexpriy;
+		if( pwdexpriy == 'none' )
+		{
+			pwdexpriy = '下次登录时须更改密码';	
+		}
+		$('#pwdexpire').html('密码过期时间：'+pwdexpriy);
+	}
+
+	$('.validateTips').html('');
+
+	$("#HEADpasswd-form").attr('title','修改密码').dialog({
+		autoOpen: true,
+		height: 310,
+		width: 450,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				OnChangePwd(jsonstr.policy);
+			},
+			'取消': function(){
+				$(this).dialog('close');
+
+			}
+		},
+		close: function(){
+		}
+	});
+}
+
+$('#HEADpasswd-SYS')
+.click(function() {
+	$('#OPass').val('');
+	$('#NPass').val('');
+	$('#NPass2').val('');
+	$('#pwdexpire').html('');
+	myAjaxGet('../syssetget_handle/','a=getpwdpolicy',mygetpwdpolicy);
+});
+
+function downloadclient(jsonstr)
+{
+    var uuid = $('.mybasewaite').attr('uuid');
+    if (jsonstr.uuid != uuid){
+        return;
+    }
+    var host_type = $('#dowloadclientact').val();
+    if(host_type == 'winclient'){
+        $('#4win').show();
+        $('#4linux').hide();
+    }
+    else {
+        $('#4win').hide();
+        $('#4linux').show();
+    }
+
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+    $("#selipFormDiv").dialog('close');
+
+    var host = window.location.origin;
+    $('#agent_url').attr('href', host + jsonstr.url);
+    $('#agent_url').text(host + jsonstr.url);
+	if(window.location.protocol=='http:')
+	{
+		var agent_https_url = 'https://'+window.location.host+jsonstr.url;
+		$('#agent_https_url').attr('href', agent_https_url);
+	}
+    $('#agent_https_url').text(agent_https_url);
+	$('#windows_client_md5').text(jsonstr.md5);
+    $("#selipFormDiv2").attr('title','选择客户端连接版本').dialog({
+        autoOpen: true,
+        height: 420,
+        width: 600,
+        modal: true,
+        buttons: {},
+        close: function(){
+            $('.mybasewaite').hide();
+        }
+    });
+}
+
+function checks_tunnel_parms(){
+    var ip = $('#tunnel_ip').val();
+    var portVal = $('#tunnel_port').val();
+    if(!isIPV4(ip)){
+        $('#tunnel_ip').val('');
+        openErrorDialog({title:'错误',html:"IP错误"});
+        return false;
+    }
+    if (!isNum(portVal) || parseInt(portVal) < 0 || parseInt(portVal) > 65535){
+        $('#tunnel_port').val('');
+        openErrorDialog({title:'错误',html:"端口错误"});
+        return false;
+    }
+    return true
+}
+
+
+function getiplist(jsonstr)
+{
+    $('.mybasewaite').hide();
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+    $('#aio-ip').empty();
+	if(jsonstr.list.length > 1 )
+	{
+		$('<option></option>').val(-1).text('--请选择--').appendTo($('#aio-ip'));
+	}
+    $.each(jsonstr.list, function(index, elem){
+        $('<option></option>').val(elem).text(elem).appendTo($('#aio-ip'));
+    });
+
+	$("#selipFormDiv").attr('title','选择客户端连接版本').dialog({
+		autoOpen: true,
+		height: 500,
+		width: 600,
+		modal: true,
+		buttons: {},
+		close: function(){
+            $('.mybasewaite').hide();
+		}
+	});
+}
+
+
+
+function download(a)
+{
+    $('.mybasewaite').show();
+	$('#dowloadclientact').val(a);
+    var params="a=getiplist";
+    myAjaxGet('../download_handle/',params,getiplist);
+}
+
+
+
+function ShowEmailForm()
+{
+	$("#setEmailFormDiv").attr('title','设置邮件地址').dialog({
+		autoOpen: true,
+		height: 240,
+		width: 400,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var params="a=setemail&email="+$("#email").val();
+				myAjaxGet('../user_handle/',params,TipCallback);
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+}
+
+function getemail(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#email').val(jsonstr.email);
+	if(jsonstr.email=='')
+	{
+		ShowEmailForm();
+	}
+}
+
+
+
+$('#setemail').click(function(){
+
+	myAjaxGet('../user_handle/','a=getemail',getemail);
+	ShowEmailForm();
+
+});
+
+function set_let_menu_status()
+{
+	var left_menu_status = $.cookie('left_menu_status');
+	if(!left_menu_status)
+	{
+		return;
+	}
+	left_menu_status = JSON.parse(left_menu_status);
+	slideUp_arr = left_menu_status["slideUp"];
+	slideDown_arr = left_menu_status["slideDown"];
+	for(var i=0;i<slideUp_arr.length;i++)
+	{
+		$('#'+slideUp_arr[i]).parent().attr("slide","slideUp");
+		$('#'+slideUp_arr[i]).parent().find('.left_img').attr('src','/static/images/right_jt.gif');
+		$('#'+slideUp_arr[i]).hide();
+	}
+	for(var i=0;i<slideDown_arr.length;i++)
+	{
+		$('#'+slideDown_arr[i]).show();
+		$('#'+slideDown_arr[i]).parent().attr("slide","slideDown");
+		$('#'+slideDown_arr[i]).parent().find('.left_img').attr('src','/static/images/bottom_jt.gif');
+	}
+}
+
+$(function () {
+	set_let_menu_status();
+	baseresize();
+	var timestamp=Math.round(new Date().getTime()/1000);
+	myloadAjaxDiv('../{{right_body}}/?timestamp='+timestamp,baseresize);
+	if (!window.location.origin) {
+        window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
+    }
+});
+
+//toAjaxLink();
+
+function baseresize()
+{
+	var width = $('.spmc_box').width();
+	var head1 = $('.header .head1').width();
+	var head3 = $('.header .head3').width();
+	var bottom1 = $('.dy_bottom .bottom1').width();
+	var bottom3 = $('.dy_bottom .bottom3').width();
+
+	var usrnamewidth = $('#base_user_name_span').width();
+	{% ifequal user_type 'normal-admin' %}
+		$('#logoutdiv').css('left',width-usrnamewidth-240);
+	{% else %}
+		$('#logoutdiv').css('left',width-usrnamewidth-167);
+	{% endifequal  %}
+	$('#logoutdiv').show();
+	var head2=width-head1-head3;
+	if(head2>0)
+	{
+		$('.header .head2').width(head2-5);
+	}
+
+	var bottom2=width-bottom1-bottom3;
+	if(head2>0)
+	{
+		$('.dy_bottom .bottom2').width(bottom2-5);
+	}
+}
+
+$(window).resize(function() {
+	baseresize();	
+});
+
+</script>
+</body>
+</html>

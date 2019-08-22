@@ -1,0 +1,201 @@
+{% load staticfiles %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{{title}}重置密码</title>
+<meta charset="UTF-8" />
+<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+<link rel="stylesheet" type="text/css" href="/static/css/structure.css">
+<script type="text/javascript" src="/static/js/noReload.js"></script>
+<script type="text/javascript" src="/static/js/base64.js"></script>
+    <style>
+        .info{
+            display: block;
+            font: 14px/22px Arial, Helvetica, Sans-serif;
+            margin: 10px 0 0 6px;
+        }
+        .header{
+            font: 14px/22px Arial, Helvetica, Sans-serif;
+            text-align: center;
+            padding: 10px;
+            background: #eff4f6;
+        }
+
+    </style>
+</head>
+<body>
+<div class="box login">
+    <p class="header">{{ title }}-重置密码</p>
+	<fieldset class="boxBody">
+        <input type="hidden" id="policy" value="{{ policy }}">
+	    <label>新密码</label>
+	    <input tabindex="1" placeholder="password" required type="password" name="NPass" id="NPass">
+        <label>重复新密码</label>
+	    <input type="password" name="NPass2" id="NPass2" tabindex="2" placeholder="password" required>
+        <p class="info">请在{{ expireTime|date:"Y-m-d H:i:s" }}前完成重置密码</p>
+        <p class="info">密码字符类型不限定，密码长度为1-32个字符</p>
+	</fieldset>
+	<footer>
+        <span class="btnLogin">确认修改</span>
+	</footer>
+</div>
+
+<div id="suc_dalog" title="消息" style="display: none">
+    <p style="text-align: center;line-height: 80px">重置密码成功,<span id="second">3</span>秒后自动跳转置登录界面...</p>
+</div>
+
+</body>
+<script>
+
+function SetPwdCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#suc_dalog').dialog({
+        dialogClass: "no-close",
+        autoOpen: true,
+        buttons:[],
+        width:400,
+        height:150
+    });
+	$('.box').hide();
+    var time = 3;
+	window.setInterval(function () {
+        if (time == 0){
+            $('#suc_dalog').dialog('close');
+            location = '/xdashboard/login/';
+            return false;
+        }
+        $('#second').text(time);
+        time -=1;
+    },999);
+}
+
+$('.btnLogin').button()
+.click(function() {
+	var NPass=$('#NPass').val();
+	var NPass2=$('#NPass2').val();
+	var policy = $('#policy').val();
+	if(NPass=='')
+	{
+		openErrorDialog({title:'错误',html:'新密码不能为空。'});
+		return;
+	}
+	if(NPass!=NPass2)
+	{
+		openErrorDialog({title:'错误',html:'两次密码不相同，请重新输入。'});
+		return;
+	}
+	if( policy == '1')
+	{
+		var re=/^\s*\S{10,32}\s*$/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码长度不符合要求。'});
+			return;
+		}
+
+		re=/[A-Z]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含A-Z'});
+			return;
+		}
+
+		re=/[a-z]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含a-z'});
+			return;
+		}
+
+		re=/[0-9]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含0-9'});
+			return;
+		}
+
+		re=/[~!@#\'\"\/\\,.<>`%\$\(\)\*\+\.\[\]\?\\\^\{\}\|]+/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码中应包含特殊字符。'});
+			return;
+		}
+	}
+	else if( policy == '2')
+	{
+		var re=/^\s*\S{10,32}\s*$/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码长度不符合要求。'});
+			return;
+		}
+		var n=0;
+		re=/[A-Z]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+		re=/[a-z]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+
+		re=/[0-9]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+
+		re=/[~!@#\'\"\/\\,.<>`%\$\(\)\*\+\.\[\]\?\\\^\{\}\|]+/;
+		if(re.test(NPass))
+		{
+			n++;
+		}
+
+		if (n<3)
+		{
+			openErrorDialog({title:'错误',html:'密码必须包含3种字符。'});
+			return;
+		}
+	}
+	else if( policy == '3')
+	{
+		var re=/^\s*\S{1,32}\s*$/;
+		if(!re.test(NPass))
+		{
+			openErrorDialog({title:'错误',html:'密码不符合要求。'});
+			return;
+		}
+	}
+    var newpass = new Base64().encode(NPass);
+    newpass = encodeURIComponent(newpass);
+	var params="a=setpwd&id="+"{{ key }}"+"&pwd="+newpass+"&value="+"{{ value }}";
+	myAjaxPost('../resetpwd_html/',params,SetPwdCallback);
+});
+
+$(function() {
+	var policy = $('#policy').val();
+	switch(policy)
+	{
+		case '1':
+			$('#headpwdpolicy').html('密码强必须包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等），且密码长度为10-32个字符');
+			break;
+		case '2':
+			$('#headpwdpolicy').html('密码中至少包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等）中的三种，且密码长度为10-32个字符');
+			break;
+		case '3':
+			$('#headpwdpolicy').html('密码字符类型不限定，密码长度为1-32个字符');
+			break;
+	}
+});
+
+</script>
+
+</html>

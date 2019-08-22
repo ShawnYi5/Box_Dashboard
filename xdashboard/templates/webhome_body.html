@@ -1,0 +1,682 @@
+<style>
+    h4, li, ul, li {
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        list-style-type: none;
+    }
+
+    .home-content {
+        margin-left: 10px;
+        margin-top: -10px;
+        text-align: center;
+    }
+
+    .web-home-header {
+        margin-bottom: 10px;
+        height: 200px;
+        border-collapse: collapse;
+    }
+
+    .item {
+        width: 100%;
+        margin-bottom: 10px;
+        background: #fff;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+
+    }
+
+    .web-home-footer {
+    {#        border: 1px solid #ddd;#} margin-bottom: 10px;
+        text-align: center;
+        height: 50px;
+        margin-left: 10px;
+    }
+
+    .item-header {
+        line-height: 50px;
+        text-align: left;
+        color: #333;
+    }
+
+    .item-content {
+        text-align: left;
+        color: #5F3F33;
+        overflow: hidden;
+        padding-left: 40px;
+        background: #f9f9f9;
+    }
+
+    .item-more-icon {
+        position: absolute;
+        z-index: 2;
+        right: 0;
+        top: 80%;
+        display: inline-block;
+        transform: translateX(-110px);
+        color: blue;
+        cursor: pointer;
+    }
+
+    .item-more-icon:hover {
+        text-decoration: underline;
+        top: 81%;
+    }
+
+    .icon-show-items {
+        cursor: pointer;
+    }
+
+    .icon-show-items:hover {
+        color: orange;
+        text-decoration: underline;
+    }
+
+    .detail {
+        cursor: pointer;
+    }
+
+    .detail:hover {
+        text-decoration: underline;
+        color: orange;
+    }
+
+    .solve {
+        cursor: pointer;
+    }
+
+    .solve:hover {
+        text-decoration: underline;
+        color: orange;
+    }
+
+    button {
+        cursor: pointer;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        padding: 0;
+        margin: 0;
+    }
+
+    .hover-active {
+        background-color: #f9f9f9;
+        color: orange;
+    }
+
+    .web-home-search {
+        height: 36px;
+        background-color: #fff;
+    }
+
+    .li-normal {
+        float: left;
+        list-style-type: none;
+        line-height: 36px;
+        display: block;
+        padding: 0 19px;
+        cursor: pointer;
+        border-left: 1px solid #fff;
+        border-right: 1px solid #fff;
+        margin-left: -1px;
+    }
+
+    .click-active {
+        background-color: #f9f9f9;
+        color: orange;
+        border-color: #e1e1e1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hover-active {
+        background-color: #f9f9f9;
+        color: orange;
+        border-color: #e1e1e1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .web-home-search li:first-child {
+        margin-left: 0;
+        border-left: none;
+    }
+
+    .web-home-header-left {
+        padding: 10px;
+        float: left;
+    }
+
+    .web-home-header-right {
+        float: left;
+        padding: 10px;
+    }
+
+    .color-icon {
+        display: inline-block;
+        height: 11px;
+        width: 11px;
+        border: 1px solid #ddd;
+        position: relative;
+        top: 3px;
+        margin-right: 5px;
+    }
+
+    .high-color {
+        background-color: #FF4949;
+    }
+
+    .middle-color {
+        background-color: #F7BA2A;
+    }
+
+    .low-color {
+        background-color: #90EE90;
+    }
+
+    .nor-color {
+        background-color: #13CE66;
+    }
+
+    .icon-line {
+        color: red;
+        text-decoration: line-through;
+    }
+
+    .solve-table {
+        position: absolute;
+        z-index: 10;
+        border: 1px solid #ddd;
+        left: 4.2em;
+        top: -3px;
+        background: #fff;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        cursor: pointer;
+        display: none;
+        overflow: hidden;
+    }
+
+    .solve-table p {
+        display: block;
+        width: 73px;
+        padding-left: 10px;
+        margin: 0;
+    }
+
+    .solve-table td {
+        padding: 0;
+    }
+
+    .solve-table p:hover {
+        color: orange;
+    }
+
+    .solve-table .close:hover {
+        color: orange;
+    }
+
+    #restore_dialog li {
+        padding: 5px 0;
+    }
+
+    .wrap {
+        -webkit-box-shadow: 0 5px 10px #666;
+        -moz-box-shadow: 0 5px 10px #666;
+        box-shadow: 0 5px 10px #666;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        background: rgb(237, 237, 239);
+    }
+
+    .web-search-and-content-container {
+        margin: 10px;
+        padding: 20px;
+    }
+</style>
+<link rel="stylesheet" media="screen" type="text/css" href="/static/css/morris.css"/>
+<div class="right">
+    <div class="home-content">
+        <div class="web-home-header">
+            <div style="" class="web-home-header-body">
+                <div class="web-home-header-left">
+                    <div class="wrap">
+                        <div style="text-align: left;height: 20px;line-height: 20px;padding-left: 20px">
+                            <h4>
+                                异常监控目标统计
+                            </h4>
+                        </div>
+                        <div id="pie-chart"
+                             style="height: 200px;position: relative;background: #fff;margin:10px 20px 0 20px;"></div>
+                        <div id="pie-char-detail" style="height: 80px">
+                            <table style="margin-left: 20px;text-align: left;width: 90%">
+                                <tr>
+                                    <td style="padding: 5px 0 0 0">总计：<span id="pie-mark-total"></span>项</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px 0"><span class="color-icon high-color"></span>高风险：<span
+                                            id="pie-mark-high"></span>项
+                                    </td>
+                                    <td><span class="color-icon middle-color"></span>中风险：<span
+                                            id="pie-mark-middle"></span>项
+                                    </td>
+                                    <td><span class="color-icon low-color"></span>低风险：<span id="pie-mark-low"></span>项
+                                    </td>
+                                    <td><span class="color-icon nor-color"></span>其它：<span id="pie-mark-other"></span>项
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="web-home-header-right">
+                    <div class="wrap">
+                        <div style="text-align: left;height: 20px;line-height: 20px;padding-left: 20px">
+                            <h4>
+                                异常事件统计
+                            </h4>
+                        </div>
+                        <div id="line-chart"
+                             style="height: 200px;position: relative;background: #fff;margin:10px 20px 0 20px;"></div>
+                        <div id="line-chart-detail" style="height: 80px; line-height: 77px">
+                            <div style="text-align: left;margin-left: 22px">
+                                <span class="icon-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                事件次数
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div class="web-search-and-content-container wrap">
+            <div class="web-home-search">
+                <ul>
+                    <li class="li-normal" data-search="total">所有</li>
+                    <li class="li-normal click-active" data-search="high">高风险</li>
+                    <li class="li-normal" data-search="middle">中风险</li>
+                    <li class="li-normal" data-search="low">低风险</li>
+                    <li class="li-normal" data-search="other">其它</li>
+                </ul>
+            </div>
+            <div class="web-home-content" style="min-height: 400px;position: relative;margin-top:10px;">
+            </div>
+
+        </div>
+        <div class="web-home-footer" style=""></div>
+    </div>
+</div>
+<div id="item-template" style="display: none">
+    <div class="item">
+        <div class="item-header">
+            <table style="margin-left: 10px;width: 90%">
+                <tr>
+                    <td style="width:2%;text-align: center;"><span class="icon-show-items" title="展开/收缩">►</span></td>
+                    <td style="width:22%;word-break: break-all;line-height: 20px">监控目标：<span class="event_name"></span>
+                    </td>
+                    <td style="width:14%">组：<span class="event_group"></span></td>
+                    <td style="width:14%;">当前状态：<span class="event_status"></span></td>
+                    <td style="width:10%;"><span class="detail">详情>>></span></td>
+                    <td style="text-align: left;width:10%;position: relative" class="solve-ul-content">
+                        <span class="solve" style="display: inline-block;">处理>>></span>
+                        <div class="solve-table">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <p class="add-trusted">添加信任</p>
+                                        <p class="restore" style="display: none">还原</p>
+                                        <p class="trigger_plan">执行应急策略</p>
+                                    </td>
+                                    <td style="border-left: 1px solid #ddd" class="close" title="收起">
+                                        <<
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+        <div class="item-content" style="display: none">
+			<div style="float:left;width: 25%;">
+				<table class="content_table2" cellspacing="0px">
+					<tr>
+						<th>关联客户端</th>
+					</tr>
+				</table>
+			</div>
+			<div style="float:left;width: 25%;">
+				<table class="content_table3" cellspacing="0px">
+					<tr>
+						<th>基准点</th>
+					</tr>
+				</table>
+			</div>
+			<div style="float:left;width: 45%;">
+				<table class="content_table1" style="width:100%" cellspacing="0px">
+					<tr>
+						<th style="width:40%">监控项目</th>
+						<th style="width:60%">状态</th>
+					</tr>
+				</table>
+			</div>
+			<div class="clear"></div>
+        </div>
+    </div>
+</div>
+<div id="item-template-no-data" style="display: none">
+    <div class="item-header">
+        <p style="margin-left: 2em">该条件下暂时没有数据！</p>
+    </div>
+</div>
+
+<div id="restore_dialog" style="display: none" title="还原时间点选择">
+    <p>请选择还原时间点：</p>
+    <ul>
+        <li><input type="radio" name="restore-time" value="1"><label for="">2015-12-12 12:12:12.00000</label></li>
+        <li><input type="radio" name="restore-time" value="2"><label for="">2015-12-12 12:12:12.00000</label></li>
+        <li><input type="radio" name="restore-time" value="3"><label for="">2015-12-12 12:12:12.00000</label></li>
+    </ul>
+</div>
+
+<script type='text/javascript' src='/static/js/raphael-min.js'></script>
+<script type='text/javascript' src='/static/js/morris.min.js'></script>
+<script type="text/javascript" src="/static/js/mymorris.js"></script>
+<script>
+    $(function () {
+        resizeright();
+        create_pie_chart();
+        create_line_chart();
+        init_content();
+        baseresize();
+        resize_this();
+    })
+
+    $(window).resize(function () {
+        resizeright();
+        baseresize();
+        resize_this();
+    });
+
+    function resize_this() {
+        var width = $('.right').outerWidth() - 20;
+        $('.home-content').width(width);
+        $('.web-home-header').width(width);
+        $('.web-home-header-left').width(width / 2 - 20);
+        $('.web-home-header-right').width(width / 2 - 20);
+        create_pie_chart();
+        create_line_chart();
+
+    }
+    ;
+
+    $('.web-home-content').on('click', '.icon-show-items', function () {
+        var _item_dom = $(this).parents('.item').find('.item-content');
+        if (_item_dom.is(':visible')) {
+            _item_dom.slideUp(800);
+            $(this).text('►');
+        } else {
+            _item_dom.slideDown(800);
+            $(this).text('▼');
+        }
+    });
+
+    $('.web-home-content').on('click', '.add-trusted', function (event) {
+        var id = $(this).attr('data-id');
+        openConfirmDialog({
+            html: '添加信任后，系统将继续记录Web网站的安全点，忽略此次报警。',
+            onBeforeOK: function () {
+                confirm_one_strategy(id);
+                $(this).dialog('close');
+            }
+        });
+    });
+
+    $('.web-home-content').on('click', '.restore', function (event) {
+        var id = $(this).attr('data-id');
+        myAjaxGet('../webguard_handle/?a=get_credible_node_time', 'st_id=' + id, get_restore_time_call_back);
+    });
+
+    function get_restore_time_call_back(js_rs) {
+        if (js_rs.r != 0) {
+            var msg = '启动还原任务失败';
+            var error = js_rs.e ? msg + ',' + js_rs.e : js_rs.e;
+            if (js_rs.stp_cdp != 0) {
+                confirm_stp_cdp(js_rs.e, js_rs.st_id);
+                return;
+            }
+            openErrorDialog('错误', error);
+            return;
+        }
+        $('#restore_dialog ul').empty();
+        $.each(js_rs.info, function (index, item) {
+            var l = $('<label><label>').text(item);
+            var i = $('<input type="radio" name="restore-time">').val(item);
+            var li = $('<li></li>').append(i).append(l);
+            $('#restore_dialog ul').append(li);
+        });
+        $('#restore_dialog li:eq(0)').prop('checked', 'checked');
+        $('#restore_dialog li:eq(1)').prop('checked', 'checked');
+        _open_dialog('#restore_dialog', js_rs.st_id);
+    }
+
+    function confirm_stp_cdp(msg, st_id) {
+        var msg = msg + '点击“确定”按钮，将会停止CDP！并执行还原流程；点击“取消”将放弃还原操作！';
+        openConfirmDialog({
+            html: msg,
+            width: 430,
+            height: 240,
+            onBeforeOK: function () {
+                myAjaxGet('../webguard_handle/?a=stop_cdp', 'st_id=' + st_id, stop_cdp_call_back, st_id);
+                $(this).dialog("close");
+            }
+        });
+
+    }
+
+    function stop_cdp_call_back(js_str, st_id) {
+        if (js_str.r != 0) {
+            openErrorDialog('错误', js_str.e);
+            return;
+        }
+        myAjaxGet('../webguard_handle/?a=get_credible_node_time', 'st_id=' + st_id, get_restore_time_call_back);
+    }
+
+    function _open_dialog(div_id, st_id) {
+        $(div_id).dialog({
+            autoOpen: true,
+            width: 300,
+            height: 250,
+            modal: true,
+            buttons: [
+                {
+                    text: '还原',
+                    click: function () {
+                        start_restore(st_id);
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+    }
+
+    function start_restore(st_id) {
+        var time = $('#restore_dialog input:checked').val();
+        myAjaxPost('../webguard_handle/?a=web_guard_start_restore', 'time_str=' + time + '&st_id=' + st_id, restore_call_back);
+    }
+
+    function restore_call_back(js_re) {
+        if (js_re.r != 0) {
+            openErrorDialog('失败', '还原失败，' + js_re.info);
+        } else {
+            openCommonDialog('成功', '发送还原命令成功！[<a href="../home/" style="color:blue">还原进度查看</a>]');
+        }
+    }
+
+    function confirm_one_strategy(st_id) {
+        myAjaxGet('../webguard_handle/?a=confirm_one_strategy', 'id=' + st_id, confirm_one_strategy_call_back);
+    }
+
+    function confirm_one_strategy_call_back(json_str) {
+        init_content();
+    }
+
+    $('.web-home-content').on('click', '.solve', function () {
+        var o = $(this).siblings('.solve-table');
+        o.is(':visible') ? o.hide('slide', 800) : o.show('slide', 800);
+    });
+
+    $('.web-home-content').on('click', '.close', function () {
+        $(this).parents('.solve-table').hide('slide', 800);
+    });
+
+    $('.web-home-search li').hover(function () {
+        $(this).addClass('hover-active');
+    }, function () {
+        $(this).removeClass('hover-active');
+    });
+
+    $('.web-home-search li').click(function () {
+        var has_class = $(this).hasClass('click-active');
+        $(this).addClass('click-active');
+        $(this).siblings().removeClass('click-active');
+        if (!has_class) {
+            init_content();
+        }
+    });
+
+    function create_pie_chart() {
+        $('#pie-chart').waite_s();
+        myAjaxGet('../webguard_handle/?a=get_pie_chart_data', '', create_pie_chart_back);
+    }
+
+    function create_pie_chart_back(json) {
+        $('#pie-chart').waite_h();
+        if (json.r != 0) {
+            return;
+        }
+        ;
+        init_mark(json.mark_value);
+        if (json.mark_value[0] == 0) {
+            var p = '<p style="line-height:200px">未发现异常的监控目标！</p>'
+            $('#pie-chart').html(p);
+            return;
+        }
+        create_pie('pie-chart', json.data);
+    }
+
+    function create_pie(element, data) {
+        document.getElementById(element).innerHTML = '';
+        new Morris.Donut({
+            element: element,
+            data: data,
+            resize: true,
+            backgroundColor: '#ccc',
+            labelColor: '#060',
+            colors: [
+                '#FF4949',
+                '#F7BA2A',
+                '#90EE90',
+                '#13CE66',
+            ],
+            formatter: function (val) {
+                return val + '项';
+            }
+        });
+    }
+
+    function init_mark(data) {
+        $('#pie-mark-total').text(data[0]);
+        $('#pie-mark-high').text(data[1]);
+        $('#pie-mark-middle').text(data[2]);
+        $('#pie-mark-low').text(data[3]);
+        $('#pie-mark-other').text(data[4]);
+    }
+
+    function create_line_chart() {
+        $('#line-chart').waite_s();
+        myAjaxGet('../webguard_handle/?a=get_line_chart_data', '', create_line_chart_back)
+    }
+
+    function create_line_chart_back(json) {
+        if (json.r != 0) {
+            $('#line-chart').waite_h();
+            return;
+        }
+        ShowMorris('line-chart', json.data, 'time', ['value'], ['值']);
+        $('#line-chart').waite_h();
+        //ShowBar('line-chart', json.data, 'time', ['value'], ['值']);
+    }
+
+    function init_content() {
+        $('.web-home-content').waite_s();
+        var event_level = $('.web-home-search .click-active').attr('data-search');
+        myAjaxGet('../webguard_handle/?a=get_strategy_data', 'event_level=' + event_level, init_content_call_back);
+    }
+
+    function init_content_call_back(json) {
+        if (json.r != 0) {
+            $('.web-home-content').waite_h();
+            return;
+        }
+        $('.web-home-content').empty();
+        $.each(json.data, function (index, item) {
+            var dom_obj = $($('#item-template').html());
+            dom_obj.find('.event_name').text(item.event_name);
+            dom_obj.find('.event_group').text(item.event_group);
+            dom_obj.find('.event_status').text(item.event_status);
+            dom_obj.find('.add-trusted').attr('data-id', item.event_id);
+            dom_obj.find('.restore').attr('data-id', item.event_id);
+            dom_obj.find('.detail').attr('data-id', item.event_id);
+            dom_obj.find('.trigger_plan').attr('data-id', item.event_id);
+            $.each(item.event_sub_list, function (index, item) {
+                var tr = $('<tr></tr>')
+                var td1 = $('<td></td>').text(item.item_name);
+                var td2 = $('<td></td>').text(item.item_value);
+                tr.append(td1).append(td2);
+                dom_obj.find('.item-content .content_table1').append(tr);
+            });
+			$.each(item.event_pc_list, function (index, item) {
+                var tr = $('<tr></tr>')
+                var td1 = $('<td></td>').text(item.item_name);
+                tr.append(td1);
+                dom_obj.find('.item-content .content_table2').append(tr);
+            });
+			$.each(item.event_point_list, function (index, item) {
+                var tr = $('<tr></tr>')
+                var td1 = $('<td></td>').text(item.item_name);
+                tr.append(td1);
+                dom_obj.find('.item-content .content_table3').append(tr);
+            });
+            $('.web-home-content').append(dom_obj);
+        });
+
+        if (json.data.length == 0) {
+            var dom_obj = $($('#item-template-no-data').html());
+            $('.web-home-content').append(dom_obj);
+        }
+
+        $('.web-home-content').waite_h();
+    }
+
+    $('.web-home-content').on('click', '.detail', function (event) {
+        var st_id = $(this).attr('data-id');
+        $.cookie('parms', 'st_id=' + st_id, {path: '/'});
+        location.href = '../webemergency/';
+    });
+
+    $('.web-home-content').on('click', '.trigger_plan', function (event) {
+        var st_id = $(this).attr('data-id');
+        $.cookie('auto_plan_parms', 'st_id=' + st_id, {path: '/'});
+        location.href = '../webautoplans/';
+    });
+
+</script>

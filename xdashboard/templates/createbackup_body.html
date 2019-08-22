@@ -1,0 +1,45 @@
+<div class="right">
+    {% include 'createbackup.inc.html' %}
+</div>
+<script type="text/javascript">
+{% include 'createbackup.js' %}
+$(function () {
+    $("#tabs").tabs();
+    $("#tabs").css('height', 610);
+    $("#newbackupFormDiv").show();
+    $('#taskid').val('');
+
+	if($.cookie('noplan'))
+	{
+		$('input[name=noplan]').prop('checked',true);
+	}
+
+	if($.cookie('groupview'))
+	{
+		$('input[name=groupview]').prop('checked',true);
+	}
+	var param = '';
+	if ($('input[name=noplan]').is(':checked'))
+	{
+		param += '&noplan=noplan';
+		
+	}
+	if ($('input[name=groupview]').is(':checked'))
+	{
+		param += '&group=group';
+	}
+	
+	initAciTree('Servers_Tree1', '../backup_handle/?a=getlist'+param+'&id=');
+    cretebackup_resize();
+});
+
+function cretebackup_resize() {
+    resizeright();
+    baseresize();
+}
+
+$(window).resize(function () {
+    cretebackup_resize();
+});
+</script>
+

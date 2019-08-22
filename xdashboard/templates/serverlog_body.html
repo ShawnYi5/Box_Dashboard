@@ -1,0 +1,390 @@
+<div class="right">
+	<div class="table_menu">
+		{% if search %}
+		<div class="menu_btn" id="searchForm">查询</div>
+		{% endif %}
+		{% if export %}
+		<div class="menu_btn" id="exportForm">导出</div>
+		{% endif %}
+		{% if del %}
+		<div class="menu_btn" id="delForm">删除</div>
+		{% endif %}
+		{% if delall %}
+		<div class="menu_btn" id="delallForm">全部删除</div>
+		{% endif %}
+        <div class="menu_btn" id="showall">显示所有</div>
+	</div>
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+
+<div id="searchFormDiv" title="查询" class="ajaxForm">
+	<br />
+	<table width="100%" border="0" cellspacing="3" cellpadding="0">
+		<tr>
+			<td align="right">类型：</td>
+			<td align="left">
+				<select id="type" name="type" style="width:182px">
+					<option value='0'  selected="selected" >所有</option>
+					<option value='1'>信息</option>
+					<option value='2'>警告</option>
+					<option value='3'>错误</option>
+				</select>
+			</td>
+			<td align="right">客户端名：</td>
+			<td align="left"><input type="text" name="servername" id="servername"  onblur="removespace(this)"/></td>
+		</tr>
+		<tr>
+			<td align="right">事件：</td>
+			<td align="left">
+                <select id="event" name="event" style="width:182px">
+                    {% for entry in log_entries %}
+                        {% if forloop.counter == 1 %}
+                            <option value='0'  selected="selected" >所有</option>
+                        {% else %}
+                            <option value="{{ entry.0 }}">{{ entry.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+				</select>
+            </td>
+			<td align="right">描述：</td>
+			<td align="left"><input type="text" name="desc" id="desc"  onblur="removespace(this)"/></td>
+		</tr>
+		<tr>
+			<td align="right">开始时间：</td>
+			<td align="left"><input name="stime" type="text" class="textTime Wdate" id="stime"  style="width:180px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)"/></td>
+			<td align="right">结束时间：</td>
+			<td align="left"><input name="etime" type="text" class="textTime Wdate" id="etime"  style="width:180px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)"/></td>
+		</tr>
+	</table>
+</div>
+
+<div id="exportDiv" style="display:none" class="exportFormRemove">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td height="30" colspan="2">
+				共 <span id="exportPageRecords"></span> 条记录，每页 <span id="exportPageLimit"></span> 条，共 <span id="exportPageNum"></span> 页
+			</td>
+		</tr>
+		<tr>
+			<td width="85%" height="30">
+				请输入您要导出的页数范围：<input name="exportPageStart" id="exportPageStart" type="number" style="width: 90px" min="1"/> - <input name="exportPageEnd" id="exportPageEnd" type="number" style="width: 90px" min="1"/>
+			</td>
+			<td width="15%"><input type="button" id="exportPageSumbit" value="导出" /></td>
+		</tr>
+		<tr>
+			<td height="30">
+			</td>
+			<td width="15%">
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"><div id="exportPageMsg" style="color:#FF0000"></div></td>
+		</tr>
+		<tr>
+			<td colspan="2"><div id="exportPageResult" style="height:170px;overflow:auto"></div></td>
+		</tr>
+	</table>
+</div>
+
+<div id="delFormDiv" title="删除" class="ajaxForm">
+    请选择您要删除的时间范围：
+    <input name="stimeDel" type="text" class="textTime Wdate" id="stimeDel" style="width:160px" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+    -
+    <input name="etimeDel" type="text" class="textTime Wdate" id="etimeDel" style="width:160px" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+</div>
+
+<style>
+.ui-jqgrid tr.jqgrow td {
+  white-space: normal !important;
+ }
+</style>
+
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script language="javascript"> 
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../logserver_handle/?a=list',
+		datatype: "local",
+		mtype: "POST",
+		postData :{csrfmiddlewaretoken: $.cookie('csrftoken')},
+		colNames:['类型','客户端名','时间','事件', '描述'],
+
+		colModel:[
+			{name:'fileMark',index:'fileMark',align:"center", width:50,sortable: false},
+			{name:'host',index:'host',align:"center", width:130,sortable: true},
+			{name:'datetime',index:'datetime',align:"center", width:140,sortable: true},
+			{name:'type',index:'type',align:"center", width:90,sortable: true},
+			{name:'reason',index:'reason',align:"left", width:360,sortable: true,formatter:descFmatter},
+		],
+		width:748,
+		height:550,
+		rowNum:300,
+		rowList:[100,200,300],
+		pager: '#pager',
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		autoScroll: true,
+		multiselect: true
+	});
+});
+jQuery("#list").jqGrid('navGrid','#pager',{add:false,search:false,del:false,edit:false,position:'right'});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' }); 
+
+
+function ReloadGridCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+				current:true
+			}]);
+}
+
+function OnDeleteAll()
+{
+	myAjaxGet('../logserver_handle/','a=delall',ReloadGridCallback);
+}
+
+function OnDelete()
+{
+    var sDatetime = $('#stimeDel').val();
+    var eDatetime = $('#etimeDel').val();
+    myAjaxGet('../logserver_handle/','a=delbytime&sDatetime={1}&eDatetime={2}'.replace('{1}', sDatetime).replace('{2}', eDatetime), ReloadGridCallback);
+}
+
+function GetFilterString()
+{
+	var filter="";
+	if($("div#searchFormDiv #type").val()==0)
+	{
+		
+	}
+	else
+	{
+		filter+="&type="+$("div#searchFormDiv #type").val();
+	}
+	if($("div#searchFormDiv #servername").val())
+	{
+		filter+="&servername="+$("div#searchFormDiv #servername").val();
+	}
+	if($("div#searchFormDiv #event").val())
+	{
+		filter+="&event="+$("div#searchFormDiv #event").val();
+	}
+	if($("div#searchFormDiv #desc").val())
+	{
+		filter+="&desc="+$("div#searchFormDiv #desc").val();
+	}
+	if($("div#searchFormDiv #stime").val())
+	{
+		filter+="&stime="+$("div#searchFormDiv #stime").val();
+	}
+	if($("div#searchFormDiv #etime").val())
+	{
+		filter+="&etime="+$("div#searchFormDiv #etime").val();
+	}
+	return filter;
+}
+
+function init_filter() {
+    $("div#searchFormDiv input").val('');
+}
+
+function OnSearch()
+{
+	var newUrl='../logserver_handle/?a=list'+GetFilterString();
+	
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+function shwoall() {
+    var newUrl='../logserver_handle/?a=list';
+    init_filter();
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+$('#showall')
+.button()
+.click(function() {
+    shwoall();
+});
+
+$('#searchForm')
+.button()
+.click(function() {
+	$("#searchFormDiv").attr('title','查询').dialog({
+		autoOpen: true,
+		height: 300,
+		width: 600,
+		modal: true,
+		buttons: {	
+			'确定': function(){
+				OnSearch();
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+				
+			}
+			
+		},
+		close: function(){
+		}
+	});
+});
+
+function ExPortCallback(jsonstr)
+{
+	$('#exportPageSumbit').prop('disabled',false);
+	$('#exportPageMsg').html('');
+	if(jsonstr.r!=0)
+	{
+		$('#exportPageResult').html(jsonstr.e);
+	}
+	else
+	{
+		$('#exportPageMsg').html('导出完成，请点击文件名下载。');
+		$('#exportPageResult').html('<br><a href="'+jsonstr.url+'" target="_blank">'+jsonstr.filename+'</a><br>');
+	}
+}
+
+$('#exportPageSumbit')
+.button()
+.click(function() {
+	$('#exportPageSumbit').prop('disabled',true);
+    if(!CheckerInputRange($('#exportPageStart').val(), $('#exportPageEnd').val(), $('#exportPageNum').html())){
+        $('#exportPageSumbit').prop('disabled',false);
+        return false;
+    }
+
+    $('#exportPageMsg').html('<img src="/static/images/loading.gif" height="30" width="30" /> 导出中，请稍侯...');
+    var filter='a=export&rows='+$('#exportPageLimit').html()+'&startpage='+$('#exportPageStart').val()+'&endpage='+$('#exportPageEnd').val();
+    myAjaxGet('../logserver_handle/',filter+GetFilterString(),ExPortCallback);
+});
+
+$('#exportForm')
+.button()
+.click(function() {
+	var list = $('#list');
+	var records = list.getGridParam('records');
+	var limit = list.getGridParam('rowNum');
+	var num = Math.ceil(records/limit);
+	
+	$('#exportPageRecords').html(records);
+	$('#exportPageLimit').html(limit);
+	$('#exportPageNum').html(num);
+	$('#exportPageMsg').html('');
+	$('#exportPageResult').html('');
+
+	$("#exportDiv").attr('title','导出').dialog({
+		autoOpen: true,
+		height: 470,
+		width: 500,
+		modal: true,
+		buttons: {			
+			'关闭': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+});
+
+$('#delForm')
+.button()
+.click(function() {
+	$("#delFormDiv").attr('title','删除').dialog({
+		autoOpen: true,
+		height: 300,
+		width: 550,
+		modal: true,
+		buttons: {
+			'删除': function(){
+				OnDelete();
+				$(this).dialog('close');
+			},
+			'关闭': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+});
+
+$('#delallForm')
+.button()
+.click(function() {
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要删除所有日志吗?',
+		onBeforeOK:function(){
+			OnDeleteAll();
+			$(this).dialog('close');
+		}
+	});
+});
+
+function descFmatter(cellvalue, options, rowObject)
+{
+	return cellvalue.replace(/\r\n/ig,"<br />"); 
+}
+
+function serverlog_resize()
+{
+	resizeright();
+	var width = $('.table_menu').width()-7;
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+$(function()
+{
+	$('#navigation').html('<div class="font_navigation">客户端日志</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#agentlog" target="blank"><img ' +
+        'src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	$("#list").jqGrid('setGridParam',{datatype:"json"});
+	{% if tasktype %}
+		var newUrl='../logserver_handle/?a=list&tasktype={{ tasktype }}&taskid={{ taskid }}&host_ident={{ servername }}&stime={{ stime }}';
+		$('#list').setGridParam({url:newUrl});
+	{% endif %}
+	
+	var filter_uuid = localStorage.getItem('filter_uuid');
+	localStorage.removeItem('filter_uuid');
+	if(filter_uuid)
+	{		
+		try {
+			var filter_uuid_obj = $.parseJSON(filter_uuid);
+			point_id_list = filter_uuid_obj.point_id_list;
+			var newUrl='../logserver_handle/?a=list';
+			$('#list').setGridParam({url:newUrl});
+			$('#list').setGridParam({postData:{csrfmiddlewaretoken: $.cookie('csrftoken'),"auto_verify_point_ids":point_id_list.join(',')}});
+		}
+		catch (err) {
+			debugger;
+		}
+	}
+
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+
+	serverlog_resize();
+});
+
+
+$(window).resize(function() {
+	serverlog_resize();
+});
+</script>

@@ -1,0 +1,139 @@
+<!--suppress JSUnresolvedVariable -->
+<style>
+    .top {
+        margin-top: 10px;
+    }
+    .lds-dual-ring {
+      width: 10px;
+      height: 10px;
+      display: none;
+    }
+    .lds-dual-ring:after {
+      content: "";
+      display: block;
+      width: 10px;
+      height: 10px;
+      margin: 1px;
+      border-radius: 50%;
+      border: 5px solid #fff;
+      border-color: grey transparent grey transparent;
+      animation: lds-dual-ring 1.2s linear infinite;
+    }
+    @keyframes lds-dual-ring {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+</style>
+
+<head>
+    <title>一体机出厂授权</title>
+</head>
+
+<body>
+<div style="margin: 32px">
+    授权服务器：<input type="text" name="plisIP" class="top" id="plisIP" style="width:145px" onblur="removespace(this)"><br>
+    用户名: <input type="text" name="username" id="username" class="top" onblur="removespace(this)"><br>
+    密　码: <input type="password" name="password" id="password" class="top"><br>
+    <input type="button" id="getAvailModsName" value="获取型号" class="top">　
+    选择型号：<select name="availModsName" class="top" id="availModsName"></select><br>
+    <input type="button" id="exeInitAuthorize" value="请求授权" class="top">
+    <span id="initResult"></span><br>
+    <div id="lds-dual-ring" class="lds-dual-ring top"></div>
+</div>
+</body>
+
+
+<script type="text/javascript" src="/static/js/noReload.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $('#username').val('');
+        $('#password').val('');
+        $('#plisIP').val('192.168.16.254');
+    });
+
+    function loading(show) {
+        if(show){
+            $('#lds-dual-ring').show()
+        }
+        else {
+            $('#lds-dual-ring').hide()
+        }
+    }
+
+    function disable_btn(elem_id, val){
+        $('#'+elem_id).prop('disabled', val);
+        loading(val);
+    }
+
+    $('#getAvailModsName').click(function () {
+        var plis_ip = $('#plisIP').val();
+        var username = $('#username').val();
+        var password = $('#password').val();
+
+        if($.inArray('', [plis_ip, username, password]) >= 0){
+            alert('不能为空: 授权服务器, 用户名, 密码');
+            return false;
+        }
+
+        var timestmp = new Date().getTime();
+        var prams = 'plis_ip=' + plis_ip;
+        prams += '&username={0}&password={1}'.replace('{0}', username).replace('{1}', password);
+        myAjaxGet('../getmodnames/?rnd=' + timestmp, prams, SetAvailNames);
+        disable_btn('getAvailModsName', true);
+    });
+
+    function SetAvailNames(jsonStr) {
+        disable_btn('getAvailModsName', false);
+        if (!jsonStr.is_success) {
+            alert(jsonStr.msgs);
+            return;
+        }
+        $('#availModsName').empty();
+        $.each(jsonStr.names, function (index, element) {
+            $('#availModsName').append($('<option></option>').val(element).text(element));
+        });
+    }
+
+    $('#exeInitAuthorize').click(function () {
+        var plis_ip = $('#plisIP').val();
+        var username = $('#username').val();
+        var password = $('#password').val();
+        var mod_name = $('#availModsName').val();
+
+        if($.inArray('', [plis_ip, username, password]) >= 0){
+            alert('不能为空: 授权服务器, 用户名, 密码');
+            return false;
+        }
+        if(mod_name === null){
+            alert('不能为空: 型号名称');
+            return false;
+        }
+
+        var timestmp = new Date().getTime();
+        $('#initResult').text('');
+        var prams = 'plis_ip={0}&selected_name={1}'.replace('{0}', plis_ip).replace('{1}', mod_name);
+        prams += '&username={2}&password={3}'.replace('{2}', username).replace('{3}', password);
+        myAjaxGet('../exeinitauthorize/?rnd=' + timestmp, prams, IsAuthorizeSuccess);
+        disable_btn('exeInitAuthorize', true);
+    });
+
+    function IsAuthorizeSuccess(jsonStr) {
+        disable_btn('exeInitAuthorize', false);
+        var sta = jsonStr.is_success;
+        var msgs = jsonStr.msgs;
+        $('#initResult').empty();
+        if (sta) {
+            $('#initResult').append('<a href="/xdashboard/login/">授权成功,请重新登陆</a>');
+        } else {
+            alert(msgs);
+        }
+    }
+
+    function removespace(obj) {
+        obj.value = obj.value.trim();
+    }
+</script>

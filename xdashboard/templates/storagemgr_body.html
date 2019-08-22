@@ -1,0 +1,924 @@
+<style type="text/css">
+.btn_nav{float:right;margin-top:10px;}
+.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+</style>
+<div class="right">
+	<div id="tabs" style="padding-bottom: 20px">
+		<ul>
+		<li><a href="#tabs-1">存储单元管理</a></li>
+		<li><a href="#tabs-2">连接配置</a></li>
+		</ul>
+		<div id="tabs-1">
+			<div style="margin-top: 20px;">管理本地存储和外部存储，了解各存储的使用情况。</div>
+			<div style="margin-top: 10px;">存储单元池</div>
+			<div>
+				<table id="list">
+				</table>
+			</div>
+			<div class="clear"></div>
+			<div style="width:80%;float: left;margin-top: 30px;">重命名存储单元名称，此名称在创建备份计划选择存储设备时被使用。</div>
+			<div class="menu_btn" id="rennamebutton" style="float: right;margin-right: 40px;margin-top: 30px;">重命名</div>
+			<div class="clear"></div>
+			<div style="width:80%;float: left;margin-top: 20px;">挂接了本地存储设备或物理连接了外部存储到{{ title }}后，需要点击”添加“将存储添加到存储单元池中才能使用。</div>
+			<div class="menu_btn" id="addbutton" style="float: right;margin-right: 40px;margin-top: 20px;">添&nbsp;&nbsp;加</div>
+			<div class="clear"></div>
+			<div style="width:80%;float: left; margin-top: 20px;">删除存在于存储单元池中但物理设备已经移除，或不再使用的的存储单元（不删除存储单元中的数据）。类型为Internal LUN的存储单元池，不能被删除。</div>
+			<div class="menu_btn" id="delbutton" style="float: right;margin-right: 40px;margin-top: 20px;">删&nbsp;&nbsp;除</div>
+            <div class="clear"></div>
+            <div id="clear_storage_wrap" style="display: none">
+                <div style="width:80%;float: left; margin-top: 20px;">快速清除存储节点中的备份数据。</div>
+                <div class="menu_btn" id="clear_storage_btn" style="float: right;margin-right: 40px;margin-top: 20px;">清&nbsp;&nbsp;除</div>
+            </div>
+            <div class="clear"></div>
+		</div>
+		<div id="tabs-2">
+			<div style="margin-top: 20px;">iSCSI发起程序名称（IQN）</div>
+			<div style="margin-top: 10px;"><input type="text" id="iqnname" class="input" disabled="disabled" style="width:95%" onblur="removespace(this)" /></div>
+			<div class="clear"></div>
+			<div style="width: 550px;float: left;margin-top: 20px;">发起程序（IQN）名称更改。</div>
+			<div class="menu_btn" id="changenamebutton" style="float: right;margin-right: 40px;margin-top: 20px;">更&nbsp;&nbsp;改</div>
+			<div class="clear"></div>
+			<div style="width: 550px;float: left;margin-top: 20px;">如果发起程序CHAP机密设置与相互CHAP一起使用，请设置点击CHAP设置机密。</div>
+			<div class="menu_btn" id="chapbutton" style="float: right;margin-right: 40px;margin-top: 20px;">CHAP</div>
+        </div>
+    </div>
+</div>
+<div id="addForm" title="添加存储单元" class="ajaxForm">
+	<div id="addtabs">
+		<ul>
+		<li><a href="#tabs-1">存储类型</a></li>
+		<li><a href="#tabs-2">存储单元</a></li>
+		<li><a href="#tabs-3">连接外部存储</a></li>
+		<li><a href="#tabs-4">外部存储单元</a></li>
+		</ul>
+		<div id="tabs-1">
+			<div style="margin-top:30px;">选择要添加的存储类型</div>
+			<div style="margin-top:30px;">
+			<input class="radio" type="radio" value="1" name="storagetype" disabled="disabled"/>本地存储<br/>
+			将已经挂接到本地的磁盘初始化并添加到存储池中。<br /><br />
+			<input class="radio" type="radio" value="2" name="storagetype" checked="checked"/>外部存储<br />
+			连接iSCSI外部存储设备，并将每一个LUN添加为一个外部存储单元。
+			</div>
+		</div>
+		<div id="tabs-2">
+			<div style="margin-top:30px;">待添加的本地存储单元信息</div>
+			<div>
+				<table id="locallist">
+				</table>
+			</div>
+			<div style="margin-top:30px;">点击存储单元名称可重命名，此名称在创建备份计划选择存储设备时被使用。</div>
+		</div>
+		<div id="tabs-3">
+			<div style="margin-top:30px;">外部存储SAN连接信息</div>
+			<div style="margin-top:30px;">
+			外部存储IP地址：<input type="text" id="ip" class="input" style="width:350px" onblur="removespace(this)" />&nbsp;&nbsp;端口：<input type="text" id="port" class="input" style="width:50px"/>
+			</div>
+			<div style="margin-top:30px;"><input id="usechap" type="checkbox"/>CHAP登录信息</div>
+			<div style="margin-top:10px;">
+			&nbsp;&nbsp;&nbsp;&nbsp;*若要使用，请在目标机上设置与{{ title }}相同的名称和CHAP机密。除非指定其它名称，否则名称将默认使用{{ title }}默认IQN。
+			</div>
+			<div style="margin-top:20px;">
+			名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称：<input type="text" id="linkchapname" class="input" style="width:500px" onblur="removespace(this)" />
+			</div>
+			<div style="margin-top:10px;">
+			目标机密：<input type="text" class="password" id="linkchappwd" style="width:500px"/>
+			</div>
+			<div style="margin-top:30px;"><input id="use_mutual_authentication" type="checkbox"/>执行相互身份验证</div>
+			<div style="margin-top:10px;">&nbsp;&nbsp;&nbsp;&nbsp;若要使用相互CHPA，请在”连接配置“中设置CHAP机密。<span id="setchap" style="color: blue;cursor:pointer;">配置</span></div>
+		</div>
+		<div id="tabs-4">
+			<div style="margin-top:30px;float:left;"><span id="connectediqn">连接后的外部存储逻辑单元信息</span><input type="hidden" id="connectedid" /></div>
+			<span style="margin-top:30px;color: blue;cursor:pointer;float:right;" class="RefreshRemote">刷新</span>
+			<div class="clear"></div>
+			<div>
+				<table id="remotelist">
+				</table>
+			</div>
+			<div style="margin-top:30px;">*点击存储单元名称可重命名，此名称在创建备份计划选择存储设备时被使用。</div>
+			<div style="margin-top:10px;">*如外部存储未被完全枚举，请手动点击<span style="color: blue;cursor:pointer;" class="RefreshRemote">刷新</span>。</div>
+		</div>
+	</div>
+	<div class="btn_nav">
+		<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="next" class="next" style="float:right" value="下一步&raquo;" />
+   </div>
+</div>
+
+<div id="chapForm" title="相互CHAP机密设置" class="ajaxForm">
+	<div style="margin-top:30px;">&nbsp;&nbsp;&nbsp;&nbsp;iSCSI发起程序相互CHAP机密用于对目标进行身份验证。必须在要使用相互CHAP的各个目标上配置在此处输入的用户名和机密。</div>
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;若要清除发起程序中的机密，请单击“清除”，然后单击“确定”。</div>
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;发起程序CHAP用户名：<input type="text" id="chapname" class="input" onblur="removespace(this)" /></div>
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发起程序CHAP机密：<input type="password" id="chappwd" class="input"/></div>
+	<div style="margin-top:50px;margin-left: 30px;width:350px">
+		<div class="menu_btn" id="clearbutton" style="float: left;">清除</div>
+		<div class="menu_btn" id="okbutton" style="float: left;margin-left: 170px;">确定</div>
+		<div class="menu_btn" id="cancelbutton" style="float: left;margin-left: 10px;">取消</div>
+	</div>
+</div>
+
+<div id="renameForm" title="重命名" class="ajaxForm">
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;重命名存储单元名称</div>
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;存储单元名称：<input type="text" class="input" onblur="removespace(this)" maxlength="30"/></div>
+</div>
+
+<div id="renameIQNForm" title="重命名" class="ajaxForm">
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;发起程序（IQN）名称更改</div>
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;iSCSI发起程序名称（IQN）：</div>
+	<div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" class="input" style="width:420px" onblur="removespace(this)" /></div>
+</div>
+<div id="renameTapas" class="ajaxForm" title="重命名">
+    <div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;磁带存储卷池名称更改</div>
+    <div style="margin-top:20px;">&nbsp;&nbsp;&nbsp;&nbsp;磁带存储卷池名称：<input type="text" class="input" onblur="removespace(this)" maxlength="30"/></div>
+</div>
+<div id="addlocalForm" title="确认添加" class="ajaxForm">
+	<div style="margin-top:20px;"><span id="addspan">“曾被本设备使用”的设备，添加后，会自动使用以前的数据，如果不希望使用以前的数据，请勾选“强行格式化”。</span></div>
+	<div style="margin-top:20px;"><input type="checkbox" id="forceformat"/>强行格式化</div>
+</div>
+
+<div class="mywaite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 50%; display:none;z-index:999;">
+	<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+	<strong>请稍候</strong> 可能需要几分钟时间。</p>
+</div>
+
+<div id="clear_storage_form" title="清除存储节点" class="ajaxForm">
+	<div style="margin-top:20px;">此操作会删除存储节点：[ <span style="color: red"></span> ]上所有的备份数据。请在输入框中输入admin密码，并点击确认按钮执行；放弃请点击取消按钮。</div>
+	<div style="margin-top:20px;"><input type="password" onblur="removespace(this)" style="width: 100%"/></div>
+</div>
+
+<script language="javascript">
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../storage_handle/?a=list',
+		datatype: "json",
+		colNames:['存储单元名称','状态','类型', '总空间','可用空间'],
+
+		colModel:[
+			{name:'storagename',index:'0',align:"center", width:210,sortable: true},
+			{name:'docMark',index:'1',align:"center", width:110,sortable: true},
+			{name:'printType',index:'2',align:"center", width:100,sortable: true},
+			{name:'insertCopySeq',index:'3',align:"center", width:120,sortable: true},
+			{name:'docName',index:'4',align:"center", width:120,sortable: true}
+		],
+		width:700,
+		height:250,
+		rowNum:300,
+		rowList:[100,200,300],
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true
+	});
+});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' });
+
+$(function(){
+	jQuery("#locallist").jqGrid({
+		url:'../storage_handle/?a=localllist',
+		datatype: "local",
+		colNames:['存储单元名称','存储设备状态','设备型号','路径','大小','old_node_id','org_status'],
+
+		colModel:[
+			{name:'storagename',index:'storagename',align:"center", editable:true,width:200,sortable: false},
+			{name:'status',index:'status',align:"center", width:160,sortable: false,formatter:statusFmatter},
+			{name:'device_name',index:'device_name',align:"center", width:230,sortable: false},
+			{name:'logic_device_path',index:'logic_device_path',align:"center", width:110,sortable: false,hidden:true},
+			{name:'size',index:'size',align:"center", width:110,sortable: false},
+			{name:'old_node_id',index:'old_node_id',align:"center", width:110,sortable: false,hidden:true},
+			{name:'org_status',index:'org_status',align:"center", width:110,sortable: false,hidden:true}
+		],
+		width:650,
+		height:200,
+		rowNum:300,
+		rowList:[100,200,300],
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:false,
+		multiselect: true,
+		cellEdit: true,
+		cellsubmit: 'clientArray',
+		beforeEditCell:function(rowid,cellname,v,iRow,iCol){
+			lastrow = iRow;
+			lastcell = iCol;
+		}
+	});
+});
+
+$("#locallist").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' });
+function statusFmatter(cellvalue, options, rowObjec)
+{
+	var status = rowObjec[1];
+	switch(status)
+	{
+		case 0:
+			return '正在使用中';
+		//case 1:
+		//	return '未被初始化';
+		case 2:
+			return '曾被本设备使用';
+		//case 3:
+		//	return '已经被其他设备初始化';
+		//case 4:
+		//	return '与正在使用中的节点标识相同';
+	}
+	//return '未知状态（'+status+'）';
+	return '未被本设备使用';
+}
+
+$(function(){
+	jQuery("#remotelist").jqGrid({
+		url:'../storage_handle/?a=remotelist',
+		datatype: "local",
+		colNames:['存储单元名称','存储设备状态','LUN','大小','logic_device_path','old_node_id','org_status'],
+
+		colModel:[
+			{name:'storagename',index:'storagename',editable:true,align:"center", width:250,sortable: false},
+			{name:'status',index:'status',align:"center", width:100,sortable: false,formatter:statusFmatter},
+			{name:'docMark',index:'docMark',align:"center", width:100,sortable: false},
+			{name:'size',index:'size',align:"center", width:100,sortable: false},
+			{name:'logic_device_path',index:'logic_device_path',align:"center", width:110,sortable: false,hidden:true},
+			{name:'old_node_id',index:'old_node_id',align:"center", width:110,sortable: false,hidden:true},
+			{name:'org_status',index:'org_status',align:"center", width:110,sortable: false,hidden:true}
+		],
+		width:650,
+		height:200,
+		rowNum:300,
+		rowList:[100,200,300],
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:false,
+		multiselect: true,
+		cellEdit: true,
+		cellsubmit: 'clientArray',
+		beforeEditCell:function(rowid,cellname,v,iRow,iCol){
+			rlastrow = iRow;
+			rlastcell = iCol;
+		}
+	});
+});
+$("#remotelist").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' });
+
+function RenameCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#renameForm').dialog('close');
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+}
+
+$('#rennamebutton')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+
+	var storagename=$('#list').jqGrid('getRowData',ids).storagename;
+	$('div #renameForm .input').val(storagename);
+
+	$("#renameForm").attr('title','重命名').dialog({
+		autoOpen: true,
+		height: 250,
+		width: 400,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var params='a=rename&id='+ids+"&name="+encodeURIComponent($('div #renameForm .input').val());
+				myAjaxGet('../storage_handle/',params,RenameCallback);
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+
+});
+
+$('#addbutton')
+.button()
+.click(function() {
+	$( "#addtabs" ).tabs( "option", "active", 0 );
+	$('#next').attr("value","下一步»");
+	$('#prev').hide();
+	$("#addForm").attr('title','添加存储单元').dialog({
+		autoOpen: true,
+		height: 540,
+		width: 720,
+		modal: true,
+		close: function(){
+		}
+	});
+});
+
+function delCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+
+}
+
+
+$('#delbutton')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length<=0)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要删除存储单元吗?',
+		onBeforeOK:function(){
+			var params='a=del&id='+ids;
+			myAjaxGet('../storage_handle/',params,delCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+function RenameIQNCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#iqnname').val(jsonstr.name);
+	$('#renameIQNForm').dialog('close');
+}
+
+$('#changenamebutton')
+.button()
+.click(function() {
+	$('div #renameIQNForm .input').val($('#iqnname').val());
+
+	$("#renameIQNForm").attr('title','发起程序（IQN）名称更改').dialog({
+		autoOpen: true,
+		height: 250,
+		width: 500,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var params='a=setiqnname&name='+$('div #renameIQNForm .input').val();
+				myAjaxGet('../storage_handle/',params,RenameIQNCallback);
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+});
+
+function getChapCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	$('#chapname').val(jsonstr.chapname);
+	$('#chappwd').val(jsonstr.chappwd);
+	$("#chapForm").attr('title','相互CHAP机密设置').dialog({
+		autoOpen: true,
+		height: 340,
+		width: 450,
+		modal: true,
+		close: function(){
+		}
+	});
+}
+
+function SetCHAP()
+{
+	var params='a=getchap';
+	myAjaxGet('../storage_handle/',params,getChapCallback);
+
+}
+
+$('#setchap').click(function(){
+	SetCHAP();
+});
+
+$('#chapbutton')
+.button()
+.click(function() {
+	SetCHAP();
+});
+
+$('#clearbutton')
+.button()
+.click(function() {
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要清除吗?',
+		onBeforeOK:function(){
+			var params='a=clearchap';
+			myAjaxGet('../storage_handle/',params,TipCallback);
+			$(this).dialog('close');
+			$("#chapForm").dialog('close');
+		}
+	});
+});
+
+$('#okbutton')
+.button()
+.click(function() {
+	var params='a=setchap&chapname='+$('#chapname').val()+"&chappwd="+$('#chappwd').val();
+	myAjaxGet('../storage_handle/',params,TipCallback);
+	$("#chapForm").dialog('close');
+});
+
+$('#cancelbutton')
+.button()
+.click(function() {
+	$("#chapForm").dialog('close');
+});
+
+$(function()
+{
+	$("#tabs").tabs();
+	$("#addtabs").tabs();
+	$("#addtabs .ui-tabs-nav").hide();
+	$("#tabs").css('height',600);
+	$("#addtabs").css('height',430);
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$( "#addtabs" ).tabs( "option", "active", 0 );
+	$('#navigation').html('<div class="font_navigation">存储单元管理</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#storageunit" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	storagemgr_resize();
+
+});
+
+function AddCallback(jsonstr)
+{
+	$('.mywaite').hide();
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+	if(jsonstr.r!=0)
+	{
+		var html=jsonstr.e;
+		for(var i=0;i<jsonstr.list.length;i++)
+		{
+			html+="<br />";
+			html+=jsonstr.list[i].name;
+			html+=" （"+jsonstr.list[i].err;
+			html+="）"
+		}
+		openErrorDialog({title:'错误',html:html});
+		return;
+	}
+}
+
+function AddLocalStorage()
+{
+
+	if(typeof(lastrow) != "undefined")
+	{
+		$("#locallist").jqGrid("saveCell",lastrow,lastcell);
+	}
+	var ids=$('#locallist').jqGrid('getGridParam','selarrrow');
+	if(ids.length==0)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+
+	var nodes = new Array();
+	var haveusednode = false;
+	for(var i=0;i<ids.length;i++)
+	{
+		var node={};
+		node.display_name=encodeURIComponent($('#locallist').jqGrid('getRowData',ids[i]).storagename.substring(0, 30));
+		if(node.display_name=='')
+		{
+			openErrorDialog({title:'错误',html:'存储单元名称不能为空'});
+			return;
+		}
+		node.status=$('#locallist').jqGrid('getRowData',ids[i]).org_status;
+		node.logic_device_path=$('#locallist').jqGrid('getRowData',ids[i]).logic_device_path;
+		node.old_node_id=$('#locallist').jqGrid('getRowData',ids[i]).old_node_id;
+		nodes.push(node);
+		if( $('#locallist').jqGrid('getRowData',ids[i]).status == '曾被本设备使用' )
+		{
+			haveusednode = true;
+		}
+	}
+	if(haveusednode)
+	{
+		$('#addspan').html('“曾被本设备使用”的设备，添加后，会自动使用以前的数据，如果不希望使用以前的数据，请勾选“强行格式化”。');
+	}
+	else
+	{
+		$('#addspan').html('需要勾选“强行格式化”初始化设备。<span style="color:red;">格式化后，设备中的旧数据将不能恢复。</span>');
+	}
+	$('#forceformat').prop('checked',false);
+	$("#addlocalForm").attr('title','确认添加').dialog({
+		autoOpen: true,
+		height: 250,
+		width: 400,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var forceformat= $('#forceformat').prop('checked');
+				if(forceformat)
+				{
+					force=1;
+				}
+				else
+				{
+					force=0;
+				}
+
+				var params='a=addlocalstorage&forceformat='+force+"&nodes="+JSON.stringify(nodes);
+				$('.mywaite').show();
+				myAjaxGet('../storage_handle/',params,AddCallback);
+				$("#addForm").dialog('close');
+				$("#addlocalForm").dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+
+}
+
+function AddRemoteStorage()
+{
+	if(typeof(rlastrow) != "undefined")
+	{
+		$("#remotelist").jqGrid("saveCell",rlastrow,rlastcell);
+	}
+	var ids=$('#remotelist').jqGrid('getGridParam','selarrrow');
+	if(ids.length==0)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+	var nodes = new Array();
+	for(var i=0;i<ids.length;i++)
+	{
+		var node={};
+		node.display_name=encodeURIComponent($('#remotelist').jqGrid('getRowData',ids[i]).storagename);
+		if(node.display_name=='')
+		{
+			openErrorDialog({title:'错误',html:'存储单元名称不能为空'});
+			return;
+		}
+		node.status=$('#remotelist').jqGrid('getRowData',ids[i]).org_status;
+		node.logic_device_path=$('#remotelist').jqGrid('getRowData',ids[i]).logic_device_path;
+		node.old_node_id=$('#remotelist').jqGrid('getRowData',ids[i]).old_node_id;
+		nodes.push(node);
+	}
+	$('#forceformat').prop('checked',false);
+	$("#addlocalForm").attr('title','确认添加').dialog({
+		autoOpen: true,
+		height: 250,
+		width: 400,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var forceformat= $('#forceformat').prop('checked');
+				if(forceformat)
+				{
+					force=1;
+				}
+				else
+				{
+					force=0;
+				}
+
+				var params='a=addremotestorage&device_id='+$('#connectedid').val()+'&forceformat='+force+"&nodes="+JSON.stringify(nodes);
+				//alert(params);
+				$('.mywaite').show();
+				myAjaxGet('../storage_handle/',params,AddCallback);
+				$("#addForm").dialog('close');
+				$("#addlocalForm").dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+}
+
+function GetIQNName(jsonstr)
+{
+	$('#iqnname').val('');
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#changenamebutton').show();
+	$('#iqnname').val(jsonstr.name);
+}
+
+
+$('#tabs').on('tabsbeforeactivate', function(event, ui) {
+	switch(ui.newTab.index())
+	{
+		case 1:
+			$('#iqnname').val('正在获取，请稍候...');
+			$('#changenamebutton').hide();
+			myAjaxGet('../storage_handle/','a=getiqnname',GetIQNName);
+			break;
+	}
+});
+
+function GetSAN(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	$('#ip').val(jsonstr.ip);
+	$('#port').val(jsonstr.port);
+	if(jsonstr.usechap==1)
+	{
+		$('#usechap').prop('checked',true);
+		$('#linkchapname').prop('disabled',false);
+		$('#linkchappwd').prop('disabled',false);
+	}
+	else
+	{
+		$('#usechap').prop('checked',false);
+		$('#linkchapname').prop('disabled',true);
+		$('#linkchappwd').prop('disabled',true);
+	}
+	$('#linkchapname').val(jsonstr.chapname);
+	$('#linkchappwd').val(jsonstr.chappwd);
+	if(jsonstr.use_mutual_authentication==1)
+	{
+		$('#use_mutual_authentication').prop('checked',true);
+	}
+	else
+	{
+		$('#use_mutual_authentication').prop('checked',false);
+	}
+
+}
+
+$('#usechap').click(function(){
+	if($(this).prop('checked'))
+	{
+		$('#linkchapname').prop('disabled',false);
+		$('#linkchappwd').prop('disabled',false);
+	}
+	else
+	{
+		$('#linkchapname').prop('disabled',true);
+		$('#linkchappwd').prop('disabled',true);
+	}
+});
+
+var g_justone=false;
+
+$('.RefreshRemote').click(function(){
+	if( g_justone == false)
+	{
+		var url=$("#remotelist").jqGrid('getGridParam','url');
+		url+='&refresh=True';
+		g_justone=true;
+	}
+	$("#remotelist").jqGrid('setGridParam',{url:url});
+	$('#remotelist').trigger("reloadGrid",[{
+		current:true
+	}]);
+});
+
+$('#addtabs').on('tabsbeforeactivate', function(event, ui) {
+	switch(ui.newTab.index())
+	{
+		case 1:
+			$("#locallist").jqGrid('setGridParam',{datatype:"json"});
+			$('#locallist').trigger("reloadGrid",[{
+				current:true
+			}]);
+			break;
+		case 2:
+			myAjaxGet('../storage_handle/','a=getsan',GetSAN);
+			break;
+	}
+});
+
+function ConnectiSCSICallback(jsonstr)
+{
+	if(jsonstr.r=='429')
+	{
+		openConfirmDialog({
+			title:'确认信息',
+			html:'本次连接和上次连接参数不一致，是否强制连接?<br />注意：强制连接会导致以前的连接不可用。',
+			onBeforeOK:function(){
+				$(this).dialog('close');
+				Connect_iSCSI(1);
+			}
+		});
+		return;
+	}
+
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.err});
+		return;
+	}
+
+	$('#connectediqn').html(jsonstr.iqn);
+	$('#connectedid').val(jsonstr.id);
+
+	$("#remotelist").jqGrid('setGridParam',{datatype:"json",url:'../storage_handle/?a=remotelist&id='+jsonstr.id});
+	$('#remotelist').trigger("reloadGrid",[{
+		current:true
+	}]);
+
+	$('#next').attr("value","初始化/添加");
+	$("#addtabs").tabs( "option", "active", 3 );
+}
+
+function Connect_iSCSI(force)
+{
+	var params = 'a=connectiscsi';
+	params += '&ip='+$('#ip').val()+'&port='+$('#port').val();
+	var usechap = 0;
+    if (!isIPV4($('#ip').val())){
+        openErrorDialog({title:'错误',html:'请输入合法的IP地址'});
+		return;
+    }
+	if($('#usechap').prop('checked'))
+	{
+		usechap = 1;
+	}
+	params += '&usechap='+usechap+'&linkchapname='+$('#linkchapname').val()+'&linkchappwd='+$('#linkchappwd').val();
+	params += '&force='+force;
+	params += '&username='+$('#linkchapname').val();
+	params += '&pwd='+$('#linkchappwd').val();
+	var use_mutual_authentication = 0;
+	if($('#use_mutual_authentication').prop('checked'))
+	{
+		use_mutual_authentication = 1;
+	}
+	params += '&use_mutual_authentication='+use_mutual_authentication;
+	myAjaxGet('../storage_handle/',params,ConnectiSCSICallback);
+}
+
+$('#prev').click(function() {
+	var selindex=$("#addtabs").tabs('option', 'active');
+	if(selindex==1)
+	{
+		$('#next').attr("value","下一步»");
+	}
+	else if(selindex==2)
+	{
+		selindex--;
+		$('#next').attr("value","下一步»");
+	}
+	else if(selindex==3)
+	{
+		$('#next').attr("value","连接");
+	}
+	if(	selindex==1 )
+	{
+		$('#prev').hide();
+	}
+	$("#addtabs").tabs( "option", "active", selindex-1 );
+});
+
+$('#next').click(function() {
+	var selindex=$("#addtabs").tabs('option', 'active');
+	var storagetype=$("input[name='storagetype']:checked").val();
+	$('#prev').show();
+	if(selindex==0)
+	{
+		if(storagetype==2)
+		{
+			$('#next').attr("value","连接");
+			selindex++;
+		}
+		else if(storagetype==1)
+		{
+			$('#next').attr("value","初始化/添加");
+		}
+	}
+	else if(selindex==1)
+	{
+		if(storagetype==1)
+		{
+			AddLocalStorage();
+			return;
+		}
+	}
+	else if(selindex==2)
+	{
+		Connect_iSCSI(0);
+		return;
+
+	}
+	else if(selindex==3)
+	{
+		AddRemoteStorage();
+		return;
+	}
+
+	$("#addtabs").tabs( "option", "active", selindex+1 );
+});
+
+function storagemgr_resize()
+{
+	resizeright();
+	var width = $('#tabs').width()-50;
+	$("#list").setGridWidth(width);
+	$("#tapeslist").setGridWidth(width);
+	baseresize();
+}
+
+$('#clear_storage_btn').button().click(function () {
+    var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+	var name = $('#list').jqGrid('getRowData',ids).storagename,
+        id = ids[0];
+	$('#clear_storage_form span').text(name);
+	$('#clear_storage_form input').val('');
+	$("#clear_storage_form").attr('title','清除存储节点').dialog({
+		autoOpen: true,
+		height: 250,
+		width: 400,
+		modal: true,
+		buttons: {
+			'确定': function(){
+			    var admin_pwd=$('#clear_storage_form input').val();
+			    if (!admin_pwd){
+			        openErrorDialog('错误','请输入密码');
+			        return false;
+                }
+			    var params = 'a=clear_storage&type=rm_images&admin_pwd='+$('#clear_storage_form input').val() +
+                    '&storage_id='+ id + '&name='+encodeURIComponent(name);
+				myAjaxGet('../storage_handle', params,clear_storage_cb);
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+})
+
+function clear_storage_cb(jsonstr){
+    if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	successTipBox('清除成功');
+	$('#clear_storage_form').dialog('close');
+}
+
+$(document).keydown(function (event) {
+    if (event.ctrlKey && event.altKey && event.key == 'p') {
+        $('#clear_storage_wrap').show();
+    }
+});
+
+$(window).resize(function() {
+	storagemgr_resize();
+});
+
+</script>

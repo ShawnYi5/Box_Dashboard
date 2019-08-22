@@ -1,0 +1,553 @@
+<link rel="stylesheet" href="/static/element-ui/index.css">
+<div class="right">
+    <div id="tabs" style="padding-bottom: 20px">
+        <ul>
+            <li><a href="#tabs-5">磁带存储卷池</a></li>
+        </ul>
+        <div id="tabs-5">
+            <div style="margin-top: 20px;">管理磁带存储卷池，了解各磁带存储卷池的使用情况。</div>
+            <div style="margin-top: 10px;">磁带存储卷池</div>
+            <div>
+                <table id="tapeslist">
+                </table>
+            </div>
+            <div class="clear"></div>
+            <div style="width:80%;float: left;margin-top: 30px;">编辑磁带存储卷池名称，此名称在创建备份计划选择存储设备时被使用。</div>
+            <div class="menu_btn" id="renname" style="float: right;margin-right: 40px;margin-top: 30px;">
+                编&nbsp;&nbsp;辑
+            </div>
+            <div class="clear"></div>
+            <div style="width:80%;float: left;margin-top: 20px;">挂接了本地存储设备或物理连接了外部存储到{{ title }}后，需要点击”添加“将磁带添加到磁带存储卷池中才能使用。</div>
+            <div class="menu_btn" id="add" style="float: right;margin-right: 40px;margin-top: 20px;">添&nbsp;&nbsp;加
+            </div>
+            <div class="clear"></div>
+            <div style="width:80%;float: left; margin-top: 20px;">
+                删除存在于磁带存储卷池中但物理设备已经移除，或不再使用的的磁带存储卷池（不删除磁带存储卷池中的数据）。
+            </div>
+            <div class="menu_btn" id="del" style="float: right;margin-right: 40px;margin-top: 20px;">删&nbsp;&nbsp;除
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>
+<div id="addTapa" title="添加磁带存储卷" class="ajaxForm">
+    <div id="addtapas">
+        <div class="tapascol" id="tapascol">磁带存储卷名称：&nbsp;&nbsp;&nbsp;&nbsp;<input type="text"></div>
+        <div class="protectionperiod" id="protectionperiod">
+            <div style="margin-top:20px;">
+                <input type="checkbox" id="open_fun">
+                导出数据在&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="number" id="offon" min="1" value="3" style="width: 100px;">
+                <select id="interval-unit" style="width: 75px;">
+                    <option value="day">天</option>
+                    <option value="week">周</option>
+                    <option value="month" selected="selected">个月</option>
+                </select>
+                <span>内不能被覆盖</span>
+            </div>
+        </div>
+        <div class="driver" id="driver">
+            <div style="margin-top:20px;">
+                驱动器：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select
+                    id="driver_position" style="width: 220px;"></select>
+				<span id="tap_statistics"></span>
+            </div>
+        </div>
+        <div class="tapas" style="margin-top: 10px;">
+            <div style="margin-bottom: 10px;"> 选择与驱动器绑定的磁带：</div>
+			<div style="height:320px;">
+				<div style="float:left;">
+					<div>未绑定的磁带：</div>
+					<div>
+						<select multiple="multiple" style="width:300px;height:300px;" id="unbind_taps">
+						</select>
+					</div>
+				</div>
+				<div style="float:left;">
+                    <div style="margin-top: 120px;width:70px;margin-left:5px;">
+						<button type="button" id="tap_btn" class="el-button el-button--primary el-transfer__button">
+							<span><i class="el-icon-arrow-right"></i></span>
+						</button>
+					</div>
+					<div style="margin-top: 20px;width:70px;margin-left:5px;">
+						<button type="button" id="tap_left_btn" class="el-button el-button--primary el-transfer__button">
+							<span><i class="el-icon-arrow-left"></i></span>
+						</button>
+					</div>
+				</div>
+				<div style="float:left;">
+					<div>已绑定的磁带：</div>
+					<div>
+						<select multiple="multiple" style="width:300px;height:300px;" id="bind_taps">
+						</select>
+					</div>
+				</div>
+				
+			</div>
+            <table id="tapas-list" style="margin-top: 10px;"></table>
+            <div class="menu_btn" style="float:right;margin-right:5px;margin-top: 3px;" id='overbutton'>取消</div>
+            <div class="menu_btn" style="float:right;margin-right:10px;margin-top: 3px;" id='confirmbutton'>确定</div>
+            <div class="menu_btn" style="float:right;margin-right:10px;margin-top: 3px;" id='confirmedit'>确定</div>
+			<div class="mywaite ui-state-highlight ui-corner-all"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    <strong>请稍候</strong> <span id="msg">正在获取磁带信息</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script language="javascript">
+	var g_volumepoolist = null;
+
+    $(function tapesmgrlist() {
+        jQuery("#tapeslist").jqGrid({
+            url: '../storage_handle/?a=tapesmgrlist',
+            datatype: "json",
+            colNames: ['存储卷名称', '数据覆盖保护周期', '所属驱动器', '磁带'],
+
+            colModel: [
+                {name: 'storagename', index: '0', align: "center", width: 110, sortable: true},
+                {name: 'docMark', index: '1', align: "center", width: 110, sortable: true},
+                {name: 'printType', index: '2', align: "center", width: 100, sortable: true},
+                {name: 'tapas', index: '4', align: "center", width: 120, sortable: true}
+            ],
+            width: 700,
+            height: 250,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+        storagemgr_resize();
+    });
+    $("#tapeslist").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    $('#renname')
+        .button()
+        .click(function () {
+            $('#confirmedit').show();
+            var ids = $('#tapeslist').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length != 1) {
+                openErrorDialog({title: '错误', html: '请选择一条数据。'});
+                return;
+            }
+            $('#confirmbutton').hide();
+			$("#driver_position").find("option").remove();
+			$('#bind_taps').find("option").remove();
+			$('#unbind_taps').find("option").remove();
+			$('#tap_statistics').text('');
+			$("#driver_position").append("<option value='-1'>请稍候</option>");
+            myAjaxGet('../storage_handle/', 'a=addvolumepool&type=edit&ids='+ids[0], add_volume_driver,'edit');
+            $("#addtapa").tabs("option", "active", 0);
+            $("#addTapa").attr('title', '编辑磁带存储卷').dialog({
+                autoOpen: true,
+                height: 560,
+                width: 730,
+                modal: true,
+                close: function () {
+                }
+            });
+            var ids = $('#tapeslist').jqGrid('getGridParam', 'selarrrow');
+            var obj = $('#tapeslist').jqGrid('getRowData', ids[0]);
+            var selectname = obj.storagename;
+            $('#tapascol input').val(selectname);
+            var pertect = obj.docMark;
+            if (pertect == '未开启') {
+                $('#offon').val('0');
+            }
+            else {
+                var cycle = parseInt(pertect.substr(pertect, pertect.length - 1));
+                $('#offon').val(cycle);
+                if (pertect[pertect.length - 1] == '天') {
+                    $('#interval-unit').val('day');
+                }
+                if (pertect[pertect.length - 1] == '周') {
+                    $('#interval-unit').val('week');
+                }
+                if (pertect[pertect.length - 1] == '月') {
+                    $('#interval-unit').val('month');
+                }
+            }
+        });
+    $('#add')
+        .button()
+        .click(function () {
+            $('#open_fun').prop('checked',false);
+            $('#interval-unit').prop('disabled',true);
+            $('#offon').prop('disabled',true);
+            $('#confirmbutton').show();
+            $('#confirmedit').hide();
+            $('#tapascol input').val('');
+			$('#tap_statistics').text('');
+            $("#driver_position").find("option").remove();
+			$('#bind_taps').find("option").remove();
+			$('#unbind_taps').find("option").remove();
+			$('#tap_statistics').text();
+			$("#driver_position").append("<option value='-1'>请稍候</option>");
+            myAjaxGet('../storage_handle/', 'a=addvolumepool&type=add', add_volume_driver,'add');
+            $("#addtapa").tabs("option", "active", 0);
+            $("#addTapa").attr('title', '添加磁带存储卷').dialog({
+                autoOpen: true,
+                height: 560,
+                width: 730,
+                modal: true,
+                close: function () {
+                }
+            });
+        });
+
+	function draw_volumepoolist()
+	{
+		var type = 'edit';
+		if($('#confirmbutton').is(':visible'))
+		{
+			type = 'add';
+		}
+		$('#bind_taps').find("option").remove();
+		$('#unbind_taps').find("option").remove();
+		for(var i=0;i<g_volumepoolist.MCInfo.length;i++)
+		{
+			var showname = '';
+			if(g_volumepoolist.MCInfo[i].VolumeTag)
+			{
+				showname+=g_volumepoolist.MCInfo[i].VolumeTag;
+			}
+			else
+			{
+				showname+= '无标签';
+				continue;
+			}
+			if(g_volumepoolist.MCInfo[i].bind && g_volumepoolist.MCInfo[i].newadd)
+			{
+				$('#bind_taps').append("<option value='"+g_volumepoolist.MCInfo[i].VolumeTag+"'>"+showname+"</option>");
+			}
+			else if( type=='edit' && g_volumepoolist.MCInfo[i].bind )
+			{
+				$('#bind_taps').append("<option disabled=disabled value='"+g_volumepoolist.MCInfo[i].VolumeTag+"'>"+showname+"</option>");
+			}
+			else
+			{
+			    if(!g_volumepoolist.MCInfo[i].bind)
+                {
+                    $('#unbind_taps').append("<option value='"+g_volumepoolist.MCInfo[i].VolumeTag+"'>"+showname+"</option>");
+                }
+			}
+		}
+	}
+
+	function show_tap_statistics()
+	{
+		var bind_count = 0;
+		var unbind_count = 0;
+		for(var i=0;i<g_volumepoolist.MCInfo.length;i++)
+		{
+			if(g_volumepoolist.MCInfo[i].VolumeTag)
+			{
+			}
+			else
+			{
+				continue;
+			}
+			if(g_volumepoolist.MCInfo[i].bind)
+			{
+				bind_count++;
+			}
+			else
+			{
+			    unbind_count++;
+			}
+		}
+
+		var msg = new Array();
+		if(bind_count)
+		{
+			msg.push('已绑定'+bind_count+'盘磁带');
+		}
+		var total = parseInt(bind_count)+parseInt(unbind_count);
+
+		msg.push('总共'+total+'盘磁带');
+
+		if(bind_count == total)
+		{
+			$('#tap_statistics').html('总共'+total+'盘磁带，已全部分配到磁带存储卷池');
+		}
+		else
+		{
+			$('#tap_statistics').text(msg.join(','));
+		}
+	}
+
+	function volumepoolist_callback(jsonobj)
+	{
+		$('.mywaite').hide();
+		$('#bind_taps').find("option").remove();
+		$('#unbind_taps').find("option").remove();
+		if (jsonobj.r != 0)
+		{
+			openErrorDialog('错误',jsonobj.e);
+			return;
+		}
+
+		g_volumepoolist = jsonobj.volumepool_list;
+		show_tap_statistics();
+		draw_volumepoolist();
+	}
+
+	$('#driver_position').change(function(){
+		$('#bind_taps').find("option").remove();
+		$('#unbind_taps').find("option").remove();
+		$('#tap_statistics').text();
+		$('.mywaite').show();
+		myAjaxGet('../storage_handle/', 'a=volumepoolist&driverid='+$(this).val(), volumepoolist_callback);
+	});
+
+	function get_tap_pos(VolumeTag)
+	{
+		for(var i=0;i<g_volumepoolist.MCInfo.length;i++)
+		{
+			if(VolumeTag == g_volumepoolist.MCInfo[i].VolumeTag)
+			{
+				if(g_volumepoolist.MCInfo[i].status.toLowerCase()!='empty')
+				{
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	$('#tap_btn').click(function(){
+		var tap_list = $('#unbind_taps').val();
+		if(!tap_list)
+		{
+			return;
+		}
+
+		var move_list = new Array();
+
+		for(var i=0;i<tap_list.length;i++)
+		{
+			var iPos = get_tap_pos(tap_list[i]);
+			if(iPos!=-1)
+			{
+				var tmp = g_volumepoolist.MCInfo[iPos];
+				tmp.bind = true;
+				tmp.newadd = true;
+				g_volumepoolist.MCInfo.splice(iPos, 1);
+				move_list.push(tmp);
+			}
+		}
+
+
+		for(var i=0;i<move_list.length;i++)
+		{
+			g_volumepoolist.MCInfo.push(move_list[i]);
+		}
+		draw_volumepoolist();
+	});
+
+
+
+	$('#tap_left_btn').click(function(){
+		var bind_tap_list = $('#bind_taps').val();
+		if(!bind_tap_list)
+		{
+			return;
+		}
+
+		var move_list = new Array();
+
+		for(var i=0;i<bind_tap_list.length;i++)
+		{
+			var iPos = get_tap_pos(bind_tap_list[i]);
+			if(iPos!=-1)
+			{
+				var tmp = g_volumepoolist.MCInfo[iPos];
+				tmp.bind = false;
+				tmp.newadd = false;
+				g_volumepoolist.MCInfo.splice(iPos, 1);
+				move_list.push(tmp);
+			}
+		}
+
+		for(var i=0;i<move_list.length;i++)
+		{
+			g_volumepoolist.MCInfo.push(move_list[i]);
+		}
+		draw_volumepoolist();
+	});
+
+    $('#confirmbutton')
+        .button()
+        .click(function () {
+            var poolname = $('#tapascol input').val().replace(' ', '')
+            if (poolname == '') {
+                openErrorDialog({title: '错误', html: '磁带存储卷名称不能为空。'});
+                return;
+            }
+			var bind_count = 0;
+            for(var i=0;i<g_volumepoolist.MCInfo.length;i++)
+			{
+				if(g_volumepoolist.MCInfo[i].newadd)
+				{
+					bind_count ++;
+				}
+			}
+            if (bind_count < 2) {
+                openErrorDialog({title: '错误', html: '请至少选择两块磁带。'});
+                return;
+            }
+            var params = 'a=volumepool'
+            params += '&poolname=' + poolname;
+            params += '&cycle=' + $('#offon').val();
+            params += '&unit=' + $('#interval-unit').val();
+            params += '&driver=' + $('#driver_position').val();
+            params += '&tapes=' + JSON.stringify(g_volumepoolist);
+            myAjaxPost('../storage_handle/', params, add_volume);
+        });
+    $('#confirmedit')
+        .button()
+        .click(function () {
+            var poolname = $('#tapascol input').val().replace(' ', '')
+            if (poolname == '') {
+                openErrorDialog({title: '错误', html: '磁带存储卷名称不能为空。'});
+                return;
+            }
+            var newadd_count = 0;
+            for(var i=0;i<g_volumepoolist.MCInfo.length;i++)
+			{
+				if(g_volumepoolist.MCInfo[i].newadd)
+				{
+					newadd_count ++;
+				}
+			}
+            var obj_id = parseInt($('#tapeslist').jqGrid('getGridParam', 'selarrrow')[0]);
+            var params = 'a=editvolumepool'
+            params += '&poolname=' + poolname;
+            params += '&cycle=' + $('#offon').val();
+            params += '&unit=' + $('#interval-unit').val();
+            params += '&driver=' + $('#driver_position').val();
+            params += '&tapes=' + JSON.stringify(g_volumepoolist);
+            params += '&obj_id=' + obj_id;
+            myAjaxPost('../storage_handle/', params, add_volume);
+        });
+
+    function add_volume(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $("#addTapa").dialog('close');
+        $('#tapeslist').trigger("reloadGrid", [{
+            current: true
+        }]);
+
+    }
+    function add_volume_driver(jsonstr,type) {
+      $('#open_fun').click(function () {
+      if(!$('#open_fun').is(':checked'))
+      {
+          $('#interval-unit').attr('disabled',true);
+          $('#offon').attr('disabled',true);
+      }else {
+          $('#interval-unit').attr('disabled',false);
+          $('#offon').attr('disabled',false);
+      }
+    });
+		$("#driver_position").find("option").remove();
+		var bfind = false;
+		var index = 0;
+        for (var i in jsonstr) {
+			bfind = true;
+            $("#driver_position").append("<option value='" + jsonstr[i]['value'] + "'>" + jsonstr[i]['text'] + "</option>");
+			if(index==0)
+			{
+				$('.mywaite').show();
+				if(type=='edit')
+                {
+                    var ids = $('#tapeslist').jqGrid('getGridParam', 'selarrrow');
+                    myAjaxGet('../storage_handle/', 'a=volumepoolist&driverid='+jsonstr[i]['value']+'&type='+type+'&ids='+ids[0], volumepoolist_callback);
+                }
+                else
+                {
+                    myAjaxGet('../storage_handle/', 'a=volumepoolist&driverid='+jsonstr[i]['value']+'&type='+type, volumepoolist_callback);
+                }
+				index++;
+			}
+        }
+
+		if(bfind==false)
+		{
+			openErrorDialog({title: '错误', html: '没找到驱动器请稍候再试'});
+		}
+		
+    }
+
+    $('#overbutton')
+        .button()
+        .click(function () {
+            $("#addTapa").dialog('close');
+        });
+
+
+    $('#del')
+        .button()
+        .click(function () {
+            var ids = $('#tapeslist').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length <= 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要删除所选磁带存储卷吗?',
+                onBeforeOK: function () {
+                    var selectvalues = '';
+                    var ids = $('#tapeslist').jqGrid('getGridParam', 'selarrrow');
+                    for (var i in ids) {
+                        selectvalues += $('#tapeslist').jqGrid('getRowData', ids[i]).storagename + ',';
+                        debugger;
+                    }
+                    var params = 'a=delvolumpool&name=' + selectvalues;
+                    myAjaxPost('../storage_handle/', params, delCallback);
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+    function delCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+
+        $('#tapeslist').trigger("reloadGrid", [{
+            current: true
+        }]);
+
+    }
+
+    function storagemgr_resize() {
+        resizeright();
+        var width = $('#tabs').width() - 50;
+        $("#tapeslist").setGridWidth(width);
+        baseresize();
+    }
+
+    $(window).resize(function () {
+        storagemgr_resize();
+    });
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 600);
+        $("#tabs").tabs("option", "active", 0);
+    });
+
+</script>

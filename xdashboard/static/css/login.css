@@ -1,0 +1,96 @@
+@charset "utf-8";
+/* CSS Document */
+
+body{
+    padding:0px;
+	margin:0px;
+	font-family:"ËÎÌå";
+	font-size:14px;
+}
+
+
+
+
+form{ border:0px; margin:0; padding:0;}
+.clear{ clear:both;}
+
+.all{
+    width:960px;
+    padding:0;
+    margin:0px auto;
+	overflow:hidden;	
+}
+
+.content{
+    background-image:url(../images/login/log_in_bg_r2.jpg);
+	width:960px;
+	height:375px;
+	background-repeat:no-repeat;
+	overflow:hidden;
+	padding:0;
+	margin:0;
+}
+.content_top_left{
+    float:left;
+	padding:120px 0px 0px 250px;
+}
+
+.content_top_left_man{
+    margin-bottom:10px;
+}
+.font_27517A_blod{
+    color:#27517A;
+	font-weight:bold;
+}
+.content_top_right{
+    float:left;
+	padding:130px 0px 0px 70px;
+}
+.font_333_blod{
+    color:#333333;
+	font-weight:bold;
+}
+.content_top_right_font{
+    padding-bottom:15px;
+}
+.content_top_right_font1{
+    padding-bottom:2px;
+}
+.content_top_right_xuan{
+    padding-left:90px;
+}
+
+.content_bottom{
+	padding:10px 0px 0px 340px;
+}
+.content_bottom_an{
+    float:left;
+	padding-right:20px;
+}
+.content_href{
+	padding:10px 0px 0px 500px;
+}
+.content_bottom_href{
+    float:left;
+	padding-right:20px;
+}
+.content_bottom_image{
+    float:left;
+	padding-right:3px;
+}
+
+a.loginA:visited {color:#00F; text-decoration:underline;}
+a.loginA:hover { color:#906; text-decoration:underline;}
+a.loginA:active {color:#00F; text-decoration:underline;}
+a.loginA:link {  color:#00F; text-decoration:underline;}
+
+.content_bottom_an a{margin:0px 0px 0px 0px;padding:0px 0px 0px 0px; display:block;width:128px;height:54px;}
+a.login_btn1:link { background:url(../images/login/log_in_1.gif) no-repeat; }
+a.login_btn1:visited {background:url(../images/login/log_in_1.gif) no-repeat; }
+a.login_btn1:hover {	background:url(../images/login/log_in_2.gif) no-repeat; }
+a.login_btn1:active {background:url(../images/login/log_in_2.gif) no-repeat; }
+
+a.login_btn2:link { background:url(../images/login/log_in_3.gif) no-repeat; }
+a.login_btn2:visited {background:url(../images/login/log_in_3.gif) no-repeat; }
+a.login_btn2:hover {	background:url(../images/login/log_in_4.gif) no-repeat; }
+a.login_btn2:active {background:url(../images/login/log_in_4.gif) no-repeat; }

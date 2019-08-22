@@ -1,0 +1,171 @@
+[
+
+  {
+    "sys_system_type": "5.1",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统WINXP支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统WINXP的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic并行/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "5.2",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2003支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2003的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE或Logic并行/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "5.2",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2003/XP支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2003/XP的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE或Logic并行/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.0",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2008/VISTA支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2008/VISTA的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic并行/Logic SAS/Vmware准虚拟."
+  },  
+  {
+    "sys_system_type": "6.0",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2008/VISTA支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2008/VISTA的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic并行/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.1",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统WIN7支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统WIN7的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic并行/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.1",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2008R2/WIN7支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2008R2/WIN7的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic并行/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.2",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统WIN8支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统WIN8的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.2",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2012/WIN8支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2012/WIN8的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.3",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统WIN8.1支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统WIN8.1的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.3",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2012R2/WIN8.1支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2012R2/WIN8.1的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "10.0",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统WIN10支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统WIN10的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "10.0",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_104B&DEV_1040",
+    "error_info": "检测到不被源操作系统2016/WIN10支持的 SCSI控制器 设备,HWID:PCI\\VEN_104B&DEV_1040.<br>原因是该设备的厂商未提供支持源操作系统2016/WIN10的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为IDE/Logic SAS/Vmware准虚拟."
+  },  
+  {
+    "sys_system_type": "6.2",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_1000&DEV_0030",
+    "error_info": "检测到不被源操作系统WIN8支持的 SCSI控制器 设备,HWID:PCI\\VEN_1000&DEV_0030.<br>原因是该设备的厂商未提供支持源操作系统WIN8的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为 Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.2",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_1000&DEV_0030",
+    "error_info": "检测到不被源操作系统2012/WIN8支持的 SCSI控制器 设备,HWID:PCI\\VEN_1000&DEV_0030.<br>原因是该设备的厂商未提供支持源操作系统2012/WIN8的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为 Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.3",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_1000&DEV_0030",
+    "error_info": "检测到不被源操作系统WIN8.1支持的 SCSI控制器 设备,HWID:PCI\\VEN_1000&DEV_0030.<br>原因是该设备的厂商未提供支持源操作系统WIN8.1的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "6.3",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_1000&DEV_0030",
+    "error_info": "检测到不被源操作系统2012R2/WIN8.1支持的 SCSI控制器 设备,HWID:PCI\\VEN_1000&DEV_0030.<br>原因是该设备的厂商未提供支持源操作系统2012R2/WIN8.1的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "10.0",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_1000&DEV_0030",
+    "error_info": "检测到不被源操作系统WIN10支持的 SCSI控制器 设备,HWID:PCI\\VEN_1000&DEV_0030.<br>原因是该设备的厂商未提供支持源操作系统WIN10的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为Logic SAS/Vmware准虚拟."
+  },
+  {
+    "sys_system_type": "10.0",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_1000&DEV_0030",
+    "error_info": "检测到不被源操作系统2016/WIN10支持的 SCSI控制器 设备,HWID:PCI\\VEN_1000&DEV_0030.<br>原因是该设备的厂商未提供支持源操作系统2016/WIN10的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 SCSI控制器 类型为Logic SAS/Vmware准虚拟."
+  },  
+  {
+    "sys_system_type": "5.1",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_15AD&DEV_07E0",
+    "error_info": "检测到不被源操作系统WINXP支持的 SATA控制器 设备,HWID:PCI\\VEN_15AD&DEV_07E0.<br>原因是该设备的厂商未提供支持源操作系统WINXP的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 硬盘控制器 类型为SCSI或IDE."
+  },
+  {
+    "sys_system_type": "5.2",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_15AD&DEV_07E0",
+    "error_info": "检测到不被源操作系统2003支持的 SATA控制器 设备,HWID:PCI\\VEN_15AD&DEV_07E0.<br>原因是该设备的厂商未提供支持源操作系统2003的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 硬盘控制器 类型为SCSI或IDE."
+  },
+  {
+    "sys_system_type": "5.2",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_15AD&DEV_07E0",
+    "error_info": "检测到不被源操作系统2003/XP支持的 SATA控制器 设备,HWID:PCI\\VEN_15AD&DEV_07E0.<br>原因是该设备的厂商未提供支持源操作系统2003/XP的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 硬盘控制器 类型为SCSI或IDE."
+  },  
+  {
+    "sys_system_type": "6.2",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_15AD&DEV_0720",
+    "error_info": "检测到不被源操作系统WIN8支持的 网卡 设备,HWID:PCI\\VEN_15AD&DEV_0720.<br>原因是该设备的厂商未提供支持源操作系统WIN8的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 网卡 类型为E1000/VMXNET3."
+  },
+  {
+    "sys_system_type": "6.2",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_15AD&DEV_0720",
+    "error_info": "检测到不被源操作系统2012/WIN8支持的 网卡 设备,HWID:PCI\\VEN_15AD&DEV_0720.<br>原因是该设备的厂商未提供支持源操作系统2012R2/WIN8的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 网卡 类型为E1000/VMXNET3."
+  },
+  {
+    "sys_system_type": "6.3",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_15AD&DEV_0720",
+    "error_info": "检测到不被源操作系统WIN8.1支持的 网卡 设备,HWID:PCI\\VEN_15AD&DEV_0720.<br>原因是该设备的厂商未提供支持源操作系统WIN8.1的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 网卡 类型为E1000/VMXNET3."
+  },
+  {
+    "sys_system_type": "6.3",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_15AD&DEV_0720",
+    "error_info": "检测到不被源操作系统2012R2/WIN8.1支持的 网卡 设备,HWID:PCI\\VEN_15AD&DEV_0720.<br>原因是该设备的厂商未提供支持源操作系统2012R2/WIN8.1的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 网卡 类型为E1000/VMXNET3."
+  },
+  {
+    "sys_system_type": "10.0",
+    "sys_system_bit": 32,
+    "hardware_id": "PCI\\VEN_15AD&DEV_0720",
+    "error_info": "检测到不被源操作系统WIN10支持的 网卡 设备,HWID:PCI\\VEN_15AD&DEV_0720.<br>原因是该设备的厂商未提供支持源操作系统WIN10的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 网卡 类型为E1000/VMXNET3."
+  },
+  {
+    "sys_system_type": "10.0",
+    "sys_system_bit": 64,
+    "hardware_id": "PCI\\VEN_15AD&DEV_0720",
+    "error_info": "检测到不被源操作系统2016/WIN10支持的 网卡 设备,HWID:PCI\\VEN_15AD&DEV_0720.<br>原因是该设备的厂商未提供支持源操作系统2016/WIN10的驱动;<br>解决方法:请在VMWARE中修改目标虚拟机的 网卡 类型为E1000/VMXNET3."
+  }
+]

@@ -1,0 +1,292 @@
+<div class="right">
+    <div class="table_menu">
+        <div class="menu_btn" id="createForm">新建</div>
+        <div class="menu_btn" id="delForm">删除</div>
+        <div class="menu_btn" id="search_form">查询</div>
+        <div class="menu_btn" id="refresh">刷新</div>
+		<div class="menu_btn" style="margin-top:10px;"><a href="../serversmgr/" style="color: blue">客户端管理</a></div>
+    </div>
+    <table id="list">
+    </table>
+    <div id="pager"></div>
+    <table width="100%" cellpadding="0" cellspacing="1" class="border_table" style="display: none">
+        <tr height="25">
+            <td width="30%" align="left">计划名称</td>
+            <td width="70%">
+                <div id="show_taskname">&nbsp;</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="search_form_div" title="查询" class="ajaxForm">
+    <div style="margin-top: 40px">
+        <label for="search_input">关键词：</label>
+        <input type="text" maxlength="50" placeholder="Everything" id="search_key" style="width: 200px">
+    </div>
+</div>
+
+<div id="create_form_div" title="Vmware连接配置" class="ajaxForm">
+    <div style="margin-top:20px;margin-left:20px;">
+        <div>请输入vCenter Server/ESXi的IP地址或名称。</div>
+        <div style="margin-top:20px;margin-left:10px;">
+            IP地址/名称: <input id="vc-address" type="text" class="input" style="width:200px;" onblur="removespace(this)"/>
+        </div>
+        <div style="margin-top:10px;margin-left:42px;">
+            用户名: <input id="vc-username" type="text" class="input" style="width:200px;" onblur="removespace(this)"/>
+        </div>
+        <div style="margin-top:10px;margin-left:55px;">
+            密码: <input id="vc-password" type="password" class="input" style="width:200px;" onblur="removespace(this)"/>
+        </div>
+    </div>
+</div>
+
+<style>
+    #run_form_div li {
+        list-style-type: none;
+    }
+
+    #run_form_div p {
+        margin: 0;
+        padding: 0;
+    }
+
+    #run_form_div .tips {
+        color: grey;
+        margin-left: 2em;
+        margin-top: 10px;
+    }
+
+    #run_form_div .line {
+        margin-top: 10px;
+    }
+
+    #gbox_list {
+        margin: 5px 0;
+    }
+</style>
+
+{% include 'tree.inc.html' %}
+
+<script type="text/javascript">
+    $(function () {
+        jQuery("#list").jqGrid({
+            url: '../mgrvcenter_handle/?a=list_host',
+            datatype: "json",
+            colNames: ['id', '数据中心', '账号'],
+            colModel: [
+                {name: 'id', index: 'id', align: "center", sortable: false, hidden: true},
+                {name: 'name', index: 'name', align: "center", width: 200, sortable: true},
+                {name: 'username', index: 'username', align: "center", width: 120, sortable: true}
+            ],
+            width: 748,
+            height: 600,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (ids) {
+                //var params = "a=host_detail&taskid=" + ids;
+                //myAjaxGet('../mgrvcenter_handle/', params, host_detail_cp);
+            }
+        });
+    });
+
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    function ReloadGridCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+    }
+
+    function init_create_form() {
+        $('#create_form_div input').val('');
+    }
+
+    $('#createForm')
+        .button()
+        .click(function () {
+            $("#create_form_div").dialog({
+                autoOpen: true,
+                height: 300,
+                width: 500,
+                modal: true,
+                close: function () {
+                },
+                open: function () {
+                },
+                buttons: {
+                    '添加': function () {
+                        var params = check_and_get_params();
+                        if (!params) {
+                            return
+                        }
+                        myAjaxPost('../mgrvcenter_handle/?a=add_host', 'data=' + JSON.stringify(params), add_host_cp);
+                        $(this).dialog('close');
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                }
+            });
+        });
+
+    function check_and_get_params() {
+        var rev = {},
+            username = $('#vc-username').val(),
+            password = $('#vc-password').val(),
+            address = $('#vc-address').val();
+        if (!username) {
+            openErrorDialog('错误', '用户名不能为空');
+            return false
+        }
+        rev['username'] = username;
+        if (!address) {
+            openErrorDialog('错误', 'IP地址/名称不能为空');
+            return false
+        }
+        rev['address'] = address;
+        if (!password) {
+            openErrorDialog('错误', '密码不能为空');
+            return false
+        }
+        rev['password'] = password;
+
+        return rev;
+    }
+
+    function add_host_cp(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+        successTipBox("添加成功");
+    }
+
+    $('#delForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要删除连接配置吗?<br>点击确认按钮，执行删除操作；点击取消按钮，放弃删除操作。',
+                onBeforeOK: function () {
+                    var params = "a=del_host&taskid=" + idstring;
+                    myAjaxGet('../mgrvcenter_handle/', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+            $('#dialog-confirm .dialog-icon').html('<img src="/static/images/tip_icon_warning.png" width="45"/>');
+            $('#dialog-confirm .dialog-msg').css('width', '260px');
+            $('#dialog-confirm').css('height', '110px');
+        });
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 570);
+        $('#navigation').html('<div class="font_navigation">数据中心连接管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#mgrvmclient" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        mgrbackup_resize();
+
+
+    });
+    $('#refresh').button().click(function () {
+        var new_url = '../mgrvcenter_handle/?a=list_host';
+        $('#list').setGridParam({url: new_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    })
+
+    $("#search_form_div").attr('title', '查询').dialog({
+        autoOpen: false,
+        height: 200,
+        width: 350,
+        modal: true,
+        buttons: {
+            '查询': function () {
+                search_worker();
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+
+    $('#search_form').button().click(function () {
+        $("#search_form_div").dialog('open');
+    });
+
+    function search_worker() {
+        var s_key = $('#search_key').val();
+        $("#search_form_div").dialog('close');
+        var new_url = '../mgrvcenter_handle/?a=list_host&s_key=' + s_key;
+        $('#list').setGridParam({url: new_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function mgrbackup_resize() {
+        resizeright();
+        var width = $('.table_menu').width()-5;
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        mgrbackup_resize();
+    });
+
+    $('#search_key').keypress(function (event) {
+            if (event.keyCode == 13) {
+                search_worker();
+            }
+        }
+    )
+
+    function get_checked_virtual_machine() {
+        var api = $('#Servers_Tree1').aciTree('api'),
+            children = api.children(null, true, true),
+            label = ''
+        rs = [];
+        api.checkboxes(children, true).each(api.proxy(function (element) {
+            var node = $(element),
+                id = this.getId(node),
+                label = this.getLabel(node);
+            if (id.split('|')[1] == 'VirtualMachine') {
+                rs.push({
+                    'id': id,
+                    'label': label
+                })
+            }
+        }, true));
+        return rs;
+    }
+
+</script>

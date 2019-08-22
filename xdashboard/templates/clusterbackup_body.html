@@ -1,0 +1,2388 @@
+<style type="text/css">
+    .tab {
+        margin-top: 30px;
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+
+    .btn_nav {
+        float: right;
+        margin-top: 10px;
+    }
+
+    .prev, .next {
+        width: 100px;
+        height: 32px;
+        line-height: 32px;
+        background: url(btn_bg.gif) repeat-x bottom;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+    }
+
+    .tips {
+        color: #666666;
+    }
+
+    .detial-marg-top {
+        margin-top: 16px;
+    }
+
+    .indent {
+        margin-left: 40px;
+    }
+
+    .myoneday {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+        float: left
+    }
+
+    .myonedayselected {
+        background-color: #8ccad5
+    }
+
+    .weeks {
+        margin-top: 8px;
+    }
+
+    .backup-period {
+        margin-bottom: 22px;
+    }
+
+    .add-to-list, .rm-list-elem {
+        float: right;
+        cursor: pointer;
+        padding: 1px 3px;
+        margin-right: 5px;
+    }
+
+    .manage-item {
+        margin-top: 8px;
+    }
+
+    .pull-down-control {
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .manage {
+        margin-bottom: 16px;
+        margin-left: 16px
+    }
+
+    .client_search {
+        border: 2px solid #dce4ec;
+        color: #34495e;
+        font-family: "Lato", sans-serif;
+        font-size: 14px;
+        padding: 3px 0 3px 10px;
+        width: 200px;
+        background: #fff url(/static/images/icon_search_1649.gif) no-repeat right;
+    }
+</style>
+
+<div id="plan-detail-infos" style="display: none;">
+    <table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+        <tr height="25">
+            <td width="30%" align="left">计划名称</td>
+            <td width="70%">
+                <div id="plan_name"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份存储设备</td>
+            <td align="left">
+                <div id="storage_device"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">创建时间</td>
+            <td align="left">
+                <div id="create_time"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份源</td>
+            <td align="left">
+                <div id="backup_hosts"></div>
+            </td>
+        </tr>
+		<tr height="25">
+            <td align="left">主节点</td>
+            <td align="left">
+                <div id="show_master_host"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份周期</td>
+            <td align="left">
+                <div id="backup_period"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份数据保留期限</td>
+            <td align="left">
+                <div id="data_keep_duration"></div>
+            </td>
+        </tr>
+		<tr height="25">
+            <td align="left">配额空间保留</td>
+            <td align="left">
+                <div id="space_keep_GB"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">至少保留备份点</td>
+            <td align="left">
+                <div id="mini_keep_points"></div>
+            </td>
+        </tr>
+		<tr height="25" class="manage-item-4cdp" style="display:none;">
+            <td align="left">连续数据保护(CDP)数据保留窗口期</td>
+            <td align="left">
+                <div id="show_cdpperiod"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份时限定占用的最大网络带宽</td>
+            <td align="left">
+                <div id="max_network_Mb"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份时限定最大占用源主机的存储性能的</td>
+            <td align="left">
+                <div id="BackupIOPercentage_show"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">数据传输方式</td>
+            <td align="left">
+                <div id="transfer_encipher"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份方式</td>
+            <td align="left">
+                <div id="always_full_backup"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份源存储读取队列深度</td>
+            <td align="left">
+                <div id="confirm_thread_count"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">启用操作系统重复数据删除</td>
+            <td align="left">
+                <div id="enable_dup_sysfolder"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">启用备份重试策略</td>
+            <td align="left">
+                <div id="backup_retry"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">排除的磁盘</td>
+            <td align="left">
+                <div id="exclude_disks"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">排除的卷</td>
+            <td align="left">
+                <div id="exclude_vols"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">集群磁盘</td>
+            <td align="left">
+                <div id="cluster_disks"></div>
+            </td>
+        </tr>
+        {% verbatim %}
+        <tr height="25" id="shell_info">
+            <td align="left">执行脚本</td>
+            <td align="left" id="shell_info_confirm">
+                可执行文件名：　{{ exe_name }}<br>
+                　　执行参数：　{{ params }}<br>
+                　　执行路径：　{{ work_path }}<br>
+                　　解压路径：　{{ unzip_path }}<br>
+                上传文件路径：　{{ zip_file }}<br>
+                忽略执行异常：　{{ ignore_shell_error }}
+            </td>
+            <td align="left" id="shell_info_detail">
+                可执行文件名：　{{ exe_name }}<br>
+                　　执行参数：　{{ params }}<br>
+                　　执行路径：　{{ work_path }}<br>
+                　　解压路径：　{{ unzip_path }}<br>
+                忽略执行异常：　{{ ignore_shell_error }}<br>
+                执行脚本文件：　<span id='download_zip_file' style="color: blue;cursor: pointer"></span>
+            </td>
+        </tr>
+        {% endverbatim %}
+    </table>
+</div>
+
+<div id="plan-guides" style="display: none">
+    <div id="tabs" style="height: 530px;overflow: auto">
+        <ul>
+            <li><a href="#tab0-select-hosts"></a></li>
+            <li><a href="#tab1-storage-device"></a></li>
+            <li><a href="#tab2-backup-period"></a></li>
+            <li><a href="#tab3-cluster-disk-map"></a></li>
+            <li><a href="#tab4-ext-infos"></a></li>
+            <li><a href="#tabs-shell">执行脚本</a></li>
+            <li><a href="#tab5-check-form"></a></li>
+        </ul>
+
+        <div id="tab0-select-hosts" class="tab">
+            <div style="margin-bottom:10px;">选择集群备份源客户端</div>
+            <div style="float:left;"><input id="search_cluster_host" type="text" placeholder="开始搜索"
+                                            class="client_search"/></div>
+            <div id="refresh-hosts" style="cursor:pointer;float:right;margin-right:0;">刷新连接列表</div>
+            <div id="Hosts" class="aciTree" style="width:100%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+            <div style="width:100%;">
+                <br/>客户端详细描述<br/>
+                <table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+                    <tr height="25">
+                        <td width="30%" align="left">客户端名称</td>
+                        <td width="70%">
+                            <div id="show_servername"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">计算机名</td>
+                        <td align="left">
+                            <div id="show_pcname"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">IP地址</td>
+                        <td align="left">
+                            <div id="show_ip"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">MAC地址</td>
+                        <td align="left">
+                            <div id="show_mac"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">操作系统</td>
+                        <td align="left">
+                            <div id="show_os"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">Build Num</td>
+                        <td align="left">
+                            <div id="show_buildnum"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">磁盘数量</td>
+                        <td align="left">
+                            <div id="show_harddisknum"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">磁盘信息</td>
+                        <td align="left">
+                            <div id="show_harddiskinfo"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">总容量</td>
+                        <td align="left">
+                            <div id="show_total"></div>
+                        </td>
+                    </tr>
+                    <tr height="25">
+                        <td align="left">已使用空间</td>
+                        <td align="left">
+                            <div id="show_use"></div>
+                        </td>
+                    </tr>
+                    <tr height="25" style="display: none">
+                        <td align="left"></td>
+                        <td align="left">
+                            <div id="is_encrypt"></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab1-storage-device" class="tab">
+            计划名称:
+            <input type="text" id="taskname" maxlength="120" style="width:400px;" onblur="removespace(this)" title=""/>
+			<div style="margin-top:20px;margin-left:-15px;">
+                选择主节点:
+                <select id="master_host" title="" style="width:405px;">
+                </select>
+            </div>
+            <div style="margin-top:20px;">
+                选择备份存储设备:
+                <select id="backup-storage-device" title="">
+                    <option value='-1' selected="selected">请稍候</option>
+                </select>
+            </div>
+            <div style="margin-top:100px;" class="storagedevicediv">
+                <span class="form_tips">
+				　　备份说明：全景灾备系统基于磁盘快照技术，在线对客户端整机数据先做一次完整备份，后续根据设定的备份计划做增量备份或CDP保护，仅备份有改变或增加的数据，极大的减少了备份的数据总量，同时由于备份数据量的下降，通过网络传输的数据大幅减少，对网络带宽的影响同时被降到很低。虽然每次备份仅为增量的数据，但逻辑上每一个备份点都是客户端整个系统的一个历史点的完整状态，保留了OS中全部的业务系统和业务系统在此时间点对应的全部业务数据；无论是结构数据或非结构数据都做到了完备的备份，达到数据的一致性，完整性，可用性，实现应用级的容灾备份。
+				<br/><br/><br/>
+                　　基于磁盘快照的整机备份，备份了完整的磁盘状态，所以无需了解业务系统和数据库的实现方法/机制、数据结构及其中的逻辑关系，支持所有业务系统和数据库。
+				<br/><br/>
+				　　支持的数据库如下：
+				<br/>　　SQL Server　　Oracle　　Sybase　　Exchange Server　　Mango DB　　　Lotus Domino
+				<br/>　　DB2　　　　　 MySQL　　 AD　　　　达梦DM　　　　　　　神通数据库　　　南大通用Gbase
+				</span>
+            </div>
+        </div>
+
+        <div id="tab2-backup-period" class="tab">
+			<div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-cdp">连续数据保护（CDP）
+                <div class="indent tips">连续数据保护(CDP)对数据源做连续的数据保护，可将被保护的数据源恢复到任意时间点（最小间隔可低于1秒）也需要更多的存储空间。</div>
+				<div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                </div>
+            </div>
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-once">仅备份一次
+                <div class="indent tips">仅执行一次备份计划，设定开始日期及时间即可，完成备份后任务即终结。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                </div>
+            </div>
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-perday">按间隔时间
+                <div class="indent tips">备份间隔可设置为分/时/天，需设定备份的开始时间。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px;margin-right: 21px"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                    每
+                    <input type="number" min="1" max="365" value="1" style="width:41px" onblur="removespace(this)"
+                           title=""/>
+                    <select id="interval-unit">
+                        <option value="min">分钟</option>
+                        <option value="hour">小时</option>
+                        <option value="day" selected="selected">天</option>
+                    </select>执行
+                </div>
+            </div>
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-perweek">每周
+                <div class="indent tips">备份间隔为周，设定每周的星期x为备份时间，如：每周星期一、星期四备份。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                    <div class="weeks">
+                        <input type="checkbox" name="weeks" value="1" title="">星期一
+                        <input type="checkbox" name="weeks" value="2" title="">星期二
+                        <input type="checkbox" name="weeks" value="3" title="">星期三
+                        <input type="checkbox" name="weeks" value="4" title="">星期四
+                        <input type="checkbox" name="weeks" value="5" title="">星期五
+                        <input type="checkbox" name="weeks" value="6" title="">星期六
+                        <input type="checkbox" name="weeks" value="7" title="">星期天
+                    </div>
+                </div>
+            </div>
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-permonth">每月
+                <div class="indent tips">备份间隔为月，设定每月的x日备份，如：每月的10、20、29日备份。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                    <div id="dayselect" style="margin-top: 8px;width: 91%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab3-cluster-disk-map" class="tab">
+            集群磁盘设置：
+            <button class="add-to-list" title="添加" value="include-list">
+                <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+            </button>
+
+            <table width="100%" cellpadding="0" cellspacing="1" class="border_table" id="hosts-disks-paired">
+                <tr height="25">
+                    <td style="text-align: center;width: 25%">集群磁盘</td>
+                    <td style="text-align: center;width: 5%">磁盘大小</td>
+                    <td style="text-align: center;width: 60%">主机磁盘</td>
+                    <td style="text-align: center;width: 10%">操作</td>
+                </tr>
+                <tr height="25" name="infos">
+                    <td style="text-align: center;width: 25%;color: #666666;">未添加集群磁盘</td>
+                    <td style="text-align: center;width: 5%;color: #666666;">大小未知</td>
+                    <td style="text-align: center;width: 60%;color: #666666;">未关联主机磁盘</td>
+                    <td style="text-align: center;width: 10%;color: #666666;"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="tab4-ext-infos" class="tab">
+            <label for="space-manage" class="pull-down-control"><span>▼</span>备份数据空间清理设置</label><br>
+            <div id="space-manage" class="manage">
+                <hr>
+                <div class="manage-item">
+                    <div>
+                        ●备份数据保留期：<input type="number" name="retentionperiod" id="retentionperiod"
+                                        style="width: 45px;height: 13px" value="1" onblur="removespace(this)"/>
+                        <select id="retentionperiod-unit">
+                            <option value="day">天</option>
+                            <option value="month" selected="selected">月</option>
+                        </select>
+                        （<span id="retentionperiod-msg"></span>），超过此时间后的备份点将自动删除，不能再用做恢复，数据将被合并释放占用的磁盘空间。
+                    </div>
+                </div>
+                <div class="manage-item">
+                    ●本用户存储空间配额低于<input type="number" name="cleandata" id="cleandata" style="width: 45px;height: 13px"
+                                       value="200" onblur="removespace(this)"/>
+                    GB时（>=100GB），自动删除最早备份点数据，以释放更多的空间用于存放最新的数据状态变化。
+                </div>
+                <div class="manage-item">
+                    <div>
+                        ●至少保留<input type="number" class="input" id="keepingpoint" value="5"
+                                    style="width:45px;height: 13px" onblur="removespace(this)"/>
+                        个备份点（1-999个），即使空间配额不够或超过保留期限也不做回收。
+                    </div>
+                </div>
+				<div class="manage-item-4cdp">
+					●连续数据保护(CDP)数据保留窗口期：
+					<select name="cdpperiod" id="cdpperiod">
+						<option value='2' selected='selected'>2天</option>
+						<option value='3'>3天</option>
+						<option value='4'>4天</option>
+						<option value='5'>5天</option>
+						<option value='6'>6天</option>
+						<option value='7'>7天</option>
+					</select><br>
+					 <span class="form_tips" style="margin-left: 8px;">
+						说明：CDP窗口期内会记录被保护的客户端磁盘上的每次写操作，磁盘任意时间点的状态都会被保留，使用窗口期内的CDP数据可将服务器恢复到最小微米级的时间状态；
+						 超过窗口期CDP数据每超过一天将被合并为一个备份点；同时，CDP对磁盘存储空间会有较大的需求，可根据需要连续保护时间长短的需求，结合可使用配额空间合理设置保留期。
+					</span>
+				</div>
+            </div>
+
+            <label for="bandwidth-manage" class="pull-down-control"><span>▼</span>备份时资源占用设置</label><br>
+            <div id="bandwidth-manage" class="manage">
+                <hr>
+                <div class="manage-item">
+                    <div style="margin-top: 10px">
+                        <input type="checkbox" id="usemaxbandwidth" style="display: none" checked>
+                        ●备份时限定最大占用源主机的网络带宽：<input type="number" class="input" id="maxbandwidth" min="1" value="300" style="width:50px;height: 13px" onblur="removespace(this)" />Mbit/s。(-1为不限制)
+                    </div>
+                    <div style="margin-top: 10px">
+                        ●备份时限定最大占用源主机的存储性能的：<input type="number" id="BackupIOPercentage" style="width:50px;height:13px;" value="30"> %
+                    </div>
+                    <div style="margin-top: 10px">
+                       ●备份源存储读取队列深度：<input type="number" oninput="if(value.length>1)value=value.slice(0,1)" name="thread-count" min="2" max="8" id="thread-count" style="
+                       width:50px;height:13px;" value="4" />（2-8）
+                        <div>
+                            <span class="form_tips" style="margin-left: 8px;">
+                                说明：当备份读取速度远小于源存储理论值时, 请调整该值以到达最优备份速度。
+                                <div style="margin-left:48px;">--本地磁盘推荐值4</div>
+                                <div style="margin-left:48px;">--高时延iSCSI磁盘推荐值6</div>
+                                <div style="margin-left:48px;">--高速SAN磁盘推荐值4</div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <label for="security-manage" class="pull-down-control"><span>▼</span>数据传输安全设置</label><br>
+            <div id="security-manage" class="manage">
+                <hr>
+                <div class="manage-item">
+                    <div>●数据传输方式：<input type="text" value="加密" class="text6" id="isencipher" readonly title=""></div>
+                    <span class="form_tips" style="margin-left: 8px;">说明：在客户端管理中更改数据传输安全设置。若网络链路不安全，请选择加密方式。</span>
+                </div>
+            </div>
+
+            <label for="advanced1-manage" class="pull-down-control"><span id="advanced1-lab">▼</span>备份策略设置</label><br>
+            <div id="advanced1-manage" class="manage">
+                <hr>
+                <div class="manage-item" id="full-back-options">
+                    ●<input class="checkbox" type="checkbox" id="full-bak-everytime" title="">始终执行完整备份。<br>
+                    <span class="form_tips" style="margin-left: 8px;">说明：若勾选则每次进行完整备份；否则第一次进行完整备份，以后增量备份。</span>
+                </div>
+                <div class="manage-item">
+                    {% if remove_duplicates_in_system_folder_available %}
+                        ●<input class="checkbox" type="checkbox" id="dup-sys-folder" checked="checked" title="">
+                    {% else %}
+                        ●<input class="checkbox" type="checkbox" id="dup-sys-folder" title="">
+                    {% endif %}
+                    去除操作系统重复数据。<br>
+                    <span class="form_tips" style="margin-left: 8px;">说明：若勾选则完整备份耗时较长，但占用空间较小；否则耗时较短但占用空间较大。</span>
+                </div>
+            </div>
+
+            <label for="advanced3-manage" style="font-weight: bold" class="pull-down-control"><span
+                    id="advanced3-lab">▶</span>备份重试策略设置</label><br>
+            <div id="advanced3-manage" class="manage" style="display: none;">
+                <hr>
+                <div class="manage-item" id="enable-options">
+                    ●<input class="checkbox" type="checkbox" id="enable-backup-retry" checked="checked"><label
+                        for="enable-backup-retry">启用备份重试策略</label><br>
+                    <div class="manage-item" style="margin-left: 8px;margin-bottom: 8px;">
+                        <label for="retry-counts">重试次数：<input type="number" id="retry-counts" value="5"
+                                                              style="width: 45px;height: 13px"></label>
+                        <label for="retry-interval" style="margin-left: 8px">间隔分钟：<input type="number"
+                                                                                         id="retry-interval" value="3"
+                                                                                         style="width: 45px;height: 13px;"></label>
+                    </div>
+                    <span class="form_tips" style="margin-left: 8px;">说明：针对周期性备份计划可启用备份重试策略，备份失败后会按照间隔重试一定的次数。</span>
+                </div>
+            </div>
+
+            <label for="advanced2-manage" class="pull-down-control"><span id="advanced2-lab">▶</span>备份区域设置</label><br>
+            <div id="advanced2-manage" class="manage" style="display: none">
+                <hr>
+                <div class="manage-item">
+                    <div id="waiting-tree-data-cluster" style="margin-bottom: 6px">请稍候, 读取数据中...</div>
+                    <div id="hosts-disks-partitions-tree" class="aciTree"></div>
+                </div>
+            </div>
+            <!-- 移动到 备份时资源占用设置
+            <label for="advanced4-manage" class="pull-down-control"><span
+                    id="advanced4-lab">▶</span>备份源存储性能设置</label><br>
+            <div id="advanced4-manage" class="manage" style="display: none">
+                <hr>
+                <div class="manage-item">
+                    ●备份源存储读取队列深度：<input type="number" name="thread-count" id="thread-count"
+                                        style="width: 32px;height: 13px" value="4"/>（2-8）
+                </div>
+                <span class="form_tips" style="margin-left: 8px;">说明：当迁移读取速度远小于源存储理论值时, 请调整该值以到达最优迁移速度。
+                    <div style="margin-left:48px;">--本地磁盘推荐值4</div>
+                    <div style="margin-left:48px;">--高时延iSCSI磁盘推荐值6</div>
+                    <div style="margin-left:48px;">--高速SAN磁盘推荐值4</div>
+                </span>
+            </div>
+            -->
+        </div>
+
+        <div id="tabs-shell" class="tab">
+        </div>
+
+        <div id="tab5-check-form" class="tab">
+            <div style="margin-bottom: 7px">集群备份信息确认</div>
+        </div>
+    </div>
+    <div class="btn_nav">
+        <input type="button" id="prev" class="prev" style="float:left;margin-right: 50px" value="«上一步"/>
+        <input type="button" id="next" class="next" style="float:right" value="下一步»"/>
+    </div>
+    <div class="mywaite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 35%; z-index:1000;display:none;">
+    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <strong>请稍候</strong> <span id="msg">集群磁盘自动匹配中...</span></p>
+</div>
+</div>
+
+<div id="hosts-disks-pair" title="添加集群磁盘" style="display: none;">
+    <div style="margin: 10px">
+        <div class="manage-item">
+            集群磁盘名称:
+            <input id="cluster-disk-name" type="text" style="width:98%" onblur="removespace(this)" title="">
+        </div>
+        <div class="manage-item">
+            备份主机列表:<br>
+            <input id="search_disk" type="text" style="width:98%" placeholder="搜索磁盘" class="client_search"/>
+            <div id="hosts-disks-tree" class="aciTree"
+                 style="width:100%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+        </div>
+    </div>
+</div>
+<div id="search_form_div" title="搜索" class="ajaxForm">
+    <div style="margin-top: 40px">
+        <label for="search_input">关键词：</label>
+        <input type="text" maxlength="50" placeholder="计划名称、客户端名称或主机Ip" id="search_key" style="width: 200px"
+               onblur="removespace(this)">
+    </div>
+</div>
+
+
+<div id="finishFormDiv" title="" class="ajaxForm">
+    <div style="margin-top:20px;"><label><input class="radio" type="radio" value="1" name="immediately"
+                                                checked="checked">立即执行集群计划</label></div>
+    <div style="margin-top:20px;"><label><input class="radio" type="radio" value="2" name="immediately">仅创建集群计划，需要手动点击“立即执行”按钮执行本计划</label>
+    </div>
+</div>
+
+
+<style>
+    #backuping-ways li {
+        list-style-type: none;
+    }
+
+    #backuping-ways p {
+        margin: 0;
+        padding: 0;
+    }
+
+    #backuping-ways .tips {
+        color: grey;
+        margin-left: 2em;
+        margin-top: 10px;
+    }
+
+    #backuping-ways .line {
+        margin-top: 10px;
+    }
+</style>
+
+
+<div id="backuping-ways" title="立即备份" class="ajaxForm">
+    {% verbatim %}
+    <div style="margin-top: 10px">
+        <p>请选择客户端备份方式：</p>
+        <div style="margin-left: 2em">
+            <div class="line">
+                <label><input class="radio" type="radio" value="inc" checked="checked" name="run_backupmode"
+                              v-model="backup_type">增量备份</label>
+                <p class="tips">说明：如果客户端不能进行增量备份，则进行完整备份。</p>
+            </div>
+            <div class="line">
+                <label><input class="radio" type="radio" value="full" name="run_backupmode"
+                              v-model="backup_type">完整备份</label>
+                <div style="margin-left: 2em" class="line" v-if="show">
+                    <label for="store_as_delta">
+                        <input type="checkbox" id="store_as_delta" v-model="store_as_delta">启用智能增量存储
+                    </label>
+                    <p class="tips" style="margin-left: 0">说明：启用智能增量存储，客户端备份的数据会尽可能以增量形式存储。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+</div>
+
+<div class="right">
+    <div class="table_menu" id="plan_mgr">
+        <div class="menu_btn" id="create-plan">新建备份</div>
+        <div class="menu_btn" id="run-plan">立即备份</div>
+        <div class="menu_btn" id="delete-plan">删除计划</div>
+        <div class="menu_btn" id="dis-enable-plan">启用/禁用</div>
+        <div class="menu_btn" id="edit-plan">更改计划</div>
+        <div class="menu_btn" id="search-plan">搜索</div>
+        <div class="menu_btn" id="refresh-plan">刷新</div>
+    </div>
+    <table id="plan-list"></table>
+    <div id="plan-pager"></div>
+    <div id="plan-detail" style="height: 395px;overflow: auto"></div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+<script type="text/javascript" src="/static/js/moment.js"></script>
+<script type="text/javascript">
+
+    function planMgrResize() {
+        resizeright();
+        $("#plan-list").setGridWidth($('.table_menu').width());
+    }
+
+    $(window).resize(function () {
+        planMgrResize();
+    });
+    $(function () {
+        $("#tabb").tabs();
+    });
+    $(function () {
+        var navigation = $('#navigation');
+        navigation.html('<div class="font_navigation">集群备份计划管理<span style="color:red;">{{ clusterbackup_license }}</span></div>');
+        navigation.append('<div class="help_navigation"><a href="/xdashboard/faq/#tunnel" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        planManageInit();
+        planMgrResize();
+        initDaysData();
+        $("#tabs-shell").load("../../fun_htmls/ #preBackupShellUI");
+    });
+
+    $(function () {
+        $("#tabs").tabs();
+        $(".ui-tabs-nav").hide();
+        var planDetailForm = $('#plan-detail-infos');
+        planDetailForm.clone().show().appendTo('.right #plan-detail');
+        planDetailForm.clone().show().appendTo('#tab5-check-form');
+        $('.right #plan-detail').find('#shell_info_confirm').remove();
+        $('#tab5-check-form').find('#shell_info_detail').remove();
+    });
+
+    // 天数选择器
+    function initDaysData() {
+        for (var i = 1; i <= 31; i++) {
+            var oneday = $('<div></div>').addClass('myoneday').text(i).val(i);
+            oneday.appendTo('.backup-period #dayselect')
+        }
+    }
+
+    function clearSelectedDays() {
+        $('.backup-period #dayselect').children().removeClass('myonedayselected');
+    }
+
+
+    function planManageInit() {
+        $("#plan-list").jqGrid({
+            url: '../cluster_handle/?a=get_plans_list',
+            datatype: "json",
+            colNames: ['序号', '计划名称', '客户端名称', '状态', '上次执行时间', '下次执行时间'],
+            rownumbers: true,
+            colModel: [
+                {name: 'plan_id', index: '0', align: "center", width: 50, sortable: true, hidden: true},
+                {name: 'plan_name', index: '1', align: "center", width: 280, sortable: true},
+                {name: 'hosts_name', index: '2', align: "center", width: 280, sortable: true},
+                {name: 'plan_status', index: '3', align: "center", width: 70, sortable: true},
+                {name: 'last_run_time', index: '4', align: "center", width: 120, sortable: true},
+                {name: 'next_run_time', index: '5', align: "center", width: 140, sortable: true}
+            ],
+            width: 748,
+            height: 250,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#plan-pager',
+            sortname: 'plan_id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (plan_id) {
+                var params = 'plan_id={0}'.replace('{0}', plan_id);
+                myAjaxGet('../cluster_handle/?a=get_one_plan_full_form_params', params, getOnePlanInfoCallBk);
+            }
+        });
+    }
+
+    function getOnePlanInfoCallBk(jsdata) {
+        showPlanDetialTable('.right #plan-detail', jsdata);
+        if (jsdata.hasOwnProperty('shell_infos')) {
+            var shell_infos = $.evalJSON(jsdata.shell_infos);
+            shell_info_detail.exe_name = shell_infos.exe_name;
+            shell_info_detail.params = shell_infos.params;
+            shell_info_detail.work_path = shell_infos.work_path;
+            shell_info_detail.unzip_path = shell_infos.unzip_path;
+            shell_info_detail.ignore_shell_error = (shell_infos.ignore_shell_error) ? ('是') : ('否');
+            $('.right #plan-detail').find('#download_zip_file').text('点击下载').prop('zip_path', shell_infos.zip_path);
+        }
+        else {
+            shell_info_detail.exe_name = '-';
+            shell_info_detail.params = '-';
+            shell_info_detail.work_path = '-';
+            shell_info_detail.unzip_path = '-';
+            shell_info_detail.ignore_shell_error = '-';
+            $('.right #plan-detail').find('#download_zip_file').text('-').prop('zip_path', '');
+        }
+    }
+
+    function activeOneTab(tab2show) {
+        if (tab2show === 0) {
+            $('#prev').hide();
+        }
+        else {
+            $('#prev').show();
+        }
+
+        if (tab2show === 6) {
+            $('#next').val('完成');
+        }
+        else {
+            $('#next').val('下一步»');
+        }
+        $("#tabs").tabs('option', 'active', tab2show);
+    }
+
+    function setScheduleCycle() {
+        $('#tab2-backup-period .start-time').val(nowTimeStr()); // 初始化开始时间  .find() will only set first elem
+
+        var tab2 = $('#tab2-backup-period');
+        if (isInEdit()) {
+            var backup_period = window.onePlanFullParams['backup_period'];
+            var period_type = backup_period['period_type'];
+
+            tab2.find('input[value=what]'.replace('what', period_type)).trigger('click');
+            var parent = tab2.find('input[value=what]'.replace('what', period_type)).parent();
+            parent.find('.start-time').val(backup_period['start_datetime']); // 设置开始时间
+			if (period_type === 'bak-cdp') {
+				tab2.find('input[name=backup-period]').prop('disabled',true);
+				tab2.find('input[value=what]'.replace('what', period_type)).prop('disabled',false);
+			}
+			else
+			{
+				tab2.find('input[name=backup-period]').prop('disabled',false);
+				tab2.find('input[value=bak-cdp]').prop('disabled',true);
+			}
+
+            if (period_type === 'bak-once') {
+            }
+            if (period_type === 'bak-perday') {
+                parent.find('input[type=number]').val(backup_period['addition']);
+                var val_unit = (backup_period['val_unit']) ? (backup_period['val_unit']) : ('day');
+                parent.find('select[id=interval-unit]').val(val_unit);
+            }
+            if (period_type === 'bak-perweek') {
+                parent.find('input[name=weeks]').prop('checked', false);
+                var weeks = backup_period['addition'].split(',');
+                $.each(parent.find('input[name=weeks]'), function (i, week) {
+                    if ($.inArray($(week).val(), weeks) > -1) {
+                        $(week).prop('checked', true);
+                    }
+                })
+            }
+            if (period_type === 'bak-permonth') {
+                parent.find('#dayselect').find('div').removeClass('myonedayselected');
+                var days = backup_period['addition'].split(',');
+                $.each(parent.find('#dayselect').find('div'), function (i, day) {
+                    if ($.inArray($(day).text(), days) > -1) {
+                        $(day).addClass('myonedayselected');
+                    }
+                })
+            }
+        }
+        else {
+            tab2.find('input[value=bak-cdp]').trigger('click');
+        }
+    }
+
+    function setPlanName() {
+        var planName = '集群备份' + nowTimeStr();
+        if (isInEdit()) {
+            planName = window.onePlanFullParams['plan_name']['label'];
+        }
+        $('#tab1-storage-device').find('#taskname').val(planName);
+    }
+
+    // 设置可用的存储设备
+    function setStorageDevice() {
+        myAjaxGet('../backup_handle/', 'a=getstoragedevice', setStorageOptionCallbk);
+    }
+
+    function setStorageOptionCallbk(retjson) {
+        var storageDevice = $('#backup-storage-device');
+        storageDevice.empty();
+        $.each(retjson, function (i, item) {
+            var free_GB = (item.value === -1) ? 0 : (item.free / Math.pow(1024, 1)).toFixed(2);
+            var html = "（可用：{3}）".replace('{3}', free_GB + 'GB');
+            storageDevice.append($('<option></option>').val(item.value).text(item.name + html));
+        });
+        if (isInEdit()) {
+            storageDevice.val(window.onePlanFullParams['storage_device']['ident']);
+        }
+    }
+
+    function match_rac_disk(jsondata) {
+        $('.mywaite').hide();
+        var tab3 = $('#tab3-cluster-disk-map');
+        if(jsondata.length<=0)
+        {
+            tab3.find('table').find('tr[name=infos]').show();
+            openWarningDialog({title: '未匹配到任何集群（共享）磁盘', html: '<ul><li>请检查所勾选的主机是否有集群（共享）磁盘</li><li>可在“集群磁盘设置界面”点击右上角“+”按钮手动关联集群（共享）磁盘</li></ul>',height:216,width:522});
+            return;
+        }
+        else
+        {
+            tab3.find('table').find('tr[name=infos]').hide();
+        }
+        Object.keys(jsondata).forEach(function (key) {
+            var str = "";
+            var hostsdisksid = "";
+            var hostsdiskslab="";
+            Object.keys(jsondata[key]).forEach(function (value) {
+                var tmp = jsondata[key][value];
+                str += tmp['map_disk_lab'] + "：" + tmp['label'] + '<br>';
+                hostsdisksid += tmp['host_ident'] + "|" + tmp['id'] + ",";
+            });
+            hostsdisksid = hostsdisksid.substring(0, hostsdisksid.length - 1);
+            str = str.substring(0, str.length - 4);
+            hostsdiskslab=str;
+            if(hostsdiskslab.indexOf('启动盘')==-1)
+            {
+                match_rac_auto(key+'号集群盘',hostsdisksid,hostsdiskslab);
+            }
+        });
+        $('.mywaite').hide();
+    }
+    $('.mywaite').hide();
+    function getHostsDisksTree() {
+        $('#tab3-cluster-disk-map').find('table tr[name=isme]').remove();
+        var idents = $(getSelectedHosts()).map(function () {
+            return this.id;
+        }).get().join();
+        var url = '../cluster_handle/?a=get_hosts_tree&idents=' + idents;
+        $('#tbd').empty();
+        if(window.mode=='create')
+        {
+            myAjaxPost('../cluster_handle/', 'a=auto_association_rac&idents=' + idents, match_rac_disk);
+        }
+        refreshHostsTree('#hosts-disks-tree', url);
+    }
+
+    function getHostsDisksPartitionsTree() {
+        var idents = $(getSelectedHosts()).map(function () {
+            return this.id;
+        }).get().join();
+        var url = '../cluster_handle/?a=get_hosts_disks_partitions_nodes&idents=' + idents;
+        if (isInEdit()) {
+            url += '&plan_id=' + getSelectedIds('one');
+        }
+        refreshHostsDisksPartitionsTree('#hosts-disks-partitions-tree', url);
+        $('#waiting-tree-data-cluster').html('请稍候，读取数据中...');
+    }
+
+    function createOnePlanCallBk(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        if (jsonstr.is_modify){
+            return
+        }else{ // 创建计划
+            if ($('input[name=immediately]:checked').val() == '1'){ //  需要立即执行
+                var params = "a=execute_some_plans&ids=" + jsonstr.schedule_id;
+                params += "&mode=inc";
+                params += "&force_store_full=0";
+                myAjaxGet('../cluster_handle/', params, RunCallback);
+            }
+        }
+
+        reloadGrid();
+    }
+
+    function check_params_before_next(curIndex) {
+        if (curIndex === 0) {
+            if (getSelectedHostsForm().length === 0) {
+                openErrorDialog({title: '错误', html: '请选择客户端'});
+                return false;
+            }
+        }
+        if (curIndex === 1) {
+            if (getPlanName()['value'] === '') {
+                openErrorDialog({title: '错误', html: '请输入计划名称'});
+                return false;
+            }
+            if (getSelectedStorage()['ident'] === '-1') {
+                openErrorDialog({title: '错误', html: '请选择存储设备'});
+                return false;
+            }
+        }
+        if (curIndex === 2) {
+            var schedulePeriod = getBackupPeriod();
+            var scheduleType = schedulePeriod['period_type'];
+
+            if (schedulePeriod['start_datetime'] === '') {
+                openErrorDialog({title: '错误', html: '请输入开始时间'});
+                return false;
+            }
+
+			if (scheduleType === 'bak-cdp') {
+				$('.manage-item-4cdp').show();
+			}
+			else
+			{
+				$('.manage-item-4cdp').hide();
+			}
+
+            if (scheduleType === 'bak-once') {
+            }
+            if (scheduleType === 'bak-perday') {
+                if (!isNum(schedulePeriod['addition']) || parseInt(schedulePeriod['addition']) === 0) {
+                    openErrorDialog({title: '错误', html: '间隔时间数值输入无效，请重新输入'});
+                    return false;
+                }
+            }
+            if (scheduleType === 'bak-perweek') {
+                if (schedulePeriod['addition'] === '') {
+                    openErrorDialog({title: '错误', html: '请选择每周备份星期'});
+                    return false;
+                }
+            }
+            if (scheduleType === 'bak-permonth') {
+                if (schedulePeriod['addition'] === '') {
+                    openErrorDialog({title: '错误', html: '请选择每月备份日期'});
+                    return false;
+                }
+            }
+
+            $('#advanced3-manage').hide();
+            $('#advanced3-lab').text('▶');
+            $('#advanced4-manage').hide();
+            $('#advanced4-lab').text('▶');
+
+        }
+
+        if (curIndex === 4) {
+            var keep_data = get_set_data_keep_duration();
+            if (keep_data['unit'] === 'day' && !is_positive_num_and_in_range(keep_data['val'], '3', '360')) {
+                openErrorDialog({title: '错误', html: '**备份数据保留期**  \n输入无效，请重新输入'});
+                return false;
+            }
+            if (keep_data['unit'] === 'month' && !is_positive_num_and_in_range(keep_data['val'], '1', '240')) {
+                openErrorDialog({title: '错误', html: '**备份数据保留期**  \n输入无效，请重新输入'});
+                return false;
+            }
+            if (!is_positive_num_and_in_range($('#keepingpoint').val(), '1', '999')) {
+                openErrorDialog({title: '错误', html: '**至少保留备份点数**  \n输入无效，请重新输入'});
+                return false;
+            }
+            if (!is_positive_num_and_gte($("#cleandata").val(), 100)) {
+                openErrorDialog({title: '错误', html: '**本用户存储空间配额低于**  \n输入无效，请重新输入'});
+                return false;
+            }
+            if (!is_positive_num_and_in_range($("#thread-count").val(), '2', '8')) {
+                openErrorDialog({title: '错误', html: '**备份源存储读取队列深度**  \n输入无效，请重新输入'});
+                return false;
+            }
+
+            if ($('#waiting-tree-data-cluster').html() !== '') {
+                openCommonDialog({title: '提示信息', html: '请稍后, 正读取"备份区域设置"相关信息...'});
+                return false;
+            }
+            if ($('#enable-backup-retry').prop("checked")) {
+                var count = $('#retry-counts').val(),
+                    interval = $('#retry-interval').val();
+                if (count < 1 || isNaN(count)) {
+                    openErrorDialog({title: '错误', html: '重试次数需要大于零。'});
+                    return false;
+                }
+                if (interval < 3 || isNaN(interval)) {
+                    openErrorDialog({title: '错误', html: '重试间隔至少要3分钟。'});
+                    return false;
+                }
+            }
+            var tab4 = $('#tab4-ext-infos');
+            var maxbandwidth= $("#maxbandwidth").val();
+            var usemaxbandwidth = 1;
+            if( $('#usemaxbandwidth').prop("checked") )
+            {
+                if(maxbandwidth<8 && maxbandwidth !=-1)
+                {
+                    openErrorDialog({title:'错误',html:'备份时限定最大占用源主机的网络带宽至少为8Mbit/s。'});
+                    return false;
+                }
+            }
+
+            var BackupIOPercentage=tab4.find("#BackupIOPercentage").val();
+            if (!isNum(BackupIOPercentage)){
+                openErrorDialog({title:'错误',html:'备份时限定最大占用源主机的存储性能的百分比必须是整数'});
+                return false;
+            }
+
+            if (BackupIOPercentage <1 || BackupIOPercentage > 100){
+                openErrorDialog({title:'错误',html:'备份时限定最大占用源主机的存储性能的百分比为[1,100]间的整数'});
+                return false;
+            }
+
+        }
+
+        if (curIndex === 5) {
+            var tabsShell$ = $('#tabs-shell');
+            var shell_infos = get_shell_infos_from_ui(tabsShell$);
+
+            if (is_enable_shell(tabsShell$)) {
+                if (shell_infos.exe_name === '') {
+                    openErrorDialog({title: '错误', html: '可执行文件名: 不能为空'});
+                    return false;
+                }
+                if (shell_infos.work_path === '') {
+                    openErrorDialog({title: '错误', html: '执行路径: 不能为空'});
+                    return false;
+                }
+                if (shell_infos.unzip_path === '') {
+                    openErrorDialog({title: '错误', html: '解压路径: 不能为空'});
+                    return false;
+                }
+
+                // 1.更改流程且没有上传过文件: 当前必须指定脚本文件
+                if (isInEdit() && !is_exist_last_zip_in_aio(tabsShell$)) {
+                    if (shell_infos.zip_file === '') {
+                        openErrorDialog({title: '错误', html: '.zip/.tar.gz: 请上传文件'});
+                        return false;
+                    }
+                }
+
+                // 2.创建流程, 每次必须指定脚本文件
+                if (!isInEdit()) {
+                    if (shell_infos.zip_file === '') {
+                        openErrorDialog({title: '错误', html: '.zip/.tar.gz: 不能为空'});
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function post_date_to_server(option) {
+        if (isInEdit()){
+            myAjaxPost('../cluster_handle/?a=create_one_plan', 'FullParamsJsonStr=' + GenerateFullParamsJsonStr(option), createOnePlanCallBk);
+            $('#plan-guides').dialog('close');
+        }else{
+            $("#finishFormDiv").attr('title','完成').dialog({
+                autoOpen: true,
+                height: 200,
+                width: 400,
+                modal: true,
+                buttons: {
+                    '确定': function(){
+                        $(this).dialog('close');
+                        myAjaxPost('../cluster_handle/?a=create_one_plan', 'FullParamsJsonStr=' + GenerateFullParamsJsonStr(option), createOnePlanCallBk);
+                        $('#plan-guides').dialog('close');
+                    },
+                    '取消': function(){
+                        $(this).dialog('close');
+                    }
+                },
+                close: function(){
+                    $(this).dialog('close');
+                }
+            });
+        }
+    }
+
+    function io_warning() {
+        var maxbandwidth = $('#tab4-ext-infos').find('#maxbandwidth').val(),
+            BackupIOPercentage = $('#tab4-ext-infos').find('#BackupIOPercentage').val(),
+            warning_str = '';
+        var msg = '<p style="text-indent: 2em">当前配置<span style="color: red">[{warning_str}]</span>在备份时资源占用可能过大，' +
+            '可能会引起备份源主机上业务系统出现响应缓慢或超时等问题，请确认是否有这样的风险，没有风险请输入<span style="color: red">OK</span>并点击确认按钮。</p>' +
+            '<input type="text" id="confirm_input" style="width: 100%" onblur="removespace(this)">' +
+            '<p style="color: grey">提示：备份过程中也可以调整资源占用。</p>'
+        if (maxbandwidth > 300) {
+            warning_str += '(占用源主机的网络带宽超过300Mbit/s)';
+        }
+        if (maxbandwidth == -1) {
+            warning_str += ' (占用源主机的网络带宽为 不限制)';
+        }
+        if (BackupIOPercentage > 30) {
+            warning_str += ' (占用源主机的存储性能的百分比超过30%)';
+        }
+        if (warning_str) {
+            openConfirmDialog({
+                html: msg.replace('{warning_str}', warning_str),
+                width: 580,
+                height: 'auto',
+                onBeforeOK: function () {
+                    if ($('#confirm_input').val().toLowerCase() == 'ok') {
+                        activeOneTab(5);
+                        $(this).dialog('close');
+                    } else {
+                        return;
+                    }
+                }
+            })
+            return;
+        }
+        activeOneTab(5);
+    }
+
+    // 下一步
+    $('.btn_nav #next').click(function () {
+        var curIndex = $("#tabs").tabs('option', 'active');
+        var nextIndex = curIndex + 1;
+        if (!check_params_before_next(curIndex)) return false;
+
+        if (curIndex == 4 ){
+            return io_warning();
+        }
+        var tabsShell$ = $('#tabs-shell');
+        var shell_infos = null;
+        if (curIndex <= 5) {
+            activeOneTab(nextIndex);
+        }
+        if (curIndex === 6) {
+            if (is_enable_shell_and_new_zip(tabsShell$)) {			    // 启用脚本功能且当前指定脚本文件
+                uplodePreBackupShell($('#preBackupShell'), '../hotbackup_handle/?a=upload_script', uplodeCallbkCluster);
+            }
+            else if (is_enable_shell_and_not_zip(tabsShell$)) {		    // 启用脚本功能, 当前没有上传文件, 针对上一次上传了的情况
+                uplodeCallbkCluster(true, 'use_last_zip')
+            }
+            else {
+                post_date_to_server({});								// 未启用脚本功能
+            }
+        }
+
+        if (nextIndex === 1) {
+            setPlanName();
+            setStorageDevice();
+            getHostsDisksTree();
+			
+			$('#master_host').empty();
+			var selected = getSelectedHosts();
+			var hostList = [];
+			if (isInEdit()) {
+				$.each(selected, function (i, e) {
+					if(window.onePlanFullParams.master_host_ident==e.id)
+					{
+						$('#master_host').append('<option value="'+e.id+'">'+e.lable+'</option>');
+					}
+				});
+			}
+			else
+			{
+				
+				$.each(selected, function (i, e) {
+					$('#master_host').append('<option value="'+e.id+'">'+e.lable+'</option>');
+				});
+			}
+        }
+        if (nextIndex === 2) {
+            setScheduleCycle();
+            $('#tab3-cluster-disk-map').find('table').find('tr[name=infos]').show();
+        }
+        if (nextIndex === 3) {
+            var check_sussful=$('#tab3-cluster-disk-map').find('table').find('tr[name=infos]').is(":visible");
+            if(window.mode=='create'&&check_sussful==true) {
+            $('.mywaite').show();
+            }
+            else {
+                $('.mywaite').hide();
+            }
+            if (isInEdit()) {
+                $('#tab3-cluster-disk-map').find('table tr[name=isme]').remove();
+                generateTrTd4Edit();
+            }
+            show_or_hide_disk_mapping_tr_info();
+            var value = ($('#tab0-select-hosts').find('#is_encrypt').text() === '1') ? ('加密') : ('不加密');
+            $('#tab4-ext-infos').find('#isencipher').val(value);
+        }
+        if (nextIndex === 4) {
+            getHostsDisksPartitionsTree();
+            var tab4 = $('#tab4-ext-infos');
+            if (isInEdit()) {
+                var fullParam = window.onePlanFullParams;
+                if (fullParam.data_keep_months) {
+                    get_set_data_keep_duration(fullParam.data_keep_months.value, 'month')
+                }
+                else {
+                    get_set_data_keep_duration(fullParam.data_keep_duration.value, fullParam.data_keep_duration.unit);
+                }
+                if (fullParam.thread_count) {
+                    tab4.find('#thread-count').val(fullParam.thread_count.value);
+                }
+                else {
+                    tab4.find('#thread-count').val(1);
+                }
+                tab4.find('#keepingpoint').val(fullParam.mini_keep_points.value);
+                tab4.find('#cleandata').val(fullParam.space_keep_GB.value);
+                tab4.find('#usemaxbandwidth').prop('checked', true);
+                tab4.find('#maxbandwidth').val(fullParam.max_network_Mb.value);
+                if (fullParam.BackupIOPercentage) {
+                    tab4.find('#BackupIOPercentage').val(fullParam.BackupIOPercentage.value);
+                }
+                else {
+                    tab4.find('#BackupIOPercentage').val(30);
+                }
+
+				tab4.find('#cdpperiod').val(fullParam.cdpDataHoldDays);
+
+                tab4.find('#full-bak-everytime').prop('checked', fullParam.always_full_backup.value);
+                tab4.find('#dup-sys-folder').prop('checked', fullParam.enable_dup_sysfolder.value);
+            }
+            else {
+                get_set_data_keep_duration('1', 'month');
+                tab4.find('#cleandata').val('200');
+                tab4.find('#keepingpoint').val('5');
+                tab4.find('#usemaxbandwidth').prop('checked', true);
+                tab4.find('#maxbandwidth').val('300');
+                tab4.find('#BackupIOPercentage').val('30');
+                tab4.find('#thread-count').val('4');
+                tab4.find('#full-bak-everytime').prop('checked', false);
+                tab4.find('#dup-sys-folder').prop('checked', true);
+            }
+        }
+        if (nextIndex === 5) {
+            init_shell_infos_from_ui(tabsShell$);
+            if (isInEdit()) {
+                if (window.onePlanFullParams.hasOwnProperty('shell_infos')) {
+                    shell_infos = $.evalJSON(window.onePlanFullParams.shell_infos);
+                    set_shell_infos_from_ui(tabsShell$, shell_infos)                // 启用脚本情况, 依据上一次的设置
+                }
+            }
+        }
+        if (nextIndex === 6) {
+            var fullParamsJsonStr = GenerateFullParamsJsonStr({});
+            showPlanDetialTable('#tab5-check-form', $.evalJSON(fullParamsJsonStr));
+
+            shell_infos = get_shell_infos_from_ui(tabsShell$);
+            if (is_enable_shell(tabsShell$)) {
+                shell_info_confirm.exe_name = shell_infos.exe_name;
+                shell_info_confirm.params = shell_infos.params;
+                shell_info_confirm.work_path = shell_infos.work_path;
+                shell_info_confirm.unzip_path = shell_infos.unzip_path;
+                shell_info_confirm.zip_file = (shell_infos.zip_file === '') ? ('-') : (shell_infos.zip_file);
+                shell_info_confirm.ignore_shell_error = (shell_infos.ignore_shell_error) ? ('是') : ('否')
+            }
+            else {
+                shell_info_confirm.exe_name = '-';
+                shell_info_confirm.params = '-';
+                shell_info_confirm.work_path = '-';
+                shell_info_confirm.unzip_path = '-';
+                shell_info_confirm.zip_file = '-';
+                shell_info_confirm.ignore_shell_error = '-';
+            }
+        }
+    });
+
+    // 上一步
+    $('.btn_nav #prev').click(function () {
+        var curIndex = $("#tabs").tabs('option', 'active');
+        if (curIndex >= 1) {
+            activeOneTab(curIndex - 1);
+        }
+    });
+
+    $(".backup-period .myoneday").click(function () {
+        if ($(this).hasClass("myonedayselected")) {
+            $(this).removeClass("myonedayselected");
+        }
+        else {
+            $(this).addClass("myonedayselected");
+        }
+    });
+
+
+    function openCreatePlanGuides(mode) {
+        if(mode=='edit'){
+             $('.add-to-list').attr('disabled',true);
+        }
+        if(mode=='create')
+        {
+             $('.add-to-list').attr('disabled',false);
+        }
+        window.mode = mode;
+        activeOneTab(0);
+        $("#plan-guides").dialog({
+            autoOpen: true,
+            width: 800,
+            modal: true,
+            title: '新建备份'
+        });
+    }
+
+    function show_or_hide_refresh_butt(show) {
+        if (show) {
+            $('#refresh-hosts').show();
+        }
+        else {
+            $('#refresh-hosts').hide();
+        }
+    }
+
+    // 新建集群计划
+    $('#create-plan').button().click(function () {
+		$('input[name=backup-period]').prop('disabled',false);
+        $('#tab3-cluster-disk-map').find('table tr[name=isme]').remove();
+        show_or_hide_refresh_butt(true);
+        refresh_hosts();
+        clearSelectedDays();
+        openCreatePlanGuides('create');
+    });
+
+    function reloadGrid() {
+        $('#plan-list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    // 手动执行备份
+    $('#run-plan').button().click(function () {
+        var selectedIds = getSelectedIds('many');
+        if (selectedIds === null) return;
+        $("#backuping-ways").attr('title', '立即备份').dialog({
+            autoOpen: true,
+            height: 300,
+            width: 510,
+            modal: true,
+            buttons: {
+                '备份': function () {
+                    var params = "a=execute_some_plans&ids=" + selectedIds;
+                    params += "&mode=" + run_form_div_vue.backup_type;
+                    params += "&force_store_full=" + run_form_div_vue.force_store_full;
+                    myAjaxGet('../cluster_handle/', params, RunCallback);
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
+    function RunCallback(jsdata) {
+        setTimeout(reloadGrid, 1500);
+        if (jsdata.r !== 0) {
+            openErrorDialog({title: '错误', html: jsdata.e});
+            return
+        }
+        var msg = '执行计划成功，您可在<a href="../home" style="color:blue;">系统状态</a>中查看任务执行情况';
+        openSuccessDialog('执行成功', msg);
+    }
+
+    // 删除
+    $('#delete-plan').button().click(function () {
+        var selectedIds = getSelectedIds('many');
+        if (selectedIds === null) return;
+        openConfirmDialog({
+            title: '确认信息',
+            html: '你确定要删除选择的备份计划吗？',
+            onBeforeOK: function () {
+                var params = 'ids={0}'.replace('{0}', selectedIds);
+                myAjaxGet('../cluster_handle/?a=delete_some_plans', params, reloadGrid);
+                $(this).dialog('close');
+            }
+        });
+    });
+
+    $('#dis-enable-plan').button().click(function () {
+        var selectedIds = getSelectedIds('many');
+        if (selectedIds === null) return;
+        var params = 'ids={0}'.replace('{0}', selectedIds);
+        myAjaxGet('../cluster_handle/?a=enable_disable_plans', params, reloadGrid);
+    });
+
+    // 编辑集群计划
+    $('#edit-plan').button().click(function () {
+		$('input[name=backup-period]').prop('disabled',false);
+        show_or_hide_refresh_butt(false);
+        var selectedId = getSelectedIds('one');
+        if (selectedId === null) return;
+        var params = 'plan_id={0}'.replace('{0}', selectedId);
+        myAjaxGet('../cluster_handle/?a=get_one_plan_full_form_params', params, getOnePlanInfoCallBk4Edit);
+    });
+
+    function SetClusterHosts(hosts) {
+        var api = $('#Hosts').aciTree('api');
+        $.each(hosts, function (i, host) {
+            var Inode = {
+                id: host.ident,
+                label: host.label,
+                icon: 'pc',
+                inode: false,
+                checkbox: true,
+                checked: true,
+                open: false
+            };
+            api.append(null, {
+                itemData: Inode,
+                success: function (item, options) {
+                }
+            });
+        });
+    }
+
+    function getOnePlanInfoCallBk4Edit(jsdata) {
+        window.onePlanFullParams = jsdata;
+        RefreshAciTree("Hosts", null, SetClusterHosts, jsdata.backup_hosts);
+        openCreatePlanGuides('edit');
+    }
+
+    $('#search-plan').button().click(function () {
+        $("#search_form_div").dialog('open');
+    });
+
+    $("#search_form_div").attr('title', '编辑').dialog({
+        autoOpen: false,
+        height: 200,
+        width: 350,
+        modal: true,
+        buttons: {
+            '搜索': function () {
+                search_worker();
+                $(this).dialog('close');
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+
+    function search_worker() {
+        var s_key = $('#search_key').val();
+        var plan_list = $('#plan-list');
+
+        plan_list.setGridParam({url: '../cluster_handle/?a=get_plans_list&s_key=' + s_key});
+        reloadGrid();
+        plan_list.setGridParam({url: '../cluster_handle/?a=get_plans_list'});
+    }
+
+    $('#refresh-plan').button().click(function () {
+        reloadGrid();
+    });
+
+    $('#refresh-hosts').button().click(function () {
+        refresh_hosts();
+    });
+
+    // 刷新主机列表
+    function refresh_hosts() {
+        RefreshAciTree("Hosts", '../backup_handle/?a=getlist&cluster=mark&id=');
+    }
+
+    function GetServerInfoCallback(jsdata) {
+        $.each(jsdata, function (i, e) {
+            $('#tab0-select-hosts').find('#' + e.id).text(e.text);
+        })
+    }
+
+    // 获取主机信息
+    $('#Hosts').on('acitree', function (event, api, item, eventName) {
+        if (eventName === 'selected') {
+            if (api.getId(item).length > 30) {
+                var params = "a=getserverinfo&cluster=mark&id=" + api.getId(item);
+                myAjaxGet('../backup_handle/', params, GetServerInfoCallback);
+            }
+        }
+
+        if (eventName === 'beforeuncheck' && isInEdit()) {
+            return false;
+        }
+    });
+
+    // 选择备份周期时, 折叠其他项
+    $('input[type=radio][name=backup-period]').click(function () {
+        $('.backup-period #detial').hide();
+        $(this).parent().find('#detial').show();
+    });
+
+    function generateTrTd(cluster_disk_name, checked_disk) {
+        var checked_disk_guid = $(checked_disk).map(function () {
+            return this.id;
+        }).get().join(',');
+        var checked_disk_lable = $(checked_disk).map(function () {
+            return this.lable;
+        }).get().join('<br>');
+        var disk_size_str=checked_disk_lable.split(',')
+        var tr = $('<tr height="25"></tr>');
+        var td1 = $('<td></td>').html(cluster_disk_name);
+        var td4 = $('<td></td>').html(disk_size_str[disk_size_str.length-1].split(')')[0]);
+        var td2 = $('<td></td>').html(checked_disk_lable);
+        var td3 = $('<td></td>').append($('<button class="rm-list-elem" title="删除"><span class=   "ui-icon ui-icon-trash" style="padding: 0"></span></button>'));
+        tr.append(td1).append(td4).append(td2).append(td3)
+            .attr('clusterDisk', cluster_disk_name)
+            .attr('hostsDisksId', checked_disk_guid)
+            .attr('hostsDisksLab', checked_disk_lable)
+            .attr('name', 'isme');
+        tr.appendTo('#hosts-disks-paired');
+    }
+
+    function generateTrTd4Edit() {
+        $.each(window.onePlanFullParams['cluster_disks'], function (i, one_disk) {
+            var checked_disk_guid = $(one_disk['map_disks']).map(function () {
+                return this['host_ident'] + '|' + this['disk_guid']
+            }).get().join(',');
+            var checked_disk_lable = one_disk['map_disks_lab'];
+            var disk_size_str=checked_disk_lable.split(',')
+            var tr = $('<tr height="25"></tr>');
+            var td1 = $('<td></td>').html(one_disk['name']);
+            var td4 = $('<td></td>').html(disk_size_str[disk_size_str.length-1].split(')')[0]);
+            var td2 = $('<td></td>').html(checked_disk_lable);
+            var td3 = $('<td></td>').append($('<button class="rm-list-elem" title="删除" disabled="disabled"><span class="ui-icon ui-icon-trash" style="padding: 0"></span></button>'));
+            tr.append(td1).append(td4).append(td2).append(td3)
+                .attr('clusterDisk', one_disk['name'])
+				.attr('clusterDiskIdent', one_disk['ident'])
+                .attr('hostsDisksId', checked_disk_guid)
+                .attr('hostsDisksLab', checked_disk_lable)
+                .attr('name', 'isme');
+            tr.appendTo('#hosts-disks-paired');
+        });
+    }
+
+    function match_rac_auto(name, hostsDisksId, hostsDisksLab) {
+        var disk_size_str=hostsDisksLab.split(',')
+        var tr = $('<tr height="25"></tr>');
+        var td1 = $('<td></td>').html(name);
+        var td4 = $('<td></td>').html(disk_size_str[disk_size_str.length-1].split(')')[0]);
+        var td2 = $('<td></td>').html(hostsDisksLab);
+        var td3 = $('<td></td>').append($('<button class="rm-list-elem" title="删除"><span class="ui-icon ui-icon-trash" style="padding: 0"></span></button>'));
+        tr.append(td1).append(td4).append(td2).append(td3)
+            .attr('clusterDisk', name)
+            .attr('hostsDisksId', hostsDisksId)
+            .attr('hostsDisksLab', hostsDisksLab)
+            .attr('name', 'isme');
+        tr.appendTo('#hosts-disks-paired');
+    }
+
+    // 添加集群磁盘映射
+    $('#tab3-cluster-disk-map').find('.add-to-list').click(function () {
+        $("#tabb .ui-tabs-nav").show();
+        $('#cluster-disk-name').val("");
+        $('#search_disk').val("");
+        $("#hosts-disks-paired ").find("tr").each(function () {
+            var check_hostsdisksid = $(this).attr('hostsdisksid');
+            $('#match_rac').find('tr').each(function () {
+                if (check_hostsdisksid == $(this).attr('hostsdisksid')&&check_hostsdisksid!=undefined) {
+                    $(this).hide();
+                }
+                else {
+                    $(this).show();
+                }
+            });
+        });
+        $("#match_rac input:checkbox").each(function () {
+            $(this).prop("checked", false);
+        });
+        $("#hosts-disks-pair").dialog({
+            autoOpen: true,
+            height: 397,
+            width: 780,
+            modal: true,
+            buttons: {
+                '添加': function () {
+                    var cluster_disk_name = $('#cluster-disk-name').val();
+                    var checked_disk = getCheckedBoxInfo('#hosts-disks-tree');
+                    generateTrTd(cluster_disk_name, checked_disk);
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+                show_or_hide_disk_mapping_tr_info();
+            },
+            open: function () {
+                UnCheckAllAciTreeBox('hosts-disks-tree', true);
+            }
+        });
+    });
+
+    // 删除磁盘映射关系
+    $('#hosts-disks-paired').on('click', '.rm-list-elem', function () {
+        $(this).parent().parent().remove();
+        show_or_hide_disk_mapping_tr_info();
+    });
+
+    // 缩进控制
+    $('.pull-down-control').click(function () {
+        var manage_id = $(this).attr('for');
+        var manage_div = $('#' + manage_id);
+        var isShown = manage_div.is(':visible');
+
+        if (!isShown) {
+            manage_div.slideDown();
+            $(this).find("span").text('▼');
+        } else {
+            manage_div.slideUp();
+            $(this).find("span").text('▶');
+        }
+    });
+
+    $('#usemaxbandwidth').click(function () {
+        if ($('#usemaxbandwidth').prop('checked')) {
+            $('#maxbandwidth').prop('disabled', false);
+        }
+        else {
+            $('#maxbandwidth').prop('disabled', true);
+        }
+    });
+
+    // 集群磁盘映射界面; 显示,隐藏提示的"行"
+    function show_or_hide_disk_mapping_tr_info() {
+        var tab3 = $('#tab3-cluster-disk-map');
+        var is_exist_mapped_disks = tab3.find('table').find('tr[name=isme]').length >= 1;
+        if (is_exist_mapped_disks) {
+            tab3.find('table').find('tr[name=infos]').hide();
+        }
+        else {
+            tab3.find('table').find('tr[name=infos]').show();
+        }
+    }
+
+    function is_disk_in_mapped(diskGuid) {
+        return $.inArray(diskGuid, get_all_disks_guids_in_mapped()) > -1
+    }
+
+    // 遍历指定主机下的卷Node: 获取所有选中、未选中checkbox的id号
+    function getAciTreeBoxCheckedInOneHost(treeid, checked, target_host) {
+        var api = $('#' + treeid).aciTree('api');
+        var children = api.children(null, true, true);
+        var ids = '';
+        api.checkboxes(children, checked).each(api.proxy(function (element) {
+            var item = $(element);
+            if (this.level(item) === 2) {
+                var parent_host = this.parent(this.parent(item));
+                var id = String(this.getId(item));
+                if (this.getId(parent_host) === this.getId(target_host)) {
+                    if (ids === '') {
+                        ids = id;
+                    }
+                    else {
+                        ids += ',' + id;
+                    }
+                }
+            }
+        }, true));
+
+        return ids;
+    }
+
+    var myFunc = function (event, api, item, eventName) {
+        var excludeTree = 'hosts-disks-partitions-tree';
+        var excludeTree$ = $('#hosts-disks-partitions-tree');
+
+        // 数据加载完成
+        if (eventName === 'loaded') {
+            $('#waiting-tree-data-cluster').html('');
+            var childs = api.children(null, true, true);
+            if (api.enabled(childs).length === 0) {
+                $('#waiting-tree-data').html('<span style="color: red">获取磁盘信息失败，不能设置备份区域</span>');
+            }
+        }
+
+        // 1.选择、取消子元素(卷): 处理跨盘卷的情况
+        if ((eventName === 'checked' || eventName === 'unchecked') && api.level(item) === 2) {
+            var target_host = api.parent(api.parent(item));
+            var checked_id = getAciTreeBoxCheckedInOneHost(excludeTree, true, target_host);
+            var unchecked_id = getAciTreeBoxCheckedInOneHost(excludeTree, false, target_host);
+            checked_id = (checked_id === '') ? [] : checked_id.split(',');
+            unchecked_id = (unchecked_id === '') ? [] : unchecked_id.split(',');
+            var intersection = checked_id.filter(function (cked_id) {
+                return $.inArray(cked_id, unchecked_id) > -1;
+            });
+            intersection = $.unique(intersection);
+
+            if (eventName === 'checked' && intersection.length > 0) {
+                excludeTree$.off('acitree');
+                $.each(intersection, function (index, id) {
+                    CheckAllVolBox(excludeTree, id, api.getId(target_host), true);
+                    checkParentById(excludeTree, id, target_host);
+                });
+                excludeTree$.on('acitree', myFunc);
+            }
+            if (eventName === 'unchecked' && intersection.length > 0) {
+                excludeTree$.off('acitree');
+                $.each(intersection, function (index, id) {
+                    CheckAllVolBox(excludeTree, id, api.getId(target_host), false);
+                });
+                excludeTree$.on('acitree', myFunc);
+            }
+        }
+
+        // 2.选择子元素(卷)：父(磁盘)必选择
+        if (eventName === 'checked' && api.level(item) === 2) {
+            checkParent(api, item);
+        }
+
+        // 3.取消父元素(磁盘)：有孩子、父为Boot、父有映射关系, 则禁止取消父
+        if (eventName === 'unchecked' && api.level(item) === 1) {
+            var isBoot = String(api.getLabel(item)).endWith('(启动盘)');
+            var isMapped = is_disk_in_mapped(api.getId(item));
+            $.each(api.children(item), function (index, elem) {
+                var child = $(elem);
+                if (api.isChecked(child) || isBoot || isMapped) {
+                    api.check(item);
+                    return false;
+                }
+            });
+        }
+    };
+
+    $('#tab4-ext-infos').find('#hosts-disks-partitions-tree').on('acitree', myFunc);
+
+    // 遍历AciTree，将所有符合child_id的父，选中
+    function checkParentById(tree_id, child_id, target_host) {
+        var api = $("#" + tree_id).aciTree('api');
+        var childs = api.children(null, true, true);
+        $.each(childs, function (index, item) {
+            var childNode = $(item);
+            if (api.level(childNode) === 2) {
+                var parent_host = api.parent(api.parent(childNode));
+                if (child_id === api.getId(childNode) && api.getId(target_host) === api.getId(parent_host)) {
+                    checkParent(api, childNode);
+                }
+            }
+        });
+    }
+
+    function checkParent(api, child_item) {
+        var parent = api.parent(child_item);
+        if (!api.isChecked(parent)) {
+            api.check(parent);
+        }
+    }
+
+    function CheckAllVolBox(treeid, volId, hostId, checked) {
+        var api = $('#' + treeid).aciTree('api');
+        var children = api.children(null, true, true);
+        api.checkboxes(children).each(api.proxy(function (element) {
+            var item = $(element);
+            if (this.level(item) === 2) {
+                var parent_host = this.parent(this.parent(item));
+                if ((this.getId(parent_host) === hostId) && (this.getId(item) === volId)) {
+                    checked ? this.check(item) : this.uncheck(item);
+                }
+            }
+        }, true));
+    }
+
+    function isInEdit() {
+        try {
+            return ($("#plan-guides").dialog("isOpen") && window.mode === 'edit');
+        }
+        catch (err) {
+            return false;
+        }
+    }
+
+    $('#enable-backup-retry').click(function () {
+        if ($('#enable-backup-retry').prop('checked')) {
+            $('#retry-counts').prop('disabled', false);
+            $('#retry-interval').prop('disabled', false);
+        }
+        else {
+            $('#retry-counts').prop('disabled', true);
+            $('#retry-interval').prop('disabled', true);
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    String.prototype.endWith = function (endStr) {
+        var d = this.length - endStr.length;
+        return (d >= 0 && this.lastIndexOf(endStr) === d);
+    };
+
+    function nowTimeStr() {
+        return moment().format('YYYY-MM-DD HH:mm:ss');
+    }
+
+    /**@return {string}*/
+    function GenerateGuid() {
+        /**@return {string}*/
+        function S4() {
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        }
+
+        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+    }
+
+    // '1,2,3,4,5'、'1'、null
+    function getSelectedIds(Cnt) {
+        var ids = $('#plan-list').jqGrid('getGridParam', 'selarrrow');
+        if (Cnt === 'one' && ids.length !== 1) {
+            openErrorDialog({title: '错误', html: '请选择一条数据。'});
+            return null;
+        }
+        if (Cnt === 'many' && ids.length === 0) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return null;
+        }
+        return ids.join(',');
+    }
+
+    function initHostsTree(treeid, url) {
+        return $(treeid).aciTree({
+            autoInit: true,
+            ajax: {
+                url: url
+            },
+            checkbox: true,
+            selectable: true,
+            checkboxChain: false
+        }).aciTree('api');
+    }
+
+    // 对应于磁盘映射UI
+    function refreshHostsTree(treeid, url) {
+        $(treeid).aciTree().aciTree('api').destroy({
+            success: function () {
+                initHostsTree(treeid, url);
+            }
+        });
+    }
+
+    function initHostsDisksPartitionsTree(treeid, url) {
+        return $(treeid).aciTree({
+            autoInit: true,
+            ajax: {
+                url: url
+            },
+            checkbox: true,
+            selectable: true,
+            checkboxChain: false
+        }).aciTree('api');
+    }
+
+    // 对应于排除磁盘,卷UI
+    function refreshHostsDisksPartitionsTree(treeid, url) {
+        $(treeid).aciTree().aciTree('api').destroy({
+            success: function () {
+                initHostsDisksPartitionsTree(treeid, url);
+            }
+        });
+    }
+
+    function showPlanDetialTable(tabParentId, fullParams) {
+        var tabParent = $(tabParentId);
+        var keep_duration_label = fullParams['data_keep_months'] ? fullParams['data_keep_months']['label'] : fullParams['data_keep_duration']['label'];
+        var thread_label = fullParams['thread_count'] ? fullParams['thread_count']['label'] : '1个';
+        tabParent.find('#plan_name').html(fullParams['plan_name']['label']);
+        tabParent.find('#storage_device').html(fullParams['storage_device']['label']);
+        tabParent.find('#create_time').html(fullParams['create_time']['label']);
+		tabParent.find('#show_master_host').html(fullParams['master_host_name']);
+        tabParent.find('#backup_period').html(fullParams['backup_period']['label']);
+        tabParent.find('#data_keep_duration').html(keep_duration_label);
+        tabParent.find('#mini_keep_points').html(fullParams['mini_keep_points']['label']);
+        tabParent.find('#space_keep_GB').html(fullParams['space_keep_GB']['label']);
+        tabParent.find('#max_network_Mb').html(fullParams['max_network_Mb']['label']);
+        tabParent.find('#BackupIOPercentage_show').html(fullParams['BackupIOPercentage'] ? fullParams['BackupIOPercentage']['label']: '30%');
+        tabParent.find('#transfer_encipher').html(fullParams['transfer_encipher']['label']);
+        tabParent.find('#always_full_backup').html(fullParams['always_full_backup']['label']);
+        tabParent.find('#confirm_thread_count').html(thread_label);
+        tabParent.find('#enable_dup_sysfolder').html(fullParams['enable_dup_sysfolder']['label']);
+        tabParent.find('#backup_retry').html(fullParams['backup_retry'] == undefined ? '启用' :
+            fullParams['backup_retry']['label']);
+		if(fullParams['backup_period']['period_type']=='bak-cdp')
+		{
+			tabParent.find('#show_cdpperiod').html(fullParams['cdpDataHoldDays']+'天');
+			tabParent.find('.manage-item-4cdp').show();
+		}
+		else
+		{
+			tabParent.find('.manage-item-4cdp').hide();
+		}
+        var hosts = $(fullParams['backup_hosts']).map(function () {
+            return this.label;
+        }).get().join('<br>');
+        var exclude_disks = $(fullParams['exclude_disks_vols']).map(function () {
+            if (this.exclude_type === 1) {
+                return this.lable;
+            }
+        }).get().join('<br>');
+        var exclude_vols = $(fullParams['exclude_disks_vols']).map(function () {
+            if (this.exclude_type === 2) {
+                return this.lable;
+            }
+        }).get().join('<br>');
+        var cluster_disks = $(fullParams['cluster_disks']).map(function () {
+            return this.name + ': <br>' + this.map_disks_lab;
+        }).get().join('<br>');
+        tabParent.find('#backup_hosts').html(hosts);
+        tabParent.find('#exclude_disks').html(exclude_disks);
+        tabParent.find('#exclude_vols').html(exclude_vols);
+        tabParent.find('#cluster_disks').html(cluster_disks);
+    }
+
+    // 提取每一页的表单
+    function getSelectedHosts() {
+        return getCheckedBox('#tab0-select-hosts #Hosts')
+    }
+
+    function getSelectedHostsForm() {
+        var selected = getSelectedHosts();
+        var hostList = [];
+        $.each(selected, function (i, e) {
+            hostList.push({"ident": e.id, "label": e.lable});
+        });
+        return hostList;
+    }
+
+    function getPlanName() {
+        var name = $('#tab1-storage-device').find('#taskname').val();
+        return {"value": name, "label": name}
+    }
+
+    function getSelectedStorage() {
+        var option = $('#tab1-storage-device').find('#backup-storage-device option:selected');
+        return {'label': option.text(), 'ident': option.val()}
+    }
+
+    // 1,2,3,4,5,6,7 --> 星期一,星期日
+    function num2weekch(weekStr) {
+        var map = ['', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+        var weeks = String(weekStr).split(',');
+        return $(weeks).map(function () {
+            return map[parseInt(this)];
+        }).get().join();
+    }
+
+    function getBackupPeriod() {
+        var checked_radio = $('input[type=radio][name=backup-period]:checked');
+        var backPeriod = {
+            'period_type': checked_radio.val(),
+            'start_datetime': checked_radio.parent().find('.start-time').val(),
+            'addition': '',
+            'label': '',
+            'val_unit': '' // 按间隔时间类型, 单位: 'min', 'hour', 'day'
+        };
+
+		if (backPeriod['period_type'] === 'bak-cdp') {
+            backPeriod['addition'] = null;
+            backPeriod['label'] = '连续数据保护（CDP） 开始时间: ' + backPeriod['start_datetime'];
+        }
+
+        if (backPeriod['period_type'] === 'bak-once') {
+            backPeriod['addition'] = null;
+            backPeriod['label'] = '仅备份一次 开始时间: ' + backPeriod['start_datetime'];
+        }
+        if (backPeriod['period_type'] === 'bak-perday') { // 按间隔时间类型
+            backPeriod['addition'] = checked_radio.parent().find('input[type=number]').val();
+            backPeriod['val_unit'] = checked_radio.parent().find('select[id=interval-unit] option:selected').val();
+            backPeriod['label'] = '每{0}, 开始时间：{1}，每{2}{3}开始执行'
+                .replace('{0}', checked_radio.parent().find('select[id=interval-unit] option:selected').text())
+                .replace('{1}', backPeriod['start_datetime'])
+                .replace('{2}', backPeriod['addition'])
+                .replace('{3}', checked_radio.parent().find('select[id=interval-unit] option:selected').text())
+        }
+        if (backPeriod['period_type'] === 'bak-perweek') {
+            var checked_weeks = checked_radio.parent().find('input[name=weeks]:checked');
+            backPeriod['addition'] = checked_weeks.map(function () {
+                return $(this).val();
+            }).get().join();
+            backPeriod['label'] = '每周, 开始时间: {0}, 每周{1}备份'
+                .replace('{0}', backPeriod['start_datetime'])
+                .replace('{1}', num2weekch(backPeriod['addition']))
+        }
+        if (backPeriod['period_type'] === 'bak-permonth') {
+            var checked_days = checked_radio.parent().find('#dayselect .myonedayselected');
+            backPeriod['addition'] = checked_days.map(function () {
+                return $(this).val();
+            }).get().join();
+            backPeriod['label'] = '每月, 开始时间: {0}, 每月{1}日备份'
+                .replace('{0}', backPeriod['start_datetime'])
+                .replace('{1}', backPeriod['addition'])
+        }
+        return backPeriod;
+    }
+
+    function getHostsDisksMapping() {
+        var trs = $('#hosts-disks-paired').find('tr[name=isme]');
+        var clusterDisks = [];
+        $.each(trs, function () {
+            clusterDisks.push({
+                'cluster_disk_name': $(this).attr('clusterdisk'),   // new name
+                'hosts_disks_ids': $(this).attr('hostsdisksid'),    // "host_ident|disk_guid,host_ident|disk_guid"
+                'hosts_disks_lab': $(this).attr('hostsdiskslab'),    // "PC:disk0<br>PC:disk0<br>PC:disk0"
+				'clusterDiskIdent':$(this).attr('clusterDiskIdent')
+            });
+        });
+
+        var disks_maps = [];
+        $.each(clusterDisks, function (i, clusterDisk) {
+
+            var map_disks_ids = clusterDisk.hosts_disks_ids.split(','); // ["host_ident|disk_guid","host_ident|disk_guid"]
+            var map_disks = [];
+            $.each(map_disks_ids, function (i, disk_id) {
+                map_disks.push({
+                    'host_ident': disk_id.split('|')[0],
+                    'disk_guid': disk_id.split('|')[1]
+                });
+            });
+
+			var ident = null;
+			if(isInEdit())
+			{
+				ident = clusterDisk.clusterDiskIdent;
+			}
+			else
+			{
+				ident = GenerateGuid();
+			}
+
+            var one_map = {
+                'ident': ident,
+                'name': clusterDisk.cluster_disk_name,
+                'map_disks_lab': clusterDisk.hosts_disks_lab,
+                'map_disks': map_disks
+            };
+            disks_maps.push(one_map);
+        });
+        return disks_maps;
+    }
+
+    function obj_identifier(obj) {
+        return obj.exclude_type + '|' + obj.exclude_info + '|' + obj.host_ident
+    }
+
+    function uniqBy(a, key) {
+        var seen = {};
+        return a.filter(function (item) {
+            var k = key(item);
+            return seen.hasOwnProperty(k) ? false : (seen[k] = true);
+        })
+    }
+
+    function get_all_disks_guids_in_mapped() {
+        var guids = [];
+        var mapped_records = getHostsDisksMapping();
+        $.each(mapped_records, function (index, record) {
+            $(record.map_disks).map(function () {
+                guids.push(this.disk_guid)
+            })
+        });
+
+        return $.unique(guids);
+    }
+
+    function getExcludeDisksVols() {
+        var excludes = [];
+        var vols = getUnCheckedVolsInfo('#hosts-disks-partitions-tree');
+        var disks = getUnCheckedDisksInfo('#hosts-disks-partitions-tree');
+        $.each(vols, function (i, e) {
+            excludes.push({
+                'exclude_info': e.id,
+                'lable': e.lable,
+                'exclude_type': 2,
+                'host_ident': e.host_id
+            });
+        });
+        $.each(disks, function (i, e) {
+            excludes.push({
+                'exclude_info': e.id,
+                'lable': e.lable,
+                'exclude_type': 1,
+                'host_ident': e.host_id
+            });
+        });
+        return uniqBy(excludes, obj_identifier);
+    }
+
+    function set_retentionperiod_msg() {
+        if ($('#retentionperiod-unit').val() === 'day') {
+            $('#retentionperiod-msg').text('3-360天');
+        }
+        else {
+            $('#retentionperiod-msg').text('1-240月');
+        }
+    }
+
+    // unit: 'day', 'month'
+    function get_set_data_keep_duration(val, unit) {
+        if (val && unit) {
+            $('#retentionperiod').val(val);
+            $('#retentionperiod-unit').val(unit);
+        }
+        else {
+            return {'val': $('#retentionperiod').val(), 'unit': $('#retentionperiod-unit').val()};
+        }
+        set_retentionperiod_msg();
+    }
+
+    $('#retentionperiod-unit').on('change', function () {
+        set_retentionperiod_msg();
+    });
+
+    function GenerateFullParamsJsonStr(option_obj) {
+        var tab4 = $('#tab4-ext-infos');
+        var tab0 = $('#tab0-select-hosts');
+        var isLimitNetSpeed = tab4.find('#usemaxbandwidth').prop('checked');
+        var BackupIOPercentage = tab4.find('#BackupIOPercentage').val();
+        var isAlwaysFullBk = tab4.find('#full-bak-everytime').prop('checked');
+        var isEnDup = tab4.find('#dup-sys-folder').prop('checked');
+        var isEncrypt = tab0.find('#is_encrypt').text() === '1';
+        var data_keep_duration = get_set_data_keep_duration();
+
+        // 备份重试
+        var enable_backup_retry = $('#enable-backup-retry').is(':checked'),
+            backup_retry_count = enable_backup_retry ? $('#retry-counts').val() : 5,
+            backup_retry_interval = enable_backup_retry ? $('#retry-interval').val() : 3,
+            backup_retry = {
+                "enable": enable_backup_retry,
+                "count": backup_retry_count,
+                "interval": backup_retry_interval
+            },
+            backup_retry_label = '';
+        if (enable_backup_retry) {
+            backup_retry_label = '启用；重试间隔：' + backup_retry_interval + '分钟；重试次数：' + backup_retry_count + '次';
+        } else {
+            backup_retry_label = '禁用';
+        }
+
+        var allParams = {
+            "create_time": {"value": nowTimeStr(), "label": nowTimeStr()},
+            "backup_hosts": getSelectedHostsForm(),
+            "plan_name": getPlanName(),
+            "storage_device": getSelectedStorage(),
+            "backup_period": getBackupPeriod(),
+            "cluster_disks": getHostsDisksMapping(),
+			"master_host_ident":$('#master_host').val(),
+			"master_host_name":$("#master_host").find("option:selected").text(),
+			"cdpDataHoldDays":$('#cdpperiod').val(),
+            "data_keep_duration": {
+                "value": data_keep_duration['val'],
+                "unit": data_keep_duration['unit'],
+                "label": data_keep_duration['val'] + ((data_keep_duration['unit'] === 'day') ? ('天') : ('个月'))
+            },
+            "mini_keep_points": {
+                "value": tab4.find('#keepingpoint').val(),
+                "label": tab4.find('#keepingpoint').val() + '个备份点'
+            },
+            "space_keep_GB": {
+                "value": tab4.find('#cleandata').val(),
+                "label": tab4.find('#cleandata').val() + 'GB'
+            },
+            "max_network_Mb": {
+                "value": isLimitNetSpeed ? (tab4.find('#maxbandwidth').val()) : ('-1'),
+                "label": isLimitNetSpeed ? (tab4.find('#maxbandwidth').val() + 'Mbit/s') : ('无限制')
+            },
+            "BackupIOPercentage": {
+                "value": BackupIOPercentage,
+                "label": BackupIOPercentage + '%'
+            },
+            "always_full_backup": {
+                "value": isAlwaysFullBk,
+                "label": isAlwaysFullBk ? ('每次都完整备份') : ('仅第一次进行完整备份，以后增量备份')
+            },
+            "thread_count": {
+                "value": tab4.find('#thread-count').val(),
+                "label": tab4.find('#thread-count').val()
+            },
+            "enable_dup_sysfolder": {
+                "value": isEnDup,
+                "label": isEnDup ? ('是') : ('否')
+            },
+            "transfer_encipher": {
+                "value": isEncrypt,
+                "label": isEncrypt ? ('加密') : ('不加密')
+            },
+            "exclude_disks_vols": getExcludeDisksVols(),
+
+            "from_edit": [isInEdit(), $('#plan-list').jqGrid('getGridParam', 'selarrrow')[0]],
+
+            "backup_retry": {
+                "value": backup_retry,
+                "label": backup_retry_label
+            }
+        };
+
+        $.extend(allParams, option_obj);
+
+        return $.toJSON(allParams);
+    }
+
+    var shell_info_confirm = new Vue({
+        el: '#tab5-check-form #shell_info_confirm',
+        data: {
+            exe_name: '-',
+            params: '-',
+            work_path: '-',
+            unzip_path: '-',
+            zip_file: '-',
+            ignore_shell_error: '-'
+        }
+    });
+
+    var shell_info_detail = new Vue({
+        el: '.right #plan-detail #shell_info_detail',
+        data: {
+            exe_name: '-',
+            params: '-',
+            work_path: '-',
+            unzip_path: '-',
+            ignore_shell_error: '-'
+        }
+    });
+
+    function uplodeCallbkCluster(status, err_o_path) {
+        if (status) {
+            var shell_infos = get_shell_infos_from_ui($('#tabs-shell'));
+            shell_infos.zip_tmp_path = err_o_path;
+            post_date_to_server({'shell_infos': $.toJSON(shell_infos)});
+        }
+        else {
+            openErrorDialog({title: '错误', html: err_o_path});
+        }
+    }
+
+    function download_zip_file_callbk(jsonstr) {
+        if (jsonstr.is_success) {
+            location.href = jsonstr.url;
+        }
+        else {
+            openErrorDialog({title: '错误', html: '文件丢失, 请重新上传'});
+        }
+    }
+
+    $('.right #plan-detail').find('#download_zip_file').click(function () {
+        var zip_path = $(this).prop('zip_path');
+        if (zip_path !== '') {
+            myAjaxGet('../backupmgr_handle/', 'a=get_zip_file&path=' + zip_path, download_zip_file_callbk);
+        }
+        return false;
+    });
+
+    $(document).on('keyup', '#search_cluster_host', function () {
+        var s_key = $('#search_cluster_host').val().toLowerCase();
+        var api = $('#Hosts').aciTree('api');
+        var children = api.children(null, true, true);
+        api.checkboxes(children).each(api.proxy(function (element) {
+            var node = $(element);
+            var label = this.getLabel(node).toLowerCase();
+            if (label.indexOf(s_key) === -1) {
+                api.hide(node);
+            }
+            else {
+                api.show(node);
+            }
+        }, true));
+    });
+
+    $(document).on('keyup', '#search_disk', function () {
+        var s_key = $('#search_disk').val().toLowerCase();
+        var api = $('#hosts-disks-tree').aciTree('api');
+
+        api.children(null, true, true).each(api.proxy(function (element) {
+            var node = $(element);
+            if (this.level(node) === 1) {
+                var label = this.getLabel(node).toLowerCase();
+                if (label.indexOf(s_key) === -1) {
+                    api.hide(node);
+                }
+                else {
+                    api.show(node);
+                }
+            }
+        }, true));
+
+        api.children(null, true, true).each(api.proxy(function (element) {
+            var node = $(element);
+            if (this.level(node) === 0 && api.children(node, true, false).length === 0) {
+                api.hide(node);
+            }
+        }, true));
+    });
+
+    var run_form_div_vue = new Vue({
+        el: '#backuping-ways',
+        data: function () {
+            return {
+                {% if remove_duplicates_in_system_folder_available %}
+                    store_as_delta: true,
+                {% else %}
+                    store_as_delta: false,
+                {% endif %}
+                backup_type: "inc"
+            }
+        },
+        computed: {
+            show: function () {
+                return this.backup_type == "full" // 完整备份
+            },
+            force_store_full: function () {
+                if (this.backup_type == "inc") { // 增量备份
+                    return 0;
+                } else {
+                    return this.store_as_delta ? 0 : 1
+                }
+            }
+        }
+    })
+</script>

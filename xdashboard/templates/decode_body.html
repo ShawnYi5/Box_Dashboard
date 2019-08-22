@@ -1,0 +1,69 @@
+<div class="right">
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">解密</a></li>
+        </ul>
+        <div id="tabs-1">
+			<div style="margin-top:10px;float:left;">密文：</div>
+			<div style="margin-top:10px;float:left;">
+				<textarea spellcheck="false" rows="18" cols="70" id="encode_txt" style="font-family:monospace;"></textarea>
+			</div>
+			<div class="clear"></div>
+			<div style="margin-top:10px;">结果：<input type="text" id="decode_txt" style="width:510px;"></div>
+			<div class="menu_btn" style="margin-left:500px;margin-top:20px;" id='decode_btn'>解密</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").tabs("option", "active", 0);
+        $('#navigation').html('<div class="font_navigation">内部功能</div>');
+		decode_resize();
+    });
+
+	function decode_pwd_callback(jsonobj)
+	{
+		if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.decode_txt});
+            return;
+        }
+		$('#decode_txt').val(jsonobj.decode_txt);
+	}
+
+	$('#decode_btn')
+	.button()
+	.click(function () {
+		$('#decode_txt').val('请稍候...');
+		myAjaxPost('../debuginfo_handle/', 'a=decode_pwd&encode_txt='+encodeURIComponent($('#encode_txt').val()), decode_pwd_callback);
+
+	});
+
+    $('#tabs').on('tabsbeforeactivate', function (event, ui) {
+        var newPanel = ui.newPanel.attr('id');
+        switch (newPanel) {
+            case 'tabs-1':
+                //myAjaxGet('../debuginfo_handle/', 'a=getpwdpolicy', getpwdpolicy);
+                break;
+            default:
+                break;
+        }
+    });
+
+function decode_resize()
+{
+	resizeright();
+	var width = $('#tabs').width() - 50;
+	$("#datasafe").setGridWidth(width);
+	$("#restoresafe").setGridWidth(width);
+	$("#backup").setGridWidth(width);
+	$("#migrate").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	decode_resize();	
+});
+</script>

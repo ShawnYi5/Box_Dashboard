@@ -1,0 +1,949 @@
+<style>
+    span.block2{
+        background: #26A0DA;
+        width: 50px;
+        height: 14px;
+        float: right;
+    }
+
+    span.block1{
+        background: #ACACAC;
+        width: 50px;
+        height: 14px;
+        float: right;
+    }
+    .msgcolor {
+        width: 10px;
+        height: 10px;
+        display: block;
+        float: left;
+        border: 1px solid #797474;
+        margin-right: 5px;
+        margin-top: 2px;
+    }
+
+	.wrap {
+		width: 95%;
+		height: 310px;
+		display: block;
+		padding:5px 20px 20px 20px;
+		-webkit-box-shadow:0 5px 10px #666;
+		-moz-box-shadow:0 5px 10px #666;
+		box-shadow:0 5px 10px #666;
+		-moz-border-radius:5px;
+		-webkit-border-radius:5px;
+		border-radius:5px;
+		background: rgb(237,237,239);
+	}
+    .up_down_icon{
+        cursor: pointer;
+        display: inline-block;
+        width: 60px;
+        text-align: center;
+        position: relative;
+    }
+    .up_down_icon ul{
+        display: none;
+        position: absolute;
+        width: 63px;
+        text-align: center;
+        top:20px;
+        z-index: 100;
+    }
+    .up_down_icon:hover ul{
+        display: block;
+    }
+    .up_down_icon:hover{
+        color: #20A0FF;
+    }
+    .aciTreeEntry{
+        overflow: visible !important;
+    }
+</style>
+
+<div class="right">
+	{% if is_superuser == False %}
+	<div style="min-width:121px;" id="home_right_div">
+	<div class="wrap" style="margin-left:20px;height: 320px;" id="home_h_div">
+		<div style="float:left;font-weight:bold;">任务执行状态</div>
+		<div class="clear"></div>
+		<div id="Servers_Tree1" class="aciTree" style="width:100%;height:250px;border:1px solid #ccc;overflow-y:auto;overflow-x:hidden;margin-top:10px;background:#FFF;padding-bottom:25px;"></div>
+		<div style="float:left;margin-top:7px;">
+			<select id="taskselect" name="taskselect" >
+				<option value='1'  selected="selected" >当前任务</option>
+				<option value='2' >近期任务</option>
+				<option value='3' >今日备份</option>
+			</select>
+		</div>
+		<div style="float:left;margin-left:10px;margin-top:8px;">
+			<img src="/static/images/filter.png" style="width:17px;height:17px;" title="过滤" onClick="OnHomeSearchTaskStatus()" class="search_botton"/>
+		</div>
+		<div id="refresh" name="status" style="color:#000;cursor:pointer;float:right;margin-top:5px;" title="刷新">
+			<span class="ui-icon ui-icon-refresh"></span>
+		</div>
+		<div class="clear"></div>
+    </div>
+
+	<div style="margin-top:20px;margin-left:20px;" id="home_h2_div">
+		<div class="wrap" style="width:45%;float:left;height:200px;" id="home_h2_1_div">
+			<span style="font-weight:bold;">带宽占用</span>
+			<div id="bandwidth" style="height:150px;width:100%;background:#FFF;margin-top:10px;"></div>
+			<div>
+			<div style="margin-top:20px;margin-left:12px;float:left;">最近一小时网络IO变化,单位:Mbit/s</div>
+			<div id="refresh" name="net" style="color:#000;cursor:pointer;float:right;margin-top:10px;" title="刷新">
+				<span class="ui-icon ui-icon-refresh"></span>
+			</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+
+		<div class="wrap" style="width:45%;float:right;height:200px;" id="home_h2_2_div">
+			<span style="font-weight:bold;">磁盘读写</span>
+			<div id="IOstatus" style="height:150px;width:100%;background:#FFF;margin-top:10px;"></div>
+			<div>
+			<div style="margin-top:20px;margin-left:12px;float:left;">最近一小时磁盘IO变化,单位:MByte/s</div>
+			<div id="refresh" name="io" style="color:#000;cursor:pointer;float:right;margin-top:10px;" title="刷新">
+				<span class="ui-icon ui-icon-refresh"></span>
+			</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="wrap" style="margin-top:20px;margin-left:20px;">
+		<span style="font-weight:bold;">存储容量</span>
+		<div id="quotastatusdiv" style="height:300px;width:100%;overflow-x:auto;overflow-y:hidden;"></div>
+		<div>
+		<div id="refresh-quota" style="color:#000;cursor:pointer;float:right;margin-top:-18px;" title="刷新">
+			<span class="ui-icon ui-icon-refresh"></span>
+		</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+
+	{% else %}
+	等待跳转到首页
+	{% endif %}
+	</div>
+	<div class="lower_browser" style="display:none;">
+		<div><a style="color:#000;" href="/static/download/browser.zip" target="_blank">浏览器版本过低，请下载安装新的版本</a></div>
+		<div style="margin-top:20px;"><span id="home_downloadclient" style="color:#000;cursor:pointer;text-decoration:underline;">客户端下载</span></div>
+	</div>
+
+    <div id="storagediv" style="display:none;">
+        <div id="storagediv_changeid" style="float:left;border: 1px solid #D4D7CB;margin-left:15px;width:300px;padding:10px;">
+            <div class="csstitle" style="border-bottom: 1px dashed #D4D7CB;word-break:break-all"></div>
+            <div id="donut_changeid" style="height:195px;width:200px;margin: 0 auto;"></div>
+            <div>
+                配额:<span class="csstotalspace"></span><br>
+                <span class="msgcolor" style="background-color:#26A0DA"></span>已用:<span class="cssremainspace"></span>
+                <a style="float: right" href="../storagestatus/?use_detail">使用详情</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="taskFormDiv" title="任务查询" class="ajaxForm">
+        <div style="margin-left:20px;margin-top:15px;">请输入查询条件，空为任意值。</div>
+        <div style="margin-left:20px;margin-top:10px;">
+            <div style="float:left;width:90px;">关键字：</div>
+            <div style="float:left;"><input type="text" class="input" id="servername" name="servername"  onblur="removespace(this)" placeholder="客户端名称或主机Ip" /></div>
+            <div class="clear"></div>
+        </div>
+        <div style="margin-left:20px;margin-top:10px;">
+        <div style="float:left;width:90px;">时间：</div>
+        <div style="float:left;">
+            <input name="statustime1" type="text" class="textTime Wdate" id="statustime1" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>至今
+        </div>
+        <div class="clear"></div>
+        </div>
+    </div>
+</div>
+
+<div id="adjust_form" title="资源限定" style="display:none;">
+    {% verbatim %}
+    <p>调整备份时客户端资源占用情况。<br>点击“确定”按钮执行此次修改；点击“取消”按钮放弃此次修改。</p>
+    <div id="myapp" style="position: relative">
+        <table>
+            <tr>
+                <td>限定最大占用源主机的网络带宽：</td>
+                <td><input type="number" class="input" v-model="spend" value="300" style="width:70px;height: 13px" onblur="removespace(this)" /> Mbit/s。（-1表示不限制）</td>
+            </tr>
+            <tr>
+                <td>限定最大占用源主机的存储性能的：</td>
+                <td><input type="number" v-model="BackupIOPercentage" style="width:70px;height:13px;" value="30"> %</td>
+            </tr>
+        </table>
+        <p style="color:red">{{error}}</p>
+        <p style="color:red" v-if="warning_msg">警告：{{warning_msg}}</p>
+    </div>
+    {% endverbatim %}
+</div>
+<div id="file_backup_adjust_form" title="资源限定" style="display: none;">
+    {% verbatim %}
+    <p>调整备份时客户端资源占用情况。<br>点击“确定”按钮执行此次修改；点击“取消”按钮放弃此次修改。</p>
+    <div id="filemyapp" style="position: relative">
+        <table>
+            <tr>
+                <td>限定nas最大占用网络带宽为：</td>
+                <td><input type="number" class="input" v-model="spend" value="300" style="width:70px;height: 13px" onblur="removespace(this)" /> Mbit/s。（-1表示不限制）</td>
+            </tr>
+        </table>
+        <p style="color:red">{{error}}</p>
+        <p style="color:red" v-if="warning_msg">警告：{{warning_msg}}</p>
+    </div>
+    {% endverbatim %}
+</div>
+
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/css/morris.css" />
+<script type='text/javascript' src='/static/js/raphael-min.js'></script>
+<script type='text/javascript' src='/static/js/morris.min.js'></script>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/mymorris.js"></script>
+{% include 'tree.inc.html' %}
+
+<script type="text/javascript">
+
+{% if is_superuser %}
+	location.href='../admin/';
+{% endif %}
+
+$('#refresh-quota').button().bind('click', function(){
+    myAjaxGet('../bussinessreport_handle/','a=quotastatus',getquotastatus);
+});
+
+$('#Servers_Tree1').on('acitree', function(event, api, item, eventName, options) {
+	if (eventName == 'init' || eventName == 'opened') {
+		home_tree_resize();
+	}
+});
+
+var graph_disk = null;
+function GeIOChart(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	if (graph_disk){
+	    graph_disk.setData(jsonstr.list);
+	    return;
+    }
+	graph_disk = ShowMorris('IOstatus',jsonstr.list,'hour',['value1', 'value2'],['写入(MByte/s)' ,'读出(MByte/s)']);
+}
+
+function onIO()
+{
+	$('#bandwidthtime').val();
+    var hour = 1;
+	var newUrl='../home_handle/?a=getrecentlyiochart&hour='+hour+'&starttime='+$('#IOtime').val();
+	myAjaxGet(newUrl,'',GeIOChart);
+}
+
+var graph_net = null;
+function GetBandwitdthChart(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+    if (graph_net){
+	    graph_net.setData(jsonstr.list);
+	    return;
+    }
+	graph_net = ShowMorris('bandwidth',jsonstr.list,'hour',['RX','TX'],['接收(Mbit/s)','发送(Mbit/s)']);
+}
+
+
+function onhandwitdth()
+{
+	$('#bandwidthtime').val();
+    var hour = 1;
+	var newUrl='../home_handle/?a=recentlybandwidthtimechart&hour='+hour+'&starttime='+$('#bandwidthtime').val();
+	myAjaxGet(newUrl,'',GetBandwitdthChart);
+}
+
+function OnStatustime()
+{
+	var taskselect=$('#taskselect').val();
+	var starttime=$('#statustime1').val();
+	starttime += " 00:00:00";
+	var s_key=$('#servername').val();
+	var newUrl='../home_handle/?a=taskstatuslist&starttime='+starttime+"&s_key="+encodeURIComponent(s_key)+"&taskselect="+taskselect+"&id=";
+	RefreshAciTree('Servers_Tree1',newUrl);
+}
+
+function getquotastatus(retjson)
+{
+	if(retjson.r!=0)
+	{
+		$("#quotastatusdiv").html(retjson.e);
+		return;
+	}
+
+	if( retjson.list.length == 0 )
+	{
+		$("#quotastatusdiv").html('暂无数据');
+		return;
+	}
+
+	$("#quotastatusdiv").html('<div id="mylayout"></div>');
+
+	for( var i=0;i<retjson.list.length;i++ )
+	{
+		var elem = retjson.list[i];
+		var total_GB = (elem.total / Math.pow(1024, 3)).toFixed(2);
+		var free_GB = (elem.free / Math.pow(1024, 3)).toFixed(2);
+        var used_GB = (elem.used / Math.pow(1024, 3)).toFixed(2);
+
+		var divid = "storagediv"+i;
+		var donutid = "donut"+i;
+		var html = $('#storagediv').html().replace("storagediv_changeid",divid);
+		html = html.replace("donut_changeid",donutid);
+		$('#mylayout').append(html);
+		if( $('#'+divid).find('.csstitle').length == 1 )
+		{
+			$($('#'+divid).find('.csstitle')[0]).html(retjson.list[i].name.substring(0, 26));
+            if (elem.total == -1){
+                $($('#'+divid).find('.csstotalspace')[0]).html('无限制');
+            }else{
+                $($('#'+divid).find('.csstotalspace')[0]).html(total_GB+'GB');
+            }
+			var $obj = $($('#'+divid).find('.cssremainspace')[0]).html(used_GB+'GB');
+            $obj.after('<br><span class="msgcolor" style="background-color:#ACACAC"></span>可用:'+free_GB+'GB');
+			var data = [{label: "已用空间", value: used_GB}, {label: "可用空间", value: free_GB}];
+			ShowDonut(donutid, data);
+		}
+		if( i == 0 )
+		{
+			$('#'+divid).css('margin-left','0px');
+		}
+		$('#'+divid).css('background','#FFF');
+		$('#'+divid).css('margin-top','10px');
+	}
+
+	$('#mylayout').css('width',retjson.list.length * 355);
+}
+
+function getInode(treeid,id)
+{
+    var api = $('#'+treeid).aciTree('api');
+    var Inode = null;
+    var children=api.children(null, true, true);
+    children.each(api.proxy(function(element) {
+        var item = $(element);
+        var tmpid=this.getId(item);
+        if(id==tmpid)
+        {
+            Inode=api.itemFrom(item);
+            api.setInode(Inode,{inode:true});
+            return false;
+        }
+    }, true));
+    return Inode;
+}
+
+nodesOpened = [];
+function updateLastNodesStatus() {
+    nodesOpened.length = 0;
+    var api = $('#Servers_Tree1').aciTree('api');
+    var childs = api.children(null,true,true);
+    $.each(childs, function (index, item) {
+        var Inode = $(item);
+        var itemId = api.getId(Inode);
+        var nodeLev = api.level(Inode);
+        var isOpen = api.isOpen(Inode);
+        if (nodeLev == 0 && isOpen){
+            nodesOpened.push(itemId);
+        }
+    });
+}
+
+$('#Servers_Tree1').on('acitree', function(event, api, item, eventName, options) {
+	if (eventName == 'init' && $('#taskselect').val() == '2'){
+        for (var index in nodesOpened){
+            var itemId = nodesOpened[index];
+            var Inode = getInode('Servers_Tree1', itemId);
+            api.open(Inode);
+        }
+    }
+});
+
+    function NewItem(id, label) {
+        var itemData = {
+            id: id,
+            label: label,
+            inode: false
+        };
+        return itemData;
+    }
+
+    function convert_seconds() {
+        var check = '时间计算中';
+        var offline='客户端已离线'
+        var s = $('.tasktree_sub_width li:nth-child(4)');
+        for (var i = 0; i < s.length; i++) {
+            var timeleft=s[i].innerText;
+            if(timeleft.indexOf(offline)<=-1) {
+                if (s[i].innerText != "" && s[i].innerText != check) {
+                    if (parseInt(s[i].innerText) >= 1) {
+                        s[i].innerText = parseInt(s[i].innerText) - 1;
+                    }
+                    if (parseInt(s[i].innerText) == 0) {
+                        s[i].innerText = 0;
+                    }
+                }
+            }
+        }
+        var info = s;
+        var result_ = $('.tasktree_sub_width  li.timeleft');
+        for (var i = 0; i < info.length; i++) {
+            var timeleft=info[i].innerText;
+            if(timeleft.indexOf(offline)<=-1)
+            {
+                if (info[i].innerText != '' && info[i].innerText != check) {
+                    var secondTime = parseInt(info[i].innerText); // 秒
+                    var minuteTime = 0; // 分
+                    var hourTime = 0; // 小时
+                    var dayTime = 0; //天
+                if (secondTime > 60) { //如果秒数大于60，将秒数转换成整数
+                    //获取分钟，除以60取整数，得到整数分钟
+                    minuteTime = parseInt(secondTime / 60);
+                    //获取秒数，秒数取佘，得到整数秒数
+                    secondTime = parseInt(secondTime % 60);
+                    //如果分钟大于60，将分钟转换成小时
+                    if (minuteTime > 60) {
+                        //获取小时，获取分钟除以60，得到整数小时
+                        hourTime = parseInt(minuteTime / 60);
+                        //获取小时后取佘的分，获取分钟除以60取佘的分
+                        minuteTime = parseInt(minuteTime % 60);
+                        if (hourTime > 24) {
+                            dayTime = parseInt(hourTime / 24);
+                            hourTime = parseInt(hourTime / 24);
+                        }
+                    }
+                }
+                var result = "" + parseInt(secondTime) + "秒";
+                if (minuteTime > 0) {
+                    result = "" + parseInt(minuteTime) + "分" + result;
+                }
+                if (hourTime > 0) {
+                    result = "" + parseInt(hourTime) + "小时" + result;
+                }
+                if (dayTime > 0) {
+                    result = "" + parseInt(dayTime) + "天" + result;
+                }
+                if (hourTime == 0 && minuteTime == 0 && dayTime == 0) {
+                    result = "小于1分钟";
+                }
+	            result_[i].innerText = "预计剩余" + result;
+            }
+            }
+            else
+            {
+                result_[i].innerText = timeleft;
+            }
+        }
+    }
+
+function update_tree(jsonstr) {
+    if(jsonstr.uuid != uuid){
+        return;
+    }
+    var api = $('#Servers_Tree1').aciTree('api');
+    var parents = api.children(null,false,true);
+    if (api.isLocked()){
+        return;
+    }
+    $.each(parents, function (index, item) {
+        var parent_id = api.getId($(item));
+        var childs_info = jsonstr.data[parent_id];
+
+        if (api.isClosed($(item))){
+            return true;
+        }
+        if (!childs_info && !api.isClosed($(item))){ //客户端没有发现任务，removed
+            api.remove($(item))
+            return false;
+        }
+        var childs_nodes = api.children($(item), true, true);
+        $.each(childs_nodes, function (c_index, c_item) {
+            var c_id = api.getId($(c_item));
+            var new_label = get_label(childs_info, c_id);
+            if (new_label == ''){
+                api.remove($(c_item));
+                return true;
+            }
+            api.setLabel($(c_item), {label: new_label});
+        })
+    });
+    convert_seconds();
+    home_tree_resize();
+
+}
+
+function get_label(info_list, id) {
+    for (var i=0; i<info_list.length; i++){
+        if (info_list[i].id == id){
+            return info_list[i].label
+        }
+        if (info_list[i]['branch'] != undefined){
+            for (var j=0; j<info_list[i]['branch'].length;j++){
+                if (info_list[i]['branch'][j].id == id){
+                    return info_list[i]['branch'][j].label
+                }
+            }
+        }
+    }
+    return ''
+}
+
+function get_root_element_id() {
+    var api = $('#Servers_Tree1').aciTree('api');
+    var all_root_items = api.children(null,false,false);
+    var rs = all_root_items.filter(function () {
+        return api.getId($(this)) != 'ui_1' && api.isOpen($(this));
+    });
+    re_list = [];
+    for(var i=0;i<rs.length;i++ ){
+      re_list.push(api.getId($(rs[i])));
+    }
+    return re_list
+}
+
+var uuid = 0;
+function auto_update_task_status() {
+    if ($('#taskselect').val() == '2' || $('#taskselect').val() == '3'){
+        return ;
+    }
+    var all_need_update_ids = get_root_element_id();
+    if (all_need_update_ids.length == 0){
+        return;
+    }
+    uuid = Math.floor(Math.random() * 10000000);
+    var parms_str = JSON.stringify(all_need_update_ids);
+	var starttime = $('#statustime1').val();
+	starttime += ' 00:00:00';
+	var params = '&starttime='+starttime+'&quene_uuid='+uuid +'&need_update_ids='+parms_str;
+    myAjaxPost('../home_handle/?a=get_task_labels', params, update_tree);
+}
+
+    function set_time_end() {
+        setInterval(convert_seconds, 1000)
+    }
+
+    function start_run_rotate() {
+        setInterval(auto_update, 10000);
+        set_time_end();
+    }
+
+function auto_update() {
+    auto_update_task_status();
+    onIO();
+    onhandwitdth();
+}
+
+$(function() {
+	if (window.FileReader)
+	{
+		var curTime = '{{ now|date:"Y-m-d" }}';
+		$('#bandwidthtime').val(curTime);
+		$('#IOtime').val(curTime);
+		$('#statustime2').val(curTime);
+		$('#statustime1').val(DateSubDay(curTime,7));
+		var starttime = $('#statustime1').val();
+		starttime += " 00:00:00";
+		initAciTree('Servers_Tree1','../home_handle/?a=taskstatuslist&starttime='+starttime+'&id=');
+		myAjaxGet('../bussinessreport_handle/','a=quotastatus',getquotastatus);
+		onhandwitdth();
+		onIO();
+		start_run_rotate();
+	}
+	else
+	{
+		$('#home_right_div').hide();
+		$('.lower_browser').show();
+	}
+	home_resize();
+});
+
+function gotoTaskDetail(type, taskid)
+{
+	myloadAjaxDiv('../serverlog_body/?taskid='+taskid+'&tasktype='+type);
+}
+$('#refresh[name=io]').button().click(function () {
+    onIO();
+});
+$('#refresh[name=net]').button().click(function () {
+    onhandwitdth();
+});
+
+function refresh_task_status()
+{
+	if ($('#taskselect').val() == '2'){
+        updateLastNodesStatus();
+    }
+	OnStatustime();
+}
+
+$('#refresh[name=status]').button().click(function () {
+	refresh_task_status();
+});
+
+function OnHomeSearchTaskStatus()
+{
+	$("#taskFormDiv").attr('title','过滤').dialog({
+		autoOpen: true,
+		height: 260,
+		width: 400,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				OnStatustime();
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+
+			}
+		}
+	});
+}
+
+$('#taskselect').selectmenu({
+	change:function(event, ui){OnStatustime();}
+});
+$('#taskselect-button').css('background','none');
+
+function cancel_task(class_name, task_id, task_name)
+{
+    if (class_name == 'CDPTask'){
+        var msg = '取消该任务，请移步至[<a href="../mgrbackup/" style="color:blue">备份计划管理界面</a>]，禁用或删除[{0}]计划。';
+        msg = msg.replace('{0}', task_name);
+        openCommonDialog({"title":'提示', 'html':msg, 'button_name':'关闭'});
+        return;
+    }
+    else if (class_name == 'htb'){
+        var msg = '取消该任务，请移步至[<a href="../mgrhotbackup/" style="color:blue">热备计划管理界面</a>]，禁用或删除[{0}]计划。';
+        msg = msg.replace('{0}', task_name);
+        openCommonDialog({"title":'提示', 'html':msg, 'button_name':'关闭'});
+        return;
+    }
+    else if (class_name == 'remote_backup_task'){
+        var msg = '取消该任务，请移步至[<a href="../mgrrebackup/" style="color:blue">远程灾备计划管理</a>]，禁用或删除[{0}]计划。';
+        msg = msg.replace('{0}', task_name);
+        openCommonDialog({"title":'提示', 'html':msg, 'button_name':'关闭'});
+        return;
+    }
+    else{
+        openConfirmDialog({
+		title:'确认信息',
+		html:'&nbsp;&nbsp;&nbsp;&nbsp;你确定要取消该任务吗？点击“确定”按钮，执行取消操作；点击“取消”，放弃取消操作。',
+		onBeforeOK:function(){
+			$(this).dialog('close');
+            myAjaxPost('../home_handle/', 'a=cancel_task&task_id='+task_id+'&class_name='+class_name, cancel_task_call_back);
+            return;
+		    }
+	    });
+    }
+}
+
+function cancel_task_call_back(json) {
+    if (json.r != 0){
+        openErrorDialog('错误','取消任务失败。');
+    }
+    OnStatustime();
+    return ;
+}
+
+function hotbackupSwitch(plan_id,task_type, switch_change_master_ip)
+{
+	$.cookie('plan_id', plan_id, {path: '/'});
+	$.cookie('task_type', task_type, {path: '/'});
+	$.cookie('switch_change_master_ip', switch_change_master_ip, {path: '/'});
+	myloadAjaxDiv('../masterstandbyswitching_body/');
+}
+
+$('#home_downloadclient').click(function(){
+	$( "#menudiv" ).css('top',$('#home_downloadclient').offset().top+14);
+	$( "#menudiv" ).css('left',$('#home_downloadclient').offset().left-50);
+	$( "#menudiv" ).slideDown(600);
+});
+
+
+function home_resize()
+{
+	resizeright();
+	baseresize();
+	if (window.FileReader)
+	{
+		var width = $('#home_h_div').outerWidth();
+		$('#home_h2_div').width(width);
+		width = $('#home_h_div').width();
+		$('#home_h2_1_div').width(width/2-35);
+		$('#home_h2_2_div').width(width/2-35);
+		home_tree_resize();
+		onhandwitdth();
+		onIO();
+	}
+}
+
+function home_tree_resize()
+{
+	var width = $('#Servers_Tree1').outerWidth();
+	$('.tasktree_total_width').css('width',width - 70);
+	$('.tasktree_sub_width').css('width',width - 70);
+	$('.tasktree_sub_sub_width').css('width',width-365);
+}
+
+
+$(window).resize(function() {
+	home_resize();
+});
+
+var myapp = new Vue({
+    el:'#myapp',
+    data:{
+        spend:300,
+        BackupIOPercentage:30,
+        class_name:'',
+        task_id:-1,
+        host_ident:-1,
+        wraning:''
+    },
+    computed:{
+        error:function () {
+            if (!isNum(this.BackupIOPercentage) || (this.spend != -1 && !isNum(this.spend))){
+                    return '请输入 有效的整数'
+            }
+            if (this.BackupIOPercentage >100 || this.BackupIOPercentage < 1){
+                    return '请输入 [1,100]的数'
+            }
+            if (this.spend < 8 && this.spend != -1){
+                return '请输入 -1或者大于8的数'
+            }
+            return ''
+        },
+        warning_msg:function () {
+            var msg = '';
+            if (this.spend == -1){
+                msg += '占用网络为不限制,'
+            }
+            if (this.spend > 300){
+                msg += '占用网络超过300Mbit/s,'
+            }
+            if (this.BackupIOPercentage > 30){
+                msg += 'IO占用超过30%，'
+            }
+
+            if (msg){
+                return msg + '此配置可能会引起备份源主机上业务系统出现响应缓慢或超时等问题。'
+            }else {
+                return ''
+            }
+        }
+    },
+    methods:{
+        init:function (class_name, task_id, host_ident) {
+            this.spend=300;
+            this.BackupIOPercentage=30;
+            this.class_name=class_name;
+            this.task_id=task_id;
+            this.host_ident=host_ident;
+        }
+    }
+});
+
+var filemyapp = new Vue({
+    el:'#filemyapp',
+    data:{
+        spend:300,
+        class_name:'',
+        task_id:-1,
+        host_ident:-1,
+        wraning:''
+    },
+    computed:{
+        error:function () {
+            if (this.spend != -1 && !isNum(this.spend)){
+                    return '请输入 有效的整数'
+            }
+            if (this.spend < 8 && this.spend != -1){
+                return '请输入 -1或者大于8的数'
+            }
+            return ''
+        },
+        warning_msg:function () {
+            var msg = '';
+            if (this.spend == -1){
+                msg += '占用网络为不限制,'
+            }
+            if (this.spend > 300){
+                msg += '占用网络超过300Mbit/s,'
+            }
+            if (msg){
+                return msg + '此配置可能会引起备份源主机上业务系统出现响应缓慢或超时等问题。'
+            }else {
+                return ''
+            }
+        }
+    },
+    methods:{
+        init:function (class_name, task_id, host_ident) {
+            this.spend=300;
+            this.class_name=class_name;
+            this.task_id=task_id;
+            this.host_ident=host_ident;
+        }
+    }
+});
+
+$('#Servers_Tree1').on('mouseleave mouseenter', '.up_down_icon li', function () {
+    $(this).toggleClass('ui-state-focus ui-corner-all');
+});
+function open_filebackup_adjust_dialog() {
+    $('#file_backup_adjust_form').dialog({
+        autoOpen: true,
+		height: 320,
+		width: 520,
+		modal: false,
+		buttons: {
+			'确定': function(){
+			    if (filemyapp.error != ''){
+			        return;
+                }
+                set_file_backup_spend();
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		}
+    })
+}
+function open_adjust_dialog() {
+    $('#adjust_form').dialog({
+        autoOpen: true,
+		height: 320,
+		width: 520,
+		modal: false,
+		buttons: {
+			'确定': function(){
+			    if (myapp.error != ''){
+			        return;
+                }
+                set_spend();
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		}
+    })
+}
+
+function adjust_spend_click(class_name, task_id, host_ident) {
+    var params = 'a=get_spend&class_name='+class_name+'&task_id='+task_id + '&host_ident=' + host_ident;
+    if(class_name=='FileBackupTask')
+    {
+        filemyapp.init(class_name, task_id, host_ident);
+        open_filebackup_adjust_dialog();
+        $('#filemyapp').waite_s();
+        myAjaxGet('../home_handle/', params, get_file_spend_call_back);
+    }
+    else
+    {
+        myapp.init(class_name, task_id, host_ident);
+        open_adjust_dialog();
+        $('#myapp').waite_s();
+        myAjaxGet('../home_handle/', params, get_spend_call_back);
+    }
+}
+function get_file_spend_call_back(jsonstr) {
+    $('#filemyapp').waite_h();
+    if (jsonstr.r != 0){
+        $('#file_backup_adjust_form').dialog('close');
+        openErrorDialog('错误', jsonstr.e);
+        return;
+    }
+    filemyapp.spend = jsonstr.spend;
+}
+
+function get_spend_call_back(jsonstr) {
+    $('#myapp').waite_h();
+    if (jsonstr.r != 0){
+        $('#adjust_form').dialog('close');
+        openErrorDialog('错误', jsonstr.e);
+        return;
+    }
+    myapp.spend = jsonstr.spend;
+    myapp.BackupIOPercentage = jsonstr.BackupIOPercentage;
+}
+
+function set_file_backup_spend(){
+    var host_ident = filemyapp.host_ident;
+    var spend = filemyapp.spend;
+    if (host_ident == -1 || host_ident == undefined){
+        return;
+    }
+    var params='a=set_spend';
+    params += '&host_ident='+host_ident;
+    params += '&class_name='+filemyapp.class_name;
+    params += '&task_id='+filemyapp.task_id;
+    params += '&spend='+filemyapp.spend;
+    myAjaxGet('../home_handle/',params,set_spend_call_back);
+}
+
+function set_spend() {
+    var host_ident = myapp.host_ident;
+    var spend = myapp.spend;
+    if (host_ident == -1 || host_ident == undefined){
+        return;
+    }
+    var params='a=set_spend';
+    params += '&host_ident='+host_ident;
+    params += '&class_name='+myapp.class_name;
+    params += '&task_id='+myapp.task_id;
+    params += '&spend='+myapp.spend;
+    params += '&BackupIOPercentage='+myapp.BackupIOPercentage;
+    myAjaxGet('../home_handle/',params,set_spend_call_back);
+}
+
+function set_spend_call_back(jsonstr) {
+    if (jsonstr.r != 0){
+        openErrorDialog('错误', jsonstr.e);
+        return;
+    }
+    successTipBox('更新成功');
+}
+
+function verify_task_report(host_ident)
+{
+	$.cookie('verify_host_ident', host_ident, {path: '/'});
+	location.href='../verifytaskreport/';
+}
+
+function file_restore_task(schedule_id)
+{
+	var url = '../filebrowser_handle/?a=home&schedule='+schedule_id;
+	window.open(url,'_blank');
+}
+
+function file_restore_cancel_task(schedule_id)
+{
+	var params='a=unmountpoint&id='+schedule_id;
+	myAjaxGet('../restore_handle/',params,cancel_task_call_back);
+}
+
+function takeover_task(task_id)
+{
+	if(task_id!=0)
+	{
+		$.cookie('run_takeover_id', task_id, {path: '/'});
+	}
+	location.href='../takeover/';
+}
+
+</script>

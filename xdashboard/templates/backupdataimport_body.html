@@ -1,0 +1,163 @@
+<div class="right">
+    {% include 'backupdataimport.inc.html' %}
+    <div class="table_menu">
+        <div class="menu_btn" id="createForm">数据导入</div>
+        <div class="menu_btn" id="delForm">删除</div>
+        <div class="menu_btn" id="refresh">刷新</div>
+    </div>
+    <table id="list">
+    </table>
+    <div id="pager"></div>
+</div>
+
+<style>
+    #run_form_div li {
+        list-style-type: none;
+    }
+
+    #run_form_div p {
+        margin: 0;
+        padding: 0;
+    }
+
+    #run_form_div .tips {
+        color: grey;
+        margin-left: 2em;
+        margin-top: 10px;
+    }
+
+    #run_form_div .line {
+        margin-top: 10px;
+    }
+</style>
+
+
+<script type="text/javascript">
+    $(function () {
+        jQuery("#list").jqGrid({
+            url: '../archive_handle/?a=getImportBackupDataList',
+            datatype: "json",
+            colNames: ['序号', '客户端名称', '备份点', '状态'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 50, sortable: true, hidden: true},
+                {name: 'fileMark', index: '1', align: "center", width: 200, sortable: true},
+                {name: 'hostName', index: '2', align: "center", width: 200, sortable: true},
+                {name: 'docMark', index: '3', align: "center", width: 100, sortable: true,formatter: fmt_tast_status}
+            ],
+            width: 748,
+            height: 550,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+    });
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+	function fmt_tast_status(cellvalue, options, rowObject) {
+        var prestr = cellvalue;
+
+        switch (prestr) {
+            case 0:
+                return '获取关键数据';
+			case 1:
+                return '正在排队';
+            case 2:
+                return '传输数据';
+			case 3:
+				return '任务成功';
+			case 4:
+				return '任务失败';
+        }
+
+        return '未知(' + prestr + ')';
+    }
+
+
+    function ReloadGridCallback(jsonstr) {
+		$('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+    }
+
+    $('#createForm')
+        .button()
+        .click(function () {
+
+            $("#newimportFormDiv").dialog({
+				autoOpen: true,
+				height: 690,
+				width: 750,
+				modal: true,
+				title: '备份数据导入',
+				close: function () {
+				}
+			});
+        });
+
+    $('#delForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要删除导入任务吗?<div style="color:red">本操作会删除该任务产生的导入数据。</div><br>点击确认按钮，执行删除操作；点击取消按钮，放弃删除操作。',
+                onBeforeOK: function () {
+                    var params = "a=delImportPlans&taskid=" + idstring;
+                    myAjaxGet('../archive_handle/', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+            $('#dialog-confirm .dialog-icon').html('<img src="/static/images/tip_icon_warning.png" width="45"/>');
+            $('#dialog-confirm .dialog-msg').css('width', '260px');
+            $('#dialog-confirm').css('height', '110px');
+        });
+
+	function backupdataimport_resize() {
+        resizeright();
+        var width = $('.table_menu').width();
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 570);
+        $('#navigation').html('<div class="font_navigation">备份数据导入管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#backupdataimport" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        backupdataimport_resize();
+
+
+    });
+
+	$(window).resize(function () {
+        backupdataimport_resize();
+    });
+
+    $('#refresh').button().click(function () {
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    })
+
+</script>

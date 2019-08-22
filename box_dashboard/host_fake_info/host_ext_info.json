@@ -1,0 +1,242 @@
+{
+	"is_valiade_host": false,
+	"is_deleted": false,
+	"system_infos": {
+		"Nic": [{
+			"IpAndMask": [],
+			"GateWay": "",
+			"Mac": "",
+			"Dns": [],
+			"Description": "",
+			"Name": ""
+		}],
+		"BootMap": {
+			"1": false,
+			"2": false,
+			"0": true
+		},
+		"UserIdent": "*efc92174-ff6c-4061-8ed1-f51077f240f3",
+		"SystemMap": {
+			"1": false,
+			"2": false,
+			"0": false
+		},
+		"Linux": {
+			"boot_symvers": "/boot/symvers-2.6.32-358.el6.x86_64.gz",
+			"vmlinuz_path": "/boot/vmlinuz-2.6.32-358.el6.x86_64",
+			"bit_opt": "64",
+			"kernel_ver": "2.6.32",
+			"install_path": "/opt/ClwDRClient_2.0.181106/bin",
+			"kconfig_file": "/boot/config-2.6.32-358.el6.x86_64",
+			"platform": "Linux-2.6.32-358.el6.x86_64-x86_64-with-centos-6.4-Final|mockbuild@c6b8.bsys.dev.centos.org",
+			"initrdfs_path": "/boot/initramfs-2.6.32-358.el6.x86_64.img",
+			"vermagic": "2.6.32-358.el6.x86_64 SMP mod_unload modversions",
+			"grub_file": "/boot/grub/grub.conf",
+			"syms_file": "/lib/modules/2.6.32-358.el6.x86_64/build/Module.symvers",
+			"grub_ver": 1,
+			"system_map": "/boot/System.map-2.6.32-358.el6.x86_64",
+			"release": "2.6.32-358.el6.x86_64"
+		},
+		"BmfMap": {
+			"1": false,
+			"2": false,
+			"0": true
+		},
+		"ClientTimestamp": "1542001560.7725914",
+		"running_platform": "normal",
+		"Disk": [{
+			"DiskSize": "32212254720",
+			"Partition": [{
+				"Style": "mbr",
+				"Letter": "/boot",
+				"VolumeLabel": "/dev/sda1",
+				"FreeSize": "430158848",
+				"Index": 1,
+				"PartitionSize": "524288000",
+				"VolumeSize": "507744256",
+				"FileSystem": "ext4"
+			}, {
+				"Style": "mbr",
+				"Letter": "",
+				"VolumeLabel": "/dev/sda2",
+				"FreeSize": "-1",
+				"Index": 2,
+				"PartitionSize": "31686918144",
+				"VolumeSize": "-1",
+				"FileSystem": "lvm"
+			}],
+			"DiskNum": "0",
+			"DiskMapperName": "",
+			"Style": "mbr",
+			"DiskIndex": "/dev/sda",
+			"DiskName": "VMware Virtual disk",
+			"NativeGUID": "7fed0c00000000000000000000000000"
+		}],
+		"System": {
+			"ProcessorArch": "x86_64",
+			"ComputerName": "clerware",
+			"BuildNumber": "Linux-2.6.32-358.el6.x86_64-x86_64-with-centos-6.4-Final",
+			"PhysicalMemory": "1968603136",
+			"WorkGroup": "",
+			"SystemCatName": "64bit ELF",
+			"ProcessorInfo": "Intel(R) Xeon(R) CPU           E5520  @ 2.27GHz",
+			"SystemCaption": "Linux CentOS 6.4 Final",
+			"version": "2.0.181106",
+			"ServicePack": ""
+		},
+		"ConnectAddress": {
+			"LocalAddress": "",
+			"RemotePort": 20000,
+			"RemoteAddress": ""
+		},
+		"Storage": {
+			"disks": [{
+				"style": "mbr",
+				"bytes": "32212254720",
+				"device": "/dev/sda",
+				"partitions": [{
+					"freeBytes": "430158848",
+					"mountPoint": "/boot",
+					"index": 1,
+					"bytesStart": "1048576",
+					"type": "native",
+					"fileSystem": "ext4",
+					"device": "/dev/sda1",
+					"bytesEnd": "525336064",
+					"totalBytes": "507744256",
+					"mountOpts": "rw",
+					"usedByte": "51371008",
+					"bytesLength": "524288000"
+				}, {
+					"type": "lvm",
+					"bytesEnd": "32212254208",
+					"uuid": "GtfN4x-7dms-aHvV-DSGF-KHP1-DZkV-rQrNU6",
+					"index": 2,
+					"bytesStart": "525336576",
+					"device": "/dev/sda2",
+					"vg_name": "vg_centos64x64min",
+					"bytesLength": "31686918144"
+				}],
+				"index": 0
+			}],
+			"disk_alias": [{
+				"alias_type": "by-id",
+				"alias_items": [{
+					"name": "dm-uuid-LVM-Why8zPU8RECZ7Oqe6C2tvzsmWtutaJ3Qr8sKsINV8MGPcfhfq4YGLubVUu71Ydxt",
+					"target": "/dev/dm-1"
+				}, {
+					"name": "dm-name-vg_centos64x64min-lv_swap",
+					"target": "/dev/dm-1"
+				}, {
+					"name": "dm-uuid-LVM-Why8zPU8RECZ7Oqe6C2tvzsmWtutaJ3Qv5f0gdVMOH1J2gd4huNa4XfRq62cZdVH",
+					"target": "/dev/dm-0"
+				}, {
+					"name": "dm-name-vg_centos64x64min-lv_root",
+					"target": "/dev/dm-0"
+				}]
+			}, {
+				"alias_type": "by-uuid",
+				"alias_items": [{
+					"name": "4f353f03-17e7-41d4-831c-e74476e53a5a",
+					"target": "/dev/dm-1"
+				}, {
+					"name": "8c4a6906-1767-4a36-8a68-fa3fd8eba53a",
+					"target": "/dev/dm-0"
+				}, {
+					"name": "28bb419e-7079-4900-b8e8-0da52ffd6a28",
+					"target": "/dev/sda1"
+				}]
+			}, {
+				"alias_type": "by-path",
+				"alias_items": [{
+					"name": "pci-0000:03:00.0-scsi-0:0:0:0-part1",
+					"target": "/dev/sda1"
+				}, {
+					"name": "pci-0000:03:00.0-scsi-0:0:0:0-part2",
+					"target": "/dev/sda2"
+				}, {
+					"name": "pci-0000:03:00.0-scsi-0:0:0:0",
+					"target": "/dev/sda"
+				}, {
+					"name": "pci-0000:00:07.1-scsi-1:0:0:0",
+					"target": "/dev/sr0"
+				}]
+			}, {
+				"alias_type": "by-blkid",
+				"alias_items": [{
+					"name": "28bb419e-7079-4900-b8e8-0da52ffd6a28",
+					"target": "/dev/sda1"
+				}, {
+					"name": "GtfN4x-7dms-aHvV-DSGF-KHP1-DZkV-rQrNU6",
+					"target": "/dev/sda2"
+				}]
+			}, {
+				"alias_type": "by-swap-uuid",
+				"alias_items": [{
+					"name": "4f353f03-17e7-41d4-831c-e74476e53a5a",
+					"target": "/dev/mapper/vg_centos64x64min-lv_swap"
+				}]
+			}, {
+				"alias_type": "by-swap-label",
+				"alias_items": []
+			}],
+			"vgs": [{
+				"name": "vg_centos64x64min",
+				"lvs": [{
+					"name": "lv_root",
+					"used_bytes": "3608965120",
+					"uuid": "v5f0gd-VMOH-1J2g-d4hu-Na4X-fRq6-2cZdVH",
+					"total_bytes": "27025022976",
+					"mountPoint": "/",
+					"mountOpts": "rw",
+					"diskRanges": [{
+						"sector_count": "53624832",
+						"sector_size": "512",
+						"device": "/dev/sda",
+						"start_sector": "1028096",
+						"index": "0"
+					}],
+					"fileSystem": "ext4",
+					"free_bytes": "22043262976"
+				}, {
+					"name": "lv_swap",
+					"used_bytes": null,
+					"uuid": "r8sKsI-NV8M-GPcf-hfq4-YGLu-bVUu-71Ydxt",
+					"total_bytes": null,
+					"mountPoint": null,
+					"mountOpts": null,
+					"diskRanges": [{
+						"sector_count": "8257536",
+						"sector_size": "512",
+						"device": "/dev/sda",
+						"start_sector": "54652928",
+						"index": "0"
+					}],
+					"fileSystem": "linux-swap",
+					"free_bytes": null
+				}],
+				"pvs": [{
+					"name": "/dev/sda2",
+					"uuid": "GtfN4x-7dms-aHvV-DSGF-KHP1-DZkV-rQrNU6"
+				}],
+				"uuid": "Why8zP-U8RE-CZ7O-qe6C-2tvz-smWt-utaJ3Q"
+			}]
+		}
+	},
+	"BootMapCache": {
+		"1": false,
+		"2": false,
+		"0": true
+	},
+	"SystemMapCache": {
+		"1": false,
+		"2": false,
+		"0": false
+	},
+	"BmfMapCache": {
+		"1": false,
+		"2": false,
+		"0": true
+	},
+	"local_ip": "127.0.0.1"
+}

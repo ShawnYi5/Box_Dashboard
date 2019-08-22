@@ -1,0 +1,167 @@
+<style type="text/css">
+.btn_nav{float:right;margin-top:10px;}
+.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+.myhiden{width:100px; height:32px;}
+.myoneday{width:32px; height:32px; line-height:32px; text-align:center;border:1px solid #d3d3d3; cursor:pointer;float:left}
+.myonedayselected{background-color:#8ccad5}
+.aciTree div{ padding: 0em;}
+.manage-item,.manage-item-4cdp{margin-top: 8px;}
+.manage{margin-bottom: 16px;margin-left: 16px}
+.pull-down-control{cursor: pointer;}
+div.centent {float: left;text-align: center;}
+span.moveBt{display: block;margin: 10px;padding: 4px 10px;background: #898989;cursor: pointer;font-size: 12px;color: white;}
+.selectCls{width:100px;height:122px;}
+</style>
+
+<head>
+    <script type="text/javascript" src="/static/js/jquery.json.js"></script>
+</head>
+
+<div id="newbackupFormDiv" title="" class="ajaxForm">
+	<input type="hidden" id="taskid" name="taskid" />
+	<form id="newbackupForm" action="#" method="post">
+		<div id="tabs">
+			<ul>
+			<li><a href="#tabs-1">验证信息</a></li>
+			<li><a href="#tabs-2">验证计划</a></li>
+			<li><a href="#tabs-3">自定义验证脚本</a></li>
+			<li><a href="#tabs-4">信息确认</a></li>
+			</ul>
+			<div id="tabs-1" style="margin-top:30px;margin-left:30px;">
+				<input type="hidden" id="uitasktype" value="task"/>
+				<div id="task_names"><span class="taskshowname">计划名称</span>：<input type="text" class="input" maxlength="120" id="verifytaskname" name="verifytaskname" style="width:400px;" onblur="removespace(this)" onmouseover="this.title=this.value"/></div>
+				<div style="margin-top:20px;" class="storagedevicediv">
+				选择临时存储设备：<input type="hidden" id="sel_storagedevice" />
+				<select id="storagedevice" name="storagedevice" >
+					<option value='-1'  selected="selected" >请稍候</option>
+				</select>
+				<div style="margin-top:20px;margin-left:57px;">内存大小：<input type="number" class="input" id="kvm_memory_size" name="kvm_memory_size" value="2" style="width:50px;"/>
+				<select id="kvm_memory_unit">
+					<option value="MB">MB</option>
+					<option value="GB" selected="selected">GB</option>
+				</select>（最大可用：<span id="phy_available"></span>MB）
+				</div>
+				<div style="margin-top:20px;">验证项：</div>
+				<div style="margin-top:10px;"><input type="checkbox" checked=checked disabled=disabled/>操作系统能否启动</div>
+				<div style="margin-top:10px;"><input type="checkbox" checked=checked disabled=disabled/>网络状态</div>
+				<div style="margin-top:10px;"><label for="verify_osname"><input id="verify_osname" name="verify_osname" type="checkbox"/>客户端名称</label></div>
+				<div style="margin-top:10px;"><label for="verify_osver"><input id="verify_osver" name="verify_osver" type="checkbox"/>操作系统版本</label></div>
+				<div style="margin-top:10px;"><label for="verify_hdd"><input id="verify_hdd" name="verify_hdd" type="checkbox"/>硬盘（分区结构、容量、已使用量）</label></div>
+				</div>
+				<div style="margin-top:20px;">
+				  <div>验证点数量：</div>
+				  <div style="margin-top:10px;"><label for="verify_last_point"><input id="verify_last_point" checked="checked" name="verify_last_point" type="checkbox"/>验证最近一个份点（推荐）</label></div>
+				  <div style="margin-top:10px;">仅验证一次：执行验证计划往前推一天到现在的每个备份点/最近一个份点</div>
+				  <div style="margin-top:10px;">按间隔时间：执行验证计划往前推X分钟/小时/天到现在的每个备份点/最近一个份点</div>
+				  <div style="margin-top:10px;">每周：执行验证计划往前推7天到现在的每个备份点/最近一个份点</div>
+				  <div style="margin-top:10px;">每月：执行验证计划往前推30天到现在的每个备份点/最近一个份点</div>
+				</div>
+			</div>
+			<div id="tabs-2" style="margin-top:30px;margin-left:30px;">
+                <div id="task_names_container"></div>
+				<div style="width:95%;overflow:auto;">
+					<table width="100%" border="0" cellspacing="5" cellpadding="0">
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="2" name="bakschedule" checked=checked >仅验证一次</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;仅执行一次验证计划，设定开始日期及时间即可，执行后任务即终结。</span><br /><br />
+							<div id="bakschedule2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime1" type="text" class="textTime Wdate" id="stime1" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/></div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="3" name="bakschedule"/>按间隔时间</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;验证间隔可设置为分/时/天，需设定验证的开始时间。</span>
+							<br /><br />
+							<div id="bakschedule3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime2" type="text" class="textTime Wdate" id="stime2" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							&nbsp;&nbsp;&nbsp;&nbsp;每<input type="number" min="1" max="365" class="input"  value="1" id="timeinterval" name="timeinterval" style="width:41px" onblur="removespace(this)"/>
+                                <select id="interval-unit">
+                                    <option value="min">分钟</option>
+                                    <option value="hour">小时</option>
+                                    <option value="day" selected="selected">天</option>
+                                </select>
+                                执行
+                            </div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="4" name="bakschedule" >每周</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;验证间隔为周，设定每周的星期x为验证时间，如：每周星期一、星期四验证。</span><br /><br />
+							<div id="bakschedule4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime3" type="text" class="textTime Wdate" id="stime3" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<br />
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox"value="1" name="perweek"/>星期一&nbsp;&nbsp;<input type="checkbox"value="2" name="perweek"/>星期二&nbsp;&nbsp;<input type="checkbox"value="3" name="perweek"/>星期三&nbsp;&nbsp;<input type="checkbox"value="4" name="perweek"/>星期四&nbsp;&nbsp;<input type="checkbox"value="5" name="perweek"/>星期五&nbsp;&nbsp;<input type="checkbox"value="6" name="perweek"/>星期六&nbsp;&nbsp;<input type="checkbox"value="7" name="perweek"/>星期日</div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="5" name="bakschedule" >每月</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;验证间隔为月，设定每月的x日验证，如：每月的10、20、29日验证。</span><br /><br />
+							<div id="bakschedule5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime4" type="text" class="textTime Wdate" id="stime4" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<div style="margin-left:10px;">
+								<br />每月验证日期：
+								<br /><div id="dayselect"></div>
+							</div>
+							</div>
+							</td>
+						  </tr>
+					</table>
+				</div>
+			</div>
+			<div id="tabs-3" style="margin-top:30px;margin-left:30px;">
+				<div><a href="../userverifyscript" style="color:blue;">创建自定义验证脚本</a></div>
+				<div style="margin-top:20px;">第1执行脚本：<select id="script1" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+				<div style="margin-top:20px;">第2执行脚本：<select id="script2" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+				<div style="margin-top:20px;">第3执行脚本：<select id="script3" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+				<div style="margin-top:20px;">第4执行脚本：<select id="script4" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+				<div style="margin-top:20px;">第5执行脚本：<select id="script5" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+				<div style="margin-top:20px;">第6执行脚本：<select id="script6" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+				<div style="margin-top:20px;">第7执行脚本：<select id="script7" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+				<div style="margin-top:20px;">第8执行脚本：<select id="script8" class="script"><option value=0  selected="selected" >请稍候</option></select></div>
+			</div>
+			<div id="tabs-4" style="margin-top:30px;margin-left:30px;">
+				<div style="width:95%;height:520px;overflow:auto;">
+					<table width="100%" cellpadding="10" cellspacing="1" class="border_table">
+						<tr height="25">
+							<td width="40%" align="left"><span class="taskshowname">计划名称</span></td>
+							<td width="60%"><div id="confirm_taskname">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="storagedevicediv">
+							<td align="left">临时存储设备</td>
+							<td align="left"><div id="confirm_storagedevice">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">验证项</td>
+							<td align="left"><div id="confirm_verifytype">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">验证周期</td>
+							<td align="left"><div id="confirm_schedule">&nbsp;</div></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div class="btn_nav">
+		<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="next" class="next" style="float:right" value="下一步&raquo;" />
+   </div>
+</div>
+
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+
+<script language="javascript">
+$(function()
+{
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$(".ui-tabs-nav").hide();
+	$(".prev").hide();
+});
+
+var curTime='{{ now|date:"Y-m-d H:i:s" }}';
+</script>

@@ -1,0 +1,561 @@
+<div class="right">
+	<div class="table_menu">
+		<div class="menu_btn" id="emergency_form">应急模式</div>
+		<div class="menu_btn" id="normal_form">正常模式</div>
+		<div class="menu_btn" id="renameForm">编辑</div>
+        <div class="menu_btn" id="delbutton" style="display:none;">删除</div>
+		<div class="menu_btn" id="search_form">搜索</div>
+        <div class="menu_btn" id="showall">刷新</div>
+	</div>
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+	<table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+        <tr height="25">
+            <td width="30%" align="left">客户端名称</td>
+            <td width="70%"><div id="show_servername"></div></td>
+        </tr>
+        <tr height="25">
+			<td align="left">客户端Agent版本</td>
+			<td align="left"><div id="agent_version"></div></td>
+		</tr>
+        <tr height="25">
+            <td align="left">计算机名</td>
+            <td align="left"><div id="show_pcname"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">IP地址</td>
+            <td align="left"><div id="show_ip"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">MAC地址</td>
+            <td align="left"><div id="show_mac"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">操作系统</td>
+            <td align="left"><div id="show_os"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">Build Num</td>
+            <td align="left"><div id="show_buildnum"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">磁盘数量</td>
+            <td align="left"><div id="show_harddisknum"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">磁盘信息</td>
+            <td align="left"><div id="show_harddiskinfo"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">总容量</td>
+            <td align="left"><div id="show_total"></div></td>
+        </tr>
+        <tr height="25">
+            <td align="left">已使用空间</td>
+            <td align="left"><div id="show_use"></div></td>
+        </tr>
+        <tr height="25">
+			<td align="left">最近在线时间</td>
+			<td align="left"><div id="last_online_time"></div></td>
+		</tr>
+	</table>
+</div>
+
+<div id="renameFormDiv" title="编辑" class="ajaxForm">
+	<div style="margin-top:20px;margin-left:20px;">网站端口：　<input type="text" class="input" id="webport" placeholder="80,8080" name="webport" onblur="removespace(this)" maxlength="50"/></div>
+	<div style="margin-top:20px;margin-left:20px;">请选择一张大小1MB以下的图片(jpg)，作为应急页面</div>
+	<form id="importPicForm" enctype="multipart/form-data">
+		<input type="hidden" id="host_ident" name="host_ident" value=""/>
+		<div style="float:left;margin-left:20px;margin-top:10px;"><input name="importFile" id="importFile" type="file" /></div>
+		<div style="float:left;margin-left:20px;margin-top:9px;"><button id="importbutton" type="button">导入</button></div>
+		<div class="clear"></div>
+	</form>
+	<div style="margin-left:20px;" id='importMsg'></div>
+	<div style="margin-top:20px;margin-left:20px;">
+		<label><input id="checkbox_havescrpit" type="checkbox" />网站在Linux上</label>
+		<div id="scrpit_div" style="display:none;margin-top:10px;padding-right:10px;">
+			<fieldset>
+				<legend>停止网站脚本</legend>
+				<textarea rows="2" cols="60" id="stop_script" placeholder="#!/bin/bash<br>/usr/sbin/nginx -s stop" class="jq_watermark" ></textarea>
+			</fieldset>
+			<fieldset style="margin-top:10px;">
+				<legend>启动网站脚本</legend>
+				<textarea rows="2" cols="60" id="start_script" placeholder="#!/bin/bash<br>/usr/sbin/nginx -s reload" class="jq_watermark"></textarea>
+			</fieldset>
+		</div>
+	</div>
+	<div style="margin-left:20px;" id='importResult'></div>
+</div>
+
+<div id="search_form_div" title="搜索" class="ajaxForm">
+	<div style="margin-top: 40px">
+        <label for="search_input">关键词：</label>
+        <input type="text" maxlength="50" placeholder="IP或者客户端名称" id="search_key">
+    </div>
+</div>
+
+
+<div id="homepageFormDiv" title="应急页面预览" class="ajaxForm">
+	<div>
+		<img id="homepageimg" src="" style="max-width:600px;"/>
+	</div>
+</div>
+
+<script type="text/javascript" src="/static/js/jquery.watermark.min.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../webguard_handle/?a=getclientlist',
+		datatype: "json",
+		colNames:['id','客户端名称','ip','mode','状态','网站端口','应急页面','关联监控目标','网站在Linux上','停止网站脚本','启动网站脚本'],
+        rownumbers:true,
+		colModel:[
+			{name:'id',index:'0',align:"center", width:20, hidden:true,sortable: false},
+			{name:'servername',index:'1',align:"center", width:200,sortable: true,formatter:clientFmatter},
+			{name:'ip',index:'2',align:"center", width:100,hidden:true,sortable: false},
+			{name:'mode',index:'3',align:"center", width:60,sortable: false,hidden:true},
+			{name:'status',index:'4',align:"center", width:60,sortable: true,formatter:statusFmatter},
+			{name:'webport',index:'5',align:"center", width:130,sortable: true},
+			{name:'imgurl',index:'6',align:"center", width:50,sortable: true,formatter:opFmatter},
+			{name:'monitor',index:'7',align:"center", width:130,sortable: false},
+			{name:'havescrpit',index:'8',align:"center", width:130,sortable: true,formatter:havescriptFmatter},
+			{name:'stop_script',index:'9',align:"center", width:130,sortable: false},
+			{name:'start_script',index:'10',align:"center", width:130,sortable: false}
+		],
+		width:748,
+		height:350,
+		rowNum:300,
+		rowList:[100,200,300],
+		pager: '#pager',
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true,
+		onSelectRow: function(ids) {
+            var ident=$('#list').jqGrid('getRowData',ids).id;
+            var params = "a=getserverinfo&id=" + ident;
+		    myAjaxGet('../backup_handle/', params, GetBackupInfo);
+		},
+		beforeSelectRow:function(rowid, e){
+			if(e.type == 'click'){
+				i = $.jgrid.getCellIndex($(e.target).closest('td')[0]);
+				cm = jQuery("#list").jqGrid('getGridParam', 'colModel');
+				if(cm[i].name=='op')
+				{
+					return false;
+				}
+				return true;
+			}
+			return false;
+		}
+	});
+});
+
+function havescriptFmatter(cellvalue, options, rowObjec)
+{
+	if(cellvalue==true)
+	{
+		return '是';
+	}
+	return '否';
+}
+
+function statusFmatter(cellvalue, options, rowObjec)
+{
+	if(cellvalue=='在线')
+	{
+		return rowObjec[3];
+	}
+	return cellvalue;
+}
+
+function opFmatter(cellvalue, options, rowObjec)
+{
+	var imgurl = cellvalue;
+	if(imgurl=='none')
+	{
+		return '默认值';	
+	}
+
+	return '<span style="color:#000088;cursor:pointer;" onclick="getHomepage(\''+imgurl+'\')">预览</sapn>';
+}
+
+function clientFmatter(cellvalue, options, rowObjec)
+{
+	var ip = rowObjec[2];
+	return cellvalue+'<br>'+ip;
+}
+
+function getHomepage(imgurl)
+{
+	var timestmp = new Date().getTime();
+	$('#homepageimg').attr('src',imgurl+'?rnd='+timestmp);
+	$("#homepageFormDiv").attr('title','应急页面预览').dialog({
+		autoOpen: true,
+		height: 500,
+		width: 700,
+		modal: true,
+		close: function(){
+		}
+	});
+}
+
+function GetBackupInfo(jsonstr)
+{
+    if(jsonstr.r!=0)
+	{
+		$('div#show_servername').html(jsonstr.e);
+        $('div#agent_version').html('');
+        $('div#show_pcname').html('');
+        $('div#show_ip').html('');
+        $('div#show_mac').html('');
+        $('div#show_os').html('');
+        $('div#show_buildnum').html('');
+        $('div#show_harddisknum').html('');
+        $('div#show_harddiskinfo').html('');
+        $('div#show_total').html('');
+        $('div#show_use').html('');
+        $('div#last_online_time').html('');
+		return;
+	}
+    $('div#show_servername').html(jsonstr.servername);
+    $('div#agent_version').html(jsonstr.agent_version);
+    $('div#show_pcname').html(jsonstr.pcname);
+    $('div#show_ip').html(jsonstr.ip);
+    $('div#show_mac').html(jsonstr.mac);
+    $('div#show_os').html(jsonstr.os);
+    $('div#show_buildnum').html(jsonstr.buildnum);
+    $('div#show_harddisknum').html(jsonstr.harddisknum);
+    $('div#show_harddiskinfo').html(jsonstr.harddiskinfo);
+    $('div#show_total').html(jsonstr.total + 'GB');
+    $('div#show_use').html(jsonstr.use + 'GB');
+    $('div#last_online_time').html(jsonstr.lasttime);
+}
+
+jQuery("#list").jqGrid('navGrid','#pager',{add:false,search:false,del:false,edit:false,position:'right'});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' }); 
+
+function ReloadGridCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+				current:true
+			}]);
+}
+
+
+function RenameServerCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$("#renameFormDiv").dialog('close');
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+function renameserver(id,webport)
+{
+	if(webport=='')
+	{
+		openErrorDialog({title:'错误',html:'网站端口不能为空'});
+		return;
+	}
+	var havescrpit = 0;
+	var stop_script = "";
+	var start_script = "";
+	if( $('#checkbox_havescrpit').prop('checked') )
+	{
+		havescrpit = 1;
+		stop_script = encodeURIComponent($('#stop_script').val().trim());
+		start_script = encodeURIComponent($('#start_script').val().trim());
+	}
+
+	if(havescrpit==1)
+	{
+		if(stop_script=='')
+		{
+			openErrorDialog({title:'错误',html:'停止网站脚本不能为空'});
+			return;
+		}
+		if(start_script=='')
+		{
+			openErrorDialog({title:'错误',html:'停止网站脚本不能为空'});
+			return;
+		}
+	}
+
+	var params="a=set_client_site_port&id="+id+"&webport="+webport;
+	params+="&havescrpit="+havescrpit;
+	params+="&stop_script="+stop_script;
+	params+="&start_script="+start_script;
+	myAjaxPost('../webguard_handle/',params,RenameServerCallback);
+
+}
+
+$('#renameForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+	var idstring=ids.join(',');
+
+	var rowData = $('#list').jqGrid('getRowData',idstring);
+	
+	$('#webport').val(rowData.webport);
+	if(rowData.havescrpit == '是')
+	{
+		$('#checkbox_havescrpit').prop('checked',true);
+		$('#stop_script').val(rowData.stop_script);
+		$('#start_script').val(rowData.start_script);
+		$('#scrpit_div').show();
+	}
+	else if(rowData.havescrpit == '否')
+	{
+		$('#checkbox_havescrpit').prop('checked',false);
+		$('#scrpit_div').hide();
+	}
+
+	var ident=rowData.id;
+
+	$('#host_ident').val(ident);
+	
+
+	$("#renameFormDiv").attr('title','编辑').dialog({
+		autoOpen: true,
+		height: 450,
+		width: 600,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var webport = $('#webport').val();
+				renameserver(ident,webport);
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+});
+
+$(function() {
+	$('#navigation').html('<div class="font_navigation">主页应急切换</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#agentmanager" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	serversmgr_resize();
+});
+
+function shwoall() {
+    var newUrl='../webguard_handle/?a=getclientlist';
+
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+$('#showall')
+.button()
+.click(function() {
+    shwoall();
+});
+
+$('#delbutton')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length==0)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+	var idents = [];
+	$.each(ids,function (index,id) {
+        var ident = $('#list').jqGrid('getRowData',id).id;
+        idents.push(ident);
+    })
+    var identstring = idents.join(",");
+	var html = '满足如下条件的客户端才能被删除：<br />';
+	html += '1.客户端处于离线状态；<br />';
+	html += '2.客户端不属于任意已创建的备份计划、集群备份计划、热备计划、远程容灾计划<br />';
+	html += '　　客户端所属备份点没有在“验证”功能中被共享为网络路径；<br />';
+	html += '　　客户端没有正在执行还原任务或迁移任务。<br />';
+	html += '点击“确认”，执行删除操作； 点击“取消”，放弃删除。';
+    openConfirmDialog({
+            "title":"删除",
+            "html":html,
+			height: 255,
+			width: 474,
+            onBeforeOK: function(){
+                $(this).dialog('close');
+                myAjaxPost("../serversmgr_handle/?a=delserver","idents="+ identstring,delcallback);
+            }
+        });
+});
+
+function delcallback(jstr){
+    var newUrl='../webguard_handle/?a=getclientlist';
+
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+    openSuccessDialog({'title':"信息", 'html':jstr.e, 'width':500, 'height':250});
+}
+
+$("#search_form_div").attr('title','编辑').dialog({
+		autoOpen: false,
+		height: 200,
+		width: 350,
+		modal: true,
+		buttons: {
+			'搜索': function(){
+				search_worker();
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+
+
+
+$('#search_form').button().click(function () {
+   $("#search_form_div").dialog('open');
+});
+
+
+function search_worker() {
+    var s_key = $('#search_key').val();
+    $("#search_form_div").dialog('close');
+    var new_url = '../webguard_handle/?a=getclientlist&s_key=' + s_key;
+    $('#list').setGridParam({url:new_url});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+function submitUStaus()
+{
+	shwoall();
+}
+
+function DelayCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	successTipBox('发送命令成功!，请等待10秒后刷新界面');
+	setTimeout("submitUStaus()",3000);
+}
+
+$('#emergency_form').button().click(function () {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+	var ident = $('#list').jqGrid('getRowData',ids).id;
+	var html='切换至“应急模式”，将导致访问网站看到正在维护的界面，按“确定”按钮立即切换。';
+	 openConfirmDialog({
+            "title":"应急模式",
+            "html":html,
+			height: 255,
+			width: 474,
+            onBeforeOK: function(){
+                $(this).dialog('close');
+                myAjaxPost("../webguard_handle/?a=switch_site_mode","mode=takeover&ident="+ ident,DelayCallback);
+            }
+        });
+});
+
+$('#normal_form').button().click(function () {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+	var ident = $('#list').jqGrid('getRowData',ids).id;
+	myAjaxPost("../webguard_handle/?a=switch_site_mode","mode=normal&ident="+ ident,DelayCallback);
+});
+
+$('#importbutton')
+.button()
+.click(function() {
+	if($('#importFile').val() == '')
+	{
+		openErrorDialog({title:'错误',html:'请选择你要上传的文件'});
+		return;
+	}
+
+	var postdata = new FormData($("#importPicForm")[0]); 
+	$.ajax({
+            url: '../webguard_handle/?a=upload_pic',
+            type: 'POST',
+            cache: false,
+            data: postdata,
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				$('#importMsg').html('<img src="/static/images/loading.gif" height="30" width="30" /> 上传中，请稍侯...');
+				$('#importResult').html('');
+            }
+        }).done(function (res) {
+            if (res.r==0) {
+                $('#importMsg').html('上传完成');
+				$("#PicFormDiv").dialog('close');
+				ReloadGridCallback(res);
+            }
+            else {
+				$('#importMsg').html('上传失败');
+				$('#importResult').html(res.e);
+            }
+        }).fail(function (res) {
+			$('#importMsg').html('上传失败');
+			$('#importResult').html('');
+    });
+});
+
+$('#checkbox_havescrpit').click(function(){
+	if( $(this).prop('checked') )
+	{
+		$('#scrpit_div').show();
+	}
+	else
+	{
+		$('#scrpit_div').hide();
+	}
+});
+
+
+function serversmgr_resize()
+{
+	resizeright();
+	var width = $('.table_menu').width();
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	serversmgr_resize();
+});
+
+</script>

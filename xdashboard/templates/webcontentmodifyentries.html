@@ -1,0 +1,14 @@
+<title>网页修改模式</title>
+{% if entries|length == 1 %}
+    <meta http-equiv="refresh" content="0;url=../webmodify/?modify_entry={{ entries.first.id }};">
+{% elif entries|length >= 2 %}
+    <p>请选择"内容修改入口地址":</p>
+    <ul>
+        {% for entry in entries %}
+            <li><a href="../webmodify/?modify_entry={{ entry.id }}">{{ entry.entrance }}</a></li>
+        {% endfor %}
+    </ul>
+    <a href="../logout" target="_top">返回</a>
+{% else %}
+    <p>内容管理员({{ admin }}),未关联到任何"内容修改入口地址" <a href="../logout" target="_top">返回</a></p>
+{% endif %}

@@ -1,0 +1,195 @@
+<div class="right">
+    <div class="table_menu">
+        {% if not is_superuser %}
+            <div class="menu_btn" id="renameForm" style="display: none">重命名</div>
+            <div class="menu_btn" id="new">新建</div>
+            <div class="menu_btn" id="delete">删除</div>
+        {% endif %}
+        <div class="menu_btn" id="refresh">刷新</div>
+    </div>
+    <table id="list"></table>
+    <div id="pager"></div>
+</div>
+
+<div id="renameFormDiv" title="重命名" class="ajaxForm">
+    <table width="100%" border="0" cellspacing="5" cellpadding="0">
+        <tr height="25">
+            <td width="25%" align="left">客户端名称：</td>
+            <td width="75%"><input type="text" class="input" id="tu_name" name="tu_name"/></td>
+        </tr>
+    </table>
+</div>
+
+<div id="newFormDiv" title="新建" class="ajaxForm">
+    客户端IP:Port：<input id="new_tunnelip" type="text" style="width:122px;margin-top: 6px;margin-left: 12px"/>：<input
+    id="new_tunnelport" type="text" style="width:41px;margin-top: 6px"/>
+    <div style="margin-top:30px;">“{{ title }}”会根据设置的客户端IP和Port，主动反复向客户端发起连接请求；而客户端为被动接受连接请求。</div>
+    <div style="margin-top:10px;">请在客户端所在操作系统和防火墙中允许TCP端口3345被连接。</div>
+    <div style="margin-top:10px;">本版本适用于客户端所在操作系统无法访问到“{{ title }}”的网络，比如为公网IP时。</div>
+</div>
+
+<div class="mywaite ui-state-highlight ui-corner-all"
+     style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 45%; z-index:1000;display:none;">
+    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <strong>请稍候</strong> <span id="msg"></span></p>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">连接管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#tunnel" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        tunnelManage();
+        $('#new_tunnelport').val('3345');
+        tunnel_resize();
+    });
+
+    $('#renameForm').button().click(function () {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length != 1) {
+            openErrorDialog({title: '错误', html: '请选择一条数据。'});
+            return null;
+        }
+        $("#renameFormDiv").attr('title', '重命名').dialog({
+            autoOpen: true,
+            height: 240,
+            width: 400,
+            modal: true,
+            buttons: {
+                '确定': function () {
+                    var name = $('#tu_name').val();
+                    if (name == '') {
+                        openErrorDialog({title: '错误', html: '客户端名称不能为空'});
+                        return null;
+                    }
+                    else {
+                        var params = 'a=rename&id={0}&name={1}'.replace('{0}', ids[0]).replace('{1}', name);
+                        myAjaxGet('../tunnelmanage_handle/', params, reloadGrid);
+                        $(this).dialog('close');
+                    }
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+            }
+        });
+    });
+
+    function reloadGrid() {
+        $('.mywaite').hide();
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    $('#refresh').button().click(function () {
+        reloadGrid()
+    });
+
+    $('#delete').button().click(function () {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length < 1) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return null;
+        }
+        var params = 'a=del&id=' + ids.join(',');
+        $('.mywaite').show();
+        myAjaxGet('../tunnelmanage_handle/', params, reloadGrid);
+    });
+
+    $('#new').button().click(function () {
+        $("#newFormDiv").attr('title', '新建').dialog({
+            autoOpen: true,
+            height: 300,
+            width: 442,
+            modal: true,
+            buttons: {
+                '确定': function () {
+                    var tu_ip = $('#new_tunnelip').val();
+                    var tu_port = $('#new_tunnelport').val();
+                    if (!_checks(tu_ip, tu_port)) {
+                        return false;
+                    }
+                    var params = 'a=new&tu_ip={0}&tu_port={1}'.replace('{0}', tu_ip).replace('{1}', tu_port);
+                    myAjaxGet('../tunnelmanage_handle/', params, new_call_back);
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+            }
+        });
+    });
+
+    function new_call_back(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog('错误', jsonstr.e);
+            return;
+        }
+        successTipBox('添加成功');
+        reloadGrid();
+    }
+
+    function _checks(ip, portVal) {
+        if (!isIPV4(ip)) {
+            openErrorDialog({title: '错误', html: "IP错误"});
+            return false;
+        }
+        if (!isNum(portVal) || parseInt(portVal) < 0 || parseInt(portVal) > 65535) {
+            openErrorDialog({title: '错误', html: "端口错误"});
+            return false;
+        }
+        return true
+    }
+
+    function is_norm_user() {
+        return $('#delete').length > 0
+    }
+
+    function tunnelManage() {
+        jQuery("#list").jqGrid({
+            url: '../tunnelmanage_handle/?a=query',
+            datatype: "json",
+            colNames: ['序号', '客户端IP', '客户端Port', '从属用户', '操作'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 100, sortable: true, hidden: true},
+                {name: 'ip', index: '1', align: "center", width: 200, sortable: true},
+                {name: 'port', index: '2', align: "center", width: 100, sortable: true},
+                {name: 'user', index: '3', align: "center", width: 293, sortable: true},
+                {name: 'operation', index: '4', align: "center", width: 80, sortable: false, hidden: is_norm_user()}
+            ],
+            width: 748,
+            height: 600,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+    }
+
+    function del_tunnel(t_id) {
+        $('.mywaite').show();
+        var params = 'a=del&id=' + t_id;
+        myAjaxGet('../tunnelmanage_handle/', params, reloadGrid);
+    }
+
+    function tunnel_resize() {
+        resizeright();
+        var width = $('.table_menu').width()-5;
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        tunnel_resize();
+    });
+</script>

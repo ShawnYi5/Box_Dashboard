@@ -1,0 +1,221 @@
+<style>
+    #ipsetdiv .set_ip_div input{
+        width: 140px;
+    }
+    #ipsetdiv .just_show_src input{
+        width: 140px;
+    }
+    .text_button {
+        display: inline-block;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        color: rgb(31, 45, 61);
+        -webkit-appearance: none;
+        text-align: center;
+        box-sizing: border-box;
+        user-select: none;
+        background: rgb(255, 255, 255);
+        border-width: 1px;
+        border-style: solid;
+        border-image: initial;
+        border-color: rgb(196, 196, 196);
+        outline: none;
+        margin: 0px;
+        padding: 5px 7px;
+        border-radius: 4px;
+        margin-left: 5px;
+    }
+
+    .text_button:hover {
+        border-color: #58B7FF;
+        color: #58B7FF;
+    }
+
+    .add:hover {
+        border-color: #13CE66;
+        color: #13CE66;
+    }
+
+    .del:hover {
+        border-color: #FF4949;
+        color: #FF4949;
+    }
+
+    .not_float {
+        float: none;
+    }
+
+    .control {
+        margin-top: 10px;
+    }
+
+    .control label {
+        display: inline-block;
+        width: 5em;
+    }
+
+    .adapter.connected::after {
+        content: "（控制网卡）";
+    }
+
+	header {
+        border-bottom: 1px solid #d3d3d3;
+        background: #f5f5f5;
+        position: relative;
+        min-height: 42px;
+        line-height: 42px;
+        padding-right: 10px;
+    }
+
+    .ip_set_header ul, li {
+        margin: 0;
+        padding: 0;
+    }
+
+    .ip_set_header ul {
+        float: left;
+    }
+
+    .ip_set_header li {
+        float: left;
+        list-style: none;
+        border: 1px solid transparent;
+        border-top: 0;
+        margin-left: -1px;
+        margin-right: -1px;
+        color: #8391a5;
+        display: inline-block;
+        padding: 0 16px;
+        transition: all .3s cubic-bezier(.645, .045, .355, 1);
+    }
+
+    .ip_set_header li:hover {
+        cursor: pointer;
+    }
+
+    .ip_set_header .ip-choice {
+        background-color: #fff;
+        color: #20a0ff;
+        border-right-color: #d3d3d3;
+        border-left-color: #d3d3d3;
+    }
+
+    .ip_set_header li:last-child {
+        margin-right: 0;
+    }
+
+    .container {
+        padding: 10px 16px;
+    }
+</style>
+<div id="tmp_adapter_container" style="display: none">
+    <div class="ip_container_wrap" style="border: 1px solid #d3d3d3">
+        <header class="ip_set_header">
+            <div style="margin-bottom: -1px;overflow: hidden">
+                <nav style="float: left">
+                    <ul>
+                        <li class="ip-choice" onclick="show_div('.set_ip_div')">设置目标网络</li>
+                        <li onclick="show_div('.just_show_src')">查看源机网络</li>
+                    </ul>
+                </nav>
+                <div class="should_check_wrap" style="margin-right: 10px;display: none;float: right">
+                    <input class="should_check" type="checkbox" value="1" style="position: relative;top: 3px"><label
+                        for="">编辑</label>
+                </div>
+            </div>
+        </header>
+        <div class="set_ip_div container">
+            <div class="ip_container"></div>
+            <div class="dns_gateway_container" style="margin-top: 10px"></div>
+        </div>
+        <div class="just_show_src container" style="display: none">
+            <div class="ip_container"></div>
+            <div class="dns_gateway_container" style="margin-top: 10px"></div>
+        </div>
+    </div>
+</div>
+
+<div id="ip_tmp_data" style="display: none">
+    <div style="border:1px solid #d3d3d3;margin-top:10px;" class="adapter_container">
+        <header>
+            <div style="outline: hidden;margin-left: 16px">
+                <div style="float: left;width: 100%;margin-right: -100px">
+                    <div class="inner" style="margin-right: 100px">
+                        <label style="width: auto">网卡：</label>
+                        <input type="hidden" class="adapter_info"/>
+                        <span class="adapter"></span>
+                    </div>
+                </div>
+                <div style="float: right;width: 100px">
+                    <div class="inner" style="float: right">
+                        <div class="text_button add_ip add"
+                         onclick="add_item(this, '.left-container')">
+                        增加IP
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </header>
+		<div style="padding: 0px 16px;display: flex;flex-flow: row wrap;">
+			<div class="control" style="flex: 1">
+				<label>网络名：</label>
+				<input type="text" name="nic_name" placeholder="不填则自动生成" list="nic-name-list" onblur="removespace(this)"/>
+				<span class="form_tips">恢复后，需要重命名网络，则填写此字段</span>
+			</div>
+		</div>
+        <div style="padding: 10px 16px" class="left-container">
+            <div style="display: flex;flex-flow: row wrap;" class="control_group ip2mask">
+                <div class="control" style="flex: 1">
+                    <label>IP地址：</label>
+                    <input type="text" onblur="removespace(this)" class="ip">
+                </div>
+                <div class="control" style="flex: 1">
+                    <label>子网掩码：</label>
+                    <input type="text" onblur="removespace(this)" class="mask">
+                </div>
+            </div>
+        </div>
+        <div class="to_self_and_dhcp" style="padding: 0 16px 10px;display: none">
+            <p style="padding: 0;margin: 0">
+                提示：源机是DHCP，还原后目标机将变成以上固定IP，请确认是否冲突。
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="dns_gate_way_data" style="display: none">
+    <div style="border:1px solid #d3d3d3" class="adapter_container">
+        <header style="padding-left: 16px">
+            <div style="outline: hidden">
+                <div style="float: left">
+                    <span style="width: auto">全局网络信息：</span>
+                </div>
+                <div style="float: right">
+                    <div class="text_button add_dns add"
+                         onclick="add_item(this, '.right-container')">
+                        增加DNS
+                    </div>
+                </div>
+            </div>
+        </header>
+		<div class="clear"></div>
+        <div style="padding: 10px 16px" class="right-container">
+            <div style="display: flex;flex-flow: row wrap;" class="control_group">
+                <div class="control gate_way" style="flex: 1">
+                    <label>默认网关：</label>
+                    <input type="text" onblur="removespace(this)" class="gateway">
+                </div>
+                <div class="control " style="flex: 1">
+                    <label>DNS：</label>
+                    <input type="text" onblur="removespace(this)" class="dns">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<datalist id="nic-name-list">
+</datalist>

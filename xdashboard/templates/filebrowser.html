@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="shortcut icon" href="/static/images/favicon.ico"/>
+    <title>{{ title }}</title>
+    <script type="text/javascript" src="/static/js/noReload.js"></script>
+    <script type="text/javascript" src="/static/js/gototop.js"></script>
+
+    <style>
+        ul, li {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-width: 600px;
+        }
+
+        li {
+            list-style-type: none;
+        }
+
+        #head span {
+            color: #fff;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        dt {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        a.backToTop {
+            width: 60px;
+            height: 60px;
+            background: #eaeaea url(/static/images/top.gif) no-repeat -51px 0;
+            text-indent: -999em
+        }
+
+        a.backToTop:hover {
+            background-position: -113px 0
+        }
+    </style>
+
+</head>
+<body>
+
+<div style="margin: 0 50px;">
+    <div id="head">
+        <div style="margin: 10px;padding: 10px;background: #101010">
+            <span><a href="/xdashboard/home/"
+                     style="color: #fff;font-size:1.5em"><strong>{{ title }}-文件浏览</strong></a></span>
+            <span style="display: block;float: right;line-height: 2.5em"><strong>管理员:</strong>{{ username }}</span>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div id="main">
+        <div style="float: left;width: 70%;">
+            <div style="border: 1px solid #CDE1EF;padding: 10px;margin: 10px;min-height: 600px;">
+                <div id="file_tree" class="aciTree" value="{{ schedule.id }}"></div>
+            </div>
+        </div>
+        <div style="float: left;width: 30%;">
+            <div style="border: 1px solid #CDE1EF;padding: 10px;margin: 10px">
+                <ul>
+                    <li>
+                        <dl>
+                            <dt>
+                                计算机名：
+                            </dt>
+                            <dd>
+                                {{ schedule.host_display_name }}
+                            </dd>
+                        </dl>
+                    </li>
+                    {% if task_name %}
+                        <li>
+                            <dl>
+                                <dt>
+                                    备份任务：
+                                </dt>
+                                <dd>
+                                    {{ task_name }}
+                                </dd>
+                            </dl>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <dl>
+                            <dt>
+                                备份点时间：
+                            </dt>
+                            <dd>
+                                {{ schedule.host_start_time }}
+                            </dd>
+                        </dl>
+                    </li>
+                    <li>
+                        <dl>
+                            <dt>
+                                备份点类型：
+                            </dt>
+                            <dd>
+                                {{ point_type }}
+                            </dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div id="foot" style="text-align: center">
+    </div>
+</div>
+
+
+{% include 'tree.inc.html' %}
+
+<script>
+    function initAciTreeFile(treeid, url) {
+        return $('#' + treeid).aciTree({
+            autoInit: true,
+            ajax: {
+                url: url
+            },
+            checkbox: true,
+            radio: true,
+            selectable: true,
+            columnData: [
+                {
+                    width: 140,
+                    props: 'mtime',
+                    value: ''
+                },
+                {
+                    width: 100,
+                    props: 'size',
+                    value: ''
+                }
+            ]
+        }).aciTree('api');
+    }
+
+    function RefreshAciTreeFile(treeid, url, callback, p) {
+        $('#' + treeid).aciTree().aciTree('api').destroy({
+            success: function () {
+                initAciTreeFile(treeid, url);
+                if (typeof(callback) == 'function') {
+                    callback(p);
+                }
+            }
+        });
+    }
+    $(function () {
+        var id = $('#file_tree').attr('value');
+        myAjaxGet('../filebrowser_handle/?a=list_file&schedule=' + id + '&id=', '', check_callback);
+        RefreshAciTreeFile("file_tree", '../filebrowser_handle/?a=list_file&schedule=' + id + '&id=');
+        $(".backToTop").goToTop();
+        $(window).bind('scroll resize', function () {
+            $(".backToTop").goToTop();
+        });
+    })
+
+    function check_callback(jsonstr){
+        interval_run();
+    }
+
+    function interval_run(){
+        var id = $('#file_tree').attr('value');
+        window.setInterval(function () {
+            if (close_timer != undefined){
+                return false;
+            }
+            myAjaxGet('../filebrowser_handle/?a=ping&schedule=' + id, '', ping_callback);
+        }, 2000);
+    }
+
+    function ping_callback(jsonstr) {
+        if (jsonstr.r != 0){
+            close_window();
+        }
+    }
+
+    var close_timer = undefined;
+    function close_window() {
+        if (close_timer != undefined){
+            return false;
+        }
+        var time = 5;
+        openCommonDialog('提示','浏览备份点被关闭，页面将在<span id="close_window_scd">5</span>秒内关闭。');
+        close_timer = window.setInterval(function () {
+            if (time == 1){
+                window.opener=null;
+                window.open(location,'_self');
+                window.close();
+            }else{
+                time = time -1;
+                $('#close_window_scd').text(time);
+            }
+        }, 1000);
+    }
+
+</script>
+
+</body>
+</html>

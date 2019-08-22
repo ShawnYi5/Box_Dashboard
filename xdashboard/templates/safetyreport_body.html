@@ -1,0 +1,583 @@
+<style>
+    .msgcolor {
+        width: 10px;
+        height: 10px;
+        display: block;
+        float: left;
+        border: 1px solid #797474;
+        margin-right: 1px;
+        margin-top: 2px;
+    }
+
+    .msg {
+        float: left;
+    }
+
+    .msgnum {
+        float: left;
+        margin-right: 2px;
+    }
+
+    .pre-host {
+        border: 1px solid #D4D7CB;
+        padding: 10px;
+        margin: 10px;
+        float: left;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    div .dount {
+        width: 200px;
+        height: 220px;
+        margin: 0 auto;
+    }
+
+    div .host-name {
+        border-bottom: 1px dashed #D4D7CB;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        height: 1.8em;
+        word-break: break-all;
+        overflow: hidden;
+    }
+
+    .textTime {
+        margin-bottom: 10px;
+    }
+
+    .exbutton {
+        margin-right: 40px;
+    }
+    #mydialog a:focus{
+        outline:none;
+    }
+</style>
+
+<script type="text/javascript" src="/static/js/lodash.min.js"></script>
+
+<div class="right">
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">概述</a></li>
+            <li><a href="#tabs-2">数据安全风险</a></li>
+            <li><a href="#tabs-3">执行风险</a></li>
+            <li><a href="#tabs-4">数据恢复风险</a></li>
+            <li><a href="#tabs-5">迁移风险</a></li>
+            <li><a href="#tabs-6">任务统计</a></li>
+        </ul>
+        <div id="tabs-1">
+            <div class="timerange" style="float: left">
+                时间：<input name="totaltime1" type="text" class="textTime Wdate" id="totaltime1" readonly="readonly"
+                          onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:Onpicktime})"/>
+                至<input name="totaltime2" type="text" class="textTime Wdate" id="totaltime2" readonly="readonly"
+                        onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:Onpicktime})"/>
+            </div>
+            <div class="exbutton" id="extotaltimes" style="float: right">导出</div>
+            <div style="clear: both"></div>
+            <div id="hosts"></div>
+        </div>
+        <div id="tabs-2">
+            <div style="float: left;line-height: 25px">时间:最近一次备份点</div>
+            <div class="exbutton" id="exdatasafe" style="float: right;margin-bottom: 10px">导出</div>
+            <div style="clear: both"></div>
+            <table id="datasafe"></table>
+            <div id="datasafepager"></div>
+            <p>说明:表中以客户端为对象，展示了客户端最近的备份点时间，用以评估<strong>数据</strong>的安全风险。</p>
+            <p>风险等级：以<strong>备份</strong>点距离现在的天数，来划分风险等级，风险等级可以自行设定。</p>
+            <div style="margin-bottom: 20px;width: 600px">
+                <div style="margin-bottom: 20px">
+                    <div style="float: right;margin-bottom: 10px;" id="button">保存</div>
+                    <div style="float: left"><span class="msgcolor" style="background-color:#00FF7F;margin-top: 2.5px"></span>风险低：<input type="text" id="amount1" readonly
+                             style="border:0; color:#f6931f; font-weight:bold;width: 80px"></div>
+                    <div style="float: left"><span class="msgcolor" style="background-color:#ffff00;margin-top: 2.5px"></span>风险中：<input type="text" id="amount2" readonly
+                             style="border:0; color:#f6931f; font-weight:bold;width: 100px"></div>
+                    <div style="float: left"><span class="msgcolor" style="background-color:#ff4500;margin-top: 2.5px"></span>风险高：<input type="text" id="amount3" readonly
+                             style="border:0; color:#f6931f; font-weight:bold;width: 80px"></div>
+                </div>
+                <div style="clear: both;"></div>
+                <div id="slider-range"></div>
+            </div>
+        </div>
+        <div id="tabs-3" >
+            时间：<input name="backuptime1" type="text" class="textTime Wdate" id="backuptime1" readonly="readonly"
+                      onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:backcuptime})"/>
+            至<input name="backuptime2" type="text" class="textTime Wdate" id="backuptime2" readonly="readonly"
+                    onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:backcuptime})"/>
+            <div class="exbutton" id="exbackup" style="float: right">导出</div>
+            <table id="backup"></table>
+            <div id="backuppager"></div>
+            <p>说明:表中以客户端为对象，展示了客户端最近一次备份任务失败的时间，用以评估执行<strong>备份任务</strong>的风险。</p>
+        </div>
+        <div id="tabs-4">
+
+            时间：<input name="restoretime1" type="text" class="textTime Wdate" id="restoretime1" readonly="readonly"
+                      onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:restoretime})"/>
+            至<input name="restoretime2" type="text" class="textTime Wdate" id="restoretime2" readonly="readonly"
+                    onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:restoretime})"/>
+            <div class="exbutton" id="exrestore" style="float: right">导出</div>
+            <table id="restoresafe"></table>
+            <div id="restoresafepager"></div>
+            <p>说明:表中以客户端为对象，展示了客户端最近一次恢复任务失败的时间，用以评估执行<strong>恢复任务</strong>的风险。</p>
+        </div>
+        <div id="tabs-5">
+
+            时间：<input name="migratetime1" type="text" class="textTime Wdate" id="migratetime1" readonly="readonly"
+                      onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:migratetime})"/>
+            至<input name="migratetime2" type="text" class="textTime Wdate" id="migratetime2" readonly="readonly"
+                    onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:migratetime})"/>
+            <div class="exbutton" id="exmigrate" style="float: right">导出</div>
+            <table id="migrate"></table>
+            <div id="migratepager"></div>
+            <p>说明:表中以客户端为对象，展示了客户端最近一次迁移任务失败的时间，用以评估执行<strong>迁移任务</strong>的风险。</p>
+        </div>
+        <div id="tabs-6">
+            {% include 'safety_tasks_stati.html' %}
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" media="screen" type="text/css" href="/static/css/morris.css"/>
+<script type='text/javascript' src='/static/js/raphael-min.js'></script>
+<script type='text/javascript' src='/static/js/morris.min.js'></script>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/mymorris.js"></script>
+<script>
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").tabs("option", "active", 0);
+        var end = '{{ now|date:"Y-m-d" }}';
+        var st = DateSubDay(end, 30);
+        $('#backuptime1').val(st);
+        $('#backuptime2').val(end);
+        $('#restoretime1').val(st);
+        $('#restoretime2').val(end);
+        $('#migratetime1').val(st);
+        $('#migratetime2').val(end);
+        $('#totaltime1').val(st);
+        $('#totaltime2').val(end);
+        var p = 'starttime=' + st + '&endtime=' + end;
+        myAjaxGet('../bussinessreport_handle/?a=totaltimes', p, creatdount);
+        $('#navigation').html('<div class="font_navigation">安全状态报告</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#safetyreport" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+		safetyreport_resize();
+    });
+
+    $('#tabs').on('tabsbeforeactivate', function (event, ui) {
+        switch (ui.newTab.index()) {
+            case 1:
+                myAjaxGet('../bussinessreport_handle/?a=saferange', 'type=get', getdatasaferange);
+                creatsafe();
+                break;
+            case 2:
+                createbackup();
+                break;
+            case 3:
+                creatrestore();
+                break;
+            case 4:
+                createmgirate();
+                break;
+        }
+		safetyreport_resize();
+    });
+    $('#button').button().click(function () {
+        var value1_now = $("#slider-range").slider("values", 0);
+        var value2_now = $("#slider-range").slider("values", 1);
+        if (value1_now == value2_now) {
+            openErrorDialog('错误', '范围选择错误，中安全等级无范围');
+            return;
+        }
+        var range = value1_now + ',' + value2_now;
+        myAjaxGet('../bussinessreport_handle/?a=saferange', 'type=set&range=' + range, updatasafe);
+    });
+    function creatsafe() {
+        jQuery("#datasafe").jqGrid({
+            url: '../bussinessreport_handle/?a=datasafety',
+            datatype: "json",
+            colNames: ['id', '客户端名称', '最近备份点时间', '安全评价', '类型'],
+
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 20, hidden: true, sortable: false},
+                {name: 'servername', index: '1', align: "center", width: 150, sortable: true},
+                {name: 'times', index: '2', align: "center", width: 200, sortable: true},
+                {
+                    name: 'contents',
+                    index: '3',
+                    align: "center",
+                    width: 340,
+                    sortable: true,
+                    cellattr: safeformater
+                },
+                {name: 'type', index: '4', align: "center", hidden: true, sortable: false},
+            ],
+            width: 700,
+            height: 300,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#datasafepager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true
+        });
+    }
+
+    function creatrestore() {
+        var parms = '&st=' + $('#restoretime1').val() + '&end=' + $('#restoretime2').val();
+        jQuery("#restoresafe").jqGrid({
+            url: '../bussinessreport_handle/?a=excutelist&type=restore' + parms,
+            datatype: "json",
+            colNames: ['id', '客户端名称', '时间', '描述', '详细'],
+
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 20, hidden: true, sortable: true},
+                {name: 'servername', index: '1', align: "center", width: 150, sortable: true},
+                {name: 'times', index: '2', align: "center", width: 200, sortable: true},
+                {name: 'content', index: '3', align: "center", width: 100, sortable: true},
+                {name: 'detail', index: '4', align: "center", width: 245, sortable: true}
+
+            ],
+            width: 700,
+            height: 300,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#restoresafepager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true
+        });
+    }
+
+    function createbackup() {
+        var parms = '&st=' + $('#backuptime1').val() + '&end=' + $('#backuptime2').val();
+        jQuery("#backup").jqGrid({
+            url: '../bussinessreport_handle/?a=excutelist&type=backup' + parms,
+            datatype: "json",
+            colNames: ['id', '客户端名称', '时间', '描述', '详细'],
+
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 20, hidden: true, sortable: true},
+                {name: 'servername', index: '1', align: "center", width: 150, sortable: true},
+                {name: 'times', index: '2', align: "center", width: 200, sortable: true},
+                {name: 'content', index: '3', align: "center", width: 100, sortable: true},
+                {name: 'detail', index: '4', align: "center", width: 245, sortable: true}
+
+            ],
+            width: 700,
+            height: 300,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#backuppager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true
+        });
+    }
+
+    function createmgirate() {
+        var parms = '&st=' + $('#migratetime1').val() + '&end=' + $('#migratetime2').val();
+        jQuery("#migrate").jqGrid({
+            url: '../bussinessreport_handle/?a=excutelist&type=migrate' + parms,
+            datatype: "json",
+            colNames: ['id', '客户端名称', '时间', '描述', '详细'],
+
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 20, hidden: true, sortable: true},
+                {name: 'servername', index: '1', align: "center", width: 150, sortable: true},
+                {name: 'times', index: '2', align: "center", width: 200, sortable: true},
+                {name: 'content', index: '3', align: "center", width: 100, sortable: true},
+                {name: 'detail', index: '4', align: "center", width: 245, sortable: true}
+
+            ],
+            width: 700,
+            height: 300,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#migratepager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true
+        });
+    }
+
+    function getexcuteobjback1(jsonstr) {
+        $('#restoresafecontent').html(jsonstr.content);
+    }
+    function getexcuteobjback2(jsonstr) {
+        $('#backupcontent').html(jsonstr.content);
+    }
+    function getexcuteobjback3(jsonstr) {
+        $('#migratecontent').html(jsonstr.content);
+    }
+    function goto(x) {
+        $("#tabs").tabs("option", "active", x);
+    }
+
+    function creatdount(jsonstr) {
+        if (jsonstr.r != 0) {
+            return;
+        }
+        var obj = jsonstr.list
+        $('.pre-host').val();
+        var ws = $('#hosts').width();
+        for (var i = 0; i < jsonstr.list.length; i++) {
+            if (obj[i].data.length == 0) {
+                var cell = $('<div class="pre-host"></div>').width(ws/3.5).height(ws/3.5*1.1);
+                var name = $('<div class="host-name" id="{1}">客户端：{0}</div>'.replace('{0}', obj[i].hostname).replace('{1}', obj[i].ident));
+                var dount = $('<div class="dount" style="height:270px">暂时无任务执行</div>').attr('id', 'dount' + i);
+                cell.append(name).append(dount);
+                $('#hosts').append(cell);
+                continue;
+            }
+            var msg1 = $('<div style="float:left;margin-top:5px"><span class="msgcolor" style="background-color:#20B2AA"></span><div class="msg">备份成功:</div><span class="msgnum">{0}</span></div>'.replace('{0}', obj[i].data[0]['value']));
+            var msg2 = $('<div style="float:left;margin-top:5px"><span class="msgcolor" style="background-color:#FFA07A"></span><div class="msg">恢复成功:</div><span class="msgnum">{0}</span></div>'.replace('{0}', obj[i].data[1]['value']));
+            var msg3 = $('<div style="float:left;margin-top:5px"><span class="msgcolor" style="background-color:#FFB6C1"></span><div class="msg">迁移成功:</div><span class="msgnum">{0}</span></div>'.replace('{0}', obj[i].data[2]['value']));
+            var msg4 = $('<div style="float:left;margin-top:5px"><span class="msgcolor" style="background-color:#90EE90"></span><div class="msg">备份失败:</div><span class="msgnum">{0}</span></div>'.replace('{0}', obj[i].data[3]['value']));
+            var msg5 = $('<div style="float:left;margin-top:5px"><span class="msgcolor" style="background-color:#D3D3D3"></span><div class="msg">恢复失败:</div><span class="msgnum">{0}</span></div>'.replace('{0}', obj[i].data[4]['value']));
+            var msg6 = $('<div style="float:left;margin-top:5px"><span class="msgcolor" style="background-color:#FAFAD2"></span><div class="msg">迁移失败:</div><span class="msgnum">{0}</span></div>'.replace('{0}', obj[i].data[5]['value']));
+            var msg_container = $('<div style="margin:0 auto;"></div>');
+            var cell = $('<div class="pre-host"></div>').width(ws/3.5).height(ws/3.5*1.1);
+            var name = $('<div><div class="host-name" id="{1}">客户端：{0}</div>'.replace('{0}', obj[i].hostname).replace('{1}', obj[i].ident));
+            var dount = $('<div class="dount"></div>').attr('id', 'dount' + i);
+            msg_container.append(msg1).append(msg2).append(msg3).append(msg4).append(msg5).append(msg6);
+            cell.append(name).append(dount).append(msg_container);
+            $('#hosts').append(cell);
+            ShowMorrisDount('dount' + i, obj[i].data);
+        }
+        $('#hosts').append($('<div style="clear:both;"></div>'));
+    }
+    function updatadount(jsonstr) {
+        if (jsonstr.r != 0) {
+            return;
+        }
+        $('#hosts').empty();
+        creatdount(jsonstr);
+    }
+    function eventsCallback(jsonstr) {
+        if (!jsonstr.list) {
+            return;
+        }
+        $.each(jsonstr.list, function (index, element) {
+            var str = (index + 1) + ':' + element['hostname'] + '---' + element['event'] + '---' + element['time']
+            var p = $('<p></p>').text(str);
+            p.css('margin', '0');
+            $('#recently').append(p);
+            $('#recently').append('<hr>');
+        })
+    }
+
+    function safeformater(rowId, tv, rawObject, cm, rdata) {
+        // 无备份点
+        if (rawObject[4] == -2) {
+            return ' style="background:#ff4500"';
+        }
+        // cdp保护
+        if (rawObject[4] == -1) {
+            return ' style="background:#00FF7F"';
+        }
+        // cdp保护停止
+        if (rawObject[4] == -3) {
+            return ' style="background:#00FF7F"';
+        }
+        // 有备份点
+        if (rawObject[4] >= 0) {
+            var value1 = $("#slider-range").slider("values", 0);
+            var value2 = $("#slider-range").slider("values", 1);
+            if (rawObject[4] <= value1)
+                return ' style="background:#00FF7F"';
+            if (value1 < rawObject[4] && rawObject[4] <= value2)
+                return ' style="background:#ffff00"';
+            if (value2 < rawObject[4])
+                return ' style="background:#ff4500"';
+        }
+        // 无主机
+        if(rawObject[4] == -4){
+            return ;
+        }
+    }
+    function ShowMorrisDount(element, data) {
+        document.getElementById(element).innerHTML = '';
+        new Morris.Donut({
+            element: element,
+            //data=[{value: 70, label: 'foo'},
+            //{value: 15, label: 'bar'},
+            //{value: 10, label: 'baz'},
+            //{value: 5, label: 'A really really long label'}]
+            data: data,
+            resize: true,
+            backgroundColor: '#ccc',
+            labelColor: '#060',
+            colors: [
+                '#20B2AA',
+                '#FFA07A',
+                '#FFB6C1',
+                '#90EE90',
+                '#D3D3D3',
+                '#FAFAD2',
+            ],
+            formatter: function (val) {
+                return val + '次';
+            }
+        });
+    }
+    function Onpicktime() {
+        var starttime = $('input[name=totaltime1]').val();
+        var endtime = $('input[name=totaltime2]').val();
+        var d1 = new Date(starttime.replace(/-/g, '/'));
+        var d2 = new Date(endtime.replace(/-/g, '/'));
+        var diff = d2 - d1;
+        if (diff < 0) {
+            openErrorDialog('错误', '开始时间应小于结束时间');
+            return;
+        }
+        var p = 'starttime=' + starttime + '&endtime=' + endtime;
+        myAjaxGet('../bussinessreport_handle/?a=totaltimes', p, updatadount);
+    }
+    function updatasafe() {
+        $('#datasafe').setGridParam({url: '../bussinessreport_handle/?a=datasafety'});
+        $('#datasafe').trigger("reloadGrid", [{page: 1}]);
+    }
+    function getdatasaferange(jsonstr) {
+        $("#slider-range").slider({
+            range: true,
+            min: 1,
+            max: 30,
+            values: [parseInt(jsonstr.data[0]), parseInt(jsonstr.data[1])],
+            slide: function (event, ui) {
+                $("#amount1").val(ui.values[0] + '天以内');
+                $("#amount2").val(ui.values[0] + '天到' + ui.values[1] + '天');
+                if (ui.values[0] == ui.values[1]) {
+                    $("#amount2").val('');
+                }
+                $("#amount3").val('大于' + ui.values[1] + '天');
+            }
+        });
+        var value1 = $("#slider-range").slider("values", 0);
+        var value2 = $("#slider-range").slider("values", 1);
+        $("#amount1").val(value1 + '天以内');
+        $("#amount2").val(value1 + '天到' + value2 + '天');
+        if (value1 == value2) {
+            $("#amount2").val('');
+        }
+        $("#amount3").val('大于' + value2 + '天');
+    }
+
+    function backcuptime() {
+        var starttime = $('input[name=backuptime1]').val();
+        var endtime = $('input[name=backuptime2]').val();
+        var d1 = new Date(starttime.replace(/-/g, '/'));
+        var d2 = new Date(endtime.replace(/-/g, '/'));
+        var diff = d2 - d1;
+        if (diff < 0) {
+            openErrorDialog('错误', '开始时间应小于结束时间');
+            return;
+        }
+        var p = '&st=' + starttime + '&end=' + endtime;
+        $('#backup').setGridParam({url: '../bussinessreport_handle/?a=excutelist&type=backup' + p});
+        $('#backup').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function restoretime() {
+        var starttime = $('input[name=restoretime1]').val();
+        var endtime = $('input[name=restoretime2]').val();
+        var d1 = new Date(starttime.replace(/-/g, '/'));
+        var d2 = new Date(endtime.replace(/-/g, '/'));
+        var diff = d2 - d1;
+        if (diff < 0) {
+            openErrorDialog('错误', '开始时间应小于结束时间');
+            return;
+        }
+        var p = '&st=' + starttime + '&end=' + endtime;
+        $('#restoresafe').setGridParam({url: '../bussinessreport_handle/?a=excutelist&type=restore' + p});
+        $('#restoresafe').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function migratetime() {
+        var starttime = $('input[name=migratetime1]').val();
+        var endtime = $('input[name=migratetime2]').val();
+        var d1 = new Date(starttime.replace(/-/g, '/'));
+        var d2 = new Date(endtime.replace(/-/g, '/'));
+        var diff = d2 - d1;
+        if (diff < 0) {
+            openErrorDialog('错误', '开始时间应小于结束时间');
+            return;
+        }
+        var p = '&st=' + starttime + '&end=' + endtime;
+        $('#migrate').setGridParam({url: '../bussinessreport_handle/?a=excutelist&type=migrate' + p});
+        $('#migrate').trigger("reloadGrid", [{page: 1}]);
+    }
+
+
+    $('.exbutton')
+            .button()
+            .click(function () {
+                var id = this.id;
+                if (id == 'exbackup') {
+                    var starttime = $('input[name=backuptime1]').val();
+                    var endtime = $('input[name=backuptime2]').val();
+                    var p = 'type=backup&' + 'name=执行风险报告' + '&starttime=' + starttime + '&endtime=' + endtime
+                    myAjaxGet('../bussinessreport_handle/?a=getxls', p, excallback);
+                }
+                if (id == 'exrestore') {
+                    var starttime = $('input[name=restoretime1]').val();
+                    var endtime = $('input[name=restoretime2]').val();
+                    var p = 'type=restore&' + 'name=数据恢复风险报告' + '&starttime=' + starttime + '&endtime=' + endtime;
+                    myAjaxGet('../bussinessreport_handle/?a=getxls', p, excallback);
+                }
+                if (id == 'exmigrate') {
+                    var starttime = $('input[name=migratetime1]').val();
+                    var endtime = $('input[name=migratetime2]').val();
+                    var p = 'type=migrate&' + 'name=迁移风险报告' + '&starttime=' + starttime + '&endtime=' + endtime;
+                    myAjaxGet('../bussinessreport_handle/?a=getxls', p, excallback);
+                }
+                if (id == 'exdatasafe'){
+                    var p = 'name=数据安全报告';
+                    myAjaxGet('../bussinessreport_handle/?a=getxlsdatasafe', p, excallback);
+                }
+                if (id == 'extotaltimes'){
+                    var st = $('input[name=totaltime1]').val();
+                    var end = $('input[name=totaltime2]').val();
+                    var p = 'starttime=' + st + '&endtime=' + end + '&type=totaltimes' + '&name=安全报告-概述';
+                    myAjaxGet('../bussinessreport_handle/?a=exchart', p, excallback);
+                }
+            });
+    $( "#mydialog" ).dialog({
+	autoOpen: false,
+	width: 500,
+    height:150
+    });
+    function excallback(jsonstr) {
+
+        if(jsonstr.r != 0){
+            openErrorDialog('错误',jsonstr.e);
+            return;
+        }
+        $('#urladdress').attr('href',jsonstr.url);
+        $('#urladdress').html(jsonstr.filename);
+        $( "#mydialog" ).dialog( "open" );
+    }
+
+function safetyreport_resize()
+{
+	resizeright();
+	var width = $('#tabs').width() - 50;
+	$("#datasafe").setGridWidth(width);
+	$("#restoresafe").setGridWidth(width);
+	$("#backup").setGridWidth(width);
+	$("#migrate").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	safetyreport_resize();	
+});
+</script>

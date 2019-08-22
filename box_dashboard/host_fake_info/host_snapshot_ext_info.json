@@ -1,0 +1,300 @@
+{
+	"progressTotal": 10000,
+	"agent_finish_code": 0,
+	"include_ranges": [{
+		"diskIdent": "2164dbe9ab0d41f2a2172034ebe9745c",
+		"diskNativeGUID": "7fed0c00000000000000000000000000",
+		"ranges": [{
+			"FreeBytes": "430158848",
+			"Type": "native",
+			"TotalBytes": "507744256",
+			"Style": "mbr",
+			"VolumeDevice": "/dev/sda1",
+			"BytesStart": "1048576",
+			"UsedBytes": "51371008",
+			"MountPoint": "/boot",
+			"DiskIndex": 0,
+			"MountOpts": "rw",
+			"BytesEnd": "525336064",
+			"FileSystem": "ext4"
+		},
+		{
+			"FreeBytes": "22045626368",
+			"Type": "lv",
+			"TotalBytes": "27025022976",
+			"Style": "none",
+			"VolumeDevice": "/dev/mapper/vg_centos64x64min-lv_root",
+			"BytesStart": "526385152",
+			"UsedBytes": "3606601728",
+			"MountPoint": "/",
+			"DiskIndex": 0,
+			"MountOpts": "rw",
+			"BytesEnd": "27982299136",
+			"FileSystem": "ext4"
+		},
+		{
+			"FreeBytes": "",
+			"Type": "lv",
+			"TotalBytes": "",
+			"Style": "none",
+			"VolumeDevice": "/dev/mapper/vg_centos64x64min-lv_swap",
+			"BytesStart": "27982299136",
+			"UsedBytes": "",
+			"MountPoint": "",
+			"DiskIndex": 0,
+			"MountOpts": "",
+			"BytesEnd": "32210157568",
+			"FileSystem": "linux-swap"
+		}],
+		"diskIndex": 0,
+		"diskSnapshot": "8ec0def85289441592f39f6d947659f6"
+	}],
+	"updateTime": "2018-11-30 11:05:10",
+	"disk_index_info": [{
+		"snapshot_disk_ident": "8ec0def85289441592f39f6d947659f6",
+		"snapshot_disk_index": 0,
+		"is_system": false,
+		"boot_device": true,
+		"is_bmf": true
+	}],
+	"system_infos": {
+		"Storage": {
+			"disks": [{
+				"device": "/dev/sda",
+				"bytes": "32212254720",
+				"index": 0,
+				"style": "mbr",
+				"partitions": [{
+					"bytesLength": "524288000",
+					"index": 1,
+					"device": "/dev/sda1",
+					"type": "native",
+					"bytesStart": "1048576",
+					"totalBytes": "507744256",
+					"mountPoint": "/boot",
+					"mountOpts": "rw",
+					"fileSystem": "ext4",
+					"bytesEnd": "525336064",
+					"freeBytes": "430158848",
+					"usedByte": "51371008"
+				},
+				{
+					"vg_name": "vg_centos64x64min",
+					"uuid": "GtfN4x-7dms-aHvV-DSGF-KHP1-DZkV-rQrNU6",
+					"bytesLength": "31686918144",
+					"index": 2,
+					"type": "lvm",
+					"device": "/dev/sda2",
+					"bytesEnd": "32212254208",
+					"bytesStart": "525336576"
+				}]
+			}],
+			"vgs": [{
+				"name": "vg_centos64x64min",
+				"lvs": [{
+					"mountPoint": "/",
+					"name": "lv_root",
+					"uuid": "v5f0gd-VMOH-1J2g-d4hu-Na4X-fRq6-2cZdVH",
+					"mountOpts": "rw",
+					"fileSystem": "ext4",
+					"free_bytes": "22045626368",
+					"used_bytes": "3606601728",
+					"diskRanges": [{
+						"device": "/dev/sda",
+						"sector_size": "512",
+						"sector_count": "53624832",
+						"index": "0",
+						"start_sector": "1028096"
+					}],
+					"total_bytes": "27025022976"
+				},
+				{
+					"mountPoint": null,
+					"name": "lv_swap",
+					"uuid": "r8sKsI-NV8M-GPcf-hfq4-YGLu-bVUu-71Ydxt",
+					"mountOpts": null,
+					"fileSystem": "linux-swap",
+					"free_bytes": null,
+					"used_bytes": null,
+					"diskRanges": [{
+						"device": "/dev/sda",
+						"sector_size": "512",
+						"sector_count": "8257536",
+						"index": "0",
+						"start_sector": "54652928"
+					}],
+					"total_bytes": null
+				}],
+				"uuid": "Why8zP-U8RE-CZ7O-qe6C-2tvz-smWt-utaJ3Q",
+				"pvs": [{
+					"name": "/dev/sda2",
+					"uuid": "GtfN4x-7dms-aHvV-DSGF-KHP1-DZkV-rQrNU6"
+				}]
+			}],
+			"disk_alias": [{
+				"alias_items": [{
+					"name": "dm-uuid-LVM-Why8zPU8RECZ7Oqe6C2tvzsmWtutaJ3Qr8sKsINV8MGPcfhfq4YGLubVUu71Ydxt",
+					"target": "/dev/dm-1"
+				},
+				{
+					"name": "dm-name-vg_centos64x64min-lv_swap",
+					"target": "/dev/dm-1"
+				},
+				{
+					"name": "dm-uuid-LVM-Why8zPU8RECZ7Oqe6C2tvzsmWtutaJ3Qv5f0gdVMOH1J2gd4huNa4XfRq62cZdVH",
+					"target": "/dev/dm-0"
+				},
+				{
+					"name": "dm-name-vg_centos64x64min-lv_root",
+					"target": "/dev/dm-0"
+				}],
+				"alias_type": "by-id"
+			},
+			{
+				"alias_items": [{
+					"name": "4f353f03-17e7-41d4-831c-e74476e53a5a",
+					"target": "/dev/dm-1"
+				},
+				{
+					"name": "8c4a6906-1767-4a36-8a68-fa3fd8eba53a",
+					"target": "/dev/dm-0"
+				},
+				{
+					"name": "28bb419e-7079-4900-b8e8-0da52ffd6a28",
+					"target": "/dev/sda1"
+				}],
+				"alias_type": "by-uuid"
+			},
+			{
+				"alias_items": [{
+					"name": "pci-0000:03:00.0-scsi-0:0:0:0-part1",
+					"target": "/dev/sda1"
+				},
+				{
+					"name": "pci-0000:03:00.0-scsi-0:0:0:0-part2",
+					"target": "/dev/sda2"
+				},
+				{
+					"name": "pci-0000:03:00.0-scsi-0:0:0:0",
+					"target": "/dev/sda"
+				},
+				{
+					"name": "pci-0000:00:07.1-scsi-1:0:0:0",
+					"target": "/dev/sr0"
+				}],
+				"alias_type": "by-path"
+			},
+			{
+				"alias_items": [{
+					"name": "28bb419e-7079-4900-b8e8-0da52ffd6a28",
+					"target": "/dev/sda1"
+				},
+				{
+					"name": "GtfN4x-7dms-aHvV-DSGF-KHP1-DZkV-rQrNU6",
+					"target": "/dev/sda2"
+				}],
+				"alias_type": "by-blkid"
+			},
+			{
+				"alias_items": [{
+					"name": "4f353f03-17e7-41d4-831c-e74476e53a5a",
+					"target": "/dev/mapper/vg_centos64x64min-lv_swap"
+				}],
+				"alias_type": "by-swap-uuid"
+			},
+			{
+				"alias_items": [],
+				"alias_type": "by-swap-label"
+			}]
+		},
+		"ClientTimestamp": "1542001560.7725914",
+		"Linux": {
+			"kconfig_file": "/boot/config-2.6.32-358.el6.x86_64",
+			"install_path": "/opt/ClwDRClient_2.0.181106/bin",
+			"syms_file": "/lib/modules/2.6.32-358.el6.x86_64/build/Module.symvers",
+			"platform": "Linux-2.6.32-358.el6.x86_64-x86_64-with-centos-6.4-Final|mockbuild@c6b8.bsys.dev.centos.org",
+			"grub_ver": 1,
+			"initrdfs_path": "/boot/initramfs-2.6.32-358.el6.x86_64.img",
+			"vermagic": "2.6.32-358.el6.x86_64 SMP mod_unload modversions",
+			"release": "2.6.32-358.el6.x86_64",
+			"grub_file": "/boot/grub/grub.conf",
+			"system_map": "/boot/System.map-2.6.32-358.el6.x86_64",
+			"vmlinuz_path": "/boot/vmlinuz-2.6.32-358.el6.x86_64",
+			"kernel_ver": "2.6.32",
+			"boot_symvers": "/boot/symvers-2.6.32-358.el6.x86_64.gz",
+			"bit_opt": "64"
+		},
+		"UserIdent": "*efc92174-ff6c-4061-8ed1-f51077f240f3",
+		"Nic": [{
+			"IpAndMask": [{
+				"Ip": "172.16.120.101",
+				"Mask": "255.255.0.0"
+			}],
+			"Mac": "00:50:56:95:d9:b9",
+			"Dns": ["172.16.1.5"],
+			"Name": "eth0",
+			"GateWay": "172.16.1.1",
+			"Description": ""
+		}],
+		"running_platform": "normal",
+		"ConnectAddress": {
+			"LocalAddress": "172.16.120.101",
+			"RemoteAddress": "172.16.6.23",
+			"RemotePort": 20000
+		},
+		"System": {
+			"PhysicalMemory": "1968603136",
+			"ServicePack": "",
+			"SystemCatName": "64bit ELF",
+			"WorkGroup": "",
+			"ProcessorArch": "x86_64",
+			"BuildNumber": "Linux-2.6.32-358.el6.x86_64-x86_64-with-centos-6.4-Final",
+			"version": "2.0.181106",
+			"ProcessorInfo": "Intel(R) Xeon(R) CPU           E5520  @ 2.27GHz",
+			"ComputerName": "centos64x64min",
+			"SystemCaption": "Linux CentOS 6.4 Final"
+		},
+		"Disk": [{
+			"DiskSize": "32212254720",
+			"NativeGUID": "7fed0c00000000000000000000000000",
+			"Style": "mbr",
+			"DiskIndex": "/dev/sda",
+			"Partition": [{
+				"Letter": "/boot",
+				"VolumeSize": "507744256",
+				"Style": "mbr",
+				"Index": 1,
+				"FreeSize": "430158848",
+				"PartitionSize": "524288000",
+				"FileSystem": "ext4",
+				"VolumeLabel": "/dev/sda1"
+			},
+			{
+				"Letter": "",
+				"VolumeSize": "-1",
+				"Style": "mbr",
+				"Index": 2,
+				"FreeSize": "-1",
+				"PartitionSize": "31686918144",
+				"FileSystem": "lvm",
+				"VolumeLabel": "/dev/sda2"
+			}],
+			"DiskNum": "0",
+			"DiskMapperName": "",
+			"DiskName": "VMware Virtual disk"
+		}]
+	},
+	"progressIndex": 1,
+	"route_infos": [],
+	"network_adapter_infos": [],
+	"optimize_parameters": [{
+		
+	}],
+	"stop_optimize_parameters": [],
+	"exclude_ranges": [],
+	"efi_boot_entry": "",
+	"progressIndexTemp": 0,
+	"disk_controller_hardware": [],
+	"new_snapshot_ident": ["8ec0def85289441592f39f6d947659f6"],
+	"network_controller_hardware": []
+}

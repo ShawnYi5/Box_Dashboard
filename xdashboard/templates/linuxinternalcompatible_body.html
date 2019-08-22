@@ -1,0 +1,124 @@
+<style>
+.ui-jqgrid tr.jqgroup{
+	background: #eeeeee;
+}
+</style>
+<div class="right">
+	<div id="tabs">
+		<ul>	
+		</ul>
+	</div>
+	<div id="linux_jqgrid">
+		<table id="list"></table>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var g_tabs_obj = null;
+	$(function () {
+		jQuery("#list").jqGrid({
+			url: '',
+			datatype: "json",
+			colNames: ['序号','id', '源操作系统版本', '兼容的操作系统版本','os_ver'],
+			rownumbers: true,
+			colModel: [
+				{name: 'index', index: '0', align: "center", width:14,sortable: false},
+				{name: 'id', index: '0', align: "center", width:10,sortable: true, hidden: true},
+				{name: 'vermagic', index: '1',width:200, align: "left", sortable: false},
+				{name: 'user_vermagic', index: '2', width:250, align: "left", sortable: false},
+				{name: 'os_ver', index: '4', width:10, align: "left", sortable: false}
+			],
+			width: 748,
+			height: 600,
+			rowNum:50000,
+			sortname: 'id',
+			recordpos: 'left',
+			viewrecords: true,
+			sortorder: "desc",
+			shrinkToFit: true,
+			multiselect: false,
+			grouping:true,
+			groupingView : {
+				groupField : ['os_ver'],
+				groupColumnShow : [false],
+				groupCollapse : false,
+				groupText : ['<strong>{0}</strong>']
+			}
+		});
+	});
+	$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' });
+
+	function get_linux_tabs_callback(jsonobj)
+	{
+		g_tabs_obj = jsonobj.tabs;
+		var tabs = $( "#tabs" ).tabs();
+		for(var i=0;i<jsonobj.tabs.length;i++)
+		{
+			var navobj= tabs.find( ".ui-tabs-nav" );
+			var tab_id = 'tabs-'+i;
+			g_tabs_obj[i].tab_id = tab_id;
+			navobj.append( "<li><a href='#"+tab_id+"'>"+jsonobj.tabs[i].name+"</a></li>" );
+			navobj.after('<div id="'+tab_id+'"></div>');
+		}
+		
+		tabs.tabs( "refresh" );
+		$("#tabs").tabs("option", "active", 0);
+		setTimeout(function () {
+			reloadGrid();;
+		}, 500);
+		
+	}
+
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">查看linux操作系统内置支持版本</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#linuxinternalcompatible" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        $('#new_tunnelport').val('3345');
+		myAjaxPost('../linuxcompatible_handle/?a=get_linux_internal_tabs','',get_linux_tabs_callback);
+        linuxcompatible_resize();
+    });
+
+    function reloadGrid() {
+		var tabid = 'tabs-'+$("#tabs").tabs("option", "active");
+		var linux_name = $('#tabs').find('a[href="#'+tabid+'"]').text();
+
+		var new_url = '../linuxcompatible_handle/?a=get_internal_list&name='+linux_name;
+		$('#list').setGridParam({url:new_url});
+
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+
+
+	$('#tabs').on('tabsactivate', function (event, ui) {
+        var newPanel = ui.newPanel.attr('id');
+		$('#'+newPanel).append($('#linux_jqgrid'));
+		for(var i=0;i<g_tabs_obj.length;i++)
+		{
+			if(g_tabs_obj[i].tab_id == newPanel)
+			{
+				if(g_tabs_obj[i].count > 20 )
+				{
+					$('#list').setGridParam({groupingView:{groupCollapse : true}});
+				}
+				else
+				{
+					$('#list').setGridParam({groupingView:{groupCollapse : false}});
+				}
+			}
+		}
+		reloadGrid();
+    });
+
+    function linuxcompatible_resize() {
+        resizeright();
+		var width = $("#tabs").width()-50;
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        linuxcompatible_resize();
+    });
+</script>

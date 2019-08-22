@@ -1,0 +1,62 @@
+<div>
+    <h4>说明:</h4>
+    <div>
+        <p style="margin-left: 2em;line-height:1.5em">Tip1：目标主机的引导盘为目标主机当前BIOS配置项，请确认该目标磁盘是否为预期的还原目标。</p>
+        <p style="margin-left: 2em;line-height:1.5em">Tip2：若源引导盘是GPT分区，目标引导盘是MBR分区，请在还原后，调整引导模式为UEFI。</p>
+        <p style="margin-left: 2em;line-height:1.5em">Tip3：若卷的状态带有时间，则说明此卷的状态是历史快照中的状态。</p>
+        <p style="margin-left: 2em;line-height:1.5em">
+            Tip4：若还原目标机BIOS配置中的硬盘逻辑磁头扇区柱面数与原机不一样。我们将会尝试自动修正为符合目标机的逻辑磁头扇区柱面数。但还原后有可能需要断电重新开机才能还原成功、或多次还原才能修正BIOS配置中的硬盘逻辑磁头扇区柱面数。</p>
+    </div>
+</div>
+<div class="set_disk_step">
+    <h4 class="set_disk_step_header">
+                    <span class="set_disk_step_button" style="cursor:pointer;">
+                    ▼</span>选择需要恢复目标机硬盘及其卷
+    </h4>
+    <div style="margin: 0 0 1em 1em">
+        <div>当前快照点时间：<span id="current_point_time">2017-03-03 10:35:13</span></div>
+		<div style="display:none;"><label><input type="checkbox" id="change_disk">分区扩大、缩小或改变位置</label></div>
+    </div>
+    <div>
+        <span id="waring_type_describe" style="color:red;"></span>
+    </div>
+    <div class="set_disk_step_content">
+        <div id="HardDisks" class="ui-widget ui-widget-content ui-corner-all"
+             style="overflow:auto;max-height:400px;padding: 10px 20px 0 10px;min-width:550px">
+        </div>
+		<div id="ChangeHardDisks" style="overflow:auto;padding: 0px 0px 0 0px;min-width:550px;display:none;">
+			 {% include 'change_hard_disk.inc.html' %}
+        </div>
+    </div>
+</div>
+<div class="clear"></div>
+<div class="set_disk_step">
+    <h4 class="set_disk_step_header"><span class="set_disk_step_button" style="cursor:pointer">►</span>高级设置</h4>
+    <div class="set_disk_step_content" style="display: none">
+		{% if no_fast_boot %}
+        <input type="checkbox" id="restore_model" disabled="disabled">
+		{% else %}
+		<input type="checkbox" id="restore_model" checked="checked">
+		{% endif %}
+        <label for="restore_model">使用快速还原技术</label>
+        <p style="color:grey;margin: 1em 0 1em 2em">
+            说明:快速重建技术无需等待所有数据还原到目标主机，能够在仅还原关键热数据后就成功完成业务系统的重建。
+        </p>
+    </div>
+    <div class="set_disk_step_content" style="display: none">
+        <input type="checkbox" id="use_clw_boot">
+        <label for="use_clw_boot">使用科力锐启动重定向技术</label>
+        <p style="color:grey;margin: 1em 0 1em 2em">
+            说明:在目标启动盘空间不足时，勾选此选项，会额外提供一个科力锐系统加载盘。
+        </p>
+    </div>
+	<div class="set_disk_step_content" style="display: none">
+		<div id="replace_efi_div" style="display: none">
+			<input type="checkbox" id="replace_efi">
+			<label for="replace_efi">使用科力锐VHCT技术</label>
+			<p style="color:grey;margin: 1em 0 1em 2em">
+				说明:在某些官方宣称不支持windows 2008 R2及以下版本(如联想S650系列)的硬件平台上，使用本技术后，可使恢复到此类服务器上的windows 2008 R2及以下版本可正常工作。
+			</p>
+		</div>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+/var/log/nginx/*log {
+    create 0644 nginx nginx
+    size 32M
+    rotate 4
+	dateext dateformat .%s
+    missingok
+    notifempty
+    compress
+    sharedscripts
+    postrotate
+        /bin/kill -USR1 `cat /run/nginx.pid 2>/dev/null` 2>/dev/null || true
+    endscript
+}
+

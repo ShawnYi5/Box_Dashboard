@@ -1,0 +1,429 @@
+<style type="text/css">
+.btn_nav{float:right;margin-top:10px;}
+.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+.myhiden{width:100px; height:32px;}
+.myoneday{width:32px; height:32px; line-height:32px; text-align:center;border:1px solid #d3d3d3; cursor:pointer;float:left}
+.myonedayselected{background-color:#8ccad5}
+.aciTree div{ padding: 0em;}
+.manage-item,.manage-item-4cdp{margin-top: 8px;}
+.manage{margin-bottom: 16px;margin-left: 16px}
+.pull-down-control{cursor: pointer;}
+div.centent {float: left;text-align: center;}
+span.moveBt{display: block;margin: 10px;padding: 4px 10px;background: #898989;cursor: pointer;font-size: 12px;color: white;}
+.selectCls{width:100px;height:122px;}
+.client_search{
+    border: 2px solid #dce4ec;
+    color: #34495e;
+    font-family: "Lato", sans-serif;
+    font-size:14px;
+    padding: 3px 0 3px 10px;
+    width: 200px;
+    background:#fff url(/static/images/icon_search_1649.gif) no-repeat right;
+}
+.nas_debug{display: none;}
+</style>
+
+<head>
+    <script type="text/javascript" src="/static/js/jquery.json.js"></script>
+</head>
+
+<div id="newbackupFormDiv" title="" class="ajaxForm">
+	<input type="hidden" id="taskid" name="taskid" />
+	<form id="newbackupForm" action="#" method="post">
+		<div id="tabs">
+			<ul>
+			<li><a href="#tabs-1">NAS信息</a></li>
+			<li><a href="#tabs-2">备份信息</a></li>
+			<li><a href="#tabs-3">备份计划</a></li>
+			<li><a href="#tabs-4">其它设置</a></li>
+			<li><a href="#tabs-5">信息确认</a></li>
+			</ul>
+			<div id="tabs-1" style="margin-top:0px;margin-left:30px;">
+				<div style="">NAS信息</div>
+				<div style="margin-top:20px;">请填写连接NAS必要的信息，并仔细核对其正确性。</div>
+				<div style="margin-top:50px;">协议：
+					<label style="margin-left:27px;"><input class="radio" type="radio" value="nfs" checked="checked" name="nas_protocol" >NFS</label>
+					<label><input class="radio" type="radio" value="cifs" name="nas_protocol" >CIFS</label>
+				</div>
+				<div style="margin-top:20px; display:none;" class="nas_username">用户名: <input type="text" style="margin-left:27px;" name="nas_username" id="nas_username" onblur="removespace(this)"></div>
+				<div style="margin-top:20px;display:none;" class="nas_password">密码: <input type="password" style="margin-left:40px;" name="nas_password" id="nas_password"></div>
+				<div style="margin-top:20px;display:none;" class="nas_password">确认密码: <input type="password" style="margin-left:14px;" name="nas_password2" id="nas_password2"></div>
+				<div style="margin-top:20px;">NAS路径：<input type="text" style="width:550px;margin-left:9px;" name="nas_path" id="nas_path" onblur="removespace(this)" placeholder="例如：192.168.0.1:/folder 或 192.168.0.1:/"></div>
+				<div style="margin-top:20px;">排除目录：<input type="text" style="width:550px;margin-left:10px;" name="nas_exclude_dir" id="nas_exclude_dir" onblur="removespace(this)" placeholder="例如：/share/demos;/test.zip"></div>
+			</div>
+			<div id="tabs-2" style="margin-top:30px;margin-left:30px;">
+				<input type="hidden" id="uitasktype" value="task"/>
+				<div id="task_names"><span class="taskshowname">计划名称</span>：<input type="text" class="input" maxlength="120" id="taskname" name="taskname" style="width:400px;" onblur="removespace(this)" onmouseover="this.title=this.value"/></div>
+				<div style="margin-top:20px;" class="storagedevicediv">
+				选择备份存储设备：<input type="hidden" id="sel_storagedevice" />
+				<select id="storagedevice" name="storagedevice" >
+					<option value='-1'  selected="selected" >请稍候</option>
+				</select>
+				</div>
+			</div>
+			<div id="tabs-3" style="margin-top:30px;margin-left:30px;">
+                <div id="task_names_container"></div>
+				<div style="width:95%;overflow:auto;">
+					<table width="100%" border="0" cellspacing="5" cellpadding="0">
+						  <tr class="cdpchoices" style="display:none;">
+							<td style="display:none;"><label><input class="radio" type="radio" value="1" name="bakschedule">连续数据保护（CDP）</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="2" checked="checked" name="bakschedule" >仅备份一次</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;仅执行一次备份计划，设定开始日期及时间即可，完成备份后任务即终结。</span><br /><br />
+							<div id="bakschedule2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime1" type="text" class="textTime Wdate" id="stime1" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/></div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><label><input class="radio" type="radio" value="3" name="bakschedule"/>按间隔时间</label></td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;备份间隔可设置为分/时/天，需设定备份的开始时间。</span>
+							<br /><br />
+							<div id="bakschedule3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime2" type="text" class="textTime Wdate" id="stime2" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							&nbsp;&nbsp;&nbsp;&nbsp;每<input type="number" min="1" max="365" class="input"  value="1" id="timeinterval" name="timeinterval" style="width:41px" onblur="removespace(this)"/>
+                                <select id="interval-unit">
+                                    <option value="min">分钟</option>
+                                    <option value="hour">小时</option>
+                                    <option value="day" selected="selected">天</option>
+                                </select>
+                                执行
+                            </div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="4" name="bakschedule" >每周</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;备份间隔为周，设定每周的星期x为备份时间，如：每周星期一、星期四备份。</span><br /><br />
+							<div id="bakschedule4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime3" type="text" class="textTime Wdate" id="stime3" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<br />
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox"value="1" name="perweek"/>星期一&nbsp;&nbsp;<input type="checkbox"value="2" name="perweek"/>星期二&nbsp;&nbsp;<input type="checkbox"value="3" name="perweek"/>星期三&nbsp;&nbsp;<input type="checkbox"value="4" name="perweek"/>星期四&nbsp;&nbsp;<input type="checkbox"value="5" name="perweek"/>星期五&nbsp;&nbsp;<input type="checkbox"value="6" name="perweek"/>星期六&nbsp;&nbsp;<input type="checkbox"value="7" name="perweek"/>星期日</div>
+							</td>
+						  </tr>
+						  <tr class="normalbackupchoices">
+							<td>
+							<label><input class="radio" type="radio" value="5" name="bakschedule" >每月</label></td>  </tr>
+						  <tr class="normalbackupchoices">
+							<td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;备份间隔为月，设定每月的x日备份，如：每月的10、20、29日备份。</span><br /><br />
+							<div id="bakschedule5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input name="stime4" type="text" class="textTime Wdate" id="stime4" style="width:170px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  onblur="removespace(this)"/>
+							<div style="margin-left:10px;">
+								<br />每月备份日期：
+								<br /><div id="dayselect"></div>
+							</div>
+							</div>
+							</td>
+						  </tr>
+					</table>
+				</div>
+			</div>
+			<div id="tabs-4" style="margin-top:30px;margin-left:30px;margin-right:30px">
+            <div style="width:100%;height:527px;overflow:auto;">
+                <label for="space-manage" style="font-weight: bold" class="pull-down-control"><span>▼</span>备份数据存储空间自动回收设置</label><br>
+                <div id="space-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        <div>
+                        ●备份数据保留期：<input type="number" min="3" name="retentionperiod" id="retentionperiod" style="width: 50px;height: 13px" value="1" onblur="removespace(this)" />
+                        <select id="retentionperiod-unit">
+                            <option value="day">天</option>
+                            <option value="month" selected="selected">月</option>
+                        </select>
+                            （<span id="retentionperiod-msg"></span>），超过此时间后的备份点将自动删除，不能再用做恢复，数据将被合并释放占用的磁盘空间;此时间至少大于3天
+                        </div>
+                    </div>
+                    <div class="manage-item">
+                        ●本用户存储空间配额低于<input type="number" min="1" name="cleandata" id="cleandata" style="width: 50px;height: 13px" value="200" onblur="removespace(this)" />
+                        GB时（>=100GB），自动删除最早备份点数据，以释放更多的空间用于存放最新的数据状态变化。
+                    </div>
+                    <div class="manage-item">
+                        <div>
+                        ●至少保留<input type="number" oninput="if(value.length>3)value=value.slice(0,3)" min="1" max="999" maxlength="3" class="input" id="keepingpoint" value="5" style="width:50px;height: 13px" onblur="removespace(this)" />
+                        个备份点（1-999个），即使空间配额不够或超过保留期限也不做回收。
+                        </div>
+                    </div>
+                </div>
+
+                <label for="nas-space-manage" style="font-weight: bold" class="pull-down-control"><span id="advanced1-lab">▼</span>NAS存储容量设置</label><br>
+                <div id="nas-space-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        ●共享文件夹存储容量大小：
+                        <input type="number" id="nas_max_space_val" style="width:50px;height: 13px;margin-bottom: 5px;" onblur="removespace(this)" />
+                        <select id="nas_max_space_unit" style="position: relative;top:-1px;">
+                            <option value="GB">GB</option>
+                            <option value="TB">TB</option>
+                        </select>
+                        <br>
+                        <span class="form_tips" style="margin-left: 8px;">
+                            说明：请联系共享文件夹“<span id="nas_max_space_val_tip"></span>”的管理员，获取为该共享文件夹分配的存储容量大小。
+                        </span>
+                    </div>
+                </div>
+
+                <label for="advanced1-manage" style="font-weight: bold" class="pull-down-control"><span id="advanced1-lab">▼</span>备份策略设置</label><br>
+                <div id="advanced1-manage" class="manage"><hr>
+                    <div class="manage-item" id="full-back-options">
+                        ●<input class="checkbox" style="margin-bottom: 8px;" type="checkbox" id="full-bak-everytime">始终执行完整备份。<br>
+                        <span class="form_tips" style="margin-left: 8px;">说明：若勾选则每次进行完整备份；否则第一次进行完整备份，以后增量备份。</span>
+                    </div>
+                </div>
+
+                <label for="advanced3-manage" style="font-weight: bold" class="pull-down-control"><span id="advanced3-lab">▼</span>备份重试策略设置</label><br id="the-br-for-retry">
+                <div id="advanced3-manage" class="manage"><hr>
+                    <div class="manage-item" id="enable-options">
+                        ●<input class="checkbox" type="checkbox" id="enable-backup-retry"
+                                checked="checked"><label for="enable-backup-retry">启用备份重试策略</label><br>
+                        <div class="manage-item" style="margin-left: 8px;margin-bottom: 8px;">
+                            <label for="retry-counts">重试次数：<input type="number" oninput="if(value.length>3)value=value.slice(0,3)" id="retry-counts" value="5" min="0" max="999" style="width: 50px;height: 13px" onblur="removespace(this)" /></label>
+                            <label for="retry-interval" style="margin-left: 8px">间隔分钟：<input type="number" id="retry-interval" min="1" max="999" oninput="if(value.length>3)value=value.slice(0,3)" value="10" style="width: 50px;height: 13px;" onblur="removespace(this)" /></label>
+                        </div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：针对周期性备份计划可启用备份重试策略，备份失败后会按照间隔重试一定的次数。</span>
+                    </div>
+                </div>
+
+                <label for="nas-base-manage" style="font-weight: bold" class="pull-down-control"><span id="nas-base-lab">▼</span>备份线程数设置</label><br>
+                <div id="nas-base-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        ●分析目录线程数：<input type="number" value="2" min="1" max="10" name="enum_threads" id="enum_threads"
+                                        style="width: 50px;height: 13px" onblur="fixedInt(this, 2)" />（1-10个）
+                    </div>
+                    <div class="manage-item" style="margin-bottom: 8px;">
+                        ●备份数据线程数：<input type="number" value="4" min="1" max="32" name="sync_threads" id="sync_threads"
+                                        style="width: 50px;height: 13px" onblur="fixedInt(this, 4)" />（1-32个）
+                    </div>
+                    <span class="form_tips" style="margin-left: 8px;">
+                        说明：较大的线程数可有效加快备份前文件的分析速度和备份时数据的拷贝速度，同时也会占用更多的磁盘I/O资源；较小的线程数文件分析和备份速度都会降低，对文件服务器的性能影响小。
+                    </span>
+                </div>
+
+                <label for="nas-adv-manage" style="font-weight: bold" class="pull-down-control"><span id="nas-adv-lab">▼</span>资源占用设置</label><br>
+                <div id="nas-adv-manage" class="manage"><hr>
+                    <div class="manage-item">
+                        ●使用内核限制：<input type="number" value="2" min="1" max="4" name="cores" id="cores"
+                                        style="width: 50px;height: 13px" onblur="fixedInt(this, 2)" />（1-4核）
+                    </div>
+                    <div class="manage-item">
+                        ●使用内存限制：<input type="number" value="512" min="256" max="2048" name="memory_mbytes" id="memory_mbytes"
+                                        style="width: 50px;height: 13px" onblur="fixedIntBy8(this, 512)" />（256-2048MB，数值是8的倍数）
+                    </div>
+                    <div class="manage-item" style="margin-bottom: 8px;">
+                        ●网络带宽限制：<input type="number" value="300" min="8" name="net_limit" id="net_limit"
+                                        style="width: 50px;height: 13px" onblur="fixedInt(this, 300, -1)" />（>=8Mbit/s，-1为不限制）
+                    </div>
+                    <span class="form_tips" style="margin-left: 8px;">
+                        说明：执行NAS备份任务时使用的虚拟机所耗费的灾备系统资源，可根据灾备系统的资源使用状态做适当调整。
+                    </span>
+                    <div class="manage-item nas_debug">
+                        ●枚举目录深度：<input type="number" value="4" min="1" name="enum_level" id="enum_level"
+                                        style="width: 50px;height: 13px" onblur="fixedInt(this, 4)" />（>=1）
+                    </div>
+                    <div class="manage-item nas_debug">
+                        ●同步队列深度：<input type="number" value="256" min="1" name="sync_queue_maxsize" id="sync_queue_maxsize"
+                                        style="width: 50px;height: 13px" onblur="fixedInt(this, 256)" />（>=1）
+                    </div>
+                </div>
+
+                <label for="bandwidth-manage" style="font-weight: bold;display:none;" class="pull-down-control"><span>▼</span>备份时资源占用设置</label>
+                <div id="bandwidth-manage" class="manage" style="display:none;"><hr>
+                    <div class="manage-item">
+                        <div style="margin-top: 10px">
+                            <input type="checkbox" id="usemaxbandwidth" style="display: none" checked>
+                            ●备份时限定最大占用源主机的网络带宽：<input type="number" class="input" id="maxbandwidth" min="1" value="300" style="width:50px;height: 13px" onblur="removespace(this)" />Mbit/s。(-1为不限制)
+                        </div>
+                        <div style="margin-top: 10px">
+                            ●备份时限定最大占用源主机的存储性能的：<input type="number" id="BackupIOPercentage" style="width:50px;height:13px;" value="30"> %
+                        </div>
+                        <div style="margin-top: 10px">
+                           ●备份源存储读取队列深度：<input type="number" oninput="if(value.length>1)value=value.slice(0,1)" name="thread-count" min="2" max="8" id="thread-count" style="
+                           width:50px;height:13px;" value="4" />（2-8）
+                            <div>
+                                <span class="form_tips" style="margin-left: 8px;">
+                                    说明：当备份读取速度远小于源存储理论值时, 请调整该值以到达最优备份速度。
+                                    <div style="margin-left:48px;">--本地磁盘推荐值4</div>
+                                    <div style="margin-left:48px;">--高时延iSCSI磁盘推荐值6</div>
+                                    <div style="margin-left:48px;">--高速SAN磁盘推荐值4</div>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <label for="security-manage" style="font-weight: bold;display:none;" class="pull-down-control"><span id="security-manage-lab">▼</span>数据传输安全设置</label>
+                <div id="security-manage" class="manage" style="display:none;"><hr>
+                    <div class="manage-item">
+                        <div>●数据传输方式：<input type="text" value="加密" class="text6" id="isencipher" readonly></div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：在客户端管理中更改数据传输安全设置。若网络链路不安全，请选择加密方式。</span>
+                    </div>
+                </div>
+            </div>
+			</div>
+
+			<div id="tabs-5" style="margin-top:30px;margin-left:30px;">
+				<div style="width:95%;height:520px;overflow:auto;">
+					<table width="100%" cellpadding="10" cellspacing="1" class="border_table">
+						<tr height="25">
+							<td width="40%" align="left"><span class="taskshowname">计划名称</span></td>
+							<td width="60%"><div id="confirm_taskname">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="storagedevicediv">
+							<td align="left">备份存储设备</td>
+							<td align="left"><div id="confirm_storagedevice">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">NAS信息</td>
+							<td align="left"><div id="confirm_nas">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">排除目录</td>
+							<td align="left"><div id="confirm_nas_exclude_dir">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">备份周期</td>
+							<td align="left"><div id="confirm_schedule">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">备份数据保留期限</td>
+							<td align="left"><div id="confirm_retentionperiod">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+							<td align="left">至少保留备份点</td>
+							<td align="left"><div id="confirm_keepPointNum">&nbsp;</div></td>
+						</tr>
+						<tr height="25">
+							<td align="left">配额空间保留</td>
+							<td align="left"><div id="confirm_cleandata">&nbsp;</div></td>
+						</tr>
+						<tr height="25" style="display:none;">
+							<td align="left">备份时限定占用的最大网络带宽</td>
+							<td align="left"><div id="confirm_maxbandwidth">&nbsp;</div></td>
+						</tr>
+                        <tr height="25" class="encipher" style="display:none;">
+							<td align="left">传输数据方式</td>
+							<td align="left"><div id="confirm_encipher">&nbsp;</div></td>
+						</tr>
+						<tr height="25" class="backupmode">
+							<td align="left">备份方式</td>
+							<td align="left"><div id="confirm_backupmode">&nbsp;</div></td>
+						</tr>
+                        <tr height="25" style="display:none;">
+							<td align="left">启用操作系统重复数据删除</td>
+							<td align="left"><div id="confirm_dupFolder">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+							<td align="left">启用备份重试策略</td>
+							<td align="left"><div id="confirm_backup_retry">&nbsp;</div></td>
+						</tr>
+                         <tr height="25" style="display:none;">
+							<td align="left">备份源存储读取队列深度</td>
+							<td align="left"><div id="confirm_thread_count">&nbsp;</div></td>
+						</tr>
+                        <tr height="25">
+                            <td align="left">共享文件夹存储容量大小</td>
+                            <td align="left">
+                                <div id="nas_max_space_val-c">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">分析目录线程数</td>
+                            <td align="left">
+                                <div id="enum_threads-c">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">备份数据线程数</td>
+                            <td align="left">
+                                <div id="sync_threads-c">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">使用内核限制</td>
+                            <td align="left">
+                                <div id="cores-c">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">使用内存限制</td>
+                            <td align="left">
+                                <div id="memory_mbytes-c">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">网络带宽限制</td>
+                            <td align="left">
+                                <div id="net_limit-c">&nbsp;</div>
+                            </td>
+                        </tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div class="btn_nav">
+		<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="next" class="next" style="float:right" value="下一步&raquo;" />
+   </div>
+</div>
+
+<div id="finishFrom" title="完成" class="ajaxForm">
+点击“立即备份”，将会创建此计划任务，并立即备份。<br /><br />
+点击“完成设置”，将会创建此计划。
+</div>
+
+
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+
+<script language="javascript">
+$(function()
+{
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$(".ui-tabs-nav").hide();
+	$(".prev").hide();
+	$('#navigation').html('<div class="font_navigation">NAS备份计划管理</div>');
+});
+
+$(document).keydown(function(event){
+    if(event.ctrlKey && event.altKey && event.key === 'p'){
+        $('.nas_debug').show();
+    }
+});
+
+var curTime='{{ now|date:"Y-m-d H:i:s" }}';
+
+$("input[name='backupobj']").change(function(){
+	if($(this).val()=='2')
+	{
+		RefreshSrcServer2();
+		$('#volselectdiv').slideDown(600);
+	}
+	else
+	{
+		$('#volselectdiv').slideUp(600);
+	}
+});
+
+$('.pull-down-control').click(function() {
+    var manage_id = $(this).attr('for');
+    var isShown = $('#' + manage_id).is(':visible');
+
+    if ( !isShown ) {
+        $('#'+manage_id).slideDown();
+        $(this).find("span").text('▼');
+    } else {
+        $('#'+manage_id).slideUp();
+        $(this).find("span").text('▶');
+    }
+});
+
+$('#enable-backup-retry').click(function () {
+    if ($('#enable-backup-retry').prop('checked')) {
+        $('#retry-counts').prop('disabled', false);
+        $('#retry-interval').prop('disabled', false);
+    }
+    else {
+        $('#retry-counts').prop('disabled', true);
+        $('#retry-interval').prop('disabled', true);
+    }
+});
+
+</script>

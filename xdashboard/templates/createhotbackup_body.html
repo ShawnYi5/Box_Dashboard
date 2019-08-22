@@ -1,0 +1,34 @@
+<div class="right">
+	{% include 'createhotbackup.inc.html' %}
+</div>
+
+<script type="text/javascript">
+
+{% include 'createhotbackup.js' %}
+{% include 'driver_verison_choice_cm.js' %}
+{% include 'hard_disk_setting.js' %}
+
+function createhotbackup_resize()
+{
+	resizeright();
+	var height=$(window).height()-200;
+	$("#tabs").css('height', height);
+	$('#Servers_Tree1').css('height', height-375);
+	$('#Servers_Tree2').css('height', height-90);
+	$('#disk_vol_div').css('height', height-130);
+	baseresize();
+}
+
+$(function () {
+	$('#navigation').html('<div class="font_navigation">新建热备计划<span style="color:red;">{{ hotBackup_license }}</span></div>');
+	$('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#createhotbackup" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	$('#newhotbackupFormDiv').show();
+	initAciTree('Servers_Tree1', '../backup_handle/?a=getlist&include_remote_host=1&id=');
+	$('#disk_vol_div').css('min-height', 400);
+	createhotbackup_resize();
+});
+
+$(window).resize(function() {
+	createhotbackup_resize();	
+});
+</script>

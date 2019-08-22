@@ -1,0 +1,764 @@
+<style type="text/css">
+	.btn_nav{float:right;margin-top:10px;}
+	.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+	.aciTree div{ padding: 0em;}
+	.status_waiting_fonts{
+		 background: url(/static/images/loading_zb.gif) no-repeat;
+		 background-position: 170px 5px;
+		 background-size: 20px;
+		 font-size: 18px;
+		 font-weight: bold;
+	 }
+	 .status_waiting_icon{
+		 background: url(/static/images/arrow_right.png) no-repeat;
+		 background-position: 17px;
+		 width: 50px;
+		 padding: 0;
+		 background-size: 20px;
+	 }
+
+	 .status_checked_icon{
+		 background: url(/static/images/check_mark.png) no-repeat;
+		 background-position: 17px;
+		 width: 50px;
+		 padding: 0;
+		 background-size: 15px;
+	 }
+	 .status_todo_icon{
+		 background: url(/static/images/tripledots.png) no-repeat;
+		 background-position: 17px;
+		 width: 50px;
+		 padding: 0;
+		 background-size: 15px;
+	 }
+	 .disk_table_container{
+		margin-bottom: 20px;
+	}
+
+	.disk_item_header div{
+		float: left;
+		height: 30px;
+		line-height: 30px;
+		vertical-align:middle;
+	}
+
+	.disk_item_body li{
+		list-style-type: none;
+		line-height: 27px;
+	}
+	.disk_item_body table{
+		border-left:1px solid #ddd;
+		border-bottom:1px solid #ddd;
+		border-right:1px solid #ddd;
+		background: #fff;
+		width: 100%
+	}
+	.header_button:hover{
+		color:orange;
+		text-decoration: underline;
+	}
+	.client_search{
+		border: 2px solid #dce4ec;
+		color: #34495e;
+		font-family: "Lato", sans-serif;
+		font-size:14px;
+		padding: 3px 0 3px 10px;
+		width: 200px;
+		background:#fff url(/static/images/icon_search_1649.gif) no-repeat right;
+	}
+    #tabs-7 p{
+        margin: 0;
+        margin-left: 2em;
+        line-height: 2em;
+        padding: 0;
+    }
+    #stable_point_container .s_d_item{
+        padding: 0 6px;
+        border: 1px solid #d1dbe5;
+        background: #fff;
+        font-size: 13px;
+        min-width: 28px;
+        height: 28px;
+        line-height: 28px;
+        cursor: pointer;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    #stable_point_container .s_d_button:focus{
+        outline: none;
+    }
+    #stable_point_container .mprev{
+        border-radius: 2px 0 0 2px;
+    }
+    #stable_point_container .mprev:hover{
+        color: black;
+    }
+    #stable_point_container .s_d_button{
+        background: 50% no-repeat;
+        background-size: 16px;
+        background-color: #fff;
+        border: 1px solid #d1dbe5;
+        cursor: pointer;
+        margin: 0;
+        color: #97a8be;
+    }
+    #stable_point_container .s_d_disabled{
+        color: #e4e4e4;
+        background-color: #fff;
+        cursor: not-allowed;
+    }
+    #stable_point_container .mnext,.next_d{
+        border-radius: 0 2px 2px 0;
+    }
+    #stable_point_container .mnext:hover{
+        color: black;
+    }
+    .backup-period {
+        margin-bottom: 22px;
+    }
+    .detial-marg-top {
+        margin-top: 16px;
+    }
+    .indent {
+        margin-left: 40px;
+    }
+    .tips {
+        color: #666666;
+    }
+    .myoneday {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+        float: left
+    }
+    .myonedayselected {
+        background-color: #8ccad5
+    }
+    .weeks {
+        margin-top: 8px;
+    }
+    .manage-item {
+        margin-top: 8px;
+    }
+</style>
+<link href="/static/css/vis.css" rel="stylesheet" type="text/css"/>
+
+<div class="mywaite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 50%; display:none;z-index: 999">
+    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong>请稍候</strong> 正在连接 "远端{{ title }}" ...</p>
+</div>
+
+<div id="newremotebackupFormDiv" title="" class="ajaxForm">
+	<input id="pointid" type="hidden" value='none' />
+    <input id="network_transmission_type" type="hidden" value='' />
+	<div id="tabs" style="overflow-y:auto;">
+		<ul>
+            <li><a href="#tabs-0">灾备主机登录信息</a></li>
+            <li><a href="#tabs-1">灾备源</a></li>
+            <li><a href="#tabs-2">存储空间, 同步周期</a></li>
+            <li><a href="#tabs-3">其他配置</a></li>
+            <li><a href="#tabs-4">计划信息确认</a></li>
+		</ul>
+		<div id="tabs-0">
+			<div style="margin-top:20px;margin-left:20px;">计划名称：<input type="text" class="input" maxlength="120" style="width:80%;" id="planname" onblur="removespace(this)"/></div>
+			<div style="margin-top:50px;margin-left:20px;">请输入远端{{ title }}及系统管理员登录信息。</div>
+			<div style="margin-top:20px;margin-left:20px;">远端{{ title }}IP：<input type="text" class="input" id="remote_ip" onblur="removespace(this)"/></div>
+			<div style="margin-top:20px;margin-left:20px;">　　远端系统管理员账号：<input type="text" class="input" id="remote_username" onblur="removespace(this)"/></div>
+			<div style="margin-top:20px;margin-left:20px;">　　远端系统管理员密码：<input type="password" class="input" id="remote_password" onblur="removespace(this)"/></div>
+            <div style="margin-top:20px;margin-left:20px;"><input type="checkbox" id="enable-https" checked>使用https加密</div>
+            <div style="margin-top:20px;margin-left:20px;">
+                可灾备至任意云主机，实现远程异地容灾，支持云主机包括阿里云、腾讯云、亚马逊云等以及各种云存储。
+            </div>
+		</div>
+		<div id="tabs-1" style="padding:0em 1.4em;margin-top:1em;">
+			<div style="margin-bottom:10px;">选择远程容灾源客户端，远程容灾源客户端需有备份点。</div>
+			<div style="float:left;"><input name="client_search" type="text" placeholder="开始搜索" class="client_search"/></div>
+			<div id="RefreshSrcServer" style="cursor:pointer;float:right;">刷新连接列表</div>
+			<div class="clear"></div>
+			<div id="Servers_Tree1" class="aciTree" style="width:100%;border:1px solid #ccc;overflow:auto;"></div>
+			<div style="width:100%;overflow:auto;" id="table_detail_div">
+				<div style="margin-top:10px;">客户端详细描述</div>
+				<table width="100%" cellpadding="0" cellspacing="1" id="normal_table_info" class="border_table">
+					<tr height="25">
+						<td width="30%" align="left">客户端名称</td>
+						<td width="70%"><div id="show_servername"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">计算机名</td>
+						<td align="left"><div id="show_pcname"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">IP地址</td>
+						<td align="left"><div id="show_ip"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">MAC地址</td>
+						<td align="left"><div id="show_mac"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">操作系统</td>
+						<td align="left"><div id="show_os"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">Build Num</td>
+						<td align="left"><div id="show_buildnum"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">磁盘数量</td>
+						<td align="left"><div id="show_harddisknum"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">磁盘信息</td>
+						<td align="left"><div id="show_harddiskinfo"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">总容量</td>
+						<td align="left"><div id="show_total"></div></td>
+					</tr>
+					<tr height="25">
+						<td align="left">已使用空间</td>
+						<td align="left"><div id="show_use"></div></td>
+					</tr>
+				</table>
+				<table width="100%" cellpadding="0" cellspacing="1" id="nas_table_info" class="border_table" style="display:none;">
+					<tr height="25">
+						<td width="30%" align="left">客户端名称</td>
+						<td width="70%">
+							<div id="show_nas_servername"></div>
+						</td>
+					</tr>
+					<tr height="25">
+						<td width="30%" align="left">协议</td>
+						<td width="70%">
+							<div id="show_nas_protocol"></div>
+						</td>
+					</tr>
+					<tr height="25">
+						<td width="30%" align="left">NAS路径</td>
+						<td width="70%">
+							<div id="show_nas_path"></div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div id="tabs-2">
+			<div style="margin-top:20px;margin-bottom: 20px" class="storagedevicediv">
+				选择远程容灾存储设备：<input type="hidden" id="sel_storagedevice" />
+				<select id="storagedevice" name="storagedevice" >
+					<option value='-1'  selected="selected" >请稍候</option>
+				</select>
+            </div>
+
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-continue">持续同步
+                <div class="indent tips">持续同步远端备份数据。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px" onfocus="WdatePicker
+                    ({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                </div>
+            </div>
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-cycled">按周期同步
+                <div class="indent tips">同步间隔可设置为分/时/天，需设定同步的开始时间。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px;margin-right: 21px"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                    每
+                    <input type="number" min="1" max="365" value="1" style="width:41px" onblur="removespace(this)" title=""/>
+                    <select id="interval-unit">
+                        <option value="min">分钟</option>
+                        <option value="hour">小时</option>
+                        <option value="day" selected="selected">天</option>
+                    </select>执行
+                </div>
+            </div>
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-perweek">按每周同步
+                <div class="indent tips">同步间隔为周，设定每周的星期x为同步时间，如：每周星期一、星期四同步。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px" onfocus="WdatePicker
+                    ({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                    <div class="weeks">
+                        <input type="checkbox" name="weeks" value="1" title="">星期一
+                        <input type="checkbox" name="weeks" value="2" title="">星期二
+                        <input type="checkbox" name="weeks" value="3" title="">星期三
+                        <input type="checkbox" name="weeks" value="4" title="">星期四
+                        <input type="checkbox" name="weeks" value="5" title="">星期五
+                        <input type="checkbox" name="weeks" value="6" title="">星期六
+                        <input type="checkbox" name="weeks" value="7" title="">星期天
+                    </div>
+                </div>
+            </div>
+            <div class="backup-period">
+                <input type="radio" name="backup-period" title="" value="bak-permonth">按每月同步
+                <div class="indent tips">同步间隔为月，设定每月的x日同步，如：每月的10、20、29日同步。</div>
+                <div id="detial" class="indent detial-marg-top">
+                    开始时间:
+                    <input type="text" class="textTime Wdate start-time" style="width:170px"
+                           onfocus="WdatePicker
+                    ({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)" title=""/>
+                    <div id="dayselect" style="margin-top: 8px;width: 91%"></div>
+                </div>
+            </div>
+			<div style="float: left;">
+                多台灾备系统间数据同步时，可按照不同灾备源主机的任务进行配置同步复制频率，同步复制频率可按持续同步、每小时、每天、每周和每月按需设置。
+			</div>
+		</div>
+        <div id="tabs-3">
+            <div id="detail-config">
+                <div name="accordion-title" >同步数据存储空间自动回收设置</div>
+                <div>
+                    <div class="manage-item">
+                        <div>
+                        ●同步数据保留期：<input type="number" name="retentionperiod" id="retentionperiod" style="width: 45px;height: 13px" value="1" onblur="removespace(this)" />
+                        <select id="retentionperiod-unit">
+                            <option value="day">天</option>
+                            <option value="month" selected="selected">个月</option>
+                        </select>
+                            （<span id="retentionperiod-msg"></span>），超过此时间后的同步备份点将自动删除，不能再用做恢复，数据将被合并释放占用的磁盘空间。
+                        </div>
+                    </div>
+                    <div class="manage-item">
+                        ●本用户存储空间配额低于<input type="number" name="cleandata" id="cleandata" style="width: 45px;height: 13px" value="200" onblur="removespace(this)" />
+                        GB时（>=100GB），自动删除最早同步备份点数据，以释放更多的空间用于存放最新的数据状态变化。
+                    </div>
+                    <div class="manage-item">
+                        <div>
+                        ●至少保留<input type="number" class="input" id="keepingpoint" value="5" style="width:45px;height: 13px" onblur="removespace(this)" />
+                        个同步备份点（1-999个），即使空间配额不够或超过保留期限也不做回收。
+                        </div>
+                    </div>
+                    <div class="manage-item" id="only-for-continuous">
+                        ●持续同步时，数据保留窗口时长:
+                        <select name="continuous-sync" id="continuous-sync">
+                            <option value='2' selected='selected'>2天</option>
+                            <option value='3'>3天</option>
+                            <option value='4'>4天</option>
+                            <option value='5'>5天</option>
+                            <option value='6'>6天</option>
+                            <option value='7'>7天</option>
+					    </select><br>
+                         <span class="form_tips" style="margin-left: 8px;">
+                            说明：CDP窗口期内会记录被保护的客户端磁盘上的每次写操作，磁盘任意时间点的状态都会被保留，使用窗口期内的CDP数据可将服务器恢复到最小微米级的时间状态；
+                            超过窗口期CDP数据每超过一天将被合并为一个备份点；同时，CDP对磁盘存储空间会有较大的需求，可根据需要连续保护时间长短的需求，结合可使用配额空间合理设置保留期。
+                        </span>
+                    </div>
+                </div>
+                <div name="accordion-title" >备份网络带宽占用设置</div>
+                <div>
+                    <div class="manage-item">
+                        ●<input class="checkbox" type="checkbox" id="usemaxbandwidth" title="">
+                        备份时限定占用的最大网络带宽：
+                        <input class="input" type="number" id="maxbandwidth" value="1000" style="width:60px;height: 13px" disabled="disabled" title=""/>Mbit/s。
+                    </div>
+                </div>
+                <div name="accordion-title" >数据传输安全设置</div>
+                <div>
+                   <div class="manage-item">
+                       ●数据传输方式：
+                        <select name="sync-encryption" id="sync-encryption">
+                            <option value='yes'>加密</option>
+                            <option value='no' selected='selected'>不加密</option>
+					    </select><br>
+                        <span class="form_tips" style="margin-left: 8px;">说明：在客户端管理中更改数据传输安全设置。若网络链路不安全，请选择加密方式。</span>
+                    </div>
+                </div>
+                <div class="only-for-non-continuous-t" name="accordion-title" >备份重试策略设置</div>
+                <div class="only-for-non-continuous-c">
+                    <div class="manage-item" id="enable-options">
+                        ●<input class="checkbox" type="checkbox" id="enable-backup-retry" checked="checked"><label for="enable-backup-retry"> 启用备份重试策略</label><br>
+                        <div class="manage-item" style="margin-left: 8px;margin-bottom: 8px;">
+                            <label for="retry-counts">重试次数：<input type="number" id="retry-counts" value="5" style="width: 45px;height: 13px"></label>
+                            <label for="retry-interval" style="margin-left: 8px">间隔分钟：<input type="number" id="retry-interval" value="10" style="width: 45px;height: 13px;"></label> （≥5分钟）
+                        </div>
+                        <span class="form_tips" style="margin-left: 8px;">说明：针对周期性备份计划可启用备份重试策略，备份失败后会按照间隔重试一定的次数。</span>
+                    </div>
+                </div>
+            </div>
+			<div style="margin-top:20px;">
+				多台灾备系统间数据同步时，可对同步数据的存储保留时间策略、备份点数量策略、传输是否加密和带宽占用策略进行设置。
+			</div>
+        </div>
+        <div id="tabs-4">
+            <div style="width:95%;height:520px;overflow:auto;">
+            <table width="100%" cellpadding="10" cellspacing="1" class="border_table">
+                <tr height="25">
+                    <td width="40%" align="left">计划名称</td>
+                    <td width="60%"><div id="confirm_planname"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">源客户端</td>
+                    <td align="left"><div id="confirm_srcname"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">远端智动全景灾备系统IP</td>
+                    <td align="left"><div id="confirm_remote_ip"></div></td>
+                </tr>
+                <tr height="25" class="storagedevicediv">
+                    <td align="left">存储设备</td>
+                    <td align="left"><div id="confirm_storagedevice"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">同步类型</td>
+                    <td align="left"><div id="confirm_plantype"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">同步数据保留期限</td>
+                    <td align="left"><div id="confirm_dateexpire"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">至少保留备份点</td>
+                    <td align="left"><div id="confirm_keeppointnum"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">配额空间保留</td>
+                    <td align="left"><div id="confirm_remainquota"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">持续数据保留窗口时长</td>
+                    <td align="left"><div id="confirm_datawindow"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">备份时限定占用的最大网络带宽</td>
+                    <td align="left"><div id="confirm_maxbandwidth"></div></td>
+                </tr>
+                <tr height="25" class="encipher">
+                    <td align="left">传输数据方式</td>
+                    <td align="left"><div id="confirm_encipher"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">启用备份重试策略</td>
+                    <td align="left"><div id="confirm_backup_retry"></div></td>
+                </tr>
+                <tr height="25">
+                    <td align="left">使用https加密</td>
+                    <td align="left"><div id="confirm_enable_https"></div></td>
+                </tr>
+            </table>
+            </div>
+        </div>
+	</div>
+	<div class="btn_nav">
+		<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="next" class="next" style="float:right" value="下一步&raquo;" />
+   </div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+<script type="text/javascript" src="/static/js/moment.js"></script>
+<script type="text/javascript" src="/static/js/raphael-min.js"></script>
+<script language="javascript">
+
+$(function() {
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$("#tabs").css('min-height', 500);
+	$(".ui-tabs-nav").hide();
+	$('#prev').hide();
+	$('#Servers_Tree1').css('min-height', 160);
+	$('#Servers_Tree2').css('min-height', 430);
+	$('#table_detail_div').css('height',290);
+	initDaysData();
+	clearSelectedDays();
+	init_tab0_when_create_plan();
+});
+
+$("input[name='switchtype']").click(function() {
+	if(this.value==1)
+	{
+		$('#auto_switch_div').slideUp(600);
+		DrawHotBackup();
+	}
+	else if(this.value==2)
+	{
+		$('#auto_switch_div').slideDown(600);
+		DrawHotBackup();
+	}
+});
+
+$(document).on('keyup', 'input[name=client_search]', function () {
+    var s_key = $('input[name=client_search]').val().toLowerCase();
+    var api = $('#Servers_Tree1').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+$(document).on('keyup', 'input[name=client_target_search]', function () {
+    var s_key = $('input[name=client_target_search]').val().toLowerCase();
+    var api = $('#Servers_Tree2').aciTree('api');
+    var children = api.children(null,true,true);
+	api.radios(children).each(api.proxy(function(element) {
+		var node = $(element);
+		var label = this.getLabel(node).toLowerCase();
+		if (label.indexOf(s_key) ==-1){
+			api.hide(node);
+		}
+		else{
+			api.show(node);
+		}
+	}, true));
+});
+
+$('#usemaxbandwidth').click(function () {
+    if ($('#usemaxbandwidth').prop('checked')) {
+        $('#maxbandwidth').prop('disabled', false);
+    }
+    else {
+        $('#maxbandwidth').prop('disabled', true);
+    }
+});
+
+$('#enable-backup-retry').click(function () {
+    if ($('#enable-backup-retry').prop('checked')) {
+        $('#retry-counts').prop('disabled', false);
+        $('#retry-interval').prop('disabled', false);
+    }
+    else {
+        $('#retry-counts').prop('disabled', true);
+        $('#retry-interval').prop('disabled', true);
+    }
+});
+
+// 天数选择器
+function initDaysData() {
+    for (var i = 1; i <= 31; i++) {
+        var oneday = $('<div></div>').addClass('myoneday').text(i).val(i);
+        oneday.appendTo('.backup-period #dayselect')
+    }
+}
+
+function clearSelectedDays() {
+    $('.backup-period #dayselect').children().removeClass('myonedayselected');
+}
+
+$(".backup-period .myoneday").click(function () {
+    if ($(this).hasClass("myonedayselected")) {
+        $(this).removeClass("myonedayselected");
+    }
+    else {
+        $(this).addClass("myonedayselected");
+    }
+});
+
+// 选择备份周期时, 折叠其他项
+$('input[type=radio][name=backup-period]').click(function () {
+    $('.backup-period #detial').hide();
+    $(this).parent().find('#detial').show();
+});
+
+function nowTimeStr() {
+    return moment().format('YYYY-MM-DD HH:mm:ss');
+}
+
+// 普通周期, 计划类型
+function is_norm_type_plan() {
+    var checked_radio = $('input[type=radio][name=backup-period]:checked');
+    return checked_radio.val() !== 'bak-continue'
+}
+
+// 持续同步, 周期同步 (UI的差异)
+function show_or_hide_uis() {
+    if(!is_norm_type_plan()){
+        $('#only-for-continuous').show();
+        $('.only-for-non-continuous-t').hide();
+        $('.only-for-non-continuous-c').hide();
+    }
+    else {
+        $('#only-for-continuous').hide();
+        $('.only-for-non-continuous-t').show();
+        $('.only-for-non-continuous-c').hide();
+    }
+    $("#detail-config").accordion({
+        active: 0,
+        heightStyle: "content"
+    });
+}
+
+// 1,2,3,4,5,6,7 --> 星期一,星期日
+function num2weekch(weekStr) {
+    var map = ['', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+    var weeks = String(weekStr).split(',');
+    return $(weeks).map(function () {
+        return map[parseInt(this)];
+    }).get().join();
+}
+
+function getPlanName(tab$) {
+    var name = tab$.find('#planname').val();
+    return {"value": name, "label": name}
+}
+
+function getSrcHost(tab$) {
+    var ident = getaciTreeChecked('Servers_Tree1');
+    var name = getaciTreeNameChecked('Servers_Tree1');
+    return {"value": ident, "label": name}
+}
+
+function getSelectedStorage(tab$) {
+    var option = tab$.find('select#storagedevice option:selected');
+    return {'label': option.text(), 'value': option.val()}
+}
+
+function getBackupPeriod(tab$) {
+    var checked_radio = tab$.find('input[type=radio][name=backup-period]:checked');
+    var backPeriod = {
+        'period_type': checked_radio.val(),
+        'start_datetime': checked_radio.parent().find('.start-time').val(),
+        'addition': '',
+        'label': '',
+        'val_unit': '' // 按间隔时间类型, 单位: 'min', 'hour', 'day'
+    };
+
+    if (backPeriod['period_type'] === 'bak-continue') {
+        backPeriod['addition'] = null;
+        backPeriod['label'] = '持续同步 开始时间: ' + backPeriod['start_datetime'];
+    }
+    if (backPeriod['period_type'] === 'bak-cycled') {
+        backPeriod['addition'] = checked_radio.parent().find('input[type=number]').val();
+        backPeriod['val_unit'] = checked_radio.parent().find('select[id=interval-unit] option:selected').val();
+        backPeriod['label'] = '每{0}, 开始时间：{1}，每{2}{3}开始执行'
+            .replace('{0}', checked_radio.parent().find('select[id=interval-unit] option:selected').text())
+            .replace('{1}', backPeriod['start_datetime'])
+            .replace('{2}', backPeriod['addition'])
+            .replace('{3}', checked_radio.parent().find('select[id=interval-unit] option:selected').text())
+    }
+    if (backPeriod['period_type'] === 'bak-perweek') {
+        var checked_weeks = checked_radio.parent().find('input[name=weeks]:checked');
+        backPeriod['addition'] = checked_weeks.map(function () {
+            return $(this).val();
+        }).get().join();
+        backPeriod['label'] = '每周, 开始时间: {0}, 每周{1}同步'
+            .replace('{0}', backPeriod['start_datetime'])
+            .replace('{1}', num2weekch(backPeriod['addition']))
+    }
+    if (backPeriod['period_type'] === 'bak-permonth') {
+        var checked_days = checked_radio.parent().find('#dayselect .myonedayselected');
+        backPeriod['addition'] = checked_days.map(function () {
+            return $(this).val();
+        }).get().join();
+        backPeriod['label'] = '每月, 开始时间: {0}, 每月{1}日同步'
+            .replace('{0}', backPeriod['start_datetime'])
+            .replace('{1}', backPeriod['addition'])
+    }
+    return backPeriod;
+}
+
+// 生成全部的参数, 打包成json
+function get_full_params(is_json_str) {
+    var tab0=$('#tabs-0'), tab1=$('#tabs-1'), tab2=$('#tabs-2'), tab3=$('#tabs-3');
+    var isLimitNetSpeed = tab3.find('#usemaxbandwidth').prop('checked');
+    var isRetry = tab3.find('#enable-backup-retry').prop('checked');
+    var retryCnt=$('#retry-counts').val(), retryIntva=$('#retry-interval').val();
+    var data_keep_duration = get_set_data_keep_duration();
+
+    var full_params = {
+        "create_time": {"value": nowTimeStr(), "label": nowTimeStr()},
+        "sync_host": getSrcHost(tab1),
+        "plan_name": getPlanName(tab0),
+        "storage_device": getSelectedStorage(tab2),
+        "backup_period": getBackupPeriod(tab2),
+        "data_keep_duration": {
+            "value": data_keep_duration['val'],
+            "unit": data_keep_duration['unit'],
+            "label": data_keep_duration['val'] + ((data_keep_duration['unit'] === 'day') ? ('天') : ('个月'))
+        },
+        "mini_keep_points": {
+            "value": tab3.find('#keepingpoint').val(),
+            "label": tab3.find('#keepingpoint').val() + '个备份点'
+        },
+        "space_keep_GB": {
+            "value": tab3.find('#cleandata').val(),
+            "label": tab3.find('#cleandata').val() + 'GB'
+        },
+        "continue_windows": {
+            "value": tab3.find('select[id=continuous-sync] option:selected').val(),
+            "label": tab3.find('select[id=continuous-sync] option:selected').text()
+        },
+        "max_network_Mb": {
+            "value": isLimitNetSpeed ? (tab3.find('#maxbandwidth').val()) : ('-1'),
+            "label": isLimitNetSpeed ? (tab3.find('#maxbandwidth').val() + 'Mbit/s') : ('无限制')
+        },
+        "transfer_encipher": {
+            "value": tab3.find('select[id=sync-encryption] option:selected').val(),
+            "label": tab3.find('select[id=sync-encryption] option:selected').text()
+        },
+        "retry_setting": {
+            "value": (isRetry) ? ('{0}|{1}'.replace('{0}', retryCnt).replace('{1}', retryIntva)) : ('-1|-1'),
+            "label": (isRetry) ? ('重试{0}次 间隔{1}分钟'.replace('{0}', retryCnt).replace('{1}', retryIntva)) : ('未启用')
+        },
+        "enable_https": {
+            "value": tab0.find('input#enable-https').prop('checked'),
+            "label": (tab0.find('input#enable-https').prop('checked'))?('使用'):('不使用')
+        }
+    };
+    if(is_norm_type_plan()){
+        full_params['continue_windows'] = {"value": null, "label": '--'};
+    }
+    else {
+        full_params['retry_setting'] = {"value": null, "label": '--'};
+    }
+    return (is_json_str) ? ($.toJSON(full_params)) : (full_params);
+}
+
+// 计划摘要
+function showPlanDetialTable(tab$, fullParams) {
+    var tabParent = tab$;
+    var keep_duration_label = fullParams['data_keep_duration'] ? fullParams['data_keep_duration']['label'] : fullParams['data_keep_months']['label'];
+    tabParent.find('#confirm_planname').html(fullParams['plan_name']['label']);
+    tabParent.find('#confirm_srcname').html(fullParams['sync_host']['label']);
+    tabParent.find('#confirm_storagedevice').html(fullParams['storage_device']['label']);
+    tabParent.find('#confirm_plantype').html(fullParams['backup_period']['label']);
+    tabParent.find('#confirm_dateexpire').html(keep_duration_label);
+    tabParent.find('#confirm_keeppointnum').html(fullParams['mini_keep_points']['label']);
+    tabParent.find('#confirm_remainquota').html(fullParams['space_keep_GB']['label']);
+    tabParent.find('#confirm_datawindow').html(fullParams['continue_windows']['label']);
+    tabParent.find('#confirm_maxbandwidth').html(fullParams['max_network_Mb']['label']);
+    tabParent.find('#confirm_encipher').html(fullParams['transfer_encipher']['label']);
+    tabParent.find('#confirm_backup_retry').html(fullParams['retry_setting']['label']);
+    tabParent.find('#confirm_enable_https').html(fullParams['enable_https']['label']);
+    tabParent.find('#confirm_remote_ip').html(fullParams['remote_aio'] ? fullParams['remote_aio']['aio_ip']: $('#remote_ip').val());
+}
+
+// 监听host tree加载完成事件
+$('#Servers_Tree1').on('acitree', function(event, api, item, eventName, options)
+{
+	if(eventName === 'opened') {
+        var api = $('#Servers_Tree1').aciTree('api');
+        var roots = api.children(null, false, false);
+        var root = roots[0];
+        var label = api.getLabel($(root));
+        if(label.indexOf('[') === -1){
+            api.setLabel($(root), {'label': '客户端列表[来自远端系统: -]'.replace('-', $('#remote_ip').val())});
+        }
+	}
+});
+
+function init_tab0_when_create_plan() {
+    $('#planname').val('远程灾备计划 '+nowTimeStr());
+    $('#remote_ip').val('');
+    $('#remote_username').val('');
+    $('#remote_password').val('');
+    $('#tabs-0').find('input#enable-https').prop('checked', true);
+}
+
+$('div[name=accordion-title]').on('click', function () {
+    ($(this).next().is(':hidden'))?($(this).next().show()):($(this).next().hide());
+});
+</script>

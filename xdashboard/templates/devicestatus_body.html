@@ -1,0 +1,179 @@
+<style>
+    span.lineRed{
+        text-decoration:line-through;
+        float: right;
+        color: red;
+    }
+    span.lineGreen{
+        text-decoration:line-through;
+        float: right;
+        color: green;
+    }
+    #mydialog a:focus {
+        outline: none;
+    }
+    .exbutton {
+        margin-right: 30px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="right">
+	<div id="tabs">
+		<ul>
+		<li><a href="#tabs-1">带宽占用</a></li>
+        <li><a href="#tabs-2">磁盘读写</a></li>
+		</ul>
+        <div id="tabs-1">
+			<div style="margin-left:10px;margin-top:30px;">
+				时间：<input name="bandwidthtime" type="text" class="textTime Wdate" id="bandwidthtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:onhandwitdth})"/>
+				<div id="refresh" name="net" style="color:#000;cursor:pointer;float:right;" title="刷新">刷新</div>
+                <div class="exbutton" id="exbandwidth" style="float: right">导出</div>
+                <span style="float: right;">发送(Mbit/s)&nbsp;&nbsp;</span>
+                <span class="lineGreen">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span style="float: right;">接收(Mbit/s)&nbsp;&nbsp;</span>
+                <span class="lineRed">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
+                <div id="bandwidth" style="height:150px;border:1px solid #D4D7CB;margin-top:15px;margin-bottom:15px;"></div>
+			</div>
+		</div>
+
+		<div id="tabs-2">
+			<div style="margin-left:10px;margin-top:30px;">
+				时间：<input name="IOtime" type="text" class="textTime Wdate" id="IOtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',onpicked:onIO})"/>
+				<div id="refresh" name="io" style="color:#000;cursor:pointer;float:right;">刷新</div>
+                <div class="exbutton" id="exdiskio" style="float: right">导出</div>
+                <span style="float: right;">读出(MByte/s)&nbsp;&nbsp;</span>
+                <span class="lineGreen">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span style="float: right;">写入(MByte/s)&nbsp;&nbsp;</span>
+                <span class="lineRed">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
+                <div id="IOstatus" style="height:150px;border:1px solid #D4D7CB;;margin-top:15px;margin-bottom:15px;"></div>
+			</div>
+		</div>
+	</div>
+    <div id="mydialog" title="下载链接"><p style="line-height: 50px;">下载地址：<a id="urladdress" style="color: blue"></a></p></div>
+</div>
+
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/css/morris.css" />
+<script type='text/javascript' src='/static/js/raphael-min.js'></script>
+<script type='text/javascript' src='/static/js/morris.min.js'></script>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/mymorris.js"></script>
+
+<script type="text/javascript">
+    function GeIOChart(jsonstr)
+    {
+        if(jsonstr.r!=0)
+        {
+            openErrorDialog({title:'错误',html:jsonstr.e});
+            return;
+        }
+        ShowMorris('IOstatus',jsonstr.list,'hour',['value1', 'value2'],['写入(MByte/s)' ,'读出(MByte/s)']);
+    }
+
+    function onIO()
+    {
+        $('#bandwidthtime').val();
+        var newUrl='../home_handle/?a=getiochart&starttime='+$('#IOtime').val();
+        myAjaxGet(newUrl,'',GeIOChart);
+    }
+
+    function GetBandwitdthChart(jsonstr)
+    {
+        if(jsonstr.r!=0)
+        {
+            openErrorDialog({title:'错误',html:jsonstr.e});
+            return;
+        }
+
+        ShowMorris('bandwidth',jsonstr.list,'hour',['RX','TX'],['接收(Mbit/s)','发送(Mbit/s)']);
+    }
+
+
+    function onhandwitdth()
+    {
+        $('#bandwidthtime').val();
+        var newUrl='../home_handle/?a=bandwidthtimechart&starttime='+$('#bandwidthtime').val();
+        myAjaxGet(newUrl,'',GetBandwitdthChart);
+    }
+
+
+    $('#refresh[name=io]').button().click(function () {
+        onIO();
+    });
+
+    $('#refresh[name=net]').button().click(function () {
+        onhandwitdth();
+    });
+
+    $('#tabs').on('tabsbeforeactivate', function(event, ui) {
+        switch(ui.newTab.index())
+        {
+            case 0:
+                onhandwitdth();
+                break;
+            case 1:
+                onIO();
+                break;
+        }
+    });
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 600);
+        $("#tabs").tabs("option", "active", 0);
+
+		var curTime='{{ now|date:"Y-m-d" }}';
+		$('#bandwidthtime').val(curTime);
+		$('#IOtime').val(curTime);
+        $('#navigation').html('<div class="font_navigation">设备历史状态报告</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#devicestatus1" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+		onhandwitdth();
+		devicestatus_resize();
+    });
+
+    $('.exbutton')
+            .button()
+            .click(function () {
+                var id = this.id;
+                if (id == 'exbandwidth') {
+                    var starttime = $('#bandwidthtime').val();
+                    var p = 'type=exbandwidth&' + 'name=带宽占用报告' + '&starttime=' + starttime;
+                    myAjaxGet('../bussinessreport_handle/?a=exchart', p, excallback);
+                }
+                if (id == 'exdiskio') {
+                    var starttime = $('#IOtime').val()
+                    var p = 'type=exdiskio&' + 'name=磁盘IO报告' + '&starttime=' + starttime ;
+                    myAjaxGet('../bussinessreport_handle/?a=exchart', p, excallback);
+                }
+            });
+
+    $( "#mydialog" ).dialog({
+	autoOpen: false,
+	width: 500,
+    height:150
+    });
+    function excallback(jsonstr) {
+
+        if(jsonstr.r != 0){
+            openErrorDialog('错误',jsonstr.e);
+            return;
+        }
+        $('#urladdress').attr('href',jsonstr.url);
+        $('#urladdress').html(jsonstr.filename);
+        $( "#mydialog" ).dialog( "open" );
+    }
+
+function devicestatus_resize()
+{
+	resizeright();
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	devicestatus_resize();	
+});
+
+</script>

@@ -1,0 +1,572 @@
+<style type="text/css">
+.btn_nav{float:right;margin-top:10px;}
+.prev,.next{width:100px; height:32px; line-height:32px; background:url(btn_bg.gif) repeat-x bottom; border:1px solid #d3d3d3; cursor:pointer;}
+.list {
+  font-family:sans-serif;
+  margin:0;
+  padding:20px 0 0;
+}
+.list > li {
+  display:block;
+  margin-bottom:10px;
+  border:1px dashed #84A9D6;
+  height:80px;
+  width:100%
+}
+.list > li:hover {
+  background-color:#C3DBF7;
+}
+p {
+  margin:0;
+}
+.list .list_preleft{
+    float: left;
+	margin-top: 4%;
+}
+.list .list_left{
+	width: 100px;
+    height: 100%;
+    float: left;
+    margin: 0 20px;
+	margin-top: 7px;
+}
+.list .list_content{float: left;}
+.list .list_right{
+float: right;
+margin-top: 25px;
+margin-right: 30px;
+}
+
+.list .button{
+	padding: 5px 5px;
+    border-radius: 6px;
+    border: none;
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+    background-color: #28a8e0;
+	cursor:pointer;
+}
+
+.list img {
+    border: 0;
+    display: block;
+	width: 100px;
+}
+.pagination li {
+  display:inline-block;
+  padding:5px;
+}
+</style>
+<div class="right">
+	<div id="tabs">
+		<ul>
+		<li><a href="#tabs-1">镜像</a></li>
+		<li><a href="#tabs-2">目标机</a></li>
+		<li><a href="#tabs-3">目标机IP</a></li>
+		<li><a href="#tabs-4">目标机硬盘</a></li>
+		</ul>
+		<div id="tabs-1" style="margin-top:30px;margin-left:30px;">
+			选择需要部署的镜像
+			<div id="imgs">
+				<ul class="list" style="height:450px;">
+				</ul>
+				<ul class="pagination"></ul>
+			</div>
+			<div style="display:none;">
+				<li id="mydata" class="mydata" onclick="myselimg(this);">
+					<div class="list_preleft">
+					<input class="radio" type="radio" value="" name="img" />
+					</div>
+					<div class="list_left">
+					<img class="image" src="">
+					</div>
+					<div class="list_content">
+					<h4 class="name"></h4>
+					<p class="desc"></p>
+					</div>
+					<div class="list_right" style="display:none;">
+					<div class="button" onclick="mydelimg(this);">删除</div> <div class="button">查看详细</div>
+					</div>
+					<div class="clear"></div>
+				</li>
+			</div>
+		</div>
+		<div id="tabs-2" style="margin-top:30px;margin-left:30px;">
+			<label>部署到客户端</label>
+			<div id="RefreshdestServer" style="color:#000088;cursor:pointer;float:right;margin-right:40px;">刷新连接列表</div>
+			<br />
+			<div id="Servers_Tree2" class="aciTree" style="width:95%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+			<br />目标客户端详细描述<br />
+			<table width="95%" cellpadding="0" cellspacing="1" class="border_table">
+				<tr height="25">
+					<td width="30%" align="left">客户端名称</td>
+					<td width="70%"><div id="show_servername">文件服务器</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">计算机名</td>
+					<td align="left"><div id="show_storagedevice">计算机名</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">IP地址</td>
+					<td align="left"><div id="show_createtime">192.168.1.2</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">MAC地址</td>
+					<td align="left"><div id="show_backuptype">‎00-50-56-C0-00-08</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">操作系统</td>
+					<td align="left"><div id="show_src">简体中文 Windows 2008</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">Build Num</td>
+					<td align="left"><div id="show_schedule">20160529</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">磁盘数量</td>
+					<td align="left"><div id="show_retentionperiod">2</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">磁盘信息</td>
+					<td align="left"><div id="show_cleandata">&nbsp;</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">总容量</td>
+					<td align="left"><div id="show_cdpperiod">982GB</div></td>
+				</tr>
+				<tr height="25">
+					<td align="left">已使用空间</td>
+					<td align="left"><div id="show_cdptype">326GB</div></td>
+				</tr>
+			</table>
+		</div>
+		<div id="tabs-3" style="margin-top:30px;margin-left:30px;">
+			<div>设置部署目标机的IP地址<br /></div>
+				<div id="ipsetdiv" style="overflow-y:auto;height:500px">
+			</div>
+		</div>
+		<div id="tabs-4" style="margin-top:30px;margin-left:30px;">
+			<div>选择需要部署目标机硬盘</div>
+			<div id="HardDisks">
+			</div>
+		</div>
+	</div>
+	<div class="btn_nav">
+		<input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="next" class="next" style="float:right" value="下一步&raquo;" />
+   </div>
+</div>
+
+
+<div id="diviphead" style="display:none;">
+	<div id="divip_changeid" style="border:1px solid #d3d3d3;margin-top:10px">
+		<table width="100%" border="0" cellspacing="5" cellpadding="0">
+			<tr>
+				<td colspan="2">目标机网卡：<input type="hidden" id="adapterid" name="adapterid" /><input type="text" id="adapter" class="text6" style="width:350px;" disabled="disabled"/><br /><br /></td>
+			</tr>
+			<tr>
+				<td align="right" width="20%">IP地址：</td>
+				<td><input type="text" class="input" id="ip"/><span style="color:red">&nbsp;&nbsp;*</span></td>
+			</tr>
+			<tr>
+				<td align="right">子网掩码：</td>
+				<td><input type="text" class="input" id="subnet_mask"/><span style="color:red">&nbsp;&nbsp;*</span></td>
+			</tr>
+			<tr>
+				<td align="right">默认网关：</td>
+				<td><input type="text" class="input" id="routers"/><span style="color:red">&nbsp;&nbsp;*</span></td>
+			</tr>
+			<tr>
+				<td align="right">DNS：</td>
+				<td><input type="text" class="input" id="dns"/><span style="color:red">&nbsp;&nbsp;*</span></td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<div id="divip" style="display:none;">
+	<div id="changeid" style="border:1px solid #d3d3d3;margin-top:10px;">
+		<table width="100%" border="0" cellspacing="5" cellpadding="0">
+			<tr>
+				<td colspan="2">目标机网卡：<input type="hidden" id="adapterid" name="adapterid" /><input type="text" id="adapter" class="text6" style="width:350px;" disabled="disabled"/><br /><br /></td>
+			</tr>
+			<tr>
+				<td align="right" width="20%">IP地址：</td>
+				<td><input type="text" class="input" id="ip"/></td>
+			</tr>
+			<tr>
+				<td align="right">子网掩码：</td>
+				<td><input type="text" class="input" id="subnet_mask"/></td>
+			</tr>
+			<tr>
+				<td align="right">默认网关：</td>
+				<td><input type="text" class="input" id="routers"/></td>
+			</tr>
+			<tr>
+				<td align="right">DNS：</td>
+				<td><input type="text" class="input" id="dns"/></td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<div id="divharddisk" style="display:none;">
+	<div id="harddisk_div" class="clear" style="margin-top:40px;margin-left:50px;">
+		<div style="float:left"><input type="checkbox" name="srcharddisk"/><span id="srcharddiskname"></span></div>
+		<div style="float:left;margin-left:50px;margin-top:4px;">恢复到</div>
+		<div style="float:left;margin-left:50px;">
+			<select id="storagedevice" name="storagedevice" >
+			</select>
+		</div>
+	</div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/list.js"></script>
+<script type="text/javascript" src="/static/js/list.pagination.min.js"></script>
+
+<script type="text/javascript">
+
+function ExistImgListCallback(jsonstr)
+{
+
+	var options = {
+		valueNames: [
+			'name',
+			'desc',
+			{
+				attr: 'src',
+				name: 'image'
+			},
+			{
+				attr: 'value',
+				name: 'radio'
+			}
+		],
+		item: 'mydata',
+		page: 5,
+		plugins: [
+		  ListPagination({outerWindow:1})
+		]
+	};
+	var imgList = new List('imgs', options);
+
+	imgList.clear();
+
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+
+	for(i=0;i<jsonstr.list.length;i++)
+	{
+		imgList.add({
+			name: jsonstr.list[i].name,
+			desc: jsonstr.list[i].desc,
+			image: jsonstr.list[i].image,
+			radio:jsonstr.list[i].id
+		});
+	}
+
+	$('.mydata').hover(function(){
+			var row=$(this);
+			if(row.find('.list_right').length)
+			{
+				var list_right=$(row.find('.list_right')[0]);
+				list_right.show();
+			}
+		},function(){
+			//mouseleaver
+			var row=$(this);
+			if(row.find('.list_right').length)
+			{
+				var list_right=$(row.find('.list_right')[0]);
+				list_right.hide();
+			}
+	});
+}
+
+function initimg()
+{
+	var params='a=existimglist';
+	myAjaxGet('../deploy_handle/',params,ExistImgListCallback);
+}
+
+function ServerDetailCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+}
+
+$(function() {
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$("#tabs").css('height',570);
+	$(".ui-tabs-nav").hide();
+	$(".prev").hide();
+	$('#navigation').html('<div class="font_navigation">部署 > 镜像</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#deploy" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+
+	initimg();
+});
+
+function setPreControlStatus(selindex)
+{
+	if(selindex==1)
+	{
+		$(".prev").hide();
+	}
+	$('#next').attr("value","下一步»");
+}
+
+function setControlStatus(selindex)
+{
+	if(selindex==2)
+	{
+		$('#next').val('开始部署');
+	}
+}
+
+function GetAdapters(jsonstr)
+{
+	$('div#ipsetdiv').html('');
+
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	$('div#ipsetdiv').append($('div#diviphead').html().replace("divip_changeid","divip1"));
+
+	$.each(jsonstr.list, function(i, item){
+		if(i==0)
+		{
+			$('div#divip1 #adapter').val(item.adapter.name);
+			$('div#divip1 #adapterid').attr("value",item.adapter.id);
+			$('div#divip1 #ip').attr("value",item.ip);
+			$('div#divip1 #subnet_mask').attr("value",item.subnetmark);
+			$('div#divip1 #routers').attr("value",item.routers);
+			$('div#divip1 #dns').attr("value",item.dns);
+		}
+		else
+		{
+			var html=$('div#divip').html().replace("changeid","divip"+(i+1));
+			$('div#ipsetdiv').append(html);
+			$('div#divip'+(i+1)+' #adapter').val(item.adapter.name);
+			$('div#divip'+(i+1)+' #adapterid').attr("value",item.adapter.id);
+		}
+	});
+}
+
+function GetHardDisks(jsonstr)
+{
+	$('div#HardDisks').html('');
+
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	
+	$.each(jsonstr.srclist, function(i, item){
+		var harddisk_divname="harddisk_div"+(i+1);
+		var html=$('div#divharddisk').html().replace("harddisk_div",harddisk_divname);
+		$('div#HardDisks').append(html);
+		$('div#'+harddisk_divname+' input[name="srcharddisk"]').val(item.id);
+		
+		$('div#'+harddisk_divname+' #srcharddiskname').html(item.name);
+		for(var i=0;i<jsonstr.destlist.length;i++)
+		{
+			$('div#'+harddisk_divname+' #storagedevice').append("<option value='"+jsonstr.destlist[i].id+"'>"+jsonstr.destlist[i].name+"</option>"); 
+		}
+	});
+}
+
+function DeployCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$(".prev").hide();
+	$('#next').attr("value","下一步»");
+	$("#tabs").tabs();
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	openSuccessDialog({title:'成功',html:"已开始执行部署<br />请在客户端日志中查看详细信息"});
+}
+
+function StartDeploy()
+{
+	var imgid=$("input[name='img']:checked").val();
+	var params='a=deploy&imgid='+imgid;
+	var destserverid='none';
+	destserverid=getaciTreeChecked('Servers_Tree2');
+	params+='&destserverid='+destserverid;
+	var adapters=new Array();
+	for(var i=0;i<$('div#ipsetdiv').find('div').length;i++)
+	{
+		var adapter={};
+		var divip=$('div#ipsetdiv').find('div')[i].id;
+		adapter.adapter=$('div#'+divip+' #adapterid').val();
+		adapter.ip=$('div#'+divip+' #ip').val();
+		adapter.subnet_mask=$('div#'+divip+' #subnet_mask').val();
+		adapter.routers=$('div#'+divip+' #routers').val();
+		adapter.dns=$('div#'+divip+' #dns').val();
+		if(adapter.adapter!==undefined)
+		{
+			if(adapter.ip!=="")
+			{
+				adapters.push(adapter);
+			}
+		}
+	}
+	params+="&adapters="+JSON.stringify(adapters);
+	
+	var disks=new Array();
+	for(var i=0;i<$('div#HardDisks').children('div').length;i++)
+	{
+		var divdisk=$('div#HardDisks').children('div')[i].id;
+		if($('div#'+divdisk+' input[name="srcharddisk"]').attr("checked"))
+		{
+			var diskjson={};
+			diskjson.src=$('div#'+divdisk+' input[name="srcharddisk"]').val();
+			diskjson.dest=$('div#'+divdisk+' #storagedevice').val();
+			disks.push(diskjson);
+		}
+	}
+
+
+	params+="&disks="+JSON.stringify(disks);
+
+	alert(params);
+
+	myAjaxPost('../deploy_handle/',params,DeployCallback);
+}
+
+function OnFinish()
+{
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要开始部署吗?',
+		onBeforeOK:function(){
+			StartDeploy();	
+		}
+	});
+}
+
+$('#prev').click(function() {
+	var selindex=$("#tabs").tabs('option', 'active');
+	if(selindex==1)
+	{
+		$('#navigation').html('<div class="font_navigation">部署 > 镜像</div>');
+	}
+	else if(selindex==2)
+	{
+		$('#navigation').html('<div class="font_navigation">部署 > 镜像 > 目标机</div>');
+	}
+	else if(selindex==3)
+	{
+		$('#navigation').html('<div class="font_navigation">部署 > 镜像 > 目标机 > 目标机IP</div>');
+	}
+	
+	if(selindex==0)
+	{
+	}
+	else
+	{
+		$("#tabs").tabs();
+		$( "#tabs" ).tabs( "option", "active", selindex-1 );
+		setPreControlStatus(selindex);
+	}
+	
+});
+
+$('#RefreshdestServer').click(function(){
+	RefreshAciTree("Servers_Tree2",'../deploy_handle/?a=destserverlist&id=');
+});
+
+$('#next').click(function() {
+	var selindex=$("#tabs").tabs('option', 'active');
+
+	if(selindex==0)
+	{
+		$('#navigation').html('<div class="font_navigation">部署 > 镜像 > 目标机</div>');
+		RefreshAciTree("Servers_Tree2",'../deploy_handle/?a=destserverlist&id=');
+	}
+	else if(selindex==1)
+	{
+		$('#navigation').html('<div class="font_navigation">部署 > 镜像 > 目标机 > 目标机IP</div>');
+		var destserverid='none';
+		destserverid=getaciTreeChecked('Servers_Tree2');
+		params="a=adaptersettings&destserverid="+destserverid;
+		myAjaxGet('../deploy_handle/',params,GetAdapters);
+	}
+	else if(selindex==2)
+	{
+		$('#navigation').html('<div class="font_navigation">部署 > 镜像 > 目标机 > 目标机IP > 目标机硬盘</div>');
+		var pointid=$('#pointid').val();
+		params="a=hardsettings";
+		myAjaxGet('../deploy_handle/',params,GetHardDisks);
+	}
+
+	if(selindex==3)
+	{
+		OnFinish();
+	}
+	else
+	{
+		$("#tabs").tabs();
+		$( "#tabs" ).tabs( "option", "active", selindex+1 );
+		setControlStatus(selindex);
+	}
+	if(selindex==0)
+	{
+		$(".prev").show();
+	}
+});
+
+function myselimg(li)
+{
+	var row=$(li);
+	if(row.find('.radio').length)
+	{
+		var radio=$(row.find('.radio')[0]);
+		radio.prop("checked",true);
+	}
+}
+
+function DelCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	initimg();
+}
+
+function mydelimg(li)
+{
+	var row=$(li).parent().parent();
+	if(row.find('.radio').length)
+	{
+		var radio=$(row.find('.radio')[0]);
+		openConfirmDialog({
+			title:'确认信息',
+			html:'你确定要删除存镜像吗?',
+			onBeforeOK:function(){
+				var params='a=del&id='+radio.val();
+				myAjaxGet('../deploy_handle/',params,DelCallback);
+				$(this).dialog('close');
+			}
+		});
+	}
+}
+</script>

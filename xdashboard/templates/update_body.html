@@ -1,0 +1,680 @@
+<style>
+    #resizable {
+        width: 98%;
+        padding: 0.5em;
+		border-bottom-right-radius:4px;
+		border-bottom-left-radius:4px;
+		border-top-right-radius:4px;
+		border-top-left-radius:4px;
+    }
+
+    #resizable h3 {
+        text-align: left;
+        margin: 0;
+    }
+
+    ._box {
+        position: relative;
+        padding: 5px 5px;
+        border-radius: 6px;
+        border: none;
+        display: inline-block;
+        color: #fff;
+        text-decoration: none;
+        background-color: #28a8e0;
+        cursor: pointer;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    ._box input {
+        position: absolute;
+        width: 119px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 23px;
+        opacity: 0;
+        filter: "alpha(opacity=0)";
+        filter: alpha(opacity=0);
+        -moz-opacity: 0;
+        left: -5px;
+        cursor: pointer;
+        z-index: 2;
+    }
+</style>
+
+<div class="right">
+    <div id="resizable" class="ui-widget-content">
+        <h3 class="ui-widget-header ui-corner-all">当前任务</h3>
+		<div style="padding:20px;">正在执行的任务：<span id="currenttaskname"></span></div>
+		<div style="float:right;">
+			<div class="menu_btn" style="float:left;" id="stopmission">停止任务</div>
+			<div class="menu_btn" style="float:left;margin-left:20px;" id="getmission">获取状态</div>
+		</div>
+		<div class="clear"></div>
+    </div>
+    <br/>
+    <div id="resizable" class="ui-widget-content">
+        <h3 class="ui-widget-header ui-corner-all">{{ title }}更新</h3>
+		<div style="padding:20px;">
+			<div style="float:left;">{{ title }}当前版本：</div><div style="float:left;" id="currentaiover"></div>
+			<div class="clear"></div>
+			<div style="float:left;margin-top:20px;">{{ title }}最新版本：</div><div style="float:left;margin-top:20px;">
+			<div id="newestaiover"></div>
+			<div id="newestaioverlog"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div style="float:right;">
+			<div class="menu_btn" style="float:left;" id="ManualUpdateButton1">手动更新</div>
+			<button style="float:left;margin-left:20px;" id="updateButton1">自动更新</button>
+		</div>
+		<div class="clear"></div>
+    </div>
+    <br/>
+    <div id="resizable" class="ui-widget-content">
+        <h3 class="ui-widget-header ui-corner-all">启动介质数据源更新</h3>
+		<div style="padding:20px;">
+			<div style="float:left;">启动介质当前版本：</div><div style="float:left;" id="curentmediumver"></div>
+			<div class="clear"></div>
+			<div style="float:left;margin-top:20px;">启动介质最新版本：</div><div style="float:left;margin-top:20px;">
+			<div id="newestmediumver"></div>
+			<div id="newestmediumverlog"></div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div style="float:right;">
+			<div class="menu_btn" style="float:left;" id="ManualUpdateButton3">手动更新</div>
+			<button style="float:left;margin-left:20px;" id="updateButton3">自动更新</button>
+		</div>
+		<div class="clear"></div>
+    </div>
+    <br/>
+    <div id="resizable" class="ui-widget-content">
+        <h3 class="ui-widget-header ui-corner-all">服务器驱动更新</h3>
+		<div style="padding:20px;">
+			<div>驱动当前版本：<span id="curentdriverver"></span></div>
+			<div style="margin-top:10px;">驱动最新版本：<span id="newdriverver"></span></div>
+			<div style="margin-top:10px;">
+				外网服务器共有<span id='gdrivercount'>0</span>个驱动，{{ title }}共有<span id="localdrivercount">0</span>个驱动。
+			</div>
+			<div style="margin-top:10px;">
+				点击“自动更新”，后台自动从{{ company }}在线驱动库更新。
+			</div>
+			<div style="margin-top:10px;">
+				点击“手工更新”，从<a id="imgurl" href="" target="_blank" style="color:blue;">{{ company }}在线驱动库</a>下载驱动，或使用<a href="/static/download/user_update_tools.zip" style="color:blue;" target="_blank">驱动包制作工具</a>制作驱动包。然后上传至{{ title }}。
+			</div>
+		</div>
+		<div style="float:right;">
+			<div class="menu_btn" style="float:left;" id="ManualUpdateButton">手动更新</div>
+			<div class="menu_btn" style="float:left;margin-left:20px;" id="updateButton2">自动更新</div>
+		</div>
+        <div class="clear"></div>
+    </div>
+    <br/>
+    <div id="resizable" class="ui-widget-content" style="display: none">
+        <h3 class="ui-widget-header ui-corner-all">去重数据更新</h3>
+        <div id="repeatdata">
+            <ul class="list" style="height:400px;overflow:auto;">
+            </ul>
+            <ul class="pagination"></ul>
+        </div>
+        <div style="display:none;">
+            <li id="myrepeat" class="myrepeat" onclick="myselimg(this);">
+                <div class="list_preleft">
+                    <input style="display:none;" class="radio" type="radio" value="" name="img"/>
+                </div>
+                <div class="list_content">
+                    <h4 class="name"></h4>
+                    <p class="desc"></p>
+                </div>
+                <div class="list_right" style="display:none;">
+                    <div class="button" onclick="mydelimg(this);">关闭</div>
+                </div>
+                <div class="clear"></div>
+            </li>
+        </div>
+    </div>
+</div>
+
+<div id="downloadForm" title="更新" class="ajaxForm">
+    <input type="hidden" id="localdriverlist"/>
+    <input type="hidden" id="url"/>
+    <input type="hidden" id="updatetype"/>
+	<input type="hidden" id="bigver"/>
+	<div style="padding:10px 0px;">请上传从{{ company }}下载的{{ title }}升级包，或通过线下方式获得的{{ title }}升级包。</div>
+    <div style="margin-top: 10px;">
+        <div style="margin-top: 2px;">
+            <input type="file" id="localfile"/>
+        </div>
+        <div id="info" style="margin-top: 10px;"></div>
+        <div class="mybtn_nav">
+            <input type="button" id="uploadImg" class="myprev" style="float:right;margin-top:40px;margin-right:3px;"
+                   value="上传并更新"/>
+        </div>
+    </div>
+</div>
+
+<div id="downloadFormFlash" title="更新" class="ajaxForm">
+    <form id="uploadForm" enctype="application/octet-stream">
+        <div style="margin-top: 10px;">请上传从{{ company }}下载的{{ title }}升级包，或通过线下方式获得的{{ title }}升级包。</div>
+        <div style="margin-top: 10px;">
+            <input type="file" id="localfileflash"/>
+            <div class="clear"></div>
+            <div id="info2" style="margin-top: 10px;"></div>
+        </div>
+    </form>
+</div>
+
+<script language="javascript">
+
+	var g_upload_ing = false;
+    function FmtSize(size) {
+        return (size / (1024 * 1024)).toFixed(2);
+    }
+
+    function UploadCallback(jsonstr) {
+        if (jsonstr.r == 200) {
+			g_upload_ing = false;
+            $('#info').html('正在后台更新，现在可以关闭本页面。更新进度，请到更新日志查看。');
+            return;
+        }
+        if (jsonstr.r != 0) {
+            if (jsonstr.tname == 'driver_upload') {
+                openErrorDialog({title: '错误', html: '正在执行服务器驱动更新'});
+            }
+            else {
+				g_upload_ing = false;
+                openErrorDialog({title: '错误', html: jsonstr.e});
+            }
+            return;
+        }
+        var file = $('#localfile').get(0).files[0];
+        var start = jsonstr.start;
+        var total = file.size;
+		var tmp_dir = jsonstr.tmp_dir;
+        var html = "<div>上传进度：" + FmtSize(start) + "/" + FmtSize(total) + '（MB）</div>';
+		html+='<div style="margin-top: 10px;">上传过程中，请勿关闭或刷新浏览器。</div>';
+        $('#info').html(html);
+        if (start < total) {
+            FileReaderReadFile(file, start, 1024 * 1024,tmp_dir);
+        }
+    }
+
+    function FileReaderReadFile(file, start, step,tmp_dir) {
+        var reader = new FileReader();
+        var buffer = null;
+        var total = file.size;
+        reader.onload = function (e) {
+            buffer = e.target.result;
+        }
+        reader.onloadend = function (e) {
+            var url = '../version_handle/?a=upload';
+            url += '&type=' + $('#updatetype').val();
+            url += '&name=' + file.name;
+            url += '&start=' + start;
+            url += '&step=' + 1024 * 1024;
+            url += '&total=' + total;
+			url += '&tmp_dir=' + tmp_dir;
+            myPostBinary(url, buffer, UploadCallback);
+        }
+        //var slicer = fileOrBlob.slice || fileOrBlob.mozSlice || fileOrBlob.webkitSlice;
+        var blob = file.slice(start, start + step);
+        reader.readAsDataURL(blob);
+    }
+
+    $('#uploadImg').click(function () {
+        //html5
+		var file = $('#localfile').get(0).files[0];
+		if(file)
+		{
+			$('#uploadImg').prop('disabled', true);
+			$('#localfile').prop('disabled', true);
+			g_upload_ing = true;
+			FileReaderReadFile(file, 0, 1024 * 1024,'');
+		}
+    });
+
+	function InitUpdateDlgUI()
+	{
+		$('#info').html('');
+		$('#info2').html('');
+	}
+
+	function auto_update(type)
+	{
+		var currentaiover = '';
+		var newestaiover = '';
+		var error_msg = '';
+		if(type=='aio')
+		{
+			currentaiover = $('#currentaiover').html();
+			newestaiover = $('#newestaiover').html();
+			error_msg = '不能获取{{ title }}版本号，请稍候再试。';
+			confirm_msg = '你确定要更新{{ title }}吗?';
+
+		}
+		var current = currentaiover.split('.');
+		var newest = newestaiover.split('.');
+		if(current.length == 3 )
+		{
+			currentaiover = parseInt(current[2]);
+		}
+		if(newest.length == 3 )
+		{
+			newestaiover = parseInt(newest[2]);
+		}
+		if(isNaN(currentaiover)|| isNaN(newestaiover))
+		{
+			openErrorDialog({title:'错误',html:error_msg});
+		}
+		else if(currentaiover<newestaiover)
+		{
+			openConfirmDialog({
+				title:'确认信息',
+				html:confirm_msg,
+				onBeforeOK:function(){
+					InitUpdateDlgUI();
+					if(type=='aio')
+					{
+						execute_down_and_update(1);
+					}
+					$(this).dialog('close');
+				}
+			});
+		}
+		else
+		{
+			openSuccessDialog({title:'提示',html:'当前已是最新版本'});
+		}
+	}
+
+    $('#updateButton1')
+            .button()
+            .click(function () {
+				openConfirmDialog({
+						title: '确认信息',
+						html: '升级安装包，会停止以下任务，确定继续吗？<br><br>1.所有正在浏览的备份点将会被关闭。<br>2.所有接管将会被关闭。<br>3.正在执行的任务将会失败。',
+						width: 420,
+						height: 250,
+						onBeforeOK: function () {
+							$(this).dialog('close');
+							auto_update('aio');
+						}
+
+				});
+            });
+
+    $('#updateButton2')
+            .button()
+            .click(function () {
+				var curentdriverver = $('#curentdriverver').html();
+				var newdriverver = $('#newdriverver').html();
+
+				var current = curentdriverver.split('.');
+				var newest = newdriverver.split('.');
+				if(current.length == 3 )
+				{
+					curentdriverver = parseInt(current[2]);
+				}
+				if(newest.length == 3 )
+				{
+					newdriverver = parseInt(newest[2]);
+				}
+				if(isNaN(newdriverver)|| isNaN(curentdriverver))
+				{
+					openErrorDialog({title:'错误',html:'不能获取驱动版本号，请稍候再试。'});
+				}
+				else if(curentdriverver<newdriverver)
+				{
+					openConfirmDialog({
+						title:'确认信息',
+						html:'你确定要更新服务器驱动吗?',
+						onBeforeOK:function(){
+							InitUpdateDlgUI();
+							execute_down_and_update_driver();
+							$(this).dialog('close');
+						}
+					});
+				}
+				else
+				{
+					openSuccessDialog({title:'提示',html:'当前已是最新版本'});
+				}
+				
+            });
+	
+	function manualupdate()
+	{
+		openConfirmDialog({
+            title: '确认信息',
+            html: '升级安装包，根据需要会停止以下任务，确定继续吗？<br><br>1.所有正在浏览的备份点将会被关闭。<br>2.所有接管将会被关闭。<br>3.正在执行的任务将会失败。',
+			width: 420,
+            height: 250,
+            onBeforeOK: function () {
+                $(this).dialog('close');
+                InitUpdateDlgUI();
+				uploadfile();
+            }
+
+        });
+	}
+
+	$('#ManualUpdateButton')
+            .button()
+            .click(function () {
+				InitUpdateDlgUI();
+				uploadfile();
+            });
+
+	$('#ManualUpdateButton1')
+            .button()
+            .click(function () {
+				manualupdate();
+			});
+	
+	$('#ManualUpdateButton3')
+            .button()
+            .click(function () {
+				manualupdate();
+			});
+
+    $('#updateButton3')
+            .button()
+            .click(function () {
+				var curentmediumver = $('#curentmediumver').html();
+				var newestmediumver = $('#newestmediumver').html();
+				var current = curentmediumver.split('.');
+				var newest = newestmediumver.split('.');
+				if(current.length == 3 )
+				{
+					curentmediumver = parseInt(current[2]);
+				}
+				if(newest.length == 3 )
+				{
+					newestmediumver = parseInt(newest[2]);
+				}
+				if(isNaN(curentmediumver)|| isNaN(newestmediumver))
+				{
+					openErrorDialog({title:'错误',html:'不能获取启动介质数据源版本号，请稍候再试。'});
+				}
+				else if(curentmediumver<newestmediumver)
+				{
+					openConfirmDialog({
+						title:'确认信息',
+						html:'你确定要更新启动介质数据源吗?',
+						onBeforeOK:function(){
+							InitUpdateDlgUI();
+							execute_down_and_update(2);
+							$(this).dialog('close');
+						}
+					});
+				}
+				else
+				{
+					openSuccessDialog({title:'提示',html:'当前已是最新版本'});
+				}
+            });
+
+    function GetDriversCallback(result, url) {
+        if (result.r == 0) {
+            $('#gdrivercount').html(result.total);
+            $('#url').val(url);
+			$('span#newdriverver').html($('#bigver').val()+'.'+result.ver);
+        }
+    }
+
+    function LocalDriverListCallback(jsonstr, url) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#localdrivercount').html(jsonstr.total);
+		$('#localdriverlist').val('all');
+        var tmpurl = url + '/index.php/api/drivers/?a=getcount';
+        myJsonp(tmpurl, '', GetDriversCallback, url);
+    }
+
+    function GetVersionFormURLCallback(result, url) {
+        $('div#newestaiover').html('无更新');
+        $('div#newestmediumver').html('无更新');
+        for (var i = 0; i < result.length; i++) {
+            var item = result[i];
+            var html = '';
+			var ver = item.ver;
+			html += "下载地址：<a href=\""+item.file_name+"\">" + item.file_name+"</a>";
+            html += "<br />时间：" + item.date;
+            html += "<br />大小：" + item.size;
+			if(item.intro)
+			{
+				html += "<br />说明：" + item.intro;
+			}
+			if(item.log)
+			{
+				html += "<br />更新日志：" + item.log;
+			}
+            html += '<input type="hidden" id="file' + item.type + '" value="' + item.file_name + '" />';
+            html += '<input type="hidden" id="sig' + item.type + '" value="' + item.base_64_sig + '" />';
+            if (item.type == 1) {
+                $('div#newestaiover').html(ver);
+				$('div#newestaioverlog').html(html);
+            }
+            else if (item.type == 2) {
+                $('div#newestmediumver').html(ver);
+				$('div#newestmediumverlog').html(html);
+            }
+        }
+
+        var params = 'a=getlocaldriverlist';
+        myAjaxGet('../version_handle/', params, LocalDriverListCallback, url);
+    }
+
+    function GetVersionFormURL(url) {
+        var tmpurl = url + '/index.php/api/update/?type=1,2&lan=cn&version=' + $('div#currentaiover').html();
+        myJsonp(tmpurl, 'newestaiover', GetVersionFormURLCallback, url);
+        $('#imgurl').attr('href', url+'/download/ClwDRDriver.zip');
+    }
+
+    function UrlCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+		jsonstr.url = window.location.protocol + "//" + jsonstr.url;
+        $('#url').val(jsonstr.url);
+        GetVersionFormURL(jsonstr.url);
+    }
+
+    function GetVersionInfo(retjson) {
+        if (retjson.r != 0) {
+            openErrorDialog('错误', retjson.e);
+            return;
+        }
+
+        $('div#currentaiover').html(retjson.currentaiover);
+        $('div#newestaiover').html('正在查询...');
+
+        $('div#curentmediumver').html(retjson.curentmediumver);
+        $('div#newestmediumver').html('正在查询...');
+
+		$('span#curentdriverver').html(retjson.curentdriverver);
+		$('span#newdriverver').html('正在查询...');
+
+		$('#bigver').val(retjson.bigver);
+
+        var params = 'a=url';
+        myAjaxGet('../version_handle/', params, UrlCallback);
+    }
+
+    function uploadfile() {
+		if(g_upload_ing == false)
+		{
+			$('#uploadImg').prop('disabled', false);
+			$('#localfile').prop('disabled', false);
+		}
+		var formid = 'downloadForm';
+        var height = 350;
+        if (!window.FileReader) {
+            var head = document.getElementsByTagName('head')[0];
+            var link = document.createElement('link');
+            link.href = '/static/js/uploadify/uploadify.css';
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            head.appendChild(link);
+
+            formid = 'downloadFormFlash';
+            height = 250;
+            $.getScript('/static/js/uploadify/jquery.uploadify.min.js', function () {
+                $('#localfileflash').uploadify({
+                    'formData': {
+                        'csrfmiddlewaretoken': $.cookie('csrftoken')
+                    },
+                    'swf': '/static/js/uploadify/uploadify.swf',
+                    'uploader': '../version_handle/?a=uploadbyflash',
+                    'multi': false,
+                    'auto': true,
+                    'buttonText': '选择并上传文件'
+                });
+            });
+        }
+        $("#" + formid).attr('title', '更新').dialog({
+            autoOpen: true,
+            height: height,
+            width: 480,
+            modal: true,
+            close: function () {
+            }
+        });
+    }
+
+    function execute_down_and_update(typenum) {
+        var hosts = $('#url').val();
+        var tmpurl = hosts + '/index.php/api/update/?type=' + typenum + '&lan=cn&version=' + $('div#currentaiover').html() + '&callback=jsononly';
+        myJsonp(tmpurl, 'newestaiover', executecallback);
+    }
+
+    function execute_down_and_update_driver() {
+		var url = $('#url').val();
+		var tmpurl = url + '/index.php/api/drivers/?a=getdriverzip&l=' + $('#localdriverlist').val() + '&callback=jsononly' + '&version='+$('#curentdriverver').html();
+        var parms = 'a=down_and_execute&taskname=driver_update&downurl=' + encodeURIComponent(tmpurl);
+        myAjaxGet('../version_handle/', parms, updatecallback);
+    }
+
+    function executecallback(jsonstr) {
+        if (jsonstr.file_name == '') {
+            openErrorDialog('错误', '获取下载链接失败');
+            return;
+        }
+        var taskname = '';
+        if (jsonstr[0]['type'] == 1) {
+            taskname = 'aio_update';
+        }
+        if (jsonstr[0]['type'] == 2) {
+            taskname = 'iso_update';
+        }
+        var parms = 'a=down_and_execute&taskname=' + taskname + '&downurl=' + jsonstr[0]['file_name'];
+        myAjaxGet('../version_handle/', parms, updatecallback);
+    }
+
+    function updatecallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            if (jsonstr.tname == 'aio_update') {
+                openErrorDialog({title: '错误', html: '正在下载更新{{ title }}文件，请稍后操作。'});
+            }
+            else if (jsonstr.tname == 'iso_update') {
+                openErrorDialog({title: '错误', html: '正在下载更新启动介质文件，请稍后操作。'});
+            }
+            else if (jsonstr.tname == 'driver_update') {
+                openErrorDialog({title: '错误', html: '正在下载更新服务器驱动文件，请稍后操作。'});
+            }
+            else if (jsonstr.tname == 'processing_aio_update') {
+                openErrorDialog({title: '错误', html: '正在更新{{ title }}，请稍后操作。'});
+            }
+            else if (jsonstr.tname == 'processing_iso_update') {
+                openErrorDialog({title: '错误', html: '正在更新启动介质，请稍后操作。'});
+            }
+            else if (jsonstr.tname == 'processing_driver_update') {
+                openErrorDialog({title: '错误', html: '正在更新服务器驱动，请稍后操作。'});
+            }
+            else {
+                openErrorDialog({title: '错误', html: jsonstr.e});
+            }
+            return;
+        }
+        openSuccessDialog({title: '操作成功', html: '执行操作成功,执行状态请见<a href="../updatelog/" style="color:blue;">更新日志</a>'});
+    }
+
+    function tasknamecallback(jsonstr) {
+        $('#currenttaskname').show('highlight', 1000);
+        if (jsonstr.name == 'aio_update') {
+            $('#currenttaskname').html('正在下载更新{{ title }}文件');
+            return;
+        }
+        if (jsonstr.name == 'iso_update') {
+            $('#currenttaskname').html('正在下载更新启动介质文件');
+            return;
+        }
+        if (jsonstr.name == 'driver_update') {
+            $('#currenttaskname').html('正在下载更新服务器驱动文件');
+            return;
+        }
+        if (jsonstr.name == 'processing_aio_update') {
+            $('#currenttaskname').html('正在更新服务器驱动');
+            return;
+        }
+        if (jsonstr.name == 'processing_iso_update') {
+            $('#currenttaskname').html('正在更新服务器驱动');
+            return;
+        }
+        if (jsonstr.name == 'processing_driver_update') {
+            $('#currenttaskname').html('正在更新服务器驱动');
+            return;
+        }
+        if (jsonstr.name == 'driver_upload') {
+            $('#currenttaskname').html('正在更新');
+            return;
+        }
+        else {
+            $('#currenttaskname').html('无更新任务');
+            return;
+        }
+    }
+
+    $('#stopmission').button().click(function () {
+        myAjaxGet('../version_handle/', "a=stopcurrentthreading", stopmissioncallback);
+    })
+
+    $('#getmission').button().click(function () {
+        $('#currenttaskname').hide();
+        myAjaxGet('../version_handle/', "a=getcuttenttaskname", tasknamecallback);
+    })
+
+    function stopmissioncallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog('错误', jsonstr.e);
+            return;
+        }
+        openSuccessDialog('操作成功', jsonstr.e);
+    }
+
+    $(function () {
+        myAjaxGet('../version_handle/', "a=getversion", GetVersionInfo);
+        myAjaxGet('../version_handle/', "a=getcuttenttaskname", tasknamecallback);
+        $('#navigation').html('<div class="font_navigation">{{ title }}更新</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#aioupdate" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+		update_resize();
+
+    });
+
+function update_resize()
+{
+	resizeright();
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	update_resize();
+});
+
+</script>

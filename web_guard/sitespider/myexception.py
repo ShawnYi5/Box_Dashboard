@@ -1,0 +1,2 @@
+class OwnWebsiteException(Exception):
+    pass

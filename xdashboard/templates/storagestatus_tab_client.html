@@ -1,0 +1,243 @@
+{% verbatim %}
+<div id="storagestatus_tab_client">
+    <el-form :model="q_data" :size="'mini'">
+        <el-row :gutter="20">
+            <el-col :span="16">
+                <div class="grid-content bg-purple">
+                    <el-form-item label="">
+                        <span>筛选主机: 已选择{{ q_data.hosts.length }}台主机</span>
+                        <el-button type="text" @click="is_open_dlg = true">添加</el-button>
+                        <el-dialog title="选择主机" :visible.sync="is_open_dlg">
+                            <el-transfer v-model="q_data.hosts" :data="all_hosts" :filterable="true"
+                                         :render-content="renderFunc"></el-transfer>
+                        </el-dialog>
+                    </el-form-item>
+                </div>
+            </el-col>
+            <el-col :span="8">
+                <div class="grid-content bg-purple" style="float: right">
+                    <el-form-item>
+                        <el-button type="info" plain @click="onSubmit" :size="'mini'">查询</el-button>
+                        <el-button type="info" plain @click="onExport" :size="'mini'">导出</el-button>
+                        <el-button type="info" plain @click="onRefresh" :size="'mini'">刷新</el-button>
+                    </el-form-item>
+                </div>
+            </el-col>
+        </el-row>
+    </el-form>
+
+    <div id="summary_table">
+        <el-table :data="hosts_status" border style="width: 100%; margin-top: 20px" v-loading="loading"
+                  @expand-change="expandChange" ref="multipleTable">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-table :data="props.row.lock_snapshots" border style="width: 100%;"
+                              v-loading="props.row.loading">
+                        <el-table-column prop="name" label="备份点" align="left" width="300"></el-table-column>
+                        <el-table-column label="锁定中的任务" align="left">
+                            <template slot-scope="scope">
+                                <ul style="margin: 0;padding: 0">
+                                    <li v-for="row in scope.row.status" style="list-style: none">{{row.task_name}}</li>
+                                </ul>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </template>
+            </el-table-column>
+            <el-table-column prop="name" label="客户端" width="250" align="center"></el-table-column>
+            <el-table-column label="各存储节点使用量" align="center">
+                <el-table-column v-for="storage in storages" :prop="storage.key" :label="storage.label"
+                                 :key="storage.key" align="center"></el-table-column>
+            </el-table-column>
+            <el-table-column prop="total" label="总计" width="180" align="center"></el-table-column>
+        </el-table>
+    </div>
+    <div style="margin-top: 10px;text-align: center">
+        <el-row :gutter="20">
+            <el-col :span="12" :offset="6">
+                <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page="pg.page"
+                        :page-sizes="[10, 50, 100, 200]"
+                        :page-size="pg.rows"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="pg.total">
+                </el-pagination>
+            </el-col>
+        </el-row>
+    </div>
+    <div>
+        <el-dialog
+                title="导出"
+                :visible.sync="my_export.dialogVisible"
+                width="30%">
+            <span><a :href="my_export.url">{{ my_export.filename }}</a></span>
+            <span>{{ my_export.info }}</span>
+            <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="my_export.dialogVisible = false">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+</div>
+
+{% endverbatim %}
+
+<script>
+    var storagestatus_tab_client_vue = new Vue({
+        el: '#storagestatus_tab_client',
+        data: function () {
+            return {
+                // {label: 'host1', key: 'id1'}
+                my_export: {
+                    dialogVisible: false,
+                    loading: false,
+                    filename: '',
+                    url: '',
+                    info: ''
+                },
+                all_hosts: [],
+                // {label: '节点1', key: 'sid1'},
+                storages: [],
+                q_data: {
+                    hosts: []
+                },
+                hosts_status: [],
+                is_open_dlg: false,
+                error: '',
+                loading: false,
+                pg: {
+                    page: 1,
+                    total: 0,
+                    rows: 10
+                }
+            }
+        },
+        methods: {
+            onSubmit: function () {
+                this.query(this.q_data.hosts);
+            },
+            onExport: function () {
+                this.export_f();
+            },
+            onRefresh:function(){
+                this.refresh();
+            },
+            init_hosts: function () {
+                myAjaxGet('../serversmgr_handle/?a=getclientlist&use_host_name=1&rows=9999', '', this._init_hosts_cb);
+            },
+            _init_hosts_cb: function (rsp) {
+                var _q = [];
+                rsp.rows.forEach(function (row) {
+                    this.all_hosts.push({
+                        key: row.cell[0],
+                        label: row.cell[1]
+                    });
+                    _q.push(row.cell[0])
+                }, this);
+                this.query(_q); // 初始化列表
+            },
+            query: function (host_ids) {
+                if (host_ids.length == 0) {
+                    this.$alert('没有可统计的主机', '警告');
+                    return;
+                } else {
+                    var host_idents = JSON.stringify(host_ids);
+                    this.loading = true;
+                    this.hosts_status = [];
+                    this.storages = [];
+                    var params = 'a=host_storages_status&host_ids=' + host_idents;
+                    params += '&page=' + this.pg.page + '&rows=' + this.pg.rows;
+
+                    myAjaxPost('../bussinessreport_handle/', params, this._query_cb);
+                }
+            },
+            // 导出
+            export_f: function () {
+                if (this.hosts_status.length <= 1) {
+                    this.$alert('没有可导出数据', '警告');
+                    return;
+                } else {
+                    this.my_export.dialogVisible = true;
+                    this.my_export.info = '表格生成中，请稍后';
+                    var data = JSON.stringify({all_host_info: this.hosts_status, all_nodes: this.storages});
+                    myAjaxPost('../bussinessreport_handle/', 'a=host_storages_status_ex' + '&data=' + encodeURIComponent(data), this._export_cb);
+                }
+            },
+            //刷新
+            refresh:function(){
+                myAjaxGet('../serversmgr_handle/?a=getclientlist&use_host_name=1&rows=9999', '', this._init_hosts_cb);
+            },
+            _export_cb: function (rsp) {
+                this.my_export.info = '';
+                if (rsp.r != 0) {
+                    this.my_export.info = '内部错误,' + rsp.e;
+                    return;
+                } else {
+                    this.my_export.url = rsp.url;
+                    this.my_export.filename = rsp.filename;
+                }
+            },
+            _query_cb: function (rsp) {
+                this.loading = false;
+                this.storages = [];
+                this.hosts_status = [];
+                // 填入节点信息
+                rsp.all_nodes.forEach(function (e) {
+                    this.storages.push(e);
+                }, this)
+                rsp.all_host_info.forEach(function (e) {
+                    e.loading = false;
+                    e.lock_snapshots = [];
+                    this.hosts_status.push(e);
+                }, this)
+                this.pg.page = rsp.page;
+                this.pg.total = rsp.records;
+            },
+            renderFunc: function (h, option) {
+                return h('span', {
+                    attrs: {
+                        title: option.label,
+                    }
+                }, option.label);
+            },
+            handleSizeChange(val) {
+                if (this.pg.rows == val) {
+                    return
+                }
+                this.pg.rows = val;
+                this.query(this.all_hosts.map(function (x) {
+                    return x.key;
+                }));
+            },
+            handleCurrentChange(val) {
+                if (this.pg.page == val) {
+                    return
+                }
+                this.pg.page = val;
+                this.query(this.all_hosts.map(function (x) {
+                    return x.key;
+                }));
+            },
+            expandChange: function (row, expandedRows) {
+                if (expandedRows.indexOf(row) == -1 || row.ident == 'all') {
+                    this.$refs.multipleTable.toggleRowExpansion(row, false);
+                    return;
+                }
+                row.loading = true;
+                row.lock_snapshots = [];
+                myAjaxGet('../bussinessreport_handle/', 'a=locked_snapshots' + '&host=' + row.ident, this._locked_snapshots_cb, row);
+            },
+            _locked_snapshots_cb: function (rsp, row) {
+                row.lock_snapshots = rsp.lock_snapshots;
+                row.loading = false;
+                this.$refs.multipleTable.setCurrentRow(row);
+            }
+        },
+        mounted: function () {
+            this.init_hosts();
+        }
+    })
+</script>
+
+</script>

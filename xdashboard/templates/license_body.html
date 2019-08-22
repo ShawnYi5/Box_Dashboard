@@ -1,0 +1,227 @@
+<!--suppress JSUnresolvedVariable -->
+<style>
+    .authorise {
+        margin: 16px;
+    }
+</style>
+
+<div class="right">
+    <div id="authorizeDiv" style="" class="ui-widget ui-widget-content ui-corner-all">
+        <div id="authorised" class="authorise">
+            <h4>{{title}}授权信息 {{ license_name }}</h4>
+            <table id="initInfo"></table>
+            <h4>升级授权</h4>
+            <label for="AuthorizeFile"></label>
+			{% if license_type == "www" %}
+			<form id="uploadForm" class="hidden_guid" enctype="multipart/form-data" style="width: 496px;display:none;">
+			{% else %}
+            <form id="uploadForm" enctype="multipart/form-data" style="width: 496px">
+			{% endif %}
+                <input id="file" type="file" name="file" title="选择授权文件"/>
+                <button id="upload" type="button" style="float: right">上传并授权</button>
+                <span id="resultAuth"></span>
+            </form>
+        </div>
+		{% if license_type == "www" %}
+		<div style="margin-left:20px;margin-top:10px;">
+		<form id="uploadKeyForm" enctype="multipart/form-data" style="width: 496px">
+			<input id="pub_key_file" type="file" name="pub_key_file" title="选择公钥文件"/>
+			<button id="upload_pub_key" type="button" style="float: right">上传公钥</button>
+		</form>	
+		</div>
+		{% endif %}
+    </div>
+	<div class="hidden_guid" style="margin-top:20px;display:none;">
+		<div style="margin-top:10px;">
+		SN:<input type="text" id="aio_sn" style="width: 80px"/>
+		<span style="margin-top:0px;" id="gen_pub_pri_key">生成公私钥下载链接</span>
+		<br /><br />
+		<a id="download_pub_key" target="_blank">下载公钥</a>并在客户机上传，<a id="download_pri_key" target="_blank">下载私钥</a>保存为www_pri.key放入互联网。注意公/私钥是一对。
+		</div>
+		<div>
+			<div style="margin-top:10px;float:left;">公钥：</div>
+			<div style="margin-top:10px;float:left;">
+				<textarea spellcheck="false" rows="18" cols="70" id="pub" readonly style="font-family:monospace;"></textarea>
+			</div>
+			<div style="margin-top:10px;float:left;" >私钥：</div>
+			<div style="margin-top:10px;float:left;">
+				<textarea spellcheck="false" rows="18" cols="70" id="pri" readonly style="font-family:monospace;"></textarea>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">授权管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#giveright" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        license_resize();
+    });
+
+    $(function () {
+        var timestmp = new Date().getTime();
+        myAjaxGet('../querycurauthorize/?rnd=' + timestmp, '', localAuthorizeInfo)
+    });
+
+    function localAuthorizeInfo(jsonStr) {
+        $('#initInfo').empty();
+        $('#initInfo').append('序列号: ' + jsonStr.aio_sn + '<br>');
+        $('#initInfo').append('型号: ' + jsonStr.name + '<br><br>');
+        $.each(jsonStr.license, function (index, elemObj) {
+			var $tr = '';
+			if(elemObj.license_guid == 'separation_of_the_three_members' && elemObj.display !== 'no')
+			{
+				var functional = '授权：无';
+				if(elemObj.sub_functions.length)
+				{
+					functional = '授权：功能模块';
+				}
+				var $tr = $('<tr><td style="width:250px;">{0}</td><td style="width:150px;">{1}</td><td style="display:none;">{2}</td></tr>'
+                    .replace('{0}', elemObj.show_txt[0])
+                    .replace('{1}', functional)
+                    .replace('{2}', elemObj.show_txt[1])
+				 );
+                $('#initInfo').append($tr);
+				$tr = '';
+				for(var i=0;i<elemObj.sub_functions.length;i++)
+				{
+					$tr = $('<tr class="hidden_guid" style="display:none;"><td style="width:250px;">{0}</td><td colspan="2">{1}</td></tr>'
+                    .replace('{0}', '&nbsp;')
+                    .replace('{1}', '子模块：'+elemObj.sub_functions[i])
+					 );
+					 $('#initInfo').append($tr);
+				}
+			}
+			else if (elemObj.license_guid == 'rebuild_host_num')
+			{
+				var style = '';
+				if(elemObj.display=='no')
+				{
+					style = 'display:none;';
+				}
+				var $tr = $('<tr class="hidden_guid" style="{3}"><td style="width:250px;">{0}</td><td style="width:150px">{1}</td><td>{2}</td></tr>'
+                    .replace('{0}', elemObj.show_txt[0])
+                    .replace('{1}', elemObj.show_txt[1])
+                    .replace('{2}', elemObj.show_txt[2])
+					.replace('{3}', style)
+                );
+                $('#initInfo').append($tr);
+			}
+            else if (elemObj.license_guid !== 'expiration_date' && elemObj.display !== 'no') {
+                var $tr = $('<tr><td style="width:250px">{0}</td><td style="width:150px">{1}</td><td>{2}</td></tr>'
+                    .replace('{0}', elemObj.show_txt[0])
+                    .replace('{1}', elemObj.show_txt[1])
+                    .replace('{2}', elemObj.show_txt[2])
+                );
+                $('#initInfo').append($tr);
+            }
+        })
+    }
+
+
+    $('#upload').click(function () {
+        $.ajax({
+            url: '../uploadfile/',
+            type: 'POST',
+            cache: false,
+            data: new FormData($('#uploadForm')[0]),
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }).done(function (res) {
+            var is_success = res.is_success;
+            if (is_success) {
+                $('#resultAuth').text('更新授权成功');
+                window.location.reload();
+            }
+            else {
+                $('#resultAuth').text(res.msgs);
+            }
+        }).fail(function (res) {
+        });
+    });
+
+	$(document).keydown(function(event){
+    if(event.ctrlKey && event.altKey && event.key == 'p'){
+        $('.hidden_guid').show();
+    }
+});
+
+function get_pub_pri_key_callback(jsonobj)
+{
+	if (jsonobj.r != 0) {
+		openErrorDialog({title: '错误', html: jsonobj.e});
+		return;
+    }
+
+	$('#pri').val(jsonobj.pri);
+	$('#pub').val(jsonobj.pub);
+	var pub_href ="../license_handle/?a=download_key&key="+encodeURIComponent($('#pub').val());
+	pub_href+="&filename=www_pub.key";
+	pub_href+="&sn="+encodeURIComponent($('#aio_sn').val());
+	$('#download_pub_key').attr('href',pub_href);
+	var pri_href ="../license_handle/?a=download_key&key="+encodeURIComponent($('#pri').val());
+	pri_href+="&filename=www_pri.key";
+	$('#download_pri_key').attr('href',pri_href);
+}
+
+$('#gen_pub_pri_key').button().click(function () {
+	var params ="a=get_pub_pri_key";
+	myAjaxPost('../license_handle/', params, get_pub_pri_key_callback);
+});
+
+
+$('#upload_pub_key').click(function () {
+        $.ajax({
+            url: '../uploadfile/?type=pub_key',
+            type: 'POST',
+            cache: false,
+            data: new FormData($('#uploadKeyForm')[0]),
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }).done(function (res) {
+            var is_success = res.is_success;
+            if (is_success) {
+                $('#resultAuth').text('更新授权成功');
+                window.location.reload();
+            }
+            else {
+                $('#resultAuth').text(res.msgs);
+            }
+        }).fail(function (res) {
+        });
+    });
+
+$('#write_pubkey').button().click(function () {
+	openConfirmDialog({
+		title:'仅由{{ company }}操作',
+		html:'你确定更改互联网授权的公钥吗?该操作可能会造成授权不可用。',
+		onBeforeOK:function(){
+			var params ="a=write_pubkey&key="+encodeURIComponent($('#pub').val());
+			myAjaxPost('../license_handle/', params, get_pub_pri_key_callback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+    function license_resize() {
+        resizeright();
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        license_resize();
+    });
+
+</script>

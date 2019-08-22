@@ -1,0 +1,141 @@
+<div>配置虚拟机参数</div>
+<div style="margin-top:20px;margin-left:29px;">名称：<input type="text" class="input" id="kvm_name" name="kvm_name" style="width:500px;" onblur="removespace(this)"/></div>
+<div style="margin-top:10px;">CPU总核数：<span id="kvm_cpu_count"></span>核（最大可用CPU核数：<span id="phy_cpu_count"></span>核）</div>
+<div style="margin-top:6px;margin-left:20px;">虚拟插槽数：　　
+	<select id="kvm_cpu_sockets" style="margin-left:-4px;">
+		<option value='1'  selected="selected" >1</option>
+		<option value='2'>2</option>
+		<option value='3'>3</option>
+		<option value='4'>4</option>
+		<option value='5'>5</option>
+		<option value='6'>6</option>
+		<option value='7'>7</option>
+		<option value='8'>8</option>
+	</select>
+</div>
+<div style="margin-top:6px;margin-left:20px;">每个插槽的核数：
+	<select id="kvm_cpu_cores" style="margin-left:-4px;">
+		<option value='1'>1</option>
+		<option value='2' selected="selected">2</option>
+		<option value='4'>4</option>
+		<option value='6'>6</option>
+		<option value='8'>8</option>
+	</select>
+</div>
+<div style="margin-top:10px;margin-left:3px;">内存大小：<input type="number" class="input" id="kvm_memory_size" name="kvm_memory_size" value="2" style="width:50px;"/>
+<select id="kvm_memory_unit">
+	<option value="MB">MB</option>
+	<option value="GB" selected="selected">GB</option>
+</select>（最大可用：<span id="phy_available"></span>MB）</div>
+<div style="margin-top:10px;margin-left:3px;">接管主机改变/新增数据存放位置：<input type="hidden" id="kvm_sel_storagedevice" />
+	<select id="kvm_storagedevice" name="kvm_storagedevice" style="margin-left:-4px;">
+		<option value='-1'  selected="selected" >请稍候</option>
+	</select>
+</div>
+<div style="margin-left:-20px;" class="class_kvm_adpter_parent">
+	<div style="margin-top:20px;margin-left:20px;float:left;"><span style="color: blue;cursor:pointer;" onclick="addAdpterButton(this);">增加网卡</span></div>
+	<div style="margin-top:20px;float:left;cursor:pointer;"><span id="adpter_tip" title="虚拟化灾备验证系统自建隔离私有虚拟化网络，减少备份点验证时的配置难度和杜绝IP冲突风险。" class="ui-icon ui-icon-info"></span></div>
+	<div class="clear"></div>
+</div>
+<div style="margin-left:-20px;" class="class_kvm_route_parent">
+	<div style="margin-top:10px;margin-left:20px;float:left;"><span style="color: blue;cursor:pointer;" onclick="addRouteButton(this);">增加路由</span></div>
+	<div class="clear"></div>
+</div>
+
+<div style="margin-left:-20px;">
+	<div class="class_kvm_dns" style="margin-top:10px;margin-left:20px;border:1px solid #d3d3d3;width:260px;">
+		<div style="margin-top:10px;">默认网关：<input type="text" name="kvm_gateway"/></div>
+		<div style="margin-top:10px;margin-left:185px;"><span style="color: blue;cursor:pointer;" onclick="addDNSButton(this);">增加DNS</span></div>
+	</div>
+</div>
+
+<div style="margin-left:-20px;">
+	<div style="margin-top:20px;margin-left:20px;cursor:pointer;""><span id="advancedsettingbtn">►高级设置</span></div>
+	<div style="margin-top:10px;margin-left:20px;display:none;">
+		<div style="margin-top:10px;">注意：改变硬盘控制器，有可能造成操作系统无法正常启动。</div>
+		<div style="margin-top:10px;">硬盘控制器：<select id="hddctl">
+			<option value='scsi-hd'  selected="selected">scsi-hd</option>
+			<option value='virtio-blk'>virtio-blk</option>
+			<option value='IDE'>IDE</option>
+		</select></div>
+		<div style="margin-top:10px;">　　　CPU：<select id="cpu">
+			<option value='qemu64'>qemu64  QEMU Virtual CPU version 2.3.0</option>
+			<option value='phenom'>phenom  AMD Phenom(tm) 9550 Quad-Core Processor </option>
+			<option value='core2duo' selected="selected">core2duo  Intel(R) Core(TM)2 Duo CPU     T7700  @ 2.40GHz</option>
+			<option value='kvm64'>kvm64  Common KVM processor</option>
+			<option value='qemu32'>qemu32  QEMU Virtual CPU version 2.3.0</option>
+			<option value='kvm32'>kvm32  Common 32-bit KVM processor</option>
+			<option value='coreduo'>coreduo  Genuine Intel(R) CPU           T2600  @ 2.16GH</option>
+			<option value='486'>486</option>
+			<option value='pentium'>pentium</option>
+			<option value='pentium2'>pentium2</option>
+			<option value='pentium3'>pentium3</option>
+			<option value='athlon'>athlon  QEMU Virtual CPU version 2.3.0</option>
+			<option value='n270'>n270  Intel(R) Atom(TM) CPU N270   @ 1.60GHz</option>
+			<option value='cpu64-rhel6'>cpu64-rhel6  QEMU Virtual CPU version (cpu64-rhel6)</option>
+			<option value='Conroe'>Conroe  Intel Celeron_4x0 (Conroe/Merom Class Core 2)</option>
+			<option value='Penryn'>Penryn  Intel Core 2 Duo P9xxx (Penryn Class Core 2)</option>
+			<option value='Nehalem'>Nehalem  Intel Core i7 9xx (Nehalem Class Core i7)</option>
+			<option value='Westmere'>Westmere  Westmere E56xx/L56xx/X56xx (Nehalem-C)</option>
+			<option value='SandyBridge'>SandyBridge  Intel Xeon E312xx (Sandy Bridge)</option>
+			<option value='IvyBridge'>IvyBridge  Intel Xeon E3-12xx v2 (Ivy Bridge)</option>
+			<option value='Haswell-noTSX'>Haswell-noTSX  Intel Core Processor (Haswell, no TSX)</option>
+			<option value='Haswell'>Haswell  Intel Core Processor (Haswell)</option>
+			<option value='Broadwell-noTSX'>Broadwell-noTSX  Intel Core Processor (Broadwell, no TSX)</option>
+			<option value='Broadwell'>Broadwell  Intel Core Processor (Broadwell)</option>
+			<option value='Opteron_G1'>Opteron_G1  AMD Opteron 240 (Gen 1 Class Opteron)</option>
+			<option value='Opteron_G2'>Opteron_G2  AMD Opteron 22xx (Gen 2 Class Opteron)</option>
+			<option value='Opteron_G3'>Opteron_G3  AMD Opteron 23xx (Gen 3 Class Opteron)</option>
+			<option value='Opteron_G4'>Opteron_G4  AMD Opteron 62xx class CPU </option>
+			<option value='Opteron_G5'>Opteron_G5  AMD Opteron 63xx class CPU</option>
+			<option value='host'>host  KVM processor with all supported host features (only available in KVM mode)</option>
+		</select></div>
+		<div style="margin-top:10px;">　　　显卡：<select id="vga">
+			<option value='cirrus'  selected="selected">cirrus</option>
+			<option value='std'>std</option>
+			<option value='qxl'>qxl</option>
+			<option value='none'>不显示</option>
+		</select></div>
+		<div style="margin-top:10px;">　　　网卡：<select id="net">
+			<option value='rtl8139'  selected="selected">rtl8139</option>
+			<option value='e1000'>e1000</option>
+		</select></div>
+		<div style="margin-top:10px;">　引导固件：<select id="boot_firmware">
+			<option value='auto' selected="selected">自动选择</option>
+			<option value='BIOS'>BIOS</option>
+			<option value='EFI'>EFI</option>
+		</select></div>
+	</div>
+</div>
+
+<div class="class_kvm_adpter" style="border:1px solid #d3d3d3;float:left;margin-left:20px;margin-top:20px;display:none;position:relative;width:260px;">
+	<div style="margin-top:10px;">通信连接：<select name="adpter_name" style="margin-left:3px;" onchange="adpter_name_change(this)"><option value='-1'  selected="selected" >请稍候</option></select></div>
+	<div style="margin-top:10px;margin-left:5px;" class="vlan_no">VLAN号：<input type="number" max="4094" min="1" style="width:168px;" disabled=disabled name="vlan_no" placeholder="可选范围：1~4094" onblur="removespace(this)"/></div>
+	<div style="margin-top:10px;margin-left:13px;" class="nic_name">网络名：<input type="text" name="nic_name" placeholder="不填则自动生成" onblur="removespace(this)"/></div>
+	<div style="margin-top:10px;margin-left:24px;">MAC：<input type="text" name="kvm_mac" onblur="removespace(this)"/></div>
+	<div class="class_kvm_ip_parent">
+		<span style="margin-left:200px;color: blue;cursor:pointer;" onclick="addIPButton(this);">增加IP</span>
+	</div>
+	<div><span style="margin-left:250px;cursor:pointer;position:absolute;top:0;" onclick="deladpter(this);">x</span></div>
+</div>
+
+<div style="width:260px;display:none;" class="class_kvm_ip">
+	<div style="margin-top:10px;margin-left:40px;">IP：<input type="text" name="kvm_ip" onblur="removespace(this)"/></div>
+	<div style="margin-top:10px;margin-bottom:10px;">子网掩码：<input type="text" name="kvm_mask" onblur="removespace(this)"/></div>
+</div>
+
+<div class="class_kvm_route" style="float:left;margin-top:10px;margin-left:20px;border:1px solid #d3d3d3;width:260px;display:none;position:relative;">
+	<div style="margin-top:10px;">路由1</div>
+	<div style="margin-top:10px;">目标网络：<input type="text" name="kvm_route_ip"/></div>
+	<div style="margin-top:10px;">子网掩码：<input type="text" name="kvm_route_mask"/></div>
+	<div style="margin-top:10px;margin-bottom:10px;">网　　关：<input type="text" name="kvm_route_gate"/></div>
+	<div><span style="margin-left:250px;cursor:pointer;position:absolute;top:0;" onclick="delroute(this);">x</span></div>
+</div>
+
+<div class="class_kvm_dns_s" style="display:none;">
+	<div style="margin-top:10px;margin-left:16px;">DNS<span>1</span>：<input type="text" name="kvm_dns"/></div>
+</div>
+
+<script>
+$( "#adpter_tip" ).tooltip();
+</script>

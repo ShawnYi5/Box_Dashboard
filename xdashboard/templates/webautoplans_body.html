@@ -1,0 +1,1243 @@
+<style>
+    li {
+        list-style-type: none;
+    }
+
+    ul {
+        padding-left: 20px;
+    }
+
+    #new_dialog_content th {
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    #new_dialog_content td {
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .week_day_ul li {
+        display: block;
+        float: left;
+        border: 1px solid #ddd;
+        margin-right: 10px;
+        cursor: pointer;
+        padding: 1px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .all_tasks_content li {
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        cursor: pointer;
+        padding: 5px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .all_hosts_content li {
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        cursor: pointer;
+        padding: 5px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    #item_list li {
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        cursor: pointer;
+        padding: 5px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .li-choice {
+        background: #bdebee;
+    }
+
+    #tabs-4 th, td {
+        padding: 5px;
+    }
+
+    #list p {
+        white-space: normal;
+        word-break: break-all;
+    }
+
+    .all_hosts_content, .all_tasks_content {
+        border: 1px solid #ddd;
+        padding: 5px;
+        max-height: 200px;
+        width: 300px;
+        overflow: auto;
+        margin-left: 20px;
+        margin-top: 10px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    button:hover {
+        text-decoration: none;
+    }
+
+    button:active {
+        position: relative;
+        top: 1px;
+    }
+
+    #exe_content li {
+        margin-bottom: 5px;
+    }
+
+    input:focus {
+        outline: none;
+    }
+</style>
+<div class="right">
+    <div>
+        <div class="ui-widget">
+            <div class="table_menu">
+                <div class="menu_btn" id="new">新建</div>
+                <div class="menu_btn" id="edit">编辑</div>
+                <div class="menu_btn" id="delete">删除</div>
+                <div class="menu_btn" id="enable">启用</div>
+                <div class="menu_btn" id="disable">禁用</div>
+                <div class="menu_btn" id="show_all">显示所有</div>
+                <div class="menu_btn" id="execute">立即执行</div>
+            </div>
+        </div>
+        <div class="ui-widget">
+            <table id="list"></table>
+            <div id="pager"></div>
+        </div>
+    </div>
+</div>
+
+<div id="new_dialog_content" title="策略设置" style="display: none">
+    <div id="tabs" style="height: 530px;overflow: auto">
+        <ul>
+            <li><a href="#tabs-1">策略名称</a></li>
+            <li><a href="#tabs-2">不同等级处理策略</a></li>
+            <li><a href="#tabs-3">关联客户端/策略</a></li>
+            <li><a href="#tabs-4">摘要</a></li>
+        </ul>
+        <div id="tabs-1">
+            <div class="item-container">
+                <h4 class="item-header">
+                    1：填写策略名称
+                </h4>
+                <div class="item-content" style="margin-left: 20px">
+                    <label for="item_name">策略名称：</label>
+                    <input type="text" name="item_name" id="item_name" placeholder="请填写策略名称" style="width: 300px">
+                </div>
+                <p class="item-footer" style="margin-left: 20px">
+                    说明:应急策略名称用来标记一条应急策略。
+                </p>
+            </div>
+            <div class="item-container">
+                <h4 class="item-header">
+                    2：选择时间范围
+                </h4>
+                <div class="item-content">
+                    <ul>
+                        <li>
+                            <h5>2.1每天时间范围选择：</h5>
+                            <ul>
+                                <li>
+                                    <input type="radio" name="time-every-date-range" id="_24hours" value="1">
+                                    <label for="">全天24小时</label>
+                                </li>
+                                <li style="margin-top: 5px">
+                                    <input type="radio" name="time-every-date-range" value="2" id="not_24hours"
+                                           checked="true">
+                                    <label for="">时间段选择</label>
+                                    <span id="error_msg" style="color: red;margin-left: 20px"></span>
+                                    <div style="border: 1px solid #ddd;background: #f5f5f5;padding: 10px;margin: 10px;"
+                                         id="time_range_choice">
+                                        <div>
+                                            <label for="range_input_l">开始时间：</label>
+                                            <input name="range_input" type="text" class="Wdate" id="range_input_l"
+                                                   style="width:120px"
+                                                   onfocus="WdatePicker({dateFmt:'HH:mm:ss',maxDate:'#F{$dp.$D(\'range_input_r\')}'})"
+                                                   onblur="removespace(this)" readOnly="true"/>
+                                            <label for="range_input_l">结束时间：</label>
+                                            <input name="range_input" type="text" class="Wdate" id="range_input_r"
+                                                   style="width:120px"
+                                                   onfocus="WdatePicker({dateFmt:'HH:mm:ss',
+                                                                        minDate:'#F{$dp.$D(\'range_input_l\')}'
+                                                                        })"
+                                                   onblur="removespace(this)" readOnly="true"/>
+                                            <button id="add_time_range" style="padding: 1px 3px;" title="添加"><span
+                                                    class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                                            </button>
+                                        </div>
+                                        <div class="time_range_div">
+                                            <table style="border:1px solid #ddd;background: #f5f5f5;border-collapse: collapse;margin-top: 10px"
+                                                   cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <th style="width: 10%">
+                                                        开始时间
+                                                    </th>
+                                                    <th style="width: 10%">
+                                                        结束时间
+                                                    </th>
+                                                    <th style="width: 5%;text-align:center">
+                                                        操作
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <td>00:00:00</td>
+                                                    <td>08:30:00</td>
+                                                    <td>
+                                                        <button class="td_delete" style="padding: 1px 3px;margin: 4px 0"
+                                                                title="删除"><span class="ui-icon ui-icon-trash"
+                                                                                 style="padding: 0"></span></button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>17:30:00</td>
+                                                    <td>23:59:59</td>
+                                                    <td>
+                                                        <button class="td_delete" style="padding: 1px 3px;margin: 4px 0"
+                                                                title="删除"><span class="ui-icon ui-icon-trash"
+                                                                                 style="padding: 0"></span></button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+
+                        </li>
+                        <li>
+                            <h5>2.2每周天数选择：</h5>
+                            <ul class="week_day_ul">
+                                <li class="li-choice" value="1">星期一</li>
+                                <li class="li-choice" value="2">星期二</li>
+                                <li class="li-choice" value="3">星期三</li>
+                                <li class="li-choice" value="4">星期四</li>
+                                <li class="li-choice" value="5">星期五</li>
+                                <li value="6">星期六</li>
+                                <li value="7">星期日</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+                <div class="item-footer" style="margin-top: 10px">
+                    说明:应急事件会触发应急策略，策略会根据当前选择的时间范围，来做出不同的响应。
+                </div>
+            </div>
+        </div>
+        <div id="tabs-2">
+            <div class="item-container">
+                <h4 class="item-header">
+                    3：设置不同篡改风险等级的处理策略
+                </h4>
+                <div class="item-content" style="margin-left: 20px">
+                    <h5>3.1高篡改风险等级：</h5>
+                    <ul>
+                        <li>
+                            <input type="radio" id="sl_method_mn_h" name="sl_method_h" value="0">
+                            <label for="sl_method_mn_h">手动处理</label>
+                            <ul class="waite_time_manual" style="display: none">
+                                <li style="margin-top: 10px">
+                                    <label for="">等待时间：</label><input type="number" value="0"
+                                                                      id="waite_time_h0"
+                                                                      style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                        <li style="margin-top: 10px">
+                            <input type="radio" id="sl_method_at_h" name="sl_method_h" value="1" checked="true">
+                            <label for="sl_method_at_h">自动还原</label>
+                            <ul class="waite_time">
+                                <li style="margin-top: 10px">
+                                    <label for="">等待时间：</label><input type="number" value="15"
+                                                                      id="waite_time_h" style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                        <li style="margin-top: 10px">
+                            <input type="radio" id="sl_method_sw_h" name="sl_method_h" value="2">
+                            <label for="sl_method_sw_h">切换为应急页面</label>
+                            <ul class="waite_time">
+                                <li style="margin-top: 10px">
+                                    <label for="">等待时间：</label><input type="number" value="1"
+                                                                      id="waite_time_h1"
+                                                                      style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="item-content" style="margin-left: 20px">
+                    <h5>3.2中篡改风险等级：</h5>
+                    <ul>
+                        <li>
+                            <input type="radio" id="sl_method_mn_m" name="sl_method_m" value="0">
+                            <label for="sl_method_mn_m">手动处理</label>
+                            <ul class="waite_time_manual" style="display: none">
+                                <li style="margin-top: 10px">
+                                    <label for="waite_time_m0">等待时间：</label><input type="number" value="0"
+                                                                                   id="waite_time_m0"
+                                                                                   style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                        <li style="margin-top: 10px">
+                            <input type="radio" id="sl_method_at_m" name="sl_method_m" value="1">
+                            <label for="sl_method_at_m">自动还原</label>
+                            <ul class="waite_time">
+                                <li style="margin-top: 10px">
+                                    <label for="waite_time_m">等待时间：</label><input type="number" value="30"
+                                                                                  id="waite_time_m" style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                        <li style="margin-top: 10px">
+                            <input type="radio" id="sl_method_sw_m" name="sl_method_m" value="2" checked="true">
+                            <label for="sl_method_sw_m">切换为应急页面</label>
+                            <ul class="waite_time">
+                                <li style="margin-top: 10px">
+                                    <label for="waite_time_m1">等待时间：</label><input type="number" value="1"
+                                                                                   id="waite_time_m1"
+                                                                                   style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="item-content" style="margin-left: 20px">
+                    <h5>3.3低篡改风险等级：</h5>
+                    <ul>
+                        <li>
+                            <input type="radio" id="sl_method_mn_l" name="sl_method_l" value="0" checked="true">
+                            <label for="sl_method_mn_l">手动处理</label>
+                            <ul class="waite_time_manual" style="display: none">
+                                <li style="margin-top: 10px">
+                                    <label for="">等待时间：</label><input type="number" value="0" id="waite_time_l0"
+                                                                      style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                        <li style="margin-top: 10px">
+                            <input type="radio" id="sl_method_at_l" name="sl_method_l" value="1">
+                            <label for="sl_method_at_l">自动还原</label>
+                            <ul class="waite_time">
+                                <li style="margin-top: 10px">
+                                    <label for="">等待时间：</label><input type="number" value="15" id="waite_time_l"
+                                                                      style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                        <li style="margin-top: 10px">
+                            <input type="radio" id="sl_method_sw_l" name="sl_method_l" value="2">
+                            <label for="sl_method_sw_l">切换为应急页面</label>
+                            <ul class="waite_time">
+                                <li style="margin-top: 10px">
+                                    <label for="">等待时间：</label><input type="number" value="1" id="waite_time_l1"
+                                                                      style="width: 90px">分钟
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <p style="margin-left: 20px">说明：等待时间指时间发生后到启动自动还原前的等待时间</p>
+            </div>
+        </div>
+        <div id="tabs-3">
+            <div class="item-container">
+                <h4>4:设置关联客户端和关联监控目标</h4>
+                <div class="item-content" style="margin-left: 20px">
+                    <h5>
+                        4.1:选择关联监控目标
+                    </h5>
+                    <div style="margin-left: 20px;width: 310px">
+                        <span>已关联监控目标：</span>
+                        <button class="del_task_button" style="padding: 1px 3px;float: right" title="删除"><span
+                                class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                        </button>
+                        <button class="add_task_button" style="padding: 1px 3px;margin-right:5px;float: right"
+                                title="添加"><span
+                                class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                        </button>
+                    </div>
+                    <div class="all_tasks_content">
+                        <ul style="padding-left: 10px">
+                        </ul>
+                    </div>
+                </div>
+                <div class="item-content" style="margin-left: 20px">
+                    <h5>
+                        4.2:选择关联客户端
+                    </h5>
+                    <div style="margin-left: 20px;width: 310px">
+                        <span>已关联客户端：</span>
+                        <button class="del_host_button" style="padding: 1px 3px;float: right" title="删除"><span
+                                class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                        </button>
+                        <button class="add_host_button" style="padding: 1px 3px;margin-right:5px;float: right"
+                                title="添加"><span
+                                class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                        </button>
+
+                    </div>
+                    <div class="all_hosts_content">
+                        <ul style="padding-left: 10px">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tabs-4">
+            <div class="item-content">
+                <h4>5：策略摘要</h4>
+                <table style="border:1px solid #ddd;background: #f5f5f5;border-collapse: collapse;margin: 10px 20px;width: 80%;cellpadding:5px">
+                    <tr>
+                        <th style="width: 25%">名称</th>
+                        <th style="width: 75%">值</th>
+                    </tr>
+                    <tr>
+                        <td>应急策略名称</td>
+                        <td id="t_name"></td>
+                    </tr>
+                    <tr>
+                        <td>每天时间范围</td>
+                        <td id="t_d_time"></td>
+                    </tr>
+                    <tr>
+                        <td>每周时间范围</td>
+                        <td id="t_w_days"></td>
+                    </tr>
+                    <tr>
+                        <td>不同警告等级处理策略</td>
+                        <td id="t_e_methods"></td>
+                    </tr>
+                    <tr>
+                        <td>关联客户端</td>
+                        <td id="t_hosts"></td>
+                    </tr>
+                    <tr>
+                        <td>关联监控目标</td>
+                        <td id="t_tasks"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="mybtn_nav" style="margin: 10px;">
+        <input type="button" id="next" class="mynext" style="float:right;margin-left:20px" value="下一步&raquo;"/>
+        <input type="button" id="prev" class="myprev" style="float:right" value="&laquo;上一步"/>
+    </div>
+</div>
+
+<div id="item_list" style="display: none" title="选则关联客户端/监控目标">
+    <div class="item_list_content">
+        <ul style="padding-left: 0">
+        </ul>
+    </div>
+    <div style="text-align: center;z-index: 1000;display: none;margin-top: 120px" class="my_waite">
+        <p style="display: inline-block;padding: 0 10px 0 0" class="ui-state-highlight ui-corner-all">
+            <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+            <strong>请稍候</strong>
+            <span id="waite_msg"></span>
+        </p>
+    </div>
+</div>
+
+<div id="exe_content" title="立即执行" style="display:none;">
+    <p>请选择要执行的操作：</p>
+    <ul>
+        <li><input type="radio" name="exe_choice" date-type="high">高警告等级:<span></span></li>
+        <li><input type="radio" name="exe_choice" date-type="middle">中警告等级:<span></span></li>
+        <li><input type="radio" name="exe_choice" date-type="low" checked="checked">低警告等级:<span></span></li>
+    </ul>
+</div>
+
+<div id="confirm_tmp" style="display: none" title="还原信息确认">
+    <div style="padding: 20px 30px;margin: 0 auto;">
+        <p>请确认以下还原信息：</p>
+        <p class="tmp_content" style="text-indent:2em;word-break: break-all"></p>
+        <p class="tmp_content_error" style="text-indent:2em;color: red;word-break: break-all"></p>
+        <p class="tmp_footer" style="text-indent:2em;word-break: break-all">
+            启动还原前将暂时停止客户端的CDP保护。点击“立即还原”执行还原操作，点击“取消”放弃还原操作！
+        </p>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script>
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">应急策略管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#webautoplans" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        _crete_table();
+        $('#tabs').tabs();
+        $(".ui-tabs-nav").hide();
+        _resize();
+    })
+
+    $(window).resize(function () {
+        _resize();
+    });
+    var to_change_id = 0;
+    var default_data = {
+        name: '',
+        exc_info: {
+            is_all_day_time: false,
+            day_time_range: [["00:00:00", "08:30:00"], ["17:30:00", "23:59:59"]],
+            week_day_range: [1, 2, 3, 4, 5],
+            events_choice: {
+                high: [1, 15], // [arg1, arg2] arg1:0->手动处理,1->还原，2->切页面;arg2:等待时间
+                middle: [2, 1],
+                low: [0, 0]
+            }
+        },
+        hosts: [],
+        strategy: []
+    }
+
+    function _resize() {
+        resizeright();
+        var width = $('.table_menu').width();
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+    function _crete_table() {
+        jQuery("#list").jqGrid({
+            url: get_url(),
+            datatype: "json",
+            colNames: ['序号', '策略名称', '状态', '时间', '关联监控目标', '关联客户端', '操作'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", sortable: false, hidden: true},
+                {name: 'name', index: '1', align: "center", width: 150, sortable: true},
+                {name: 'status', index: '2', align: "center", width: 50, sortable: true},
+                {name: 'time', index: '3', align: "left", width: 180, sortable: false},
+                {name: 'task', index: '4', align: "center", width: 185, sortable: false},
+                {name: 'host', index: '5', align: "center", width: 185, sortable: false},
+                {name: 'operation', index: '6', align: "left", width: 230, sortable: false},
+            ],
+            height: 600,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+    }
+
+    $("#list .ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+    $('#list td').css('white-space', 'normal');
+    $('.menu_btn').button().click(function () {
+        switch ($(this).attr('id')) {
+            case 'new':
+                return create_item();
+            case 'edit':
+                return edit_item();
+            case 'delete':
+                return delete_item();
+            case 'enable':
+                return enable();
+            case 'disable':
+                return disable();
+            case 'execute':
+                return execute();
+            case 'show_all':
+                return show_all();
+        }
+    });
+
+    $('.week_day_ul li').click(function () {
+        $(this).hasClass('li-choice') ? $(this).removeClass('li-choice') : $(this).addClass('li-choice')
+    });
+
+    $('input[name=time-every-date-range]').click(function () {
+        if ($(this).val() == 1) {
+            $('#error_msg').text('');
+            $('#time_range_choice').slideUp();
+        }
+        else {
+            $('#time_range_choice').slideDown();
+        }
+    });
+
+    $('input[name^=sl_method]').click(function () {
+        $(this).siblings('.waite_time').slideDown();
+        $(this).parent().siblings().find('.waite_time').slideUp();
+    })
+
+    $('#add_time_range').click(function () {
+        var st_time = $('#range_input_l').val();
+        var ed_time = $('#range_input_r').val();
+        $('#error_msg').text('');
+        if (!st_time || !ed_time) {
+            $('#error_msg').text('添加失败，时间范围不能为空！');
+            return;
+        } else {
+            var _ranges = get_time_range();
+            for (var i = 0; i < _ranges.length; i++) {
+                if (is_in_range(st_time, _ranges[i]) || is_in_range(ed_time, _ranges[i])) {
+                    $('#error_msg').text('添加失败，不能添加重复时间范围！');
+                    return;
+                }
+            }
+            add_time(st_time, ed_time);
+        }
+    })
+
+    function _open_dialog(div_id) {
+        $('#item_list ul').html('');
+        $('#item_list').dialog({
+            autoOpen: true,
+            width: 300,
+            height: 400,
+            modal: true,
+            buttons: [
+                {
+                    text: '添加',
+                    icons: {
+                        primary: "ui-icon-circle-plus"
+                    },
+                    click: function () {
+                        add_item_to_content(div_id);
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+    }
+
+    function add_item_to_content(div_id) {
+        var all_id = [];
+        $(div_id).find('li').each(function (index, item) {
+            return all_id.push($(item).attr('data-id'));
+        });
+        $('#item_list .li-choice').removeClass('li-choice').each(function () {
+            if (all_id.indexOf($(this).attr('data-id')) == -1) {
+                $(this).appendTo($(div_id));
+            }
+        })
+    }
+
+    function _get_items_from_server(type_str) {
+        if (type_str == 'type_host') {
+            myAjaxGet('../webguard_handle/?a=get_hosts', '', get_host_callback);
+        } else {
+            myAjaxGet('../webguard_handle/?a=get_tasks', '', get_tasks_callback);
+        }
+    }
+
+    function get_host_callback(data) {
+        $('.my_waite').hide();
+        if (data.r != 0) {
+            openErrorDialog('错误', '获取信息失败');
+            return;
+        } else {
+            create_li_and_append(data.item_lists);
+        }
+    }
+
+    function get_tasks_callback(data) {
+        $('.my_waite').hide();
+        if (data.r != 0) {
+            openErrorDialog('错误', '获取信息失败');
+            return;
+        } else {
+            create_li_and_append(data.item_lists);
+        }
+    }
+
+    function create_li_and_append(data) {
+        if (data.length) {
+            $.each(data, function (_, item) {
+                if (item.enabled == false) {
+                    var _li = $('<li style="color:red"></li>').text(item.name + '(禁用)').attr('data-id', item.id);
+                } else {
+                    var _li = $('<li></li>').text(item.name).attr('data-id', item.id);
+                }
+                $('#item_list ul').append(_li);
+            })
+        } else {
+            $('#item_list ul').append('<span style="color:red">服务器列表/策略列表为空!</span>');
+        }
+    }
+
+    $('.add_host_button').click(function () {
+        _open_dialog('.all_hosts_content ul');
+        $('#waite_msg').text('正在获取客户端信息。');
+        $('.my_waite').show();
+        _get_items_from_server('type_host');
+    });
+
+    $('.add_task_button').click(function () {
+        _open_dialog('.all_tasks_content ul');
+        $('#waite_msg').text('正在获取策略信息。');
+        $('.my_waite').show();
+        _get_items_from_server('type_tasks');
+    });
+
+    $('.del_host_button').click(function () {
+        $(".all_hosts_content .li-choice").remove();
+    });
+
+    $('.del_task_button').click(function () {
+        $(".all_tasks_content .li-choice").remove();
+    });
+
+    $('.time_range_div table').on('click', 'button', function () {
+        $(this).parents('tr').remove();
+    })
+
+    $('.all_tasks_content ul').on('click', 'li', function () {
+        $(this).hasClass('li-choice') ? $(this).removeClass('li-choice') : $(this).addClass('li-choice');
+    });
+
+    $('.all_hosts_content ul').on('click', 'li', function () {
+        $(this).hasClass('li-choice') ? $(this).removeClass('li-choice') : $(this).addClass('li-choice');
+    });
+
+    $('#item_list ul').on('click', 'li', function () {
+        $(this).hasClass('li-choice') ? $(this).removeClass('li-choice') : $(this).addClass('li-choice');
+    })
+
+    function is_in_range(time_str, ranges) {
+        return f_date(time_str) >= f_date(ranges[0]) && f_date(time_str) <= f_date(ranges[1])
+    }
+
+    function f_date(time_str) {
+        return new Date('2000-01-01 ' + time_str);
+    }
+
+    function get_time_range() {
+        var trs = $('.time_range_div table tr:gt(0)');
+        var rs = [];
+        for (var i = 0; i < trs.length; i++) {
+            var st_time = $(trs[i]).find('td:eq(0)').text();
+            var ed_time = $(trs[i]).find('td:eq(1)').text();
+            rs.push([st_time, ed_time])
+        }
+        return rs
+    }
+
+    function get_day_range() {
+        var lis = $('.week_day_ul .li-choice');
+        var rs = [];
+        for (var i = 0; i < lis.length; i++) {
+            rs.push($(lis[i]).val())
+        }
+        return rs
+    }
+
+    function get_events_data() {
+        var rs = {};
+        var h_c = $('input[name=sl_method_h]:checked').val();
+        var h_v = $('input[name=sl_method_h]:checked').siblings('ul').find('input').val();
+        var m_c = $('input[name=sl_method_m]:checked').val();
+        var m_v = $('input[name=sl_method_m]:checked').siblings('ul').find('input').val();
+        var l_c = $('input[name=sl_method_l]:checked').val();
+        var l_v = $('input[name=sl_method_l]:checked').siblings('ul').find('input').val();
+        rs.high = [h_c, h_v];
+        rs.middle = [m_c, m_v];
+        rs.low = [l_c, l_v];
+
+        return rs
+    }
+
+    function get_as_hosts() {
+        var rs = [];
+        var _lis = $(".all_hosts_content li");
+        for (var i = 0; i < _lis.length; i++) {
+            rs.push({id: $(_lis[i]).attr('data-id'), name: $(_lis[i]).text()})
+        }
+        return rs;
+    }
+
+
+    function get_as_tasks() {
+        var rs = [];
+        var _lis = $(".all_tasks_content li");
+        for (var i = 0; i < _lis.length; i++) {
+            rs.push({id: $(_lis[i]).attr('data-id'), name: $(_lis[i]).text()})
+        }
+        return rs;
+    }
+
+    function add_time(st_time, ed_time) {
+        var _tr = $('<tr></tr>');
+        var _td1 = $('<td></td>').text(st_time);
+        var _td2 = $('<td></td>').text(ed_time);
+        var span = '<button class="td_delete" style="padding: 1px 3px;margin: 4px 0"\
+                                                                title="删除"><span class="ui-icon ui-icon-trash"\
+                                                                                 style="padding: 0"></span></button>'
+        var _td3 = $('<td></td>').html(span);
+        _tr.append(_td1).append(_td2).append(_td3);
+        $('.time_range_div table').append(_tr);
+    }
+
+    function create_item() {
+        to_change_id = 0;
+        init_tabs(default_data);
+        open_dialog();
+    }
+
+    function open_dialog() {
+        $('#new_dialog_content').dialog({
+            autoOpen: true,
+            width: 800,
+            modal: true
+        });
+    }
+
+    $('#next').button().click(function () {
+        var sl_index = $('#tabs').tabs('option', 'active');
+        if (sl_index == 0) {
+            var taskname = $('#item_name').val();
+            if (!taskname) {
+                openErrorDialog('错误', '请填写应急策略名称!')
+                return;
+            }
+            if ($('input[name=time-every-date-range]:checked').val() == '2' && !get_time_range()[0]) {
+                openErrorDialog('错误', '请选择相应的时间范围或者选择全天24小时选项!')
+                return;
+            }
+            if (!$('.week_day_ul .li-choice').length) {
+                openErrorDialog('错误', '请选择每周对应的天数!')
+                return;
+            }
+        }
+        else if (sl_index == 1) {
+            var _input = $('#tabs-2 input:visible');
+            var is_pass = true;
+            $.each(_input, function () {
+                var vl = $(this).val()
+                if (!isNum(vl) || vl < 0) {
+                    is_pass = false;
+                    openErrorDialog('错误', '等待时间必须大于等于零!');
+                    return false;
+                }
+            });
+            if (!is_pass) {
+                return;
+            }
+        }
+        else if (sl_index == 2) {
+            $('#tabs-4 tr td:odd').text('');
+            var all_set_data = get_all_data();
+            set_all_data_to_table(all_set_data);
+
+        } else if (sl_index == 3) {
+            create_plans(get_all_data());
+            return;
+        }
+        $('#tabs').tabs('option', 'active', sl_index + 1);
+    });
+
+    function create_plans(data) {
+        if (to_change_id) {
+            $.extend(data, {id: to_change_id});
+        }
+        openConfirmDialog({
+            onBeforeOK: function () {
+                myAjaxPost('../webguard_handle/?a=create_plans', 'data=' + JSON.stringify(data), my_call_back);
+                $(this).dialog('close');
+                $("#new_dialog_content").dialog('close');
+            },
+            html: '确认操作，会修改或者创建应急策略。'
+        })
+    }
+
+    function my_call_back(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        successTipBox("操作成功");
+        reload_table();
+    }
+
+    // 获取tab 中的值
+    function get_all_data() {
+        var data = {};
+        data.name = $('#item_name').val();
+        var is_all_day_time = $('#_24hours').is(":checked")
+        data.hosts = get_as_hosts();
+        data.strategy = get_as_tasks();
+        data.exc_info = {
+            is_all_day_time: is_all_day_time,
+            day_time_range: is_all_day_time ? [] : get_time_range(),
+            week_day_range: get_day_range(),
+            events_choice: get_events_data()
+        }
+        return data
+    }
+
+    // 初始化tab 中的选项
+    function init_tabs(data) {
+        $('#tabs').tabs('option', 'active', 0);
+        $('#item_name').val(data.name);
+        if (data.exc_info.is_all_day_time) {
+            $('#_24hours').prop('checked', true);
+            $('#time_range_choice').hide();
+        } else {
+            $('#not_24hours').prop('checked', true);
+            $('#time_range_choice').show();
+            $('.time_range_div table tr:gt(0)').remove();
+            $.each(data.exc_info.day_time_range, function (index, item) {
+                add_time(item[0], item[1]);
+            })
+        }
+        $.each($('.week_day_ul li'), function (index, item) {
+            if (data.exc_info.week_day_range.indexOf($(item).val()) != -1) {
+                $(this).addClass('li-choice');
+            } else {
+                $(this).removeClass('li-choice');
+            }
+        });
+        set_status(data.exc_info.events_choice);
+
+        $('.all_tasks_content ul').html('');
+        $.each(data.strategy, function (_, item) {
+            if (!item.deleted) {
+                if (item.enabled) {
+                    var _li = $('<li></li>').text(item.name).attr('data-id', item.id);
+                } else {
+                    var _li = $('<li style="color:red"></li>').text(item.name + '(禁用)').attr('data-id', item.id);
+                }
+                $('.all_tasks_content ul').append(_li);
+            }
+        })
+        $('.all_hosts_content ul').html('');
+        $.each(data.hosts, function (_, item) {
+            var _li = $('<li></li>').text(item.name).attr('data-id', item.id);
+            $('.all_hosts_content ul').append(_li);
+        });
+    }
+
+    function set_status(data) {
+        set_one_item(data.high, 'sl_method_h');
+        set_one_item(data.middle, 'sl_method_m');
+        set_one_item(data.low, 'sl_method_l');
+    }
+
+    function set_one_item(data, i_name, t_name) {
+        var _input = $('input[name=' + i_name + ']:eq(' + parseInt(data[0]) + ')');
+        _input.prop('checked', 'true');
+        _input.siblings('ul').find('input').val(data[1]);
+        _input.trigger('click');
+    }
+
+    function set_all_data_to_table(data) {
+        $('#t_name').text(data.name);
+        if (data.exc_info.is_all_day_time) {
+            $('#t_d_time').append('<p>全天24小时</p>');
+        } else {
+            $.each(data.exc_info.day_time_range, function (index, item) {
+                var _p = $('<p></p>').text(item[0] + '--' + item[1])
+                $('#t_d_time').append(_p);
+            })
+        }
+
+        var strs = data.exc_info.week_day_range.map(day_map);
+        $('#t_w_days').text(strs.join(','));
+
+        var h_events_str = get_events_str(data.exc_info.events_choice.high);
+        var m_events_str = get_events_str(data.exc_info.events_choice.middle);
+        var l_events_str = get_events_str(data.exc_info.events_choice.low);
+        $('#t_e_methods').append($('<p></p>').text('高警告等级策略:' + h_events_str));
+        $('#t_e_methods').append($('<p></p>').text('中警告等级策略:' + m_events_str));
+        $('#t_e_methods').append($('<p></p>').text('低警告等级策略:' + l_events_str));
+
+        $.each(data.hosts, function (index, item) {
+            var _p = $('<p></p>').text(item.name);
+            $('#t_hosts').append(_p);
+        });
+        data.hosts.length ? null : $('#t_hosts').append('<p>无</p>');
+
+        $.each(data.strategy, function (index, item) {
+            var _p = $('<p></p>').text(item.name);
+            $('#t_tasks').append(_p);
+        })
+        data.strategy.length ? null : $('#t_tasks').append('<p>无</p>');
+    }
+
+    function get_events_str(data) {
+        if (data[0] == '1') {
+            return '自动还原,等待时间:' + data[1]
+        }
+        else if (data[0] == '2') {
+            return '切换为应急页面,等待时间:' + data[1]
+        }
+        else {
+            return '手动处理'
+        }
+    }
+
+    function day_map(val) {
+        var maps = ['', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+        return maps[val]
+    }
+
+    $('#prev').button().click(function () {
+        var sl_index = $('#tabs').tabs('option', 'active');
+        if (sl_index == 0) {
+            $("#new_dialog_content").dialog('close');
+        } else {
+            $('#tabs').tabs('option', 'active', sl_index - 1);
+        }
+    });
+
+    function reload_table() {
+        var url = '../webguard_handle/?a=get_em_plans';
+        $('#list').setGridParam({url: url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function edit_item() {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (!ids.length || ids.length > 1) {
+            openErrorDialog('错误', '请勾选一条策略!');
+            return;
+        }
+        to_change_id = ids[0];
+        myAjaxGet('../webguard_handle/?a=get_em_plans&id=' + ids[0], '', get_one_plan_callback);
+    }
+
+    function get_one_plan_callback(js_str) {
+        if (js_str.r != 0) {
+            openErrorDialog('错误', '获取数据错误!');
+            return;
+        }
+        init_tabs(js_str.data);
+        open_dialog();
+    }
+
+    function delete_item() {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (!ids.length) {
+            openErrorDialog('错误', '请勾选应急策略！');
+            return;
+        }
+        openConfirmDialog({
+            title: '确认信息',
+            html: '你确定要删除选择的应急策略吗？',
+            onBeforeOK: function () {
+                var parms = '&id=' + ids.join(',')
+                myAjaxGet('../webguard_handle/?a=del_plans', parms, my_call_back);
+                $(this).dialog('close');
+            }
+        });
+
+    }
+
+    function enable() {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (!ids.length) {
+            openErrorDialog('错误', '请勾选应急策略！');
+            return;
+        }
+        var parms = '&id=' + ids.join(',') + '&enbale=' + 1;
+        myAjaxGet('../webguard_handle/?a=enable_plans', parms, my_call_back);
+    }
+
+    function disable() {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (!ids.length) {
+            openErrorDialog('错误', '请勾选应急策略！');
+            return;
+        }
+        var parms = '&id=' + ids.join(',') + '&enbale=' + 0;
+        myAjaxGet('../webguard_handle/?a=enable_plans', parms, my_call_back);
+    }
+
+    function show_all() {
+        reload_table();
+    }
+
+    function open_content_exe() {
+        $('#exe_content').dialog({
+            autoOpen: true,
+            width: 400,
+            height: 250,
+            modal: true,
+            buttons: [
+                {
+                    text: '立即执行',
+                    click: function () {
+                        start_exe();
+                        $(this).dialog("close");
+                    }
+                },
+                {
+                    text: '取消',
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+    }
+
+    function execute() {
+        var id = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (id.length != 1) {
+            openErrorDialog('错误', '请勾选一条应急策略！');
+            return;
+        }
+        var op = $('#list').getRowData(id)['operation'];
+        $.each($(op), function (index, item) {
+            var _input = $('#exe_content input[date-type=' + $(this).attr('date-type') + ']');
+            _input.attr('date-value', $(this).attr('date-value'));
+            _input.siblings('span').text(get_choice_text($(this).attr('date-value')));
+        })
+        open_content_exe();
+    }
+
+    function get_choice_text(value) {
+        var choice = {
+            0: '手动处理',
+            1: '立即还原',
+            2: '切换为应急页面'
+        }
+        return choice[value]
+    }
+
+    function _get_args() {
+        var id = $('#list').jqGrid('getGridParam', 'selarrrow');
+        var _input = $('#exe_content input:checked');
+        var exe_parm = {level: _input.attr('date-type'), type: _input.attr('date-value')};
+        var parms = '&id=' + id +
+            '&level=' + _input.attr('date-type') +
+            '&type=' + _input.attr('date-value');
+        return parms;
+    }
+
+    function start_exe() {
+        var op = $('#exe_content input:checked').attr('date-value');
+        if (op == '1') { //还原
+            get_restore_confirm_info();
+        } else {
+            execute_plan();
+        }
+    }
+
+    function execute_plan(restore_info) {
+        var parms = _get_args();
+        if (restore_info != undefined) {
+            parms += '&restore_info=' + JSON.stringify(restore_info);
+        }
+        myAjaxGet('../webguard_handle/?a=execute_plan', parms, execute_call_back);
+    }
+
+    function get_restore_confirm_info() {
+        var parms = _get_args();
+        myAjaxGet('../webguard_handle/?a=get_restore_confirm_info', parms, confirm_call_back);
+    }
+
+    function confirm_call_back(re_info) {
+        if (re_info.r != 0) {
+            openErrorDialog({title: '错误', html: '启动还原失败，' + re_info.e});
+            return;
+        }
+        if (!re_info.info.length) {
+            openErrorDialog({title: '错误', html: '启动还原失败，应急策略未关联客户端!'});
+            return;
+        }
+        $('#confirm_tmp .tmp_content').empty();
+        $('#confirm_tmp .tmp_content_error').empty();
+        var msg = [];
+        var error_msg = [];
+        var restore_info = [];
+        var one_info = '客户端[{host_name}]还原到时间点[{restore_time}]';
+        var one_n_info = '客户端[{host_name}]在还原时间点[{restore_time}]没有备份数据';
+        for (var i = 0; i < re_info.info.length; i++) {
+            var item = re_info.info[i];
+            if (item.restore_time == -1) {
+                openErrorDialog({title: '错误', html: '启动还原失败，没有可信的还原时间点!'});
+                return;
+            }
+            if (item.snapshot_id == -1) {
+                var tmp_error = one_n_info.replace('{host_name}', item.host_name).replace('{restore_time}', item.restore_time);
+                error_msg.push(tmp_error);
+                continue;
+            }
+            var tmp = one_info.replace('{host_name}', item.host_name).replace('{restore_time}', item.restore_time);
+            msg.push(tmp);
+            restore_info.push(item);
+        }
+        // 没有一个可以还原的主机
+        if (!msg.length) {
+            var error_msg_str = error_msg.join('；') + '。';
+            openErrorDialog({title: '错误', html: '启动还原失败，' + error_msg_str});
+            return;
+        }
+        var msg_str = msg.join('；') + '。';
+        $('#confirm_tmp .tmp_content').text(msg_str);
+        // 部分可以还原，部分不可以还原！
+        if (error_msg.length) {
+            var error_msg_str = error_msg.join('；') + '。';
+            $('#confirm_tmp .tmp_content_error').text(error_msg_str);
+        }
+        $('#confirm_tmp').dialog({
+            autoOpen: true,
+            modal: true,
+            width: 605,
+            height: 350,
+            buttons: {
+                '立即还原': function () {
+                    execute_plan(restore_info);
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            }
+        })
+    }
+
+    function execute_call_back(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        openCommonDialog('操作成功', '操作成功!');
+    }
+
+    // 从 cookies 中读取值，并删除。
+    function get_url() {
+        var url = '../webguard_handle/?a=get_em_plans';
+        var cookie_val = $.cookie('auto_plan_parms');
+        if (cookie_val) {
+            url = url + '&' + cookie_val;
+            $.cookie('auto_plan_parms', null, {path: '/'});
+        }
+        return url;
+    }
+
+</script>

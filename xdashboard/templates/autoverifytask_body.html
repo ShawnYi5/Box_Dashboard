@@ -1,0 +1,625 @@
+<style type="text/css">
+.client_search{
+    border: 2px solid #dce4ec;
+    color: #34495e;
+    font-family: "Lato", sans-serif;
+    font-size:14px;
+    padding: 3px 0 3px 10px;
+    width: 200px;
+    background:#fff url(/static/images/icon_search_1649.gif) no-repeat right;
+}
+</style>
+<div class="right">
+    {% include 'autoverifytask.inc.html' %}
+    <div class="table_menu">
+		<div class="menu_btn" id="addHost">关联客户端</div>
+        <div class="menu_btn" id="createForm">新建</div>
+        <div class="menu_btn" id="delForm">删除</div>
+        <div class="menu_btn" id="enbaleForm">启用</div>
+		<div class="menu_btn" id="disableForm">禁用</div>
+        <div class="menu_btn" id="changeplanForm">更改</div>
+        <div class="menu_btn" id="search_form" style="display:none;">查询</div>
+        <div class="menu_btn" id="refresh">刷新</div>
+    </div>
+    <table id="list">
+    </table>
+    <div id="pager"></div>
+    <table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+        <tr height="25">
+            <td width="30%" align="left">计划名称</td>
+            <td width="70%">
+                <div id="show_taskname">&nbsp;</div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">临时存储设备</td>
+            <td align="left">
+                <div id="show_storagedevice">&nbsp;</div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">创建时间</td>
+            <td align="left">
+                <div id="show_createtime">&nbsp;</div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">验证项</td>
+            <td align="left">
+                <div id="show_backuptype">&nbsp;</div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">验证周期</td>
+            <td align="left">
+                <div id="show_schedule">&nbsp;</div>
+            </td>
+        </tr>
+		<tr height="25">
+            <td align="left">客户端</td>
+            <td align="left">
+                <div id="show_hosts">&nbsp;</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="search_form_div" title="查询" class="ajaxForm">
+    <div style="margin-top: 40px">
+        <label for="search_input">关键词：</label>
+        <input type="text" maxlength="50" placeholder="计划名称、客户端名称或主机Ip" id="search_key" style="width: 200px">
+    </div>
+</div>
+
+<div id="add_host_div" title="关联客户端" class="ajaxForm">
+    <div style="float:left;"><input name="client_search" type="text" placeholder="开始搜索"
+                                    class="client_search"/></div>
+	<div style="margin-top:5px;float:left;">
+		<label><input type="checkbox" id="groupview" name="groupview"/>分组显示</label>
+	</div>
+    <div id="RefreshSrcServer" style="cursor:pointer;float:right;margin-right:0px;">刷新连接列表</div>
+    <div class="clear"></div>
+    <div id="Servers_Tree1" class="aciTree" style="width:100%;height:400px;border:1px solid #ccc;
+				overflow:auto;"></div>
+</div>
+
+{% include 'tree.inc.html' %}
+
+<script type="text/javascript">
+    $(function () {
+		if($.cookie('groupview'))
+		{
+			$('input[name=groupview]').prop('checked',true);
+		}
+        jQuery("#list").jqGrid({
+            url: '../autoverifytask_handle/?a=get_task_list',
+            datatype: "json",
+            colNames: ['序号', '计划名称', '验证项', '状态', '上次执行时间', '下次执行时间'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "left", width: 50, sortable: true, hidden: true},
+                {name: 'fileMark', index: '1', align: "left", width: 280, sortable: true},
+                {name: 'hostName', index: '2', align: "left", width: 280, sortable: true},
+                {name: 'docMark', index: '3', align: "center", width: 70, sortable: true},
+                {name: 'insertCopySeq', index: '5', align: "center", width: 140, sortable: true},
+                {name: 'docName', index: '6', align: "center", width: 150, sortable: true}
+            ],
+            width: 748,
+            height: 450,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (ids) {
+				var params = "a=get_task_detail&taskid=" + ids;
+				myAjaxGet('../autoverifytask_handle/', params, GetBackupInfo);
+            }
+        });
+    });
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    function FormatSchedule(schedulejson) {
+		//2仅验证一次 3按间隔时间 4每周 5每月
+        switch (schedulejson.type) {
+            case 2:
+                return '仅验证一次，开始时间：' + schedulejson.starttime;
+            case 4:
+                var pes = schedulejson.period.split(',');
+                var tmp = new Array();
+                for (var i = 0; i < pes.length; i++) {
+                    var n = parseInt(pes[i]);
+                    switch (n) {
+                        case 1:
+                            tmp.push("星期一");
+                            break;
+                        case 2:
+                            tmp.push("星期二");
+                            break;
+                        case 3:
+                            tmp.push("星期三");
+                            break;
+                        case 4:
+                            tmp.push("星期四");
+                            break;
+                        case 5:
+                            tmp.push("星期五");
+                            break;
+                        case 6:
+                            tmp.push("星期六");
+                            break;
+                        case 7:
+                            tmp.push("星期日");
+                            break;
+                    }
+                }
+                return '每周，开始时间：' + schedulejson.starttime + '，每周' + tmp.join('、') + "验证";
+            // 修改为"按间隔时间"类型
+            case 3:
+                var msg = '按间隔时间，开始时间：' + schedulejson.starttime + '，每'+schedulejson.period;
+                if (schedulejson.unit === 'day') {
+                    msg += '天验证';
+                }
+                else if (schedulejson.unit === 'hour') {
+                    msg += '小时验证';
+                }
+                else if (schedulejson.unit === 'min') {
+                    msg += '分钟验证';
+                }
+                return msg;
+            case 5:
+                return '每月，开始时间：' + schedulejson.starttime + '，每月' + schedulejson.period + "日验证";
+            default:
+                return schedulejson.type;
+        }
+    }
+
+    // 点击计划后，回调函数
+    function GetBackupInfo(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('div#show_taskname').html(jsonstr.taskname);
+        $('div#show_storagedevice').html(jsonstr.storagedevice.name);
+        $('div#show_createtime').html(jsonstr.createtime);
+        $('div#show_backuptype').html(jsonstr.backuptype);
+        $('div#show_schedule').html(FormatSchedule(jsonstr.schedule));
+		$('div#show_hosts').html(jsonstr.hosts);
+    }
+
+	function get_hardware_info(retjson)
+	{
+		info = retjson.info;
+		$('#phy_available').html(info.phy_available);
+	}
+
+    function OnCreateBackup(title) {
+		myAjaxGet('../takeover_handle/','a=get_max_hardware_canuse',get_hardware_info);
+        $("#newbackupFormDiv").dialog({
+            autoOpen: true,
+            height: 690,
+            width: 750,
+            modal: true,
+            title: title,
+            close: function () {
+                InitBackupControlData();
+                window.IdOfChangePlan = undefined;
+            }
+        });
+    }
+
+    function ReloadGridCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+    }
+
+    $('#createForm')
+        .button()
+        .click(function () {
+            $('#taskid').val('');
+			$($("input[name=bakschedule]")[0]).click();
+            InitBackupControlData();
+            OnCreateBackup('新建验证计划');
+        });
+	
+	function OnRefreshSrcServer()
+	{
+		var param = '';
+		if ($('input[name=noplan]').is(':checked'))
+		{
+			param += '&noplan=noplan';
+			
+		}
+		if ($('input[name=groupview]').is(':checked'))
+		{
+			param += '&group=group';
+		}
+
+		param += '&input_type=checkbox&inc_offline=1';
+
+		RefreshAciTree("Servers_Tree1",'../backup_handle/?a=getlist'+param+'&id=');
+	}
+
+	$('#RefreshSrcServer').button().click(function(){
+
+		OnRefreshSrcServer();
+	});
+
+	$('#groupview').click(function(){
+		var groupview = $(this).is(':checked');
+		if(groupview)
+		{
+			$.cookie('groupview', 'true', {path: '/'});
+		}
+		else
+		{
+			$.cookie('groupview', null, {path: '/'});
+		}
+		OnRefreshSrcServer();
+	});
+
+	function get_checked_virtual_machine() {
+        var api = $('#Servers_Tree1').aciTree('api'),
+            children = api.children(null, true, true),
+            label = ''
+        rs = [];
+        api.checkboxes(children, true).each(api.proxy(function (element) {
+            var node = $(element),
+			id = this.getId(node),
+			label = this.getLabel(node);
+			rs.push(id);
+        }, true));
+        return rs;
+    }
+
+	var g_hosts_ids = null;
+
+	$('#Servers_Tree1').on('acitree', function (event, api, item, eventName, options) {
+		if(eventName == 'loaded')
+		{
+			for(var i=0;i<g_hosts_ids.length;i++)
+			{
+				CheckAciTreeBox('Servers_Tree1',g_hosts_ids[i]);
+			}
+		}
+	});
+
+	function get_task_host_list_callback(jsonobj)
+	{
+		if(jsonobj.host_type == 'group')
+		{
+			$('input[name=groupview]').prop('checked',true);
+		}
+		else
+		{
+			$('input[name=groupview]').prop('checked',false);
+		}
+
+		g_hosts_ids = jsonobj.hosts.split(',');
+
+		OnRefreshSrcServer();
+	}
+
+	$('#addHost')
+        .button()
+        .click(function () {
+			var task_id = $('#list').jqGrid('getGridParam', 'selarrrow');
+			if (task_id.length != 1) {
+				openErrorDialog({title: '错误', html: '请只选择一条数据。'});
+				return;
+			}
+            $("#add_host_div").dialog({
+                autoOpen: true,
+                height: 600,
+                width: 750,
+                modal: true,
+                title: '关联客户端',
+                close: function () {
+                },
+                open: function () {
+					var params = 'task_id='+task_id;
+					myAjaxGet('../autoverifytask_handle/?a=get_task_host_list', params, get_task_host_list_callback);
+
+                },
+                buttons: {
+                    '确定': function () {
+                        var api = $('#Servers_Tree1').aciTree('api');
+                        if (api.isBusy()) {
+                            openErrorDialog('错误', '正在展开客户端，请稍候。');
+                            return;
+                        }
+                        var vms = get_checked_virtual_machine();
+
+						var params = 'host_ids='+JSON.stringify(vms);
+						params += '&task_id='+task_id;
+						myAjaxPost('../autoverifytask_handle/?a=add_to_task', params, ReloadGridCallback);
+
+                        $(this).dialog('close');
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                }
+            });
+        });
+
+    $('#delForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要删除计划吗?',
+                onBeforeOK: function () {
+                    var params = "a=deltask&task_id=" + idstring;
+                    myAjaxGet('../autoverifytask_handle/', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+    $('#enbaleForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要启用计划吗?',
+                onBeforeOK: function () {
+                    var params = "a=enabletask&task_id=" + idstring;
+                    myAjaxGet('../autoverifytask_handle/', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+	$('#disableForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要禁用计划吗?',
+                onBeforeOK: function () {
+                    var params = "a=disabletask&task_id=" + idstring;
+                    myAjaxGet('../autoverifytask_handle/', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+    function OnChangePlan(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#verifytaskname').val(jsonstr.taskname);
+		$('#kvm_memory_size').val(jsonstr.schedule.kvm_memory_size);
+		$('#kvm_memory_unit').val(jsonstr.schedule.kvm_memory_unit);
+		$('#verify_osname').prop('checked',false);
+		$('#verify_osver').prop('checked',false);
+		$('#verify_hdd').prop('checked',false);
+		$('#verify_last_point').prop('checked',jsonstr.schedule.verify_last_point_only);
+
+		var verify = jsonstr.verify.split(',');
+		for (i=0;i<verify.length;i++)
+		{
+			if(verify[i]=='verify_osname')
+			{
+				$('#verify_osname').prop('checked',true);
+			}
+			if(verify[i]=='verify_osver')
+			{
+				$('#verify_osver').prop('checked',true);
+			}
+			if(verify[i]=='verify_hdd')
+			{
+				$('#verify_hdd').prop('checked',true);
+			}
+		}
+
+        $("#sel_storagedevice").val(jsonstr.storagedevice.value);
+		//2仅验证一次 3按间隔时间 4每周 5每月
+        switch (jsonstr.schedule.type) {
+            case 2:
+                $($("input[name=bakschedule]")[0]).click();
+                $("#stime1").val(jsonstr.schedule.starttime);
+                break;
+            // 修改为"按间隔时间"类型
+            case 3:
+                $($("input[name=bakschedule]")[1]).click();
+                $("#stime2").val(jsonstr.schedule.starttime);
+                $("#timeinterval").val(jsonstr.schedule.period);
+                $('#interval-unit').val(jsonstr.schedule.unit);
+                break;
+            case 4:
+                $($("input[name=bakschedule]")[2]).click();
+                $("#stime3").val(jsonstr.schedule.starttime);
+                var pes = jsonstr.schedule.period.split(',');
+                for (var i = 0; i < pes.length; i++) {
+                    $($("input[name=perweek]")[pes[i] - 1]).prop("checked", true);
+                }
+                break;
+            case 5:
+                $($("input[name=bakschedule]")[3]).click();
+                $("#stime4").val(jsonstr.schedule.starttime);
+                var pes = jsonstr.schedule.period.split(',');
+                for (var i = 0; i < pes.length; i++) {
+                    for (var j = 0; j < $("div.myoneday").length; j++) {
+                        var monthly = $("div.myoneday")[j].innerHTML;
+                        if (monthly == pes[i]) {
+                            $($("div.myoneday")[j]).addClass("myonedayselected");
+                            break;
+                        }
+                    }
+                }
+                break;
+            default:
+                $($("input[name=bakschedule]")[0]).click();
+                if (jsonstr.schedule.starttime) {
+                    $("#stime0").val(jsonstr.schedule.starttime);
+                }
+                else {
+                    $('#stime0').val(curTime);
+                }
+
+        }
+		
+        OnCreateBackup('更改计划');
+    }
+
+    // 更改计划
+    $('#changeplanForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length != 1) {
+                openErrorDialog({title: '错误', html: '请选择一条数据。'});
+                return;
+            }
+            $('.normalbackupchoices').show();
+            $('.cdpchoices').show();
+            $('.csstaskpolicy').hide();
+            InitBackupControlData();
+            var idstring = ids.join(',');
+            $('#taskid').val(idstring);
+            var params = "a=get_task_detail&taskid=" + idstring;
+            myAjaxGet('../autoverifytask_handle/', params, OnChangePlan);
+            window.IdOfChangePlan = idstring;
+        });
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 570);
+        $('#navigation').html('<div class="font_navigation">自动验证计划</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#autoverifytask" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        autoverifytask_resize();
+
+
+    });
+    $('#refresh').button().click(function () {
+        var new_url = '../autoverifytask_handle/?a=get_task_list';
+        $('#list').setGridParam({url: new_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    })
+    {% include 'autoverifytask.js' %}
+
+    $("#search_form_div").attr('title', '查询').dialog({
+        autoOpen: false,
+        height: 200,
+        width: 350,
+        modal: true,
+        buttons: {
+            '查询': function () {
+                search_worker();
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+
+	$(document).on('keyup', 'input[name=client_search]', function () {
+        var s_key = $('input[name=client_search]').val().toLowerCase();
+        var api = $('#Servers_Tree1').aciTree('api');
+        var children = api.children(null, true, true);
+        api.checkboxes(children).each(api.proxy(function (element) {
+            var node = $(element);
+            var label = this.getLabel(node).toLowerCase();
+            if (label.indexOf(s_key) == -1) {
+                api.hide(node);
+            }
+            else {
+                api.show(node);
+            }
+        }, true));
+    });
+
+    $('#search_form').button().click(function () {
+        $("#search_form_div").dialog('open');
+    });
+
+    function search_worker() {
+        var s_key = $('#search_key').val();
+        $("#search_form_div").dialog('close');
+        var new_url = '../backupmgr_handle/?group=group&a=list&s_key=' + s_key;
+        $('#list').setGridParam({url: new_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function autoverifytask_resize() {
+        resizeright();
+        var width = $('.table_menu').width()-5;
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        autoverifytask_resize();
+    });
+
+    var plan_detial_shell = new Vue({
+        el: '#show_shell',
+        data: {
+            exe_name: '-',
+            params: '-',
+            work_path: '-',
+            unzip_path: '-',
+            zip_path: '-',
+            ignore_shell_error: '-'
+        }
+    });
+
+    function download_zip_file_callbk(jsonstr) {
+        if (jsonstr.is_success) {
+            location.href = jsonstr.url;
+        }
+        else {
+            openErrorDialog({title: '错误', html: '文件丢失, 请重新上传'});
+        }
+    }
+
+    $('#download_zip_file').click(function () {
+        var zip_path = $('#download_zip_file').prop('zip_path');
+        if (zip_path !== '') {
+            myAjaxGet('../backupmgr_handle/', 'a=get_zip_file&path=' + zip_path, download_zip_file_callbk);
+        }
+        return false;
+    });
+
+</script>

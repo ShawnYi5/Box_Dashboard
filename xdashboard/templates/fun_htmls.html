@@ -1,0 +1,33 @@
+<div id="preBackupShellUI">
+    <div style="font-weight: bold">备份执行脚本</div>
+    <div style="margin-top:20px;margin-left:20px;">
+        开始备份时，需要执行的脚本。上传为.zip/.tar.gz格式压缩包，并指定运行该压缩包中的可执行文件或脚本。
+    </div>
+    <div style="margin-top:20px;">
+        <fieldset>
+            <legend>备份执行脚本</legend>
+            <form id="preBackupShell" enctype="multipart/form-data">
+                <div style="margin-top:10px;">可执行文件名：　<input type="text" name="exe_name" style="width:80%;" title=""
+                                                             onblur="removespace(this)">
+                </div>
+                <div style="margin-top:10px;">　　执行参数：　<input type="text" name="exe_params" style="width:80%;" title=""
+                                                             onblur="removespace(this)">
+                </div>
+                <div style="margin-top:10px;">　　执行路径：　<input type="text" name="work_path" style="width:80%;" title=""
+                                                             onblur="removespace(this)">
+                </div>
+                <div style="margin-top:10px;">　　解压路径：　<input type="text" name="unzip_path" style="width:80%;" title=""
+                                                             onblur="removespace(this)">
+                </div>
+                <div style="margin-top:10px;">.zip/.tar.gz：　<input type="file" name="script_zip" last_zip="">
+                </div>
+            </form>
+        </fieldset>
+    </div>
+
+    <input id="ignore_shell_error" type="checkbox" checked="checked" title="" style="margin-left:20px;margin-top:20px;">忽略脚本执行异常
+</div>
+
+<div id="other-uis">
+    Oops!!!
+</div>

@@ -1,0 +1,240 @@
+{% verbatim %}
+<style>
+    #mydialog a:focus {
+        outline: none;
+    }
+</style>
+
+<div id="safety_tasks_stati">
+    <el-form :model="q_data" :size="'mini'">
+        <el-row>
+            <el-col :span="12">
+                <el-form-item label="时间范围:">
+                    <el-date-picker
+                        v-model="q_data.time_range"
+                        type="daterange"
+                        align="right"
+                        unlink-panels
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        :size="'mini'"
+                        :value-format="'timestamp'"
+                        :clearable="false"
+                        :picker-options="picker_options">
+                    </el-date-picker>
+                </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="6">
+                <el-form-item label="统计主机:">
+                    已选择<span style="font-style: italic;">{{ q_data.hosts.length }}</span>台主机
+                    <el-button type="text" @click="is_open_dlg = true">添加</el-button>
+                    <el-dialog title="需要统计的主机" :visible.sync="is_open_dlg" :width="'540px'" :modal="false">
+                        <el-transfer v-model="q_data.hosts" :data="all_hosts" :filterable="true"
+                                     :titles="['待选主机', '已选主机']" style="margin-top: -20px;"
+                                     :filter-method="filter_hosts">
+                            <el-tooltip slot-scope="{ option }" effect="light" :content="option.label" placement="top">
+                                <div slot="content">{{ option.label }}<br/>{{ option.ips }}</div>
+                                <span>{{ option.label }}</span>
+                            </el-tooltip>
+                        </el-transfer>
+                    </el-dialog>
+                </el-form-item>
+            </el-col>
+            <el-col :span="10">
+                <el-form-item label="分组方式:">
+                    <el-radio v-model="q_data.group_type" label="by_task_type">任务类型</el-radio>
+                    <el-radio v-model="q_data.group_type" label="by_host">主机分组</el-radio>
+                </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="20">
+                <el-form-item label="任务类型:">
+                    <el-checkbox-group v-model="q_data.task_types">
+                        <el-checkbox v-for="task in all_task_types" :label="task.key" :key="task.key">{{ task.label }}
+                        </el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+            </el-col>
+            <el-col :span="2">
+                <el-form-item style="float: right;">
+                    <el-button type="info" plain @click="query_hosts_tasks_summary" :size="'mini'" :disabled="dis_query"
+                               :loading="is_loading">查询
+                    </el-button>
+                </el-form-item>
+            </el-col>
+            <el-col :span="2">
+                <el-form-item style="float: right;">
+                    <el-button type="info" plain @click="export_hosts_tasks_summary" :size="'mini'"
+                               :disabled="dis_query" :loading="is_loading2">导出
+                    </el-button>
+                </el-form-item>
+            </el-col>
+        </el-row>
+    </el-form>
+
+    <div id="summary_table">
+        <el-table v-if="tab_by_what == 'by_host'" :data="summaries" :span-method="merge_summary" border
+                  :size="'mini'" :key="tab_by_what">
+            <el-table-column prop="host_name" label="主机名" width="230">
+                <template slot-scope="scope"><span v-html="render_host_cell(scope.row.host_name)"></span></template>
+            </el-table-column>
+            <el-table-column prop="task_type_display" label="任务类型"></el-table-column>
+            <el-table-column prop="task_succeed" label="任务成功数"></el-table-column>
+            <el-table-column prop="task_execute" label="任务执行数"></el-table-column>
+            <el-table-column prop="percent" label="百分比"></el-table-column>
+        </el-table>
+        <el-table v-if="tab_by_what == 'by_task_type'" :data="summaries" :span-method="merge_summary" border
+                  :size="'mini'" :key="tab_by_what">
+            <el-table-column prop="task_type_display" label="任务类型" width="230"></el-table-column>
+            <el-table-column prop="host_name" label="主机名">
+                <template slot-scope="scope"><span v-html="render_host_cell(scope.row.host_name)"></span></template>
+            </el-table-column>
+            <el-table-column prop="task_succeed" label="任务成功数"></el-table-column>
+            <el-table-column prop="task_execute" label="任务执行数"></el-table-column>
+            <el-table-column prop="percent" label="百分比"></el-table-column>
+        </el-table>
+    </div>
+
+    <div id="mydialog" title="下载链接" style="display: none;">
+        <p style="line-height: 50px;">下载地址：<a id="urladdress" style="color: blue" :href="xls_ulr">{{ xls_name }}</a></p>
+    </div>
+</div>
+{% endverbatim %}
+
+<script>
+    var one_day = 3600 * 1000 * 24;
+
+    new Vue({
+        el: '#safety_tasks_stati',
+        computed: {
+            dis_query: function () {
+                var q_data = this.q_data;
+                return !(q_data.time_range.length === 2 && q_data.task_types.length > 0 && q_data.hosts.length > 0);
+            }
+        },
+        data: function () {
+            return {
+                q_data: {
+                    time_range: [_.now() - one_day * 30, _.now()],  // [int_stamp_ms, int_stamp_ms]
+                    task_types: ['snapshot'],                       // ['snapshot' 'cdp' ...]
+                    hosts: [],                                      // ['uuid1' 'uuid2' ...]
+                    group_type: 'by_host'                           // 'by_task_type' or 'by_host'
+                },
+                summaries: [],                                      // ajax query
+                all_task_types: [
+                    {label: '快照备份', key: 'snapshot'},
+                    {label: 'CDP保护', key: 'cdp'},
+                    {label: '整机重建', key: 'restore_host'},
+                    {label: '数据卷重建', key: 'restore_volume'},
+                    {label: '整机迁移', key: 'migrate'},
+                    {label: '集群备份', key: 'cluster'}
+                ],
+                all_hosts: [],
+                is_open_dlg: false,
+                is_loading: false,
+                is_loading2: false,
+                tab_by_what: '',
+                picker_options: {
+                    shortcuts: [
+                        {
+                            text: '最近一周',
+                            onClick(picker) {
+                                var end = new Date();
+                                var start = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        },
+                        {
+                            text: '最近一个月',
+                            onClick(picker) {
+                                var end = new Date();
+                                var start = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        },
+                        {
+                            text: '最近三个月',
+                            onClick(picker) {
+                                var end = new Date();
+                                var start = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        }
+                    ]
+                },
+                xls_ulr: '',
+                xls_name: ''
+            }
+        },
+        methods: {
+            merge_summary(row_data) {
+                var host_data = row_data.row;
+                var column_index = row_data.columnIndex;
+                if (column_index === 0) {
+                    var rowspan = (host_data.rowspan) ? (host_data.rowspan) : (0);
+                    return [rowspan, 1]
+                }
+            },
+            query_hosts_tasks_summary() {
+                var vm = this;
+                vm.is_loading = true;
+                var q_data = JSON.stringify(vm.q_data);
+                myAjaxGet('../bussinessreport_handle/', {a: 'query_hosts_tasks_summary', q_data: q_data},
+                    function (json_data) {
+                        vm.is_loading = false;
+                        if (json_data.r !== 0) {
+                            openErrorDialog({title: '错误', html: json_data.e});
+                            return false;
+                        }
+                        vm.summaries = json_data.summaries;
+                        vm.tab_by_what = vm.q_data.group_type;
+                    });
+            },
+            export_hosts_tasks_summary() {
+                var vm = this;
+                vm.is_loading2 = true;
+                var q_data = JSON.stringify(vm.q_data);
+                myAjaxGet('../bussinessreport_handle/', {a: 'export_hosts_tasks_summary', q_data: q_data},
+                    function (json_data) {
+                        vm.is_loading2 = false;
+                        if (json_data.r !== 0) {
+                            openErrorDialog({title: '错误', html: json_data.e});
+                            return false;
+                        }
+                        vm.xls_name = json_data.filename;
+                        vm.xls_ulr = json_data.url;
+                        $("#mydialog").dialog("open");
+                    });
+            },
+            query_all_hosts() {
+                var vm = this;
+                myAjaxGet('../serversmgr_handle/', {a: 'getclientlist'},
+                    function (json_data) {
+                        vm.all_hosts = _.map(json_data.rows, function (row) {
+                            return {key: row.cell[0], label: row.cell[1], ips: row.cell[3]}
+                        })
+                    });
+            },
+            filter_hosts(search, item) {
+                var key = _.toLower(_.trim(search));
+                var content = _.toLower(item.label + item.ips);
+                return content.indexOf(key) >= 0;
+            },
+            render_host_cell(host_names) {
+                host_names = _.split(host_names, '\r\n');
+                return _.join(host_names, '<br>');
+            }
+        },
+        mounted: function () {
+            this.query_all_hosts();
+            $("#mydialog").dialog({autoOpen: false, width: 500, height: 150});
+        }
+    });
+</script>

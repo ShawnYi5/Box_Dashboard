@@ -1,0 +1,333 @@
+<style>
+	ul.timeline {
+		list-style-type: none;
+		margin: 50px 0;
+		padding: 0;
+		background: url("/static/images/version_line.png") repeat-y scroll 120px 0 transparent;
+	}
+	
+	ul.timeline li {
+		position: relative;
+		margin-bottom: 20px;
+	}
+	ul.timeline li .time {
+		position: absolute;
+		width: 90px;
+		text-align: right;
+		left: 0;
+		top: 10px;
+		color: #999;
+	}
+	ul.timeline li .version {
+		position: absolute;
+		width: 290px;
+		text-align: right;
+		left: -200px;
+		top: 30px;
+		font-size: 30px;
+		line-height: 50px;
+		color: #3594cb;
+		overflow: hidden;
+	}
+	ul.timeline li .number {
+		position: absolute;
+		background: url("/static/images/version_dot.png") no-repeat scroll 0 0 transparent;
+		width: 56px;
+		height: 56px;
+		left: 97px;
+		line-height: 56px;
+		text-align: center;
+		color: #fff;
+		font-size: 18px;
+	}
+	ul.timeline li.alt .number {
+		background-image: url("/static/images/version_dot_alt.png");
+	}
+	ul.timeline li .content {
+		margin-left: 180px;
+		
+	}
+	ul.timeline li .content pre {
+		background-color: #3594cb;
+		padding: 20px;
+		color: #fff;
+		font-size: 13px;
+		line-height: 20px;
+	}
+	ul.timeline li.alt .content pre {
+		background-color: #43B1F1;
+	}
+
+	
+.box4{
+    margin: 3px auto;
+    min-height: 100px;
+    width: 300px;
+    padding: 10px;
+    position:relative;
+    background: -webkit-gradient(linear, 0% 20%, 0% 100%, from(#fff), to(#fff), color-stop(.2, #f2f2f2));
+    border: 1px solid #ccc;
+    -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+.box4:before{
+    content: '';
+    width: 50px;
+    height: 50px;
+    top:0; right:0;
+    position:absolute;
+    z-index: -1;
+    -webkit-box-shadow: 10px -10px 8px rgba(0, 0, 0, 0.2);
+    -webkit-transform: rotate(2deg)
+                        translate(-14px,20px)
+                        skew(-20deg);
+}
+.box4:after{
+    content: '';
+    width: 50px;
+    height: 50px;
+    top:0; left:0;
+    position:absolute;
+    z-index:-1;
+    display: inline-block;
+    -webkit-box-shadow: -10px -10px 10px rgba(0, 0, 0, 0.2);
+    -webkit-transform: rotate(2deg)
+                        translate(12px,25px)
+                           skew(20deg);
+}
+
+.shr_box4{
+    width: 100px;
+    height: 100px;
+    bottom:0; right:0;
+    position:absolute;
+    z-index: -1;
+    -webkit-box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+    -webkit-transform: rotate(0deg)
+    translate(-20px,-15px)
+                       skew(20deg);
+}
+.shl_box4{
+    content: '';
+    width: 100px;
+    height: 100px;
+    bottom:0; left:0;
+    position:absolute;
+    z-index: -1;
+    -webkit-box-shadow: -10px 10px 10px rgba(0, 0, 0, 0.2);
+    -webkit-transform: rotate(0deg)
+    translate(20px,-15px)
+                       skew(-20deg);
+}
+
+.box4 img {
+    width: 100%;
+}
+
+</style>
+
+<div class="right">
+	{% if is_superuser %}
+	
+<div class="box4">
+<div style="padding:20px 50px 50px 50px">
+欢迎使用{{ title }}产品。<br /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;admin用户为本产品内置的超级管理员，实现对{{ title }}产品网络、用户、存储、日志、报告的管理和其它各项设置。
+<br /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;使用“用户管理”功能创建的系统管理员通过Web登录后，可对指定的客户端实现数据的备份/恢复、部署新的客户端、迁移客户端到新的平台等各项功能。<br /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请参照如下步骤完成对{{ title }}的配置。
+	<ul class="timeline">
+	<li><div class="time">网络设置</div><div class="version">步骤一</div><div class="number"></div><div class="content">
+	<div>根据本公司当前的网络环境设置{{ title }}产品的IP地址，确保与需要数据保护的客户端同一个IP地址段，或可通过此IP做相互通信。</div>
+	<div style="margin-top:15px;">
+		<table width="100%" border="0" cellspacing="5" cellpadding="0">
+			<tr>
+				<td width="20%">{{ title }}当前IP：</td><td><strong id="allip">正在获取...</strong></td>
+			</tr>
+		</table>
+	</div>
+	<div style="color: blue;cursor:pointer;margin-top:15px;text-align:right;margin-right: 20px;" id="step1">设置</div>
+	</div></li>	
+	<li><div class="time">邮件服务器设置</div><div class="version">步骤二</div><div class="number"></div><div class="content">
+	<div>邮件服务器用于发送通知/警告/错误信息邮件，让管理员了解{{ title }}实时的工作状态；新建管理员用户时发送新密码；密码丢失/忘记时通过发送邮件到用户邮箱找回密码。</div>
+	<div style="margin-top:15px;">邮件服务器地址：<strong id="smtphostname">正在获取...</strong></div>
+	<div style="color: blue;cursor:pointer;margin-top:15px;text-align:right;margin-right: 20px;" id="step2">设置</div>
+	</div>
+	</li>	
+	<li><div class="time">创建用户</div><div class="version">步骤三</div><div class="number"></div><div class="content">
+	<div>创建系统管理员用户，被创建的用户使用Web登录后即可下载客户端安装到需要管理的客户端上实现备份、恢复、迁移等各项数据保护功能。</div>
+	<div style="margin-top:15px;">用户数量：<strong id="usercount">正在获取...</strong></div>
+	<div style="color: blue;cursor:pointer;margin-top:15px;text-align:right;margin-right: 20px;" id="step3">设置</div>
+	</div>
+	</li>	
+	<li><div class="time">添加存储单元</div><div class="version">步骤四</div><div class="number"></div><div class="content">
+	<div>存储单元为存储数据的载体，至少需要有一个存储单元。可支持本地存储和SAN（iSCSI）外部存储。</div>
+	<div style="margin-top:15px;">已添加的存储单元：<strong id="storagecount">正在获取...</strong></div>
+	<div style="color: blue;cursor:pointer;margin-top:15px;text-align:right;margin-right: 20px;" id="step4">设置</div>
+	</div>
+	</li>
+	<li style='background:#FBFBFB;'><div class="time">存储配额分配</div><div class="version">步骤五</div><div class="number"></div><div class="content">
+	<div>为“步骤三”中创建的系统管理员设置存储配额，配额的大小请根据需要其管理的客户端的数据量大小为依据。管理员用户必须有存储配额才能做备份、迁移等功能。</div>
+	<div style="margin-top:15px;">已分配了存储的用户：<strong id="storageusercount">正在获取...</strong></div>
+	<div style="color: blue;cursor:pointer;margin-top:15px;text-align:right;margin-right: 20px;" id="step5">设置</div>
+	</div>
+	</li>	
+	</ul>
+	<div class="shr_box4"></div>
+    <div class="shl_box4"></div>
+    </div>
+    </div>
+
+	{% else %}
+	等待跳转到首页
+	{% endif %}
+
+	<div class="lower_browser" style="display:none;">
+		<div><a style="color:#000;" href="/static/download/browser.zip" target="_blank">浏览器版本过低，请下载安装新的版本</a></div>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+{% if is_superuser == False %}
+	location.href='../home/';
+{% endif %}
+$('#step1').click(function(){
+	location.href='../adapter/';
+});
+$('#step2').click(function(){
+	location.href='../smtp/';
+});
+$('#step3').click(function(){
+	location.href='../user/';
+});
+$('#step4').click(function(){
+	location.href='../storagemgr/';
+});
+$('#step5').click(function(){
+	location.href='../quotamgr/';
+});
+
+function getusercount(retjson)
+{
+	if(retjson.r!=0)
+	{
+		$('#storageusercount').html(retjson.e);
+	}
+	else
+	{
+		if(retjson.count)
+		{
+			$('#storageusercount').html(retjson.count);
+		}
+		else
+		{
+			$('#storageusercount').html('无');
+		}
+	}
+}
+
+function getstoragecount(retjson)
+{
+	if(retjson.r!=0)
+	{
+		$('#storagecount').html(retjson.e);
+	}
+	else
+	{
+		if(retjson.records)
+		{
+			$('#storagecount').html(retjson.records);
+		}
+		else
+		{
+			$('#storagecount').html('无');
+		}
+	}
+
+	myAjaxGet('../storage_handle/','a=getusercount',getusercount)
+}
+
+function getcount(retjson)
+{
+	if(retjson.r!=0)
+	{
+		$('#usercount').html(retjson.e);
+	}
+	else
+	{
+		if(retjson.count)
+		{
+			$('#usercount').html(retjson.count);
+		}
+		else
+		{
+			$('#usercount').html('无');
+		}
+	}
+
+	myAjaxGet('../storage_handle/','a=list',getstoragecount)
+}
+
+function GetSMTPSet(retjson)
+{
+	if(retjson.smtp_host)
+	{
+		$('#smtphostname').html(retjson.smtp_host);
+	}
+	else
+	{
+		$('#smtphostname').html('未配置');
+	}
+	myAjaxGet('../user_handle/','a=getcount',getcount)
+}
+
+function mygetiplist(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		$('#allip').html(jsonstr.e);
+	}
+	else
+	{
+		var allip='';
+		for(i=0;i<jsonstr.list.length;i++)
+		{
+			var ip=jsonstr.list[i];
+			allip+=ip+'<br />';
+		}
+		$('#allip').html(allip);
+	}
+
+	myAjaxGet('../syssetget_handle/','a=sysgetsmtpset',GetSMTPSet)
+}
+
+function admin_resize()
+{
+	resizeright();
+	var width = $('.right').width() - 30;
+	$('.box4').width(width);
+	baseresize();
+}
+
+$(function() {
+	admin_resize();
+	if (window.FileReader)
+	{
+		var params="a=getiplist";
+		myAjaxGet('../download_handle/',params,mygetiplist);
+		{% if is_superuser %}
+			myAjaxGet('../user_handle/','a=getemail',getemail);
+		{% endif %}
+	}
+	else
+	{
+		$('.box4').hide();
+		$('.lower_browser').show();
+	}
+});
+
+$(window).resize(function() {
+	admin_resize();	
+});
+</script>

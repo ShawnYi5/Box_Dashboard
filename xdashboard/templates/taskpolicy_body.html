@@ -1,0 +1,586 @@
+<div class="right">
+	{% include 'createbackup.inc.html' %}
+	<div class="table_menu">
+		<div class="menu_btn" id="createForm">新建策略</div>
+		<div class="menu_btn" id="changeplanForm">更改策略</div>
+		<div class="menu_btn" id="delForm">删除策略</div>
+		<div class="menu_btn" id="importForm">导入策略</div>
+		<div class="menu_btn" id="exportForm">导出策略</div>
+        <div class="menu_btn" id="refresh_policy">刷新</div>
+	</div>
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+	<table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+		<tr height="25">
+			<td width="30%" align="left">策略名称</td>
+			<td width="70%"><div id="show_policyname">&nbsp;</div></td>
+		</tr>
+		<tr height="25">
+			<td align="left">备份周期</td>
+			<td align="left"><div id="show_policyschedule">&nbsp;</div></td>
+		</tr>
+		<tr height="25">
+			<td align="left">备份数据保留期限</td>
+			<td align="left"><div id="show_policyretentionperiod">&nbsp;</div></td>
+		</tr>
+        <tr height="25">
+			<td align="left">至少保留备份点</td>
+			<td align="left"><div id="show_policykeeppoint">&nbsp;</div></td>
+		</tr>
+		<tr height="25">
+			<td align="left">配额空间保留</td>
+			<td align="left"><div id="show_policycleandata">&nbsp;</div></td>
+		</tr>
+		<tr height="25">
+			<td align="left">连续数据保护(CDP)数据保留窗口时长</td>
+			<td align="left"><div id="show_policycdpperiod">&nbsp;</div></td>
+		</tr>
+		<tr height="25">
+			<td align="left">连续数据保护(CDP)方式</td>
+			<td align="left"><div id="show_policycdptype">&nbsp;</div></td>
+		</tr>
+		<tr height="25">
+			<td align="left">备份时限定占用的最大网络带宽</td>
+			<td align="left"><div id="show_policymaxbandwidth">&nbsp;</div></td>
+		</tr>
+        <tr height="25">
+			<td align="left">传输方式</td>
+			<td align="left"><div id="show_isencipher">&nbsp;</div></td>
+		</tr>
+		<tr height="25">
+			<td align="left">备份方式</td>
+			<td align="left"><div id="show_backupmode">&nbsp;</div></td>
+		</tr>
+        <tr height="25">
+			<td align="left">启用操作系统重复数据删除</td>
+			<td align="left"><div id="show_policyDup">&nbsp;</div></td>
+		</tr>
+        <tr height="25">
+			<td align="left">备份源存储读取队列深度</td>
+			<td align="left"><div id="show_thread_count">&nbsp;</div></td>
+		</tr>
+	</table>
+</div>
+
+<div id="exportDiv" style="display:none" class="exportFormRemove">
+    <div id="showchoicenum" style="margin-bottom: 20px"></div>
+	<div><input type="button" id="exportPageSumbit" value="导出" /></div>
+	<div id="exportPageMsg" style="color:#FF0000"></div>
+	<div id="exportPageResult" style="height:170px;overflow:auto"></div>
+</div>
+
+<div id="downloadForm" title="导入策略" class="ajaxForm">
+	<div style="margin-top: 10px;">请选择策略文件后，点击“导入策略”按钮</div>
+	<div style="margin-top: 10px;"><input class="radio" type="radio" value="1" name="samenameradio" >保留所有策略<input class="radio" type="radio" value="2" name="samenameradio" >覆盖同名策略</div>
+	<div style="margin-top: 10px;">
+		<div style="float:left;margin-top: 2px;">
+		<input type='text' id='localfilepath' style="width:300px" readonly="readonly"/> 
+		</div>
+		<div style="float:left;margin-left: 5px;" class="_box"> 
+		
+		<input type="file" id="localfile" onchange="document.getElementById('localfilepath').value=this.value;" /> 
+			选择文件
+		</div>
+		<div class="clear"></div>
+		<div id="info" style="margin-top: 10px;"></div>
+		<div class="mybtn_nav">
+			<input type="button" id="uploadImg" class="myprev" style="float:right;margin-top:40px;margin-right:3px;" value="导入策略" />
+		</div>
+	</div>
+</div>
+
+<div id="downloadFormFlash" title="导入策略" class="ajaxForm">
+	<form id= "uploadForm" enctype="application/octet-stream">
+	<div style="margin-top: 10px;">请选择策略文件</div>
+	<div style="margin-top: 10px;">
+		<input type="file" id="localfileflash"/>
+		<div class="clear"></div>
+		<div id="info2" style="margin-top: 10px;"></div>
+	</div>
+	</form>
+</div>
+
+<style>
+  #resizable { width: 730px; padding: 0.5em; }
+  #resizable h3 { text-align: left; margin: 0; }
+  ._box 
+  { 
+		position: relative; 
+		padding: 5px 5px;
+		border-radius: 6px;
+		border: none;
+		display: inline-block;
+		color: #fff;
+		text-decoration: none;
+		background-color: #28a8e0;
+		cursor:pointer;
+		overflow: hidden; 
+		z-index: 1; 
+	} 
+	._box input 
+	{ 
+		position: absolute; 
+		width: 119px; 
+		height: 40px; 
+		line-height: 40px; 
+		font-size: 23px; 
+		opacity: 0; 
+		filter: "alpha(opacity=0)"; 
+		filter: alpha(opacity=0); 
+		-moz-opacity: 0; 
+		left: -5px; 
+		cursor: pointer; 
+		z-index: 2; 
+	} 
+</style>
+
+<script type="text/javascript">
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../backup_handle/?a=policylist',
+		datatype: "json",
+		colNames:['序号','策略名称'],
+        rownumbers: true,
+		colModel:[
+			{name:'id',index:'0',align:"center", width:50,sortable: true ,hidden:true},
+			{name:'fileMark',index:'1',align:"center", width:650,sortable: true}
+		],
+		width:748,
+		height:355,
+		rowNum:300,
+		rowList:[100,200,300],
+		pager: '#pager',
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true,
+		onSelectRow: function(ids) {
+			var params="a=getpolicydetail&id="+ids;
+			myAjaxGet('../backup_handle/',params,GetBackupInfo);
+		}
+	});
+});
+jQuery("#list").jqGrid('navGrid','#pager',{add:false,search:false,del:false,edit:false,position:'right'});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' }); 
+
+
+function GetBackupInfo(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		$('div#show_policyname').html(jsonstr.e);
+		return;
+	}
+	$('div#show_policyname').html(jsonstr.name);
+	switch(jsonstr.cycletype)
+	{
+		case 2:
+			$('div#show_policyschedule').html('仅备份一次，开始时间：'+jsonstr.starttime);
+			break;
+		case 3:
+            var msg = '按间隔时间，开始时间：'+jsonstr.starttime+'，每{0}{1}备份';
+		    if(jsonstr.unit === 'day'){
+		        msg = msg.replace('{0}', jsonstr.timeinterval).replace('{1}', '天');
+            }
+            else if(jsonstr.unit === 'hour'){
+                msg = msg.replace('{0}', jsonstr.timeinterval).replace('{1}', '小时');
+            }
+            else if(jsonstr.unit === 'min'){
+                msg = msg.replace('{0}', jsonstr.timeinterval).replace('{1}', '分钟');
+            }
+			$('div#show_policyschedule').html(msg);
+			break;
+		case 4:
+			$('div#show_policyschedule').html('每周，开始时间：'+jsonstr.starttime+'，每周'+jsonstr.perweek+"备份");
+			break;
+		case 5:
+			$('div#show_policyschedule').html('每月，开始时间：'+jsonstr.starttime+'，每月'+jsonstr.monthly+"日备份");
+			break;
+		default:
+		    if(jsonstr.starttime){
+                $('div#show_policyschedule').html('连续数据保护（CDP），开始时间：' + jsonstr.starttime);
+            }
+            else {
+		        $('div#show_policyschedule').html('连续数据保护（CDP）');
+            }
+	}
+
+	if(jsonstr.retentionperiod_unit === 'month'){
+        $('#show_policyretentionperiod').html(jsonstr.retentionperiod / 30 + '个月');
+    }
+    else if(jsonstr.retentionperiod_unit === 'day'){
+	    $('#show_policyretentionperiod').html(jsonstr.retentionperiod + '天');
+    }
+    else {
+        $('#show_policyretentionperiod').html(jsonstr.retentionperiod / 30 + '个月');
+    }
+    $('#show_thread_count').html(jsonstr.thread_count);
+    $('#show_policykeeppoint').html(jsonstr.keepingpoint + '个');
+	$('#show_policycleandata').html(jsonstr.cleandata+'GB');
+    $('#show_policyDup').html(jsonstr.removeDup ? '是' : '否');
+	var cdptype = '-';
+	var cdpperiod = '-';
+	$('#show_backupmode').html('-');
+	if( jsonstr.cdptype == 0 )
+	{
+		cdptype = '数据优先';
+		cdpperiod = (jsonstr.cdpperiod) + '天';
+	}
+	else if( jsonstr.cdptype == 1 )
+	{
+		cdptype = '业务优先';
+		cdpperiod = (jsonstr.cdpperiod) + '天';
+	}
+	else
+	{
+		//非CDP
+		switch(jsonstr.backupmode)
+		{
+			case 1:
+				$('#show_backupmode').html('每次都完整备份');
+				break;
+			case 2:
+				$('#show_backupmode').html('仅第一次进行完整备份，以后增量备份');
+				break;
+		}
+	}
+
+	$('#show_policycdptype').html(cdptype);
+
+	$('#show_policycdpperiod').html(cdpperiod);
+	var maxbandwidth = jsonstr.maxbandwidth+'Mbit/s';
+	if( jsonstr.usemaxbandwidth == 0 )
+	{
+		maxbandwidth = '无限制';
+	}
+	$('#show_policymaxbandwidth').html(maxbandwidth);
+    var isencipher = '不加密';
+	if( jsonstr.isencipher == 1 )
+	{
+		isencipher = '加密';
+	}
+	$('#show_isencipher').html(isencipher);
+
+}
+
+function OnCreateBackup(title)
+{
+	$("#newbackupFormDiv").dialog({
+		autoOpen: true,
+		height: 690,
+		width: 750,
+		modal: true,
+		title: title,
+		close: function(){
+			InitBackupControlData();
+            $('#navigation').html('<div class="font_navigation">备份计划策略</div>');
+		}
+	});
+}
+
+function ReloadGridCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+				current:true
+			}]);
+}
+
+$('#createForm')
+.button()
+.click(function() {
+	$('#taskid').val('');
+	InitBackupControlData();
+	$( "#tabs" ).tabs( "option", "active", 2 );
+	$('.storagedevicediv').hide();
+	$('.csstaskpolicy').hide();
+	showBackupControl();
+	OnCreateBackup('新建策略');
+});
+
+$('#delForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length==0)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+	var idstring=ids.join(',');
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要删除策略吗?删除策略，并不会对备份计划和正在进行的备份任务产生任何影响。',
+		onBeforeOK:function(){
+			var params="a=delpolicy&id="+idstring;
+			myAjaxGet('../backup_handle/',params,ReloadGridCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+function OnChangePlan(jsonstr)
+{
+	GetpolicydetailCallback(jsonstr);
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	
+	$('#taskname').val(jsonstr.name);
+
+	OnCreateBackup('更改策略');
+}
+
+$('#changeplanForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+	InitBackupControlData();
+	$( "#tabs" ).tabs( "option", "active", 2 );
+	$('.storagedevicediv').hide();
+	showBackupControl();
+	var idstring=ids.join(',');
+	$('#taskid').val(idstring);
+	var params="a=getpolicydetail&id="+idstring;
+	myAjaxGet('../backup_handle/',params,OnChangePlan);
+});
+
+$('#exportForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length==0)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+    $('#showchoicenum').show();
+    var msg = '已选条数：   ' + ids.length ;
+    $('#showchoicenum').html(msg);
+	$('#exportPageMsg').html('');
+	$('#exportPageResult').html('');
+	$('#exportPageSumbit').prop('disabled',false);
+
+	$("#exportDiv").attr('title','导出').dialog({
+		autoOpen: true,
+		height: 250,
+		width: 420,
+		modal: true,
+		buttons: {			
+			'关闭': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+
+});
+
+function ExPortCallback(jsonstr)
+{
+	$('#exportPageSumbit').prop('disabled',false);
+	$('#exportPageMsg').html('');
+	if(jsonstr.r!=0)
+	{
+		$('#exportPageResult').html(jsonstr.e);
+	}
+	else
+	{
+		$('#exportPageMsg').html('导出完成，请点击文件名下载。');
+		$('#exportPageResult').html('<br><a href="'+jsonstr.url+'" target="_blank">'+jsonstr.filename+'</a><br>');
+        $('#showchoicenum').hide();
+	}
+}
+
+$('#exportPageSumbit')
+.button()
+.click(function() {
+	$('#exportPageSumbit').prop('disabled',true);
+	$('#exportPageMsg').html('<img src="/static/images/loading.gif" height="30" width="30" /> 导出中，请稍侯...');
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	var idstring=ids.join(',');
+	var params="a=exportpolicy&ids="+idstring;
+	myAjaxGet('../backup_handle/',params,ExPortCallback);
+});
+
+
+$(function() {
+	$("#tabs").tabs();
+	$("#tabs").css('height',570);
+	$('#uitasktype').val('uitaskpolicy');
+	$('.taskshowname').html('策略名称');
+	$('.encipher').hide();
+    $('#task_names').appendTo('#task_names_container');
+    $('#taskpolicyintro').html('<br>注：新建、删除及更改策略，并不会对备份计划和正在进行的备份任务产生任何影响。它只是一个模板，方便快捷创建计划。')
+	$('#navigation').html('<div class="font_navigation">备份计划策略</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#taskpolicy" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	taskpolicy_resize();
+
+	// 隐藏 加密相关的选项
+	$('label[for=security-manage]').hide();
+	$('#security-manage').hide();
+	$('#show_isencipher').parents('tr').hide();
+
+
+});
+$('#refresh_policy').button().click(function () {
+    var newUrl='../backup_handle/?a=policylist';
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+});
+{% include 'createbackup.js' %}
+
+function FmtSize(size)
+{
+	return (size/(1024*1024)).toFixed(2);
+}
+
+function UploadCallback(jsonstr)
+{
+	if(jsonstr.r==200)
+	{
+		$("#downloadForm").dialog('close');
+		$('#list').trigger("reloadGrid",[{
+				current:true
+			}]);
+		return;
+	}
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	var file = $('#localfile').get(0).files[0];
+	var start=jsonstr.start;
+	var total = file.size;
+	var html=FmtSize(start)+"/"+FmtSize(total)+'（MB）';
+	$('#info').html(html);
+	var bcover = 0;
+	if( $("input[name=samenameradio][value=2]").prop("checked") )
+	{
+		bcover = 1;
+	}
+	if(start<total)
+	{
+		FileReaderReadFile(file,start,1024*1024,bcover);
+	}
+}
+
+function FileReaderReadFile(file,start,step,bcover)
+{
+	var reader = new FileReader();
+	var buffer = null;
+	var total = file.size;
+	reader.onload = function(e)
+	{
+		buffer=e.target.result;
+	}
+	reader.onloadend = function(e)
+	{
+		var url='../backup_handle/?a=uploadpolicy';
+		url+='&type=FileReader';
+		url+='&name='+file.name;
+		url+='&start='+start;
+		url+='&step='+1024*1024;
+		url+='&total='+total;
+		url+='&bcover='+bcover;
+		myPostBinary(url,buffer,UploadCallback);
+	}
+	//var slicer = fileOrBlob.slice || fileOrBlob.mozSlice || fileOrBlob.webkitSlice;
+	var blob = file.slice(start,start+step);
+	reader.readAsDataURL(blob);
+}
+
+$('#uploadImg').click(function(){
+	//html5
+	var file = $('#localfile').get(0).files[0];
+	$('#info').html('');
+	var bcover = 0;
+	if( $("input[name=samenameradio][value=2]").prop("checked") )
+	{
+		bcover = 1;
+	}
+	FileReaderReadFile(file,0,1024*1024,bcover);
+});
+
+g_islocalfileflashload = false;
+
+$('#importForm')
+	.button()
+	.click(function() {
+		var formid='downloadForm';
+		var height = 250;
+		$("input[name=samenameradio][value=1]").prop("checked",true);
+		if (!window.FileReader)
+		{
+			formid='downloadFormFlash';
+			height = 250;
+			$("input[name=samenameradio][value=3]").prop("checked",true);
+			if(g_islocalfileflashload == false)
+			{
+				g_islocalfileflashload = true;
+				var head = document.getElementsByTagName('head')[0];
+				var link = document.createElement('link');
+				link.href = '/static/js/uploadify/uploadify.css';
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				head.appendChild(link);
+
+				$.getScript('/static/js/uploadify/jquery.uploadify.min.js',function(){
+					$('#localfileflash').uploadify({
+						'formData'     : {
+							'csrfmiddlewaretoken' : $.cookie('csrftoken')
+						},
+						'swf'      : '/static/js/uploadify/uploadify.swf',
+						'uploader' : '../backup_handle/?a=uploadpolicybyflash',
+						'multi'    : false,
+						'auto': true,
+						'buttonText': '选择并上传镜像文件',
+						'onUploadComplete' : function(file, data) {
+							$('#list').trigger("reloadGrid",[{
+									current:true
+							}]);
+							$("#downloadFormFlash").dialog('close');
+						}
+					});
+				});
+			}
+		}
+		$("#"+formid).attr('title','更新').dialog({
+			autoOpen: true,
+			height: height,
+			width: 420,
+			modal: true,
+			close: function(){
+			}
+		});
+});
+
+function taskpolicy_resize()
+{
+	resizeright();
+	var width = $('.table_menu').width()-5;
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	taskpolicy_resize();	
+});
+</script>

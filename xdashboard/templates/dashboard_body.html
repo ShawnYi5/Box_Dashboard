@@ -1,0 +1,1247 @@
+<style>
+  .block {
+    width: 300px;
+    margin: 12px 9px 0;
+  }
+  .mypie {
+    width: 550px;
+    height: 300px;
+  }
+  .swiper-container {
+    width: 550px;
+    height: 300px;
+  }
+  .block-container{
+    width: 550px;
+    height: 300px;
+    overflow:auto;
+  }
+  .block-wrapper{
+    height:120px;
+    width:130px;
+    overflow:hidden;
+    background:#F5F5F6;
+    border:1px solid #F5F5F6;
+    float:left;
+    margin-left:44px;
+    margin-top:20px;
+  }
+  .block-wrapper:hover
+  {
+    background:#FFFFFF;
+    border:1px solid #2196F3;
+  }
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    /* Center slide text vertically */
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+  }
+  .cpd_timeline_canvas{
+    width: 100%;
+    height: 30px;
+  }
+  .board {
+    position: relative;
+  }
+  .board-item {
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 10px;
+  }
+  .board-item.muuri-item-releasing {
+    z-index: 9998;
+  }
+  .board-item.muuri-item-dragging {
+    z-index: 9999;
+  }
+  .board-item.muuri-item-hidden {
+    z-index: 0;
+  }
+  .board-column-header {
+    position: relative;
+    height: 50px;
+    line-height: 50px;
+    cursor: move;
+    overflow: hidden;
+    color: #333;
+    font-size:16px;
+    font-weight:blod;
+    padding: 0 20px;
+    border-radius: 3px 3px 0 0;
+    -webkit-box-shadow: 0px 0px 3px 0 rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 3px 0 rgba(0,0,0,0.2);
+    font-family:微软雅黑,黑体;
+  }
+  .board-item-content {
+    position: relative;
+    z-index: 1;
+    -webkit-box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+    box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+  }
+  .cdp_timeline{
+    margin-top: 5px;
+  }
+</style>
+<div class="right">
+	<div class="board"></div>
+	<div style="display:none;" id="board-item">
+      <div class="board-item">
+        <div class="board-column-header">
+          <div class="board-item-title" style="float:left;"></div>
+          <div class="board-item-btn" style="float:right;cursor:pointer;"><i class="el-icon-refresh"></i></div>
+        </div>
+        <div class="board-item-content"></div>
+      </div>
+    </div>
+
+    <div style="display:none;" id="pie_div_tp">
+      <div class='mypie'></div>
+    </div>
+
+    <div style="display:none;" id="swiper_div_tp">
+      <div class="swiper-container">
+          <div style="margin-top:4px;">
+            <div style="margin-left:5px;float:left;width:24px;height:14px;background:#53a0e4;border-radius: 3px 3px 3px 3px;"></div>
+            <div style="margin-left:5px;float:left;">保护中</div>
+            <div style="margin-left:10px;float:left;width:24px;height:14px;background:#bfbfbf;border-radius: 3px 3px 3px 3px;"></div>
+            <div style="margin-left:5px;float:left;">未保护</div>
+            <div style="float:right;">时间段：<span class="cdp_time_range"></span></div>
+          </div>
+        <div class="swiper-wrapper">
+        </div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+
+    <div style="display:none;" id="cdp_timeline_div_tp">
+      <div class="cdp_timeline">
+        <div class="host_name"></div>
+        <canvas class="cpd_timeline_canvas"></canvas>
+      </div>
+    </div>
+
+    <div style="display:none;" id="block_div_tp">
+      <div class="block-container">
+      </div>
+    </div>
+
+    <div style="display:none;" id="block_content_div_tp">
+      <div class="block-wrapper">
+        <span style="display:block;height:55px;font-size:32px;margin-top:30px;text-align:center;color:#333333;" class="task_num"></span>
+        <span style="display:block;text-align:center;font-size:12px;color:#333333;" class="task_name"></span>
+      </div>
+    </div>
+
+</div>
+
+<link  rel="stylesheet" media="screen" type="text/css" href="/static/css/swiper.min.css" />
+<script type='text/javascript' src="/static/js/web-animations.min.js"></script>
+<script type='text/javascript' src="/static/js/hammer.min.js"></script>
+<script type='text/javascript' src="/static/js/muuri.min.js"></script>
+<script type='text/javascript' src="/static/js/echarts.min.js"></script>
+<script type='text/javascript' src="/static/js/swiper.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">仪表盘</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#dashboard" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        dashboard_resize();
+    });
+
+	function pie_nest_option() {
+  return {
+    tooltip : {
+        trigger: 'item',
+        formatter: "{b} : {c} ({d}%)"
+    },
+    legend: {
+        orient : 'vertical',
+        selectedMode: false,
+        x : 'left',
+        formatter:null,
+        data:[]
+    },
+    calculable : false,
+    series : [
+        {
+            name:'rough',
+            type:'pie',
+            selectedMode: 'single',
+            radius : [0, 60],
+            center : ['65%', 150],
+            itemStyle : {
+                normal : {
+                    label : {
+                        show : false
+                    },
+                    labelLine : {
+                        show : false
+                    }
+                }
+            },
+            data:[]
+        },
+        {
+            name:'detail',
+            type:'pie',
+            radius : [80, 120],
+            center : ['65%', 150],
+            data:[]
+        }
+    ]
+  }
+}
+
+function pie_coxcomb_option() {
+  return {
+    tooltip : {
+        trigger: 'item',
+        formatter: "{b} : {c} ({d}%)"
+    },
+    legend: {
+        orient : 'vertical',
+        x : 'left',
+        formatter:'',
+        data:[]
+    },
+    calculable : true,
+    series : [
+        {
+            name:'面积模式',
+            type:'pie',
+            radius : [30, 110],
+            center : ['65%', 150],
+            roseType : null,
+            itemStyle : {
+               normal : {
+                   label : {
+                       show : false
+                   },
+                   labelLine : {
+                       show : false
+                   }
+               },
+               emphasis : {
+                   label : {
+                       show : false
+                   },
+                   labelLine : {
+                       show : false
+                   }
+               }
+           },
+            data:[]
+        }
+    ]
+  }
+}
+
+function bar_heaped_option() {
+  return {
+    tooltip : {
+        trigger: 'axis',
+        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        },
+        formatter:null
+    },
+    legend: {
+        data:[]
+    },
+    calculable : true,
+    xAxis : [
+        {
+            type : 'category',
+            data : []
+        }
+    ],
+    yAxis : [
+        {
+          type : 'value',
+          splitNumber:0,
+          axisLabel : {
+              formatter: '{value} 个'
+          }
+        }
+    ],
+    series : []
+  }
+}
+
+function series_option() {
+  return {
+    tooltip : {
+        formatter: "已使用 : {c}GB"
+    },
+    series : [
+            {
+              	min:0,
+                max:0,
+                type:'gauge',
+                startAngle: 180,
+                endAngle: 0,
+                center : ['50%', '90%'],
+                radius : 200,
+                axisLine: {            // 坐标轴线
+                    lineStyle: {       // 属性lineStyle控制线条样式
+                        color: [[0.2, '#1bb2d8'],[0.8, '#1790cf'],[1, '#e55e6a']]
+                    }
+                },
+                axisLabel:{
+                  formatter:function (value){return value.toFixed(2);}
+                },
+                detail : {
+                    show : true,
+                    borderWidth: 0,
+                    offsetCenter: [0, 0],
+                    formatter:'{value}GB'
+                },
+                pointer: {
+                    width:2,
+                    length: '90%'
+                },
+                data:[{value: 0, name: ''}]
+            }
+        ]
+    }
+}
+
+function blue_theme() {
+var theme = {
+    // 默认色板
+    color: [
+        '#1790cf','#1bb2d8','#99d2dd','#88b0bb',
+        '#1c7099','#038cc4','#75abd0','#afd6dd'
+    ],
+
+    // 图表标题
+    title: {
+        textStyle: {
+            fontWeight: 'normal',
+            color: '#1790cf'
+        }
+    },
+
+    // 值域
+    dataRange: {
+        color:['#1178ad','#72bbd0']
+    },
+
+    // 工具箱
+    toolbox: {
+        color : ['#1790cf','#1790cf','#1790cf','#1790cf']
+    },
+
+    // 提示框
+    tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+            type : 'line',         // 默认为直线，可选为：'line' | 'shadow'
+            lineStyle : {          // 直线指示器样式设置
+                color: '#1790cf',
+                type: 'dashed'
+            },
+            crossStyle: {
+                color: '#1790cf'
+            },
+            shadowStyle : {                     // 阴影指示器样式设置
+                color: 'rgba(200,200,200,0.3)'
+            }
+        }
+    },
+
+    // 区域缩放控制器
+    dataZoom: {
+        dataBackgroundColor: '#eee',            // 数据背景颜色
+        fillerColor: 'rgba(144,197,237,0.2)',   // 填充颜色
+        handleColor: '#1790cf'     // 手柄颜色
+    },
+
+    // 网格
+    grid: {
+        borderWidth: 0
+    },
+
+    // 类目轴
+    categoryAxis: {
+        axisLine: {            // 坐标轴线
+            lineStyle: {       // 属性lineStyle控制线条样式
+                color: '#1790cf'
+            }
+        },
+        splitLine: {           // 分隔线
+            lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                color: ['#eee']
+            }
+        }
+    },
+
+    // 数值型坐标轴默认参数
+    valueAxis: {
+        axisLine: {            // 坐标轴线
+            lineStyle: {       // 属性lineStyle控制线条样式
+                color: '#1790cf'
+            }
+        },
+        splitArea : {
+            show : true,
+            areaStyle : {
+                color: ['rgba(250,250,250,0.1)','rgba(200,200,200,0.1)']
+            }
+        },
+        splitLine: {           // 分隔线
+            lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                color: ['#eee']
+            }
+        }
+    },
+
+    timeline : {
+        lineStyle : {
+            color : '#1790cf'
+        },
+        controlStyle : {
+            normal : { color : '#1790cf'},
+            emphasis : { color : '#1790cf'}
+        }
+    },
+
+    // K线图默认参数
+    k: {
+        itemStyle: {
+            normal: {
+                color: '#1bb2d8',          // 阳线填充颜色
+                color0: '#99d2dd',      // 阴线填充颜色
+                lineStyle: {
+                    width: 1,
+                    color: '#1c7099',   // 阳线边框颜色
+                    color0: '#88b0bb'   // 阴线边框颜色
+                }
+            }
+        }
+    },
+
+    map: {
+        itemStyle: {
+            normal: {
+                areaStyle: {
+                    color: '#ddd'
+                },
+                label: {
+                    textStyle: {
+                        color: '#c12e34'
+                    }
+                }
+            },
+            emphasis: {                 // 也是选中样式
+                areaStyle: {
+                    color: '#99d2dd'
+                },
+                label: {
+                    textStyle: {
+                        color: '#c12e34'
+                    }
+                }
+            }
+        }
+    },
+
+    force : {
+        itemStyle: {
+            normal: {
+                linkStyle : {
+                    color : '#1790cf'
+                }
+            }
+        }
+    },
+
+    chord : {
+        padding : 4,
+        itemStyle : {
+            normal : {
+                borderWidth: 1,
+                borderColor: 'rgba(128, 128, 128, 0.5)',
+                chordStyle : {
+                    lineStyle : {
+                        color : 'rgba(128, 128, 128, 0.5)'
+                    }
+                }
+            },
+            emphasis : {
+                borderWidth: 1,
+                borderColor: 'rgba(128, 128, 128, 0.5)',
+                chordStyle : {
+                    lineStyle : {
+                        color : 'rgba(128, 128, 128, 0.5)'
+                    }
+                }
+            }
+        }
+    },
+
+    gauge : {
+        axisLine: {            // 坐标轴线
+            show: true,        // 默认显示，属性show控制显示与否
+            lineStyle: {       // 属性lineStyle控制线条样式
+                color: [[0.2, '#1bb2d8'],[0.8, '#1790cf'],[1, '#1c7099']],
+                width: 8
+            }
+        },
+        axisTick: {            // 坐标轴小标记
+            splitNumber: 10,   // 每份split细分多少段
+            length :12,        // 属性length控制线长
+            lineStyle: {       // 属性lineStyle控制线条样式
+                color: 'auto'
+            }
+        },
+        axisLabel: {           // 坐标轴文本标签，详见axis.axisLabel
+            textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                color: 'auto'
+            }
+        },
+        splitLine: {           // 分隔线
+            length : 18,         // 属性length控制线长
+            lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                color: 'auto'
+            }
+        },
+        pointer : {
+            length : '90%',
+            color : 'auto'
+        },
+        title : {
+            textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                color: '#333'
+            }
+        },
+        detail : {
+            textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                color: 'auto'
+            }
+        }
+    },
+
+    textStyle: {
+        fontFamily: '微软雅黑, Arial, Verdana, sans-serif'
+    }
+};
+	echarts.registerTheme('blue', theme);
+}
+
+$(function () {
+	var app = new Vue({
+		el:'.board',
+		data : {
+			filter: [],
+			filter_options: '',
+			'grid':null,
+			'host_storage_overview_jsonobj':null,
+			'user_storage_overview_jsonobj':null,
+			'host_overview_jsonobj':null,
+			'host_health_overview_jsonobj':null,
+			'cdp_host_health_overview_jsonobj':null,
+			'validate_task_overview_jsonobj':null,
+			'backup_inc_overview_jsonobj':null,
+			'board':[]
+		},
+	  methods: {
+		  filterTenant() {
+			this.onRefreshAllItem();
+		  },
+		  InitBoardData()
+		  {
+			this.board.push({"type":"pie","id":"host_overview","url":"/xdashboard/dashboard_handle/","title":"客户端与备份计划总览","Interval":16*60000});
+			this.board.push({"type":"pie","id":"host_storage_overview","url":"/xdashboard/dashboard_handle/","title":"客户端空间占用总览","Interval":18*60000});
+			this.board.push({"type":"series","id":"user_storage_usage_and_quota_overview","url":"/xdashboard/dashboard_handle/","title":"存储配额空间使用总览","Interval":18*60000});
+			this.board.push({"type":"bar","id":"backup_inc_overview","url":"/xdashboard/dashboard_handle/","title":"最近24小时定时备份生成统计","Interval":43*60000});
+			this.board.push({"type":"pie","id":"host_health_overview","url":"/xdashboard/dashboard_handle/","title":"定时保护客户端灾备健康度","Interval":43*60000});
+			this.board.push({"type":"swiper","id":"cdp_host_timeline_overview","url":"/xdashboard/dashboard_handle/","title":"最近24小时持续备份生成统计","Interval":12*60000});
+			this.board.push({"type":"pie","id":"cdp_host_health_overview","url":"/xdashboard/dashboard_handle/","title":"最近24小时持续备份客户端健康度","Interval":12*60000});
+			this.board.push({"type":"block","id":"all_task_overview","url":"/xdashboard/dashboard_handle/","title":"当前任务数量","Interval":26*60000});
+			this.board.push({"type":"pie","id":"validate_task_overview","url":"/xdashboard/dashboard_handle/","title":" 最近3个月内验证任务总览","Interval":26*60000});
+		  },
+		  fireGrid() {
+			this.grid = new Muuri('.board', {
+			  items: '.board-item',
+			  dragEnabled: true,
+			  dragStartPredicate: {
+				handle: '.board-column-header'
+			  }
+			});
+		  },
+		  addItemToGrid(){
+			var item = document.querySelector('#board-item').querySelector('.board-item');
+			var board_obj = document.querySelector('.board');
+			for(var i=0;i<this.board.length;i++)
+			{
+			  var clone_item = item.cloneNode(true);
+			  clone_item.querySelector('.board-item-title').textContent = this.board[i].title;
+			  clone_item.querySelector('.board-item-btn').onclick=this.onRefreshItem
+			  clone_item.setAttribute('data-id',this.board[i].id);
+			  var content_div = null;
+			  if(this.board[i].type=='swiper')
+			  {
+				content_div = document.querySelector('#swiper_div_tp').querySelector('.swiper-container').cloneNode(true);
+			  }
+			  else if(this.board[i].type=='block')
+			  {
+				content_div = document.querySelector('#block_div_tp').querySelector('.block-container').cloneNode(true);
+			  }
+			  else
+			  {
+				content_div = document.querySelector('#pie_div_tp').querySelector('.mypie').cloneNode(true);
+			  }
+			  content_div.setAttribute('id',this.board[i].id);
+			  clone_item.querySelector('.board-item-content').appendChild(content_div);
+			  board_obj.appendChild(clone_item);
+			}
+		  },
+		  onRefreshAllItem()
+		  {
+			for(var i=0;i<this.board.length;i++)
+			{
+			  var id = this.board[i].id;
+			  this.mySetLoading(id,true);
+			  if(this.board[i].type=='swiper')
+			  {
+
+			  }
+			  else if(this.board[i].type=='block')
+			  {
+			  }
+			  else
+			  {
+				var myChart= echarts.getInstanceByDom(document.querySelector('#'+id));
+				myChart.clear();
+				myChart.dispose();
+				echarts.init(document.querySelector('#'+this.board[i].id),'blue');
+			  }
+
+			  myAjaxPost(this.board[i].url, 'a='+this.board[i].id, eval('this.'+this.board[i].id+'_callback'));
+			}
+
+		  },
+		  onRefreshItem:function(event){
+			var id = event.currentTarget.parentNode.parentNode.getAttribute('data-id');
+			var This = this;
+			for(var i=0;i<this.board.length;i++)
+			{
+			  if(this.board[i].id==id)
+			  {
+				this.mySetLoading(id,true);
+				if(this.board[i].type=='swiper')
+				{
+
+				}
+				else if(this.board[i].type=='block')
+				{
+				}
+				else
+				{
+				  var myChart= echarts.getInstanceByDom(document.querySelector('#'+id));
+				  myChart.clear();
+				  myChart.dispose();
+				  echarts.init(document.querySelector('#'+this.board[i].id),'blue');
+				}
+
+				myAjaxPost(this.board[i].url, 'a='+this.board[i].id, eval('this.'+this.board[i].id+'_callback'));
+			  }
+			}
+		  },
+		  _get_pie_series_data(data){
+			var series_data = Array();
+			for(var j=0;j<data.length;j++)
+			{
+			  var one_data = {'name':data[j].name,'value':data[j].value};
+			  if(data[j].filter_uuid)
+			  {
+				one_data['filter_uuid'] = data[j].filter_uuid;
+			  }
+			  if(data[j].filter_title)
+			  {
+				one_data['filter_title'] = data[j].filter_title;
+			  }
+			  if(data[j].normal_color)
+			  {
+				if(!one_data['itemStyle'])
+				{
+				  one_data['itemStyle'] = {};
+				}
+				one_data['itemStyle']['normal'] = {'color':data[j].normal_color};
+			  }
+			  if(data[j].emphasis_color)
+			  {
+				if(!one_data['itemStyle'])
+				{
+				  one_data['itemStyle'] = {};
+				}
+				one_data['itemStyle']['emphasis'] = {'color':data[j].emphasis_color};
+			  }
+			  series_data.push(one_data);
+			}
+			return series_data;
+		  },
+		  _set_pie_nest_option(pie_option,series,legend_formatter){
+			for (var i=0;i<series.length;i++)
+			{
+			  if(series[i].rough_data)
+			  {
+				var rough_data = this._get_pie_series_data(series[i].rough_data);
+				for(var k=0;k<series[i].rough_data.length;k++)
+				{
+				  pie_option.legend.data.push(series[i].rough_data[k].name);
+				}
+				pie_option.legend.formatter=legend_formatter;
+				for(var j=0;j<pie_option.series.length;j++)
+				{
+				  if(pie_option.series[j].name=='rough')
+				  {
+					pie_option.series[j].data = rough_data;
+				  }
+				}
+			  }
+			  if(series[i].detail_data)
+			  {
+				var detail_data = this._get_pie_series_data(series[i].detail_data);
+
+				//for(var k=0;k<series[i].detail_data.length;k++)
+				//{
+				//  pie_option.legend.data.push(series[i].detail_data[k].name);
+				//}
+
+				for(var j=0;j<pie_option.series.length;j++)
+				{
+				  if(pie_option.series[j].name=='detail')
+				  {
+					pie_option.series[j].data = detail_data;
+				  }
+				}
+			  }
+			}
+			return pie_option;
+		  },
+		  _set_pie_coxcomb_option(pie_option,series,legend_formatter,roseType)
+		  {
+			for(var k=0;k<series[0].data.length;k++)
+			{
+			  pie_option.legend.data.push(series[0].data[k].name);
+			}
+			pie_option.legend.formatter = legend_formatter;
+			var data = this._get_pie_series_data(series[0].data);
+			pie_option.series[0].data = data;
+			pie_option.series[0].roseType = roseType;
+			if(roseType==null)
+			{
+			  pie_option.series[0].radius=[80,110];
+			}
+			return pie_option;
+		  },
+		  pie_common_callback(id,jsonobj,formatter,legend_formatter,roseType){
+			var This = this;
+			setTimeout(() => {
+			  This.mySetLoading(id,false);
+			}, 500);
+			var pie_option = null;
+			var pie_chart = echarts.getInstanceByDom(document.querySelector('#'+id));
+			if(jsonobj.r != 0)
+			{
+			  pie_chart.showLoading({text: jsonobj.e});
+			  return;
+			}
+			if(jsonobj.series.length > 1)
+			{
+			  pie_option = pie_nest_option();
+			  pie_option = this._set_pie_nest_option(pie_option,jsonobj.series,legend_formatter);
+			}
+			else
+			{
+			  pie_option = pie_coxcomb_option();
+			  pie_option = this._set_pie_coxcomb_option(pie_option,jsonobj.series,legend_formatter,roseType);
+			}
+			pie_option.tooltip.formatter = formatter;
+			pie_chart.setOption(pie_option);
+			pie_chart.on('click', function (param){
+			  var selected = param.data;
+
+			  if(selected.filter_uuid)
+			  {
+				if (id === 'validate_task_overview') {
+				  localStorage.setItem('filter_uuid',JSON.stringify(selected.filter_uuid));
+				  window.location.href = '../serverlog'; // 跳验证任务日志
+				}
+				else if(id=="host_storage_overview"){
+					window.location.href = '../storagestatus/?use_detail';
+				}
+				else {
+
+					try {
+						var filter_uuid_obj = $.parseJSON(selected.filter_uuid);
+						if(filter_uuid_obj.ids.length==0)
+						{
+							return;
+						}
+					}
+					catch (err) {
+						debugger;
+					}
+					localStorage.setItem('filter_uuid',selected.filter_uuid);
+				    window.location.href = '../serversmgr'; // 跳计算机列表
+				}
+
+			  }
+			});
+		  },
+		  bar_common_callback(id,jsonobj,tool_tip_formatter){
+			var This = this;
+			setTimeout(() => {
+			  This.mySetLoading(id,false);
+			}, 500);
+			var bar_option = null;
+			var bar_chart = echarts.getInstanceByDom(document.querySelector('#'+id));
+			if(jsonobj.r != 0)
+			{
+			  bar_chart.showLoading({text: jsonobj.e});
+			  return;
+			}
+			bar_option = bar_heaped_option();
+			bar_option.xAxis[0].data = jsonobj.xAxis;
+			bar_option.yAxis[0].splitNumber = jsonobj.splitNumber;
+			for(var i=0;i<jsonobj.series.length;i++)
+			{
+			  bar_option.legend.data.push(jsonobj.series[i].name);
+			  bar_option.series.push({"name":jsonobj.series[i].name,"type":"bar","stack":"none","data":jsonobj.series[i].data});
+			}
+			bar_option.tooltip.formatter=tool_tip_formatter;
+			bar_chart.setOption(bar_option);
+		  },
+		  series_common_callback(id,jsonobj)
+		  {
+			var This = this;
+			setTimeout(() => {
+			  This.mySetLoading(id,false);
+			}, 500);
+			var my_series_option = null;
+			var series_chart = echarts.getInstanceByDom(document.querySelector('#'+id));
+			if(jsonobj.r != 0)
+			{
+			  series_chart.showLoading({text: jsonobj.e});
+			  return;
+			}
+			my_series_option = series_option();
+			my_series_option.series[0].max=jsonobj.series[0]['total'];
+			my_series_option.series[0].data[0]['value'] = jsonobj.series[0]['used'];
+			my_series_option.series[0].data[0]['name']=jsonobj.series[0]['node_name']+'\n\n单位：GB';
+			series_chart.setOption(my_series_option);
+		  },
+		  host_overview_legend_formatter(name)
+		  {
+			var data = this.host_overview_jsonobj.series[0].rough_data;
+			for(var i=0;i<data.length;i++)
+			{
+			  if(data[i].name==name)
+			  {
+				return `${name}（${data[i].value}个计划）`;
+			  }
+			}
+			return name;
+		  },
+		  host_overview_callback(jsonobj){
+			this.host_overview_jsonobj = jsonobj;
+			this.pie_common_callback('host_overview',jsonobj,"{b} : {c}个计划 ({d}%)",this.host_overview_legend_formatter,'area');
+		  },
+		  host_storage_overview_legend_formatter(name)
+		  {
+			var data = this.host_storage_overview_jsonobj.series[0].data;
+			for(var i=0;i<data.length;i++)
+			{
+			  if(data[i].name==name)
+			  {
+				return `${name}（${data[i].value}GB）`;
+			  }
+			}
+			return name;
+		  },
+		  host_storage_overview_callback(jsonobj){
+			this.host_storage_overview_jsonobj = jsonobj;
+			this.pie_common_callback('host_storage_overview',jsonobj,"{b} : {c}GB ({d}%)",this.host_storage_overview_legend_formatter,'area');
+		  },
+		  user_storage_overview_legend_formatter(name)
+		  {
+			var data = this.user_storage_overview_jsonobj.series[0].data;
+			for(var i=0;i<data.length;i++)
+			{
+			  if(data[i].name==name)
+			  {
+				return `${name}（${data[i].value}GB）`;
+			  }
+			}
+			return name;
+		  },
+		  user_storage_overview_callback(jsonobj){
+			this.user_storage_overview_jsonobj = jsonobj;
+			this.pie_common_callback('user_storage_overview',jsonobj,"{b} : {c}GB ({d}%)",this.user_storage_overview_legend_formatter,'area');
+		  },
+		  host_health_overview_legend_formatter(name)
+		  {
+			var data = this.host_health_overview_jsonobj.series[0].data;
+			for(var i=0;i<data.length;i++)
+			{
+			  if(data[i].name==name)
+			  {
+				return `${name}（${data[i].value}台客户端）`;
+			  }
+			}
+			return name;
+		  },
+		  host_health_overview_callback(jsonobj){
+			this.host_health_overview_jsonobj = jsonobj;
+			this.pie_common_callback('host_health_overview',jsonobj,"{b} : {c}台客户端",this.host_health_overview_legend_formatter,null);
+		  },
+		  cdp_host_health_overview_legend_formatter(name)
+		  {
+			var data = this.cdp_host_health_overview_jsonobj.series[0].data;
+			for(var i=0;i<data.length;i++)
+			{
+			  if(data[i].name==name)
+			  {
+				return `${name}（${data[i].value}台客户端）`;
+			  }
+			}
+			return name;
+		  },
+		  cdp_host_health_overview_callback(jsonobj){
+			this.cdp_host_health_overview_jsonobj = jsonobj;
+			this.pie_common_callback('cdp_host_health_overview',jsonobj,"{b} : {c}台客户端",this.cdp_host_health_overview_legend_formatter,null);
+		  },
+		  validate_task_overview_legend_formatter(name)
+		  {
+			var data = this.validate_task_overview_jsonobj.series[0].data;
+			for(var i=0;i<data.length;i++)
+			{
+			  if(data[i].name==name)
+			  {
+				return `${name}（${data[i].value}个任务）`;
+			  }
+			}
+			return name;
+		  },
+		  validate_task_overview_callback(jsonobj){
+			this.validate_task_overview_jsonobj = jsonobj;
+			this.pie_common_callback('validate_task_overview',jsonobj,"{b} : {c}个任务",this.validate_task_overview_legend_formatter,null);
+		  },
+		  backup_inc_overview_tool_tip_formatter(params, ticket, callback)
+		  {
+			var tip = '';
+			for(var i=0;i<params.length;i++)
+			{
+			  if(i==0)
+			  {
+				var xAxis = this.backup_inc_overview_jsonobj['xAxis'];
+				for(var j=0;j<xAxis.length;j++)
+				{
+				  if(xAxis[j] == params[i]['axisValue'])
+				  {
+					var begin_time = '';
+					if(j>0)
+					{
+					  begin_time = xAxis[j-1];
+					}
+					else
+					{
+					  begin_time = this.backup_inc_overview_jsonobj['begin_time'];
+					}
+					tip += `时间段：${begin_time}至${params[i]['axisValue']}<br/>`;
+					break;
+				  }
+				}
+
+			  }
+			  if(params[i]['value']>0)
+			  {
+				tip += `${params[i]['seriesName']}：${params[i]['value']}<br/>`;
+			  }
+			}
+			return tip;
+		  },
+		  backup_inc_overview_callback(jsonobj){
+			this.backup_inc_overview_jsonobj = jsonobj;
+			this.bar_common_callback('backup_inc_overview',jsonobj,this.backup_inc_overview_tool_tip_formatter);
+		  },
+		  user_storage_usage_and_quota_overview_callback(jsonobj){
+			this.series_common_callback('user_storage_usage_and_quota_overview',jsonobj);
+		  },
+		  all_storage_usage_and_quota_overview_callback(jsonobj){
+			this.series_common_callback('all_storage_usage_and_quota_overview',jsonobj);
+		  },
+		  _draw_cdp_time(cxt,width,height,data){
+			cxt.fillStyle = "#bfbfbf";
+			cxt.fillRect(0, 0, width, height);
+			var coefficient = width/(data.total_end - data.total_begin);
+			for(var i=0;i<data.range.length;i++)
+			{
+			  var range_width = (data.range[i].end - data.range[i].begin)*coefficient;
+			  cxt.fillStyle = "#53a0e4";
+			  cxt.fillRect((data.range[i].begin-data.total_begin) * coefficient,0, range_width, height);
+			}
+		  },
+		  _fmt_timestamp(timestamp)
+		  {
+			var time = new Date(timestamp*1000);
+			var y = time.getFullYear();//年
+			var m = time.getMonth() + 1;//月
+			if(m<10)
+			{
+			  m = `0${m}`;
+			}
+			var d = time.getDate();//日
+			if(d<10)
+			{
+			  d = `0${d}`;
+			}
+			var h = time.getHours();//时
+			if(h<10)
+			{
+			  h = `0${h}`;
+			}
+			var mm = time.getMinutes();//分
+			if(mm<10)
+			{
+			  mm = `0${mm}`;
+			}
+			var s = time.getSeconds();//秒
+			if(s<10)
+			{
+			  s = `0${s}`;
+			}
+			return `${y}-${m}-${d} ${h}:${mm}:${s}`;
+		  },
+		  cdp_timeline_mouseover(e)
+		  {
+			var canvas = e.target;
+			if(this.mytooltip==null)
+			{
+			  this.mytooltip=document.createElement('div');
+			  this.mytooltip.style['position']='absolute';
+			  this.mytooltip.style['background']='rgba(0,0,0,.5)';
+			  this.mytooltip.style['color']='#ffffff';
+			  this.mytooltip.style['padding']='10px';
+			  this.mytooltip.style['border-radius']='5px 5px 5px 5px';
+			  this.mytooltip.style['font-size'] = '14px';
+			}
+			document.querySelector('body').appendChild(this.mytooltip);
+			this.mytooltip.style['top']=e.offsetY+'px';
+			this.mytooltip.style['left']=e.offsetX+'px';
+			var data = JSON.parse(canvas.getAttribute('data'));
+			var tip = `客户端${data.name}保护时间段：<br/>`;
+			for(var i=0;i<data.range.length;i++)
+			{
+			  var end=this._fmt_timestamp(data.range[i].end);
+			  var begin=this._fmt_timestamp(data.range[i].begin);
+			  tip += `${begin}至${end}<br/>`;
+			}
+			this.mytooltip.innerHTML = tip;
+			this.mytooltip.style['display']='block';
+		  },
+		  cdp_timeline_mouseout(e)
+		  {
+			if(this.mytooltip)
+			{
+			  this.mytooltip.remove();
+			  this.mytooltip = null;
+			}
+		  },
+		  cdp_timeline_mousemove(e){
+			var canvas = e.target;
+			var clickX = e.pageX- canvas.offsetLeft;
+			var clickY = e.pageY - 12;
+			var mytooltip=document.querySelector('#mytooltip');
+			this.mytooltip.style['top']=(clickY-this.mytooltip.clientHeight)+'px';
+			this.mytooltip.style['left']=clickX+'px';
+		  },
+		  _clear_swiper(){
+			var slide= document.querySelector('#cdp_host_timeline_overview').querySelector('.swiper-wrapper').querySelectorAll('.swiper-slide');
+			for(var i=0;i<slide.length;i++)
+			{
+			  slide[i].remove();
+			}
+		  },
+		  cdp_host_timeline_overview_callback(jsonobj){
+			var This = this;
+			setTimeout(() => {
+			  This.mySetLoading('cdp_host_timeline_overview',false);
+			}, 500);
+			var slide_item = null;
+			this._clear_swiper();
+			if(jsonobj.r!=0)
+			{
+			  slide_item = document.createElement('div');
+			  slide_item.className="swiper-slide";
+			  slide_item.textContent = jsonobj.e;
+			  slide_item.style['text-align']='center';
+			  slide_item.style['margin-top']='100px';
+			  document.querySelector('#cdp_host_timeline_overview').querySelector('.swiper-wrapper').appendChild(slide_item);
+			  return;
+			}
+			var time_range = `${jsonobj.begin_time}至${jsonobj.end_time}`;
+			document.querySelector('#cdp_host_timeline_overview').querySelector('.cdp_time_range').textContent = time_range;
+			//每次显多少条数据
+			var iSlideCount = 4;
+			var j=0;
+			var k=0;
+			for(var i=0;i<Math.ceil(jsonobj.data.length/iSlideCount);i++)
+			{
+			  slide_item = document.createElement('div');
+			  slide_item.className="swiper-slide";
+			  for(;j<jsonobj.data.length;j++)
+			  {
+				k++;
+				if(k>iSlideCount)
+				{
+				  k=0;
+				  break;
+				}
+				var item = document.querySelector('#cdp_timeline_div_tp').querySelector('.cdp_timeline').cloneNode(true);
+				item.querySelector('.host_name').textContent = '客户端名称：'+jsonobj.data[j].name;
+				var timeline_canvas = item.querySelector('.cpd_timeline_canvas');
+				timeline_canvas.setAttribute('data',JSON.stringify(jsonobj.data[j]));
+				var cxt = timeline_canvas.getContext("2d");
+				timeline_canvas.addEventListener('mouseover', this.cdp_timeline_mouseover, false);
+				timeline_canvas.addEventListener('mousemove', this.cdp_timeline_mousemove, false);
+				timeline_canvas.addEventListener('mouseout', this.cdp_timeline_mouseout, false);
+				this._draw_cdp_time(cxt,timeline_canvas.width,timeline_canvas.height,jsonobj.data[j]);
+
+				slide_item.appendChild(item);
+			  }
+			  document.querySelector('#cdp_host_timeline_overview').querySelector('.swiper-wrapper').appendChild(slide_item);
+			}
+		  },
+		  all_task_overview_callback(jsonobj){
+			var This = this;
+			setTimeout(() => {
+			  this.mySetLoading('all_task_overview',false);
+			}, 500)
+			var task= document.querySelector('#all_task_overview').querySelectorAll('.block-wrapper');
+			for(var i=0;i<task.length;i++)
+			{
+			  task[i].remove();
+			}
+			if(jsonobj.r!=0)
+			{
+			  var error_item = document.createElement('div');
+			  error_item.className="block-wrapper";
+			  error_item.textContent = jsonobj.e;
+			  document.querySelector('#all_task_overview').appendChild(error_item);
+			  return;
+			}
+			for(var i=0;i<jsonobj.data.length;i++)
+			{
+			  var item = document.querySelector('#block_content_div_tp').querySelector('.block-wrapper').cloneNode(true);
+			  item.querySelector(".task_num").textContent=jsonobj.data[i].value;
+			  item.querySelector(".task_name").textContent=jsonobj.data[i].name;
+			  document.querySelector('#all_task_overview').appendChild(item);
+			}
+
+		  },
+		  chart_interval(id,url,Interval){
+			var This = this;
+			setInterval(function () {
+			  myAjaxPost(url, 'a='+id, eval('This.'+id+'_callback'));
+			}, Interval);
+		  },
+		  initBoard(){
+			for(var i=0;i<this.board.length;i++)
+			{
+			  this.board[i].loading = this.myloading('#'+this.board[i].id,'正在加载...');
+			  if(this.board[i].type=='swiper')
+			  {
+				var mySwiper = new Swiper ('#'+this.board[i].id, {
+				  autoplay: {
+					delay: 30000,
+					stopOnLastSlide: false,
+					disableOnInteraction: false
+				  },
+				  observer:true,
+				  observeParents:true,
+				  pagination: {
+					el: '.swiper-pagination',
+					clickable: true,
+					renderBullet: function (index, className) {
+					  return '<span class="' + className + '" style="width:15px;height:15px;color:#fff;">' + (index + 1) + '</span>';
+					}
+				  }
+				});
+			  }
+			  else if(this.board[i].type=='block')
+			  {
+			  }
+			  else
+			  {
+				echarts.init(document.querySelector('#'+this.board[i].id),'blue');
+			  }
+			  var This = this;
+			  myAjaxPost(this.board[i].url, 'a='+this.board[i].id, eval('this.'+this.board[i].id+'_callback'));
+			}
+
+			for(var i=0;i<this.board.length;i++)
+			{
+			  if(this.board[i].Interval>0)
+			  {
+				this.chart_interval(this.board[i].id,this.board[i].url,this.board[i].Interval);
+			  }
+			}
+		  },
+		  mySetLoading(id,visible)
+		  {
+			for(var i=0;i<this.board.length;i++)
+			{
+			  if(id==this.board[i].id)
+			  {
+				this.board[i].loading.visible = visible;
+				break;
+			  }
+			}
+		  },
+		  myloading(target,html){
+			return this.$loading({
+			  target:document.querySelector(target).parentNode,
+			  lock: true,
+			  fullscreen:false,
+			  text: html
+			});
+		  }
+		},
+		mounted:function () {
+		  var This = this;
+		  blue_theme();
+		  this.InitBoardData();
+		  setTimeout(function () {
+			This.addItemToGrid();
+			This.fireGrid();
+			This.initBoard();
+			dashboard_resize();
+		  }, 500);
+		}
+	});
+});
+
+    function dashboard_resize() {
+        resizeright();
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        dashboard_resize();
+    });
+
+</script>

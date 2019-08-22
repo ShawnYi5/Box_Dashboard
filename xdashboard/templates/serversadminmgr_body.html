@@ -1,0 +1,694 @@
+<div class="right">
+    <div class="table_menu">
+        <div class="menu_btn" id="search_form">查询</div>
+        <div class="menu_btn" id="renameForm">编辑</div>
+        <div class="menu_btn" id="allocateForm">分配给</div>
+        <div class="menu_btn" id="delbutton">删除</div>
+        <div class="menu_btn" id="showall">刷新</div>
+    </div>
+    <table id="list">
+    </table>
+    <div id="pager"></div>
+    <table width="100%" cellpadding="0" cellspacing="1" id="normal_table_info" class="border_table">
+        <tr height="25">
+            <td width="30%" align="left">客户端名称</td>
+            <td width="70%">
+                <div id="show_servername"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">客户端Agent版本</td>
+            <td align="left">
+                <div id="agent_version"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">计算机名</td>
+            <td align="left">
+                <div id="show_pcname"></div>
+				</td>
+			</tr>
+			<tr height="25">
+				<td align="left">单位名称</td>
+				<td align="left">
+					<div id="show_orgname"></div>
+				</td>
+			</tr>
+			<tr height="25">
+				<td align="left">系统名称</td>
+				<td align="left">
+					<div id="show_systemname"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">IP地址</td>
+            <td align="left">
+                <div id="show_ip"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">MAC地址</td>
+            <td align="left">
+                <div id="show_mac"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">操作系统</td>
+            <td align="left">
+                <div id="show_os"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">Build Num</td>
+            <td align="left">
+                <div id="show_buildnum"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">磁盘数量</td>
+            <td align="left">
+                <div id="show_harddisknum"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">磁盘信息</td>
+            <td align="left">
+                <div id="show_harddiskinfo"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">总容量</td>
+            <td align="left">
+                <div id="show_total"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">已使用空间</td>
+            <td align="left">
+                <div id="show_use"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">最近在线时间</td>
+            <td align="left">
+                <div id="last_online_time"></div>
+            </td>
+        </tr>
+    </table>
+    <table width="100%" cellpadding="0" cellspacing="1" id="nas_table_info" class="border_table" style="display:none;">
+		<tr height="25">
+            <td width="30%" align="left">客户端名称</td>
+            <td width="70%">
+                <div id="show_nas_servername"></div>
+            </td>
+        </tr>
+		<tr height="25">
+            <td width="30%" align="left">协议</td>
+            <td width="70%">
+                <div id="show_nas_protocol"></div>
+            </td>
+        </tr>
+		<tr height="25">
+            <td width="30%" align="left">NAS路径</td>
+            <td width="70%">
+                <div id="show_nas_path"></div>
+            </td>
+        </tr>
+	</table>
+</div>
+
+<div id="renameFormDiv" title="编辑" class="ajaxForm">
+    <div style="margin-top:20px;margin-left:20px;">客户端名称：<input type="text" class="input" id="servername"
+                                                                name="servername" onblur="removespace(this)"
+                                                                maxlength="50"/></div>
+    <div style="margin-top:10px;margin-left:20px;" class="form_tips">注：客户端名称用于标记特定的客户端，请考虑能反映其特征的名字。例如：文件服务器、代码服务器等。
+    </div>
+	<div style="margin-top:20px;margin-left:34px;">单位名称：<input type="text" class="input" id="orgname" name="orgname" onblur="removespace(this)" maxlength="50"/></div>
+	<div style="margin-top:20px;margin-left:34px;">系统名称：<input type="text" class="input" id="systemname" name="systemname" onblur="removespace(this)" maxlength="50"/></div>
+    <div style="margin-top:20px;margin-left:8px;" id="edit_selisencipher_div">数据传输方式：<select id="selisencipher">
+        <option value='1'>加密</option>
+        <option value='2'>不加密</option>
+    </select></div>
+</div>
+
+<div id="allocateFormDiv" title="分配" class="ajaxForm">
+    <div style="margin-top:20px;margin-left:30px;">每台客户端只能分配给一个用户</div>
+    <div style="margin-top:20px;margin-left:30px;">用户名：<select id="userlist" name="userlist"></select></div>
+</div>
+
+<div id="searchFormDiv" title="查询" class="ajaxForm">
+    <div>
+        <span>客户端名称:<select id="host-name" style="margin: 5px"></select></span><br>
+
+        <span>所属用户:<select id="user-name" style="margin: 5px"></select></span><br>
+    </div>
+</div>
+
+{% verbatim %}
+<div id="search_form_div" title="查询" style="padding-left: 22px">
+    <div id="search-client">
+        　　　关键词：　 <input type="text" v-model="keyWord" placeholder="查询客户端名称和IP地址" style="margin-top: 1em"
+                        onblur="removespace(this)"><br>
+        　　所属用户：　 <input type="text" v-model="userName" placeholder="用户名称" style="margin-top: 1em"
+                        onblur="removespace(this)"><br>
+        　　在线状态：　 <select v-model="isOnline" style="margin-top: 1em">
+        <option value="">未选择</option>
+        <option value="online">在线</option>
+        <option value="no-online">离线</option>
+        <option value="remote-host">远程主机</option>
+    </select><br>
+        数据传输方式：　 <select v-model="isEncrypt" style="margin-top: 1em">
+        <option value="">未选择</option>
+        <option value="encrypt">加密</option>
+        <option value="no-encrypt">不加密</option>
+    </select><br>
+        最近在线时间：　 <input type="text" v-model="onLineTime" placeholder="例如: 2017-01-01 23:00:00" style="margin-top: 1em"
+                        onblur="removespace(this)"><br>
+    </div>
+</div>
+{% endverbatim %}
+
+<script type="text/javascript">
+    $(function () {
+        jQuery("#list").jqGrid({
+            url: '../serversmgr_handle/?a=getclientlist',
+            datatype: "json",
+			{% if vmwarebackup_visible %}
+            colNames: ['id', '客户端名称', '类型', 'IP地址/数据中心', '数据传输方式', '状态', '所属用户', '最近在线时间', '调试日志', 'vm_session_id'],
+			{% else %}
+			colNames: ['id', '客户端名称', '类型', 'IP地址', '数据传输方式', '在线状态', '所属用户', '最近在线时间', '调试日志', 'vm_session_id'],
+			{% endif %}
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 20, hidden: true, sortable: false},
+                {name: 'display_name', index: '1', align: "center", width: 200, sortable: true},
+				{name: 'type', index: '2', align: "center", width: 80, sortable: true,formatter: fmt_host_type},
+                {name: 'last_ip', index: '3', align: "center", width: 150, sortable: true, formatter: fmt_for_nas},
+                {name: 'network_transmission_type', index: '4', align: "center", width: 80, sortable: true, formatter: fmt_for_nas},
+                {name: 'onlie', index: '5', align: "center", width: 60, sortable: true, formatter: fmt_for_nas},
+                {name: 'user', index: '6', align: "center", width: 100, sortable: true},
+                {name: 'insertCopySeq', index: '7', align: "center", width: 150, sortable: true, formatter: fmt_for_nas},
+                {name: 'log_zip', index: '8', align: "center", width: 100, sortable: false, formatter: fmt_for_nas},
+				{name: 'vm_session_id', index: '9', align: "center", width: 20, hidden: true, sortable: true}
+            ],
+            width: 748,
+            height: 350,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (ids) {
+                var ident = $('#list').jqGrid('getRowData', ids).id;
+                var real_type = $('#list').jqGrid('getRowData', ids).type;
+				if(real_type=='NAS客户端')
+				{
+					//NAS客户端
+					$('#nas_table_info').show();
+					$('#normal_table_info').hide();
+				}
+				else
+				{
+					$('#nas_table_info').hide();
+					$('#normal_table_info').show();
+				}
+                var params = "a=getserverinfo&id=" + ident;
+                myAjaxGet('../backup_handle/', params, GetBackupInfo);
+            }
+        });
+    });
+
+	function fmt_host_type(cellvalue, options, rowObject)
+	{
+		var prestr=cellvalue;
+
+		switch(prestr)
+		{
+			case 0:
+				return '普通客户端';
+			case 1:
+				return '远程客户端';
+			case 2:
+				return '免代理客户端';
+            case 3:
+				return '数据导入';
+			case 4:
+				return 'NAS客户端';
+		}
+
+		return '未知('+prestr+')';
+	}
+
+    function fmt_for_nas(cellvalue, options, rowObject){
+		if(rowObject[2]==4)
+		{
+			return '-';
+		}
+		return cellvalue;
+	}
+
+    function setQueryItem(jsonStr) {
+        $('#user-name').empty().append('<option value="null" selected="selected">不过滤</option>');
+        $('#host-name').empty().append('<option value="null" selected="selected">不过滤</option>');
+
+        $.each(jsonStr.users, function (index, obj) {
+            $('<option></option>').val(obj.id).text(obj.name).appendTo('#user-name');
+        });
+        $.each(jsonStr.hosts, function (index, obj) {
+            $('<option></option>').val(obj.id).text(obj.name).appendTo('#host-name');
+        })
+    }
+
+    function OnSearch() {
+        var userId = $('#user-name').val();
+        var hostId = $('#host-name').val();
+        var newUrl = '../serversmgr_handle/?a=getclientlist&usedid={0}&hostid={1}'.replace('{0}', userId).replace('{1}', hostId);
+
+        $('#list').setGridParam({url: newUrl});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function GetBackupInfo(jsonstr) {
+        if (jsonstr.r != 0) {
+            $('div#show_servername').html(jsonstr.e);
+            $('div#agent_version').html('');
+            $('div#show_pcname').html('');
+            $('div#show_ip').html('');
+            $('div#show_mac').html('');
+            $('div#show_os').html('');
+            $('div#show_buildnum').html('');
+            $('div#show_harddisknum').html('');
+            $('div#show_harddiskinfo').html('');
+            $('div#show_total').html('');
+            $('div#show_use').html('');
+            $('div#last_online_time').html('');
+			$('div#show_orgname').html('');
+			$('div#show_systemname').html('');
+            return;
+        }
+        $('div#show_servername').html(jsonstr.servername);
+        $('div#agent_version').html(jsonstr.agent_version);
+        $('div#show_pcname').html(jsonstr.pcname);
+        $('div#show_ip').html(jsonstr.ip);
+        $('div#show_mac').html(jsonstr.mac);
+        $('div#show_os').html(jsonstr.os);
+        $('div#show_buildnum').html(jsonstr.buildnum);
+        $('div#show_harddisknum').html(jsonstr.harddisknum);
+        $('div#show_harddiskinfo').html(jsonstr.harddiskinfo);
+        $('div#show_total').html(jsonstr.total + 'GB');
+        $('div#show_use').html(jsonstr.use + 'GB');
+        $('div#last_online_time').html(jsonstr.lasttime);
+        var host_ext_info = JSON.parse(jsonstr.host_ext_info);
+		if(host_ext_info.nas_path)
+		{
+			$('div#show_nas_servername').html(jsonstr.servername);
+			$('div#show_nas_path').html(host_ext_info.nas_path);
+			if(isNFSpath(host_ext_info.nas_path))
+			{
+				$('div#show_nas_protocol').html('NFS');
+			}
+			else
+			{
+				$('div#show_nas_protocol').html('CIFS');
+			}
+		}
+		if(host_ext_info.orgname)
+		{
+			$('div#show_orgname').html(host_ext_info.orgname);
+		}
+		else
+		{
+			$('div#show_orgname').html('');
+		}
+		if(host_ext_info.systemname)
+		{
+			$('div#show_systemname').html(host_ext_info.systemname);
+		}
+		else
+		{
+			$('div#show_systemname').html('');
+		}
+    }
+
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    function ReloadGridCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+    }
+
+    function RenameServerCallback(jsonstr,id) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $("#renameFormDiv").dialog('close');
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+		var params = "a=getserverinfo&id=" + id;
+        myAjaxGet('../backup_handle/', params, GetBackupInfo);
+    }
+
+    function renameserver(id, oldencipher) {
+        var src = $('#servername').val();
+        var msg = nameCheck(src);
+        if (msg){
+            openErrorDialog({title: '错误', html: msg});
+            return;
+        }
+        var servername = encodeURIComponent(src);
+        var encipher = $('#selisencipher').val();
+		var orgname = encodeURIComponent($('#orgname').val());
+		var systemname = encodeURIComponent($('#systemname').val());
+        if (oldencipher != encipher) {
+            openConfirmDialog({
+                title: '确认信息',
+                html: '已更改客户端网络传输方式，重新连接客户端生效（如有备份等任务会被中断），点击“确定”重新连接。',
+                onBeforeOK: function () {
+                    var params = "a=renameserver&id=" + id + "&name=" + servername + "&encipher=" + encipher;
+					if(orgname)
+					{
+						params+='&orgname='+orgname;
+					}
+					if(systemname)
+					{
+						params+='&systemname='+systemname;
+					}
+                    myAjaxPost('../serversmgr_handle/', params, RenameServerCallback, id);
+                    $(this).dialog('close');
+                }
+            });
+        }
+        else {
+            var params = "a=renameserver&id=" + id + "&name=" + servername + "&encipher=" + encipher;
+			if(orgname)
+			{
+				params+='&orgname='+orgname;
+			}
+			if(systemname)
+			{
+				params+='&systemname='+systemname;
+			}
+            myAjaxPost('../serversmgr_handle/', params, RenameServerCallback, id);
+        }
+    }
+
+    $('#renameForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length != 1) {
+                openErrorDialog({title: '错误', html: '请选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+
+            var rowData = $('#list').jqGrid('getRowData', idstring);
+
+            $('#servername').val(rowData.display_name);
+
+			$('#orgname').val($('div#show_orgname').html());
+			$('#systemname').val($('div#show_systemname').html());
+
+			if(rowData.type == 'NAS客户端')
+			{
+				$('#edit_selisencipher_div').hide();
+			}
+			else
+			{
+				$('#edit_selisencipher_div').show();
+			}
+
+            var ident = rowData.id;
+            var oldencipher = '1';
+
+            if (rowData.network_transmission_type == '加密') {
+                $('#selisencipher').val('1');
+                oldencipher = '1';
+            }
+            else {
+                $('#selisencipher').val('2');
+                oldencipher = '2';
+            }
+
+            $("#renameFormDiv").attr('title', '编辑').dialog({
+                autoOpen: true,
+                height: 340,
+                width: 400,
+                modal: true,
+                buttons: {
+                    '确定': function () {
+                        renameserver(ident, oldencipher);
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                }
+            });
+        });
+
+    function AllocateServerCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $("#allocateFormDiv").dialog('close');
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function shwoall() {
+        var newUrl = '../serversmgr_handle/?a=getclientlist';
+
+        $('#list').setGridParam({url: newUrl});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    $('#showall')
+        .button()
+        .click(function () {
+            shwoall();
+        });
+
+    function allocateserver(idstring) {
+        var userid = $("#userlist").val();
+        if (userid == '') {
+            openErrorDialog({title: '错误', html: "没有选择用户"});
+            return;
+        }
+        var params = "a=allocateserver&ids=" + idstring + "&userid=" + userid;
+        myAjaxPost('../user_handle/', params, AllocateServerCallback);
+    }
+
+    function GetUserList(retjson) {
+        $("#userlist").empty();
+        if (retjson.r != 0) {
+            openErrorDialog({title: '错误', html: retjson.e});
+            return;
+        }
+        $("#userlist").append("<option value='-1'  selected=\"selected\" >不分配</option>");
+
+        $.each(retjson.list, function (i, item) {
+
+            $("#userlist").append("<option value='" + item.value + "'>" + item.name + "</option>");
+
+        });
+
+    }
+
+    $('#allocateForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+
+            myAjaxGet('../user_handle/', 'a=allocatelist', GetUserList);
+
+            $("#allocateFormDiv").attr('title', '分配').dialog({
+                autoOpen: true,
+                height: 240,
+                width: 400,
+                modal: true,
+                buttons: {
+                    '确定': function () {
+                        allocateserver(idstring);
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                }
+            });
+        });
+
+	function del_vm_client_callback(jsonobj,identstring)
+	{
+		if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+		myAjaxPost("../serversmgr_handle/?a=delserver", "idents=" + identstring, delcallback);
+	}
+
+    $('#delbutton')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var vm_session_id_array = new Array();
+			var vm_idents_array = new Array();
+            var idents = new Array();
+
+			for(var i=0;i<ids.length;i++)
+			{
+				if($('#list').jqGrid('getRowData',ids[i]).type == "免代理客户端")
+				{
+					//免代理客户端
+					vm_session_id_array.push($('#list').jqGrid('getRowData',ids[i]).vm_session_id);
+					vm_idents_array.push($('#list').jqGrid('getRowData', ids[i]).id);
+				}
+				else
+				{
+					var ident = $('#list').jqGrid('getRowData', ids[i]).id;
+					idents.push(ident);
+				}
+			}
+			if( idents.length > 0 || vm_session_id_array.length > 0)
+			{
+				var identstring = idents.join(",");
+				var html = '满足如下条件的客户端才能被删除：<br />';
+				html += '1.客户端处于离线状态；<br />';
+				html += '2.客户端不属于任意已创建的备份计划、集群备份计划、热备计划、远程容灾计划<br />';
+				html += '　　客户端所属备份点没有在“验证”功能中被共享为网络路径；<br />';
+				html += '　　客户端没有正在执行还原任务或迁移任务。<br />';
+				html += '点击“确认”，执行删除操作； 点击“取消”，放弃删除。';
+				openConfirmDialog({
+					"title": "删除",
+					"html": html,
+					height: 255,
+					width: 474,
+					onBeforeOK: function () {
+						if(idents.length > 0)
+						{
+							var identstring = idents.join(",");
+							myAjaxPost("../serversmgr_handle/?a=delserver", "idents=" + identstring, delcallback);
+						}
+						if(vm_session_id_array.length > 0)
+						{
+							var idstring = vm_session_id_array.join(',');
+							var params = "a=del_host&taskid=" + idstring;
+							myAjaxGet('../mgrvmclient_handle/', params, del_vm_client_callback, vm_idents_array.join(','));
+						}
+						$(this).dialog('close');
+					}
+				});
+			}
+        });
+
+    function delcallback(jstr) {
+        var newUrl = '../serversmgr_handle/?a=getclientlist';
+
+        $('#list').setGridParam({url: newUrl});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+        openCommonDialog({'title': "信息", 'html': jstr.e, 'width': 600, 'height': 300});
+    }
+
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">客户端管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#agentmanager" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        serveradminmgr_resize();
+
+
+    });
+
+    $("#search_form_div").attr('title', '查询').dialog({
+        autoOpen: false,
+        height: 300,
+        width: 350,
+        modal: true,
+        buttons: {
+            '查询': function () {
+                search_worker();
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+
+    $('#search_form').button().click(function () {
+        $("#search_form_div").dialog('open');
+        resetData(mgrClientSearch);
+    });
+
+    function search_worker() {
+        $("#search_form_div").dialog('close');
+        var new_url = '../serversmgr_handle/?a=getclientlist&s_key={0}&user_name={1}&online={2}&encrypt={3}&online_time={4}'
+            .replace('{0}', mgrClientSearch.keyWord)
+            .replace('{1}', mgrClientSearch.userName)
+            .replace('{2}', mgrClientSearch.isOnline)
+            .replace('{3}', mgrClientSearch.isEncrypt)
+            .replace('{4}', mgrClientSearch.onLineTime);
+        $('#list').setGridParam({url: new_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function serveradminmgr_resize() {
+        resizeright();
+        var width = $('.right').width()-5;
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        serveradminmgr_resize();
+    });
+
+
+    function resetData(vueObj) {
+        vueObj.keyWord = '';
+        vueObj.userName = '';
+        vueObj.isOnline = '';
+        vueObj.isEncrypt = '';
+        vueObj.onLineTime = '';
+    }
+
+    var mgrClientSearch = new Vue({
+        el: '#search-client',
+        data: {
+            keyWord: '',
+            userName: '',
+            isOnline: '',
+            isEncrypt: '',
+            onLineTime: '',
+        }
+    });
+
+</script>

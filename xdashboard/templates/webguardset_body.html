@@ -1,0 +1,1013 @@
+<style>
+    ul, li, p {
+        margin: 0;
+        padding: 0;
+    }
+
+    li {
+        list-style-type: none;
+        border: 1px solid #ddd;
+        margin-top: 10px;
+        cursor: pointer;
+        padding: 5px;
+        padding-left: 20px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .container {
+        margin-top: 10px;
+    }
+
+    .content {
+        margin-left: 30px;
+        margin-top: 10px;
+    }
+
+    .ul-container {
+        width: 450px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        max-height: 200px;
+        overflow: auto;
+        padding-right: 40px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .err_msg {
+        color: red;
+        margin-left: 10px;
+    }
+
+    .li-choice {
+        background: #bdebee;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    button:hover {
+        text-decoration: none;
+    }
+
+    button:active {
+        position: relative;
+        top: 1px;
+    }
+
+    .del_button {
+        margin-bottom: 5px;
+    }
+
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+    }
+
+    .manage-item {
+        margin-top: 8px;
+    }
+
+    .add-to-list, .rm-list-elem {
+        float: right;
+        cursor: pointer;
+        padding: 1px 3px;
+        margin-right: 5px;
+    }
+	.mytable {margin:20px 0 0 20px;width:520px;} 
+	.mytable ul {width:520px;list-style:none} 
+	.mytable li {border-left:1px solid #ccc;border:none;border-top:1px solid #ccc;float:left;text-align:center;line-height:33px;margin-top:0px;padding:0px;padding-left:0px;border-bottom-left-radius:0px;border-bottom-right-radius:0px;border-top-left-radius:0px;border-top-right-radius:0px;} 
+	.mytable li.b {border-bottom:1px solid #ccc} 
+	.mytable li.r {border-left:1px solid #ccc;border-right:1px solid #ccc;width:350px;}
+	.mytable li.l {border-left:1px solid #ccc;width:100px;}
+</style>
+
+<div class="right">
+    <div id="webguardsettabs" style="margin-top: 10px;padding-bottom: 50px">
+        <ul>
+            <li><a href="#webguardsettabs-1">告警方式设置</a></li>
+            <li><a href="#webguardsettabs-2">敏感词管理</a></li>
+            <li><a href="#webguardsettabs-3">内容管理员设置</a></li>
+			<li><a href="#webguardsettabs-4">网页忽略区域</a></li>
+        </ul>
+        <div id="webguardsettabs-1">
+            {% include 'webalarmmgr.inc.html' %}
+        </div>
+
+        <div id="webguardsettabs-2">
+            <div class="table_menu" style="width:99%;">
+                <div class="menu_btn" id="importForm">导入</div>
+                <div class="menu_btn" id="exportForm">导出</div>
+                <div class="menu_btn" id="showall">显示所有</div>
+            </div>
+            <table id="list"></table>
+            <div id="pager"></div>
+        </div>
+
+        <div id="webguardsettabs-3">
+            <div class="table_menu" style="width:99%;">
+                <div class="menu_btn" id="new-entry">添加关联</div>
+                <div class="menu_btn" id="delete-entry">删除关联</div>
+            </div>
+            <table id="list-entry"></table>
+            <div id="pager-entry"></div>
+        </div>
+
+		<div id="webguardsettabs-4">
+            <div class="table_menu" style="width:99%;">
+                <div class="menu_btn" id="add-ignore">添加忽略</div>
+                <div class="menu_btn" id="delete-ignore">删除忽略</div>
+            </div>
+            <table id="list-ignore"></table>
+            <div id="pager-ignore"></div>
+        </div>
+    </div>
+
+    <div id="input-content" style="display:none;text-align: center" title="添加">
+        <div style="margin: 20px auto;text-align: left;">
+            <table style="width: 90%;height: 100%">
+                <tr>
+                    <td style="visibility: hidden">never show</td>
+                    <td class="i-e-msg" style="color: red">请输入正确的邮件地址!</td>
+                </tr>
+                <tr>
+                    <td class="input-name">邮件地址：</td>
+                    <td class="input-val">
+                        <input type="text" onblur="removespace(this)" style="width: 180px;height: 1.4em">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="importFormDiv" title="导入" class="ajaxForm">
+        <form id="importWordsForm" enctype="multipart/form-data">
+            <div style="margin-top:10px;"><label><input class="radio" type="radio" value="1" checked="checked"
+                                                        name="importtype">全量导入</label></div>
+            <div style="margin-top:10px;"><label><input class="radio" type="radio" value="2"
+                                                        name="importtype">增量导入</label>
+            </div>
+            <div style="margin-top:10px;"></div>
+            <div style="float:left;margin-top:3px;"><input name="importFile" id="importFile" type="file"/></div>
+            <div style="float:left;margin-left:20px;">
+                <button id="importbutton" type="button">导入</button>
+            </div>
+            <div class="clear"></div>
+        </form>
+        <div id='importMsg'></div>
+        <div id='importResult'></div>
+    </div>
+
+    <div id="exportDiv" style="display:none" class="exportFormRemove">
+        <div id="exportPageMsg" style="color:#FF0000"></div>
+        <div id="exportPageResult" style="height:170px;overflow:auto"></div>
+    </div>
+
+    <select multiple id="all-monitors" style="display: none;"></select>
+    <select multiple id="all-content-admins" style="display: none;"></select>
+    <div id="dialog-input-entry" title="添加关联" style="display: none">
+        <div style="margin: 10px">
+            <div class="manage-item">
+                内容修改入口地址:<span id="entry-addr-msg" style="color: red;">输入地址无效</span><br>
+                <input id="entry-addr" type="text" style="width:98%" onblur="removespace(this)"
+                       placeholder="示例: http://www.clerware.com/about/">
+            </div>
+            <div class="manage-item">
+                关联监控目标:<span id="added-monitors-msg" style="color: red;">请关联监控目标</span>
+                <button class="add-to-list" title="添加" value="all-monitors">
+                    <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                </button>
+                <button class="rm-list-elem" title="删除" value="added-monitors">
+                    <span class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                </button>
+                <select multiple id="added-monitors" style="width: 99%"></select>
+            </div>
+            <div class="manage-item">
+                关联内容管理员:<span id="added-content-admins-msg" style="color: red;">请关联内容管理员</span>
+                <button class="add-to-list" title="添加" value="all-content-admins">
+                    <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                </button>
+                <button class="rm-list-elem" title="删除" value="added-content-admins">
+                    <span class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                </button>
+                <select multiple id="added-content-admins" style="width: 99%"></select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="AddIgnoreFormDiv" title="增加" class="ajaxForm">
+	<div style="margin-top:20px;margin-left:20px;">用于内容篡改、网页框架篡改。敏感词、网页图片篡改、网页下载资源篡改、网页链接篡改不会受此配置影响。</div>
+	<div style="float:left; width:550px;">
+		<div style="margin-top:20px;margin-left:40px;">URL:<input type="text" style="width:450px;" id="input_ignore_url"></div>
+		<div style="margin-top:10px;">正则表达式:<input type="text" style="width:450px;" id="input_ignore_re"></div>
+		<div style="margin-top:20px;margin-left:25px;width:500px;">
+			<fieldset>
+			<legend>测试正则表达式</legend>
+			<div>测试内容:<input type="text" style="width:450px;" value='今天是{{ now|date:"Y年m月d日" }}。请正确测试后，再增加需要忽略的正则表达式。' id="input_re_content"></div>
+			<div style="margin-top:10px;">正则表达式:<input type="text" style="width:450px;" value="今天是\d+年\d+月\d+日" id="input_test_re"></div>
+			<div style="margin-top:10px;border:1px solid #ccc;height:100px;overflow-y:auto;" id="test_result_txt"></div>
+			<div style="margin-top:5px;float:right;"><div class="menu_btn;" id="button_test_re">测试</div></div>
+			<div class="clear"></div>
+			</fieldset>
+		</div>
+	</div>
+	<div style="float:left;width:400px;">
+		<div class="mytable" style="margin-top:20px;">
+			<ul>
+			<li class="l">正则表达式</li>
+			<li class="r">代表的匹配字符</li>
+			<li class="l">\s</li>
+			<li class="r">空白字符[<空格>\t\r\n\f\v]</li>
+			<li class="l">\S</li>
+			<li class="r">非空白字符</li>
+			<li class="l">\d</li>
+			<li class="r">等同于[0-9]</li>
+			<li class="l">\D</li>
+			<li class="r">等同于[^0-9]匹配非数字</li>
+			<li class="l">\w</li>
+			<li class="r">等同于[a-z0-9A-Z_]匹配大小写字母、数字和下划线</li>
+			<li class="l b">\W</li>
+			<li class="r b">等同于[^a-z0-9A-Z_]等同于上一条取非</li>
+			<li class="l">*</li>
+			<li class="r">匹配前一个字符0或无限次</li>
+			<li class="l">+</li>
+			<li class="r">匹配前一个字符1或无限次</li>
+			<li class="l b">?</li>
+			<li class="r b">匹配前一个字符0或1次</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+<script>
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">网页防护设置</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#webguardset" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        $('#webguardsettabs').tabs();
+        $('#tabs').tabs();
+        get_remote_data();
+        _resize();
+    });
+
+    // 变换颜色
+    $('#tabs').on('click', 'li', function () {
+        $(this).hasClass('li-choice') ? $(this).removeClass('li-choice') : $(this).addClass('li-choice')
+    });
+
+    //添加条目
+    $('.add_button').click(function () {
+        open_dialog($(this));
+    });
+
+    //删除调目
+    $('.del_button').click(function () {
+        $(this).parent().siblings('ul').find('.li-choice').remove();
+    });
+
+    $('#save').button().click(function () {
+        openConfirmDialog({
+            html: '你确定要保存此方案吗？',
+            onBeforeOK: function () {
+                save_data();
+                $(this).dialog('close');
+            }
+        });
+    });
+
+    function save_data() {
+        var data = get_data();
+        myAjaxPost('../webguard_handle/?a=create_arm_method', 'data=' + JSON.stringify(data), TipCallback);
+    }
+
+    function get_remote_data() {
+        myAjaxGet('../webguard_handle/?a=get_arm_method', '', get_remote_data_back);
+    }
+
+    function get_remote_data_back(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        init_data(jsonstr.data);
+    }
+
+    function check_email(value) {
+        return !isEmail(value) || !value.length;
+    }
+
+    function check_phone(value) {
+        return !isNum(value) || value.length != 11;
+    }
+
+    function check_num(obj) {
+        removespace(obj);
+        $(obj).siblings('.err_msg').text('');
+        if (!obj.value.length) {
+            $(obj).siblings('.err_msg').text('请输入数字!');
+            return;
+        }
+        if (!isNum(obj.value)) {
+            $(obj).siblings('.err_msg').text('请输入数字!');
+            return;
+        }
+        if (obj.value == 0) {
+            $(obj).siblings('.err_msg').text('请输入大于零的数!');
+            return;
+        }
+    }
+
+    function init_data(data) {
+        init_tab_data('tabs-1', data.high);
+        init_tab_data('tabs-2', data.middle);
+        init_tab_data('tabs-3', data.low);
+    }
+
+    function init_tab_data(id, data) {
+        var _ctn = $('#' + id);
+        var _ctn_email = _ctn.find('.email-container');
+        var _ctn_phone = _ctn.find('.phone-container');
+        var _ctn_sms = _ctn.find('.sms-container');
+        // 初始化 email
+        if (data.email.is_use) {
+            _ctn_email.find('.ui-use-email').prop('checked', true);
+        } else {
+            _ctn_email.find('.ui-use-email').prop('checked', false);
+        }
+        _ctn_email.find('.email-frequency').val(data.email.frequency);
+        _ctn_email.find('.ul-container ul').empty();
+        $.each(data.email.item_list, function () {
+            var li = $('<li></li>').text(this);
+            _ctn_email.find('.ul-container ul').append(li);
+        });
+
+        // 初始化 sms
+        if (data.sms.is_use) {
+            _ctn_sms.find('.ui-use-sms').prop('checked', true);
+        } else {
+            _ctn_sms.find('.ui-use-sms').prop('checked', false);
+        }
+        _ctn_sms.find('.sms-frequency').val(data.sms.frequency);
+        _ctn_sms.find('.ul-container ul').empty();
+        $.each(data.sms.item_list, function () {
+            var li = $('<li></li>').text(this);
+            _ctn_sms.find('.ul-container ul').append(li);
+        });
+
+        // 初始化 phone
+        if (data.phone.is_use) {
+            _ctn_phone.find('.ui-use-phone').prop('checked', true);
+        } else {
+            _ctn_phone.find('.ui-use-phone').prop('checked', false);
+        }
+        _ctn_phone.find('.phone-frequency').val(data.phone.frequency);
+        _ctn_phone.find('.ul-container ul').empty();
+        $.each(data.phone.item_list, function () {
+            var li = $('<li></li>').text(this);
+            _ctn_phone.find('.ul-container ul').append(li);
+        })
+    }
+
+    function get_data() {
+        var data = {
+            high: {
+                email: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                },
+                phone: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                },
+                sms: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                }
+            },
+            middle: {
+                email: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                },
+                phone: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                },
+                sms: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                }
+            },
+            low: {
+                email: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                },
+                phone: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                },
+                sms: {
+                    is_use: false,
+                    item_list: [],
+                    frequency: 1
+                }
+            }
+        };
+        get_tab_data('tabs-1', data.high);
+        get_tab_data('tabs-2', data.middle);
+        get_tab_data('tabs-3', data.low);
+
+        return data
+    }
+
+    function get_tab_data(id, data) {
+        var _ctn = $('#' + id);
+        var _ctn_email = _ctn.find('.email-container');
+        var _ctn_phone = _ctn.find('.phone-container');
+        var _ctn_sms = _ctn.find('.sms-container');
+
+        data.email.is_use = _ctn_email.find('.ui-use-email').is(':checked');
+        data.email.frequency = _ctn_email.find('.email-frequency').val();
+        var item_list = _ctn_email.find('.ul-container li').map(function () {
+            return $(this).text();
+        });
+        data.email.item_list = item_list.get();
+
+        data.phone.is_use = _ctn_phone.find('.ui-use-phone').is(':checked');
+        data.phone.frequency = _ctn_phone.find('.phone-frequency').val();
+        var item_list = _ctn_phone.find('.ul-container li').map(function () {
+            return $(this).text();
+        });
+        data.phone.item_list = item_list.get();
+
+        data.sms.is_use = _ctn_sms.find('.ui-use-sms').is(':checked');
+        data.sms.frequency = _ctn_sms.find('.sms-frequency').val();
+        var item_list = _ctn_sms.find('.ul-container li').map(function () {
+            return $(this).text();
+        });
+        data.sms.item_list = item_list.get();
+    }
+
+    function open_dialog($obj) {
+        $('#input-content input').val('');
+        var data_type = $obj.attr('data-type');
+        $('.i-e-msg').html('');
+        var input_name = '';
+        if (data_type == 'phone') {
+            input_name = '手机号码：';
+        } else if (data_type == 'sms') {
+            input_name = '手机号码：';
+        }
+        else {
+            input_name = '邮件地址：';
+        }
+        $('.input-name').html(input_name);
+        $('#input-content').dialog({
+            autoOpen: true,
+            height: 220,
+            width: 350,
+            modal: true,
+            buttons: {
+                '添加': function () {
+                    return add_to_ul($obj);
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+            }
+        })
+    }
+
+    function add_to_ul($obj) {
+        var data_type = $obj.attr('data-type');
+        var value = $('#input-content input').val();
+        var op_msg = {
+            'phone': {'msg': '请输入11位电话号码！', 'check': check_phone},
+            'sms': {'msg': '请输入11位电话号码！', 'check': check_phone},
+            'email': {'msg': '请输入合法的email地址', 'check': check_email}
+        };
+        if (value.length == 0) {
+            $('.i-e-msg').html(op_msg[data_type]['msg']);
+            return;
+        }
+        if (op_msg[data_type]['check'](value)) {
+            $('.i-e-msg').html(op_msg[data_type]['msg']);
+            return;
+        }
+        var _ul = $obj.parent().siblings('ul');
+        var all_li = _ul.find('li');
+        var all_value = all_li.map(function (index, item) {
+            return $(item).text();
+        });
+        if (all_value.get().indexOf(value) != -1) {
+            $('.i-e-msg').html('不能重复添加！');
+            return;
+        }
+
+        _ul.append($('<li></li>').text(value));
+        $('.i-e-msg').html('添加成功！');
+    }
+
+    $(function () {
+        jQuery("#list").jqGrid({
+            url: '../webguard_handle/?a=get_words_list',
+            datatype: "json",
+            colNames: ['敏感词', '被覆盖（不生效）'],
+            colModel: [
+                {name: 'fileMark', index: '0', align: "left", width: 200, sortable: true},
+                {name: 'dirty', index: '1', align: "left", width: 50, sortable: true, formatter: dirtyFmatter}
+            ],
+            width: 748,
+            height: 550,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+
+        });
+    });
+
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        refresh: true,
+        position: 'right'
+    });
+
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    function dirtyFmatter(cellvalue, options, rowObjec) {
+        var is_dirty = cellvalue;
+        if (is_dirty) {
+            return '<span style="color:#ff0000;">是</sapn>';
+        }
+        else {
+            return '否';
+        }
+    }
+
+    function ReloadGridCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+    }
+
+    function shwoall() {
+        var newUrl = '../webguard_handle/?a=get_words_list';
+        $('#list').setGridParam({url: newUrl});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    $('#showall')
+        .button()
+        .click(function () {
+            shwoall();
+        });
+
+    function ExPortCallback(jsonstr) {
+        $('#exportPageMsg').html('');
+
+        if (jsonstr.r != 0) {
+            $('#exportPageResult').html(jsonstr.e);
+        }
+        else {
+            $('#exportPageMsg').html('导出完成，请点击文件名下载。');
+            $('#exportPageResult').html('<br><a href="' + jsonstr.url + '" target="_blank">' + jsonstr.filename + '</a><br>');
+        }
+    }
+
+    $('#exportForm')
+        .button()
+        .click(function () {
+            $('#exportPageResult').html('');
+            $('#exportPageMsg').html('<img src="/static/images/loading.gif" height="30" width="30" /> 导出中，请稍侯...');
+            myAjaxGet('../webguard_handle/?a=export_words_list', '', ExPortCallback);
+
+            $("#exportDiv").attr('title', '导出').dialog({
+                autoOpen: true,
+                height: 470,
+                width: 500,
+                modal: true,
+                buttons: {
+                    '关闭': function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                }
+            });
+        });
+
+    $('#importForm')
+        .button()
+        .click(function () {
+            $("#importFormDiv").attr('title', '导入').dialog({
+                autoOpen: true,
+                height: 250,
+                width: 450,
+                modal: true,
+                close: function () {
+                }
+            });
+        });
+
+    $('#importbutton')
+        .button()
+        .click(function () {
+            if ($('#importFile').val() == '') {
+                openErrorDialog({title: '错误', html: '请选择你要上传的文件'});
+                return;
+            }
+            var postdata = new FormData($("#importWordsForm")[0]);
+            $.ajax({
+                url: '../webguard_handle/?a=import_words_list',
+                type: 'POST',
+                cache: false,
+                data: postdata,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr, settings) {
+                    var csrftoken = $.cookie('csrftoken');
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    $('#importMsg').html('<img src="/static/images/loading.gif" height="30" width="30" /> 上传中，请稍侯...');
+                    $('#importResult').html('');
+                }
+            }).done(function (res) {
+                if (res.r == 0) {
+                    $('#importMsg').html('上传完成');
+                    shwoall();
+                    $("#importFormDiv").dialog('close');
+                    //var str = jsonObj.insertNum + '个添加成功;' + jsonObj.errNum + '个失败;';
+                    //var str = '';
+                    //$('#importUserResult').html(str);
+                }
+                else {
+                    $('#importMsg').html('上传失败');
+                    $('#importResult').html(res.e);
+                }
+            }).fail(function (res) {
+                $('#importMsg').html('上传失败');
+                $('#importResult').html('');
+            });
+        });
+
+    $('#webguardsettabs').on('tabsbeforeactivate', function (event, ui) {
+        switch (ui.newTab.index()) {
+            case 1:
+                operationlog_resize();
+                break;
+            case 2:
+                entry_div_resize();
+                break;
+			case 3:
+				ignore_resize();
+				break;
+        }
+    });
+
+    $(window).resize(function () {
+        _resize();
+    });
+
+	function ignore_resize() {
+        var width = $('#webguardsettabs').width() - 50;
+        $("#list-ignore").setGridWidth(width);
+    }
+
+    function _resize() {
+        resizeright();
+        baseresize();
+        operationlog_resize();
+		ignore_resize();
+    }
+
+    function operationlog_resize() {
+        var width = $('#webguardsettabs').width() - 50;
+        $("#list").setGridWidth(width);
+    }
+</script>
+
+
+<script type="text/javascript">
+    $(function () {
+        entryListInit();
+    });
+
+    function entry_div_resize() {
+        var width = $('#webguardsettabs').width() - 50;
+        $("#list-entry").setGridWidth(width);
+    }
+
+    function reloadGridEntries() {
+        $('#list-entry').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function updateAllMonitorsAdmins(jsdata) {
+        $('#all-content-admins').empty();
+        $('#all-monitors').empty();
+        $.each(jsdata.monitors, function (i, e) {
+            var option = $('<option></option>').val(e.value).text(e.name);
+            option.appendTo('#all-monitors');
+        });
+        $.each(jsdata.admins, function (i, e) {
+            var option = $('<option></option>').val(e.value).text(e.name);
+            option.appendTo('#all-content-admins');
+        });
+    }
+
+    function ValidURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+        return pattern.test(str);
+    }
+
+    function check_params(entry, monitors, admins) {
+        var pass_cnt = 0;
+        if (!ValidURL(entry)) {
+            $('#entry-addr-msg').show();
+        }
+        else {
+            $('#entry-addr-msg').hide();
+            pass_cnt++;
+        }
+
+        if (monitors === '') {
+            $('#added-monitors-msg').show();
+        }
+        else {
+            $('#added-monitors-msg').hide();
+            pass_cnt++;
+        }
+
+        if (admins === '') {
+            $('#added-content-admins-msg').show();
+        } else {
+            $('#added-content-admins-msg').hide();
+            pass_cnt++;
+        }
+
+        return pass_cnt === 3;
+    }
+
+    function initEntryForm() {
+        $('#entry-addr-msg').hide();
+        $('#added-monitors-msg').hide();
+        $('#added-content-admins-msg').hide();
+        $('#entry-addr').val('');
+        $('#added-monitors').empty();
+        $('#added-content-admins').empty();
+        myAjaxGet('../webguard_handle/', 'a=avail_monitors_admins', updateAllMonitorsAdmins);
+    }
+
+    // 新建入口地址
+    $('#new-entry').button().click(function () {
+        initEntryForm();
+        $("#dialog-input-entry").attr('title', '添加关联').dialog({
+            autoOpen: true,
+            height: 380,
+            width: 480,
+            modal: true,
+            buttons: {
+                '确定': function () {
+                    var entry = $('#entry-addr').val();
+                    var monitors = $('#added-monitors').children().map(function () {
+                        return $(this).val();
+                    }).get().join();
+                    var admins = $('#added-content-admins').children().map(function () {
+                        return $(this).val();
+                    }).get().join();
+
+                    if (!check_params(entry, monitors, admins)) {
+                        return false;
+                    }
+                    var params = 'a=create_entry&entry={0}&monitors-id={1}&content-admins-ids={2}'
+                        .replace('{0}', entry).replace('{1}', monitors).replace('{2}', admins);
+                    myAjaxGet('../webguard_handle/', params, reloadGridEntries);
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+            }
+        });
+    });
+
+    function entryListInit() {
+        jQuery("#list-entry").jqGrid({
+            url: '../webguard_handle/?a=query_all_entries',
+            datatype: "json",
+            colNames: ['序号', '内容更新入口', '关联监控目标', '内容管理员'],
+
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 30, sortable: true},
+                {name: 'entry', index: '1', align: "center", width: 300, sortable: true},
+                {name: 'monitors', index: '2', align: "center", width: 200, sortable: false},
+                {name: 'content-admin', index: '3', align: "center", width: 100, sortable: true}
+            ],
+            width: 748,
+            height: 550,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#pager-entry',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+    }
+
+    $('#delete-entry').button().click(function () {
+        var ids = $('#list-entry').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length < 1) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return null;
+        }
+        var params = 'a=delete_entries&id=' + ids.join(',');
+        myAjaxGet('../webguard_handle/', params, reloadGridEntries);
+    });
+
+    $('.rm-list-elem').click(function () {
+        var selector = '#' + $(this).val(); // 已添加的列表 ---> 候选列表
+        if (selector === '#added-content-admins') {
+            $(selector).find('option:selected').appendTo('#all-content-admins');
+        }
+        if (selector === '#added-monitors') {
+            $(selector).find('option:selected').appendTo('#all-monitors');
+        }
+    });
+
+    // 添加到list: 监控目标, 内容管理员
+    $('.add-to-list').click(function () {
+        var selector = '#' + $(this).val(); // 候选列表 ---> 已添加的列表
+        $(selector).dialog({
+            autoOpen: true,
+            height: 180,
+            width: 'auto',
+            modal: true,
+            title: '请选择',
+            buttons: {
+                '添加': function () {
+                    if (selector === '#all-monitors') {
+                        $(selector).find('option:selected').appendTo('#added-monitors'); // 移动到
+                    }
+                    if (selector === '#all-content-admins') {
+                        $(selector).find('option:selected').appendTo('#added-content-admins') // 移动到
+                    }
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+$(function () {
+        jQuery("#list-ignore").jqGrid({
+            url: '../webguard_handle/?a=get_ignore_list',
+            datatype: "json",
+            colNames: ['URL', '正则表达式','ignore_url_id','ignore_area_id'],
+            colModel: [
+                {name: 'ignore_url', index: '0', align: "left", width: 100, sortable: true},
+                {name: 'ignore_re', index: '1', align: "left", width: 200, sortable: true},
+				{name: 'ignore_url_id', index: '2', align: "left", width: 200, hidden:true,sortable: false},
+				{name: 'ignore_area_id', index: '3', align: "left", width: 200, hidden:true,sortable: false}
+            ],
+            width: 748,
+            height: 550,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#pager-ignore',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+
+        });
+    });
+
+    jQuery("#list-ignore").jqGrid('navGrid', '#pager-ignore', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        refresh: true,
+        position: 'right'
+    });
+
+    $("#list-ignore").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+	function reloadGridIgnore(jsonstr) {
+		if (jsonstr.r != 0) {
+			openErrorDialog({title: '错误', html: jsonstr.e});
+			return;
+        }
+        $('#list-ignore').trigger("reloadGrid", [{page: 1}]);
+    }
+
+	$('#add-ignore').button()
+	.click(function () {
+		$("#AddIgnoreFormDiv").attr('title', '增加').dialog({
+			autoOpen: true,
+			height: 530,
+			width: 1050,
+			modal: true,
+			buttons: {
+                '确定': function () {
+					var url = encodeURIComponent($('#input_ignore_url').val());
+					var ignore = encodeURIComponent($('#input_ignore_re').val());
+					myAjaxGet('../webguard_handle/', 'a=add_ignore_area&url='+url+'&ignore='+ignore, reloadGridIgnore);
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+			close: function () {
+			}
+		});
+	});
+
+	$('#delete-ignore').button()
+	.click(function () {
+		var ids = $('#list-ignore').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length < 1) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return null;
+        }
+		openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要删除选定的数据吗?',
+		onBeforeOK:function(){
+			var params = 'a=delete_ingore&ids=' + ids.join(',');
+			myAjaxGet('../webguard_handle/', params, reloadGridIgnore);
+			$(this).dialog('close');
+			}
+		});
+        
+	});
+
+	function test_re_callback(jsonobj)
+	{
+		if (jsonobj.r != 0) {
+			openErrorDialog({title: '错误', html: jsonobj.e});
+			return;
+        }
+		$('#test_result_txt').html(jQuery('<div />').text(jsonobj.content).html());
+	}
+
+	$('#button_test_re').button()
+	.click(function () {
+		$('#test_result_txt').html('');
+		var content = encodeURIComponent($('#input_re_content').val());
+		var re = encodeURIComponent($('#input_test_re').val());
+		var params = 'a=re_test&content=' + content + '&re='+re;
+		myAjaxPost('../webguard_handle/', params, test_re_callback);
+	});
+
+</script>

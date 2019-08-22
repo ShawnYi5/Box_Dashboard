@@ -1,0 +1,499 @@
+<style>
+    li {
+        list-style-type: none;
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+    }
+
+    #new_dialog_content input {
+        width: 180px;
+    }
+    #list td p{
+        white-space: normal;
+        word-break: break-all;
+    }
+	.mytable {margin:20px 0 0 20px;width:720px;} 
+	.mytable ul {width:700px;list-style:none} 
+	.mytable li {border-left:1px solid #ccc;border-top:1px solid #ccc;float:left;width:348px;text-align:center;line-height:33px;} 
+	.mytable li.b {border-bottom:1px solid #ccc} 
+	.mytable li.r {border-right:1px solid #ccc} 
+	.mytable li.h {height:540px; overflow-y:auto;} 
+</style> 
+
+<div class="right">
+    <div>
+        <div class="ui-widget">
+            <div class="table_menu">
+                <div class="menu_btn" id="search">查询</div>
+				<div class="menu_btn" id="exportForm">导出</div>
+                <div class="menu_btn" id="show_all">显示所有</div>
+                <div class="menu_btn" id="delete" style="display: none">删除</div>
+            </div>
+        </div>
+        <div class="ui-widget">
+            <table id="list"></table>
+            <div id="pager"></div>
+        </div>
+    </div>
+</div>
+
+<div id="new_dialog_content" title="查询" style="display: none">
+    <div class="content">
+        <table style="width: 80%;margin: auto" cellpadding="5">
+            <tr style="display: none">
+                <td><label for="">事件描述</label></td>
+                <td><input type="text" id="event_name"></td>
+            </tr>
+            <tr>
+                <td><label for="">组别</label></td>
+                <td>
+                    <select name="group_list" id="group_list">
+                        <option value="0" selected="selected">--请选择--</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="">开始时间</label></td>
+                <td><input readonly name="stime" type="text" class="textTime Wdate" id="stime"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00',maxDate:'#F{$dp.$D(\'etime\')}'})"
+                           style="width: 180px"/>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="">结束时间</label></td>
+                <td><input readonly name="etime" type="text" class="textTime Wdate" id="etime"
+                           onfocus="WdatePicker({dateFmt:'yyyy-MM-dd 23:59:59',minDate:'#F{$dp.$D(\'stime\')}'})"
+                           style="width: 180px"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="item_list" style="display: none" title="选则关联客户端/策略">
+    <div class="item_list_content">
+        <ul style="padding-left: 0">
+        </ul>
+    </div>
+    <div style="text-align: center;z-index: 1000;display: none;margin-top: 120px" class="my_waite">
+        <p style="display: inline-block;padding: 0 10px 0 0" class="ui-state-highlight ui-corner-all">
+            <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+            <strong>请稍候</strong>
+            <span id="waite_msg"></span>
+        </p>
+    </div>
+</div>
+
+<div id="dialog_detail_image" title="详细" style="display: none">
+	<div class="mytable">
+		<ul>
+		<li>基准点</li>
+		<li class="r">当前</li>
+		<li class="b h"><div id="basediv" style="margin-top:10px"></div></li>
+		<li class="b r h"><div id="currentdiv" style="margin-top:10px"></div></li>
+	</div>
+</div>
+
+<div id="dialog_detail_txt" title="详细" style="display: none">
+	<div id="mergely-resizer" style="height: 600px;">
+		<div id="compare"></div>
+	</div>
+</div>
+
+<div id="dialog_detail_image_txt" title="详细" style="display: none">
+	<div style="margin-top:15px;margin-left:20px;">请选择查看方式：</div>
+	<div style="margin-top:10px;margin-left:20px;">
+		<input type="radio" name="view-model" value="1" checked="checked"><span>查看网页截屏</span>
+	</div>
+	<div style="margin-top:10px;margin-left:20px;">
+		<input type="radio" name="view-model" value="2"><span>对比网页源文件</span>
+	</div>
+</div>
+
+<div id="exportDiv" style="display:none" class="exportFormRemove">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td height="30" colspan="2">
+				共 <span id="exportPageRecords"></span> 条记录，每页 <span id="exportPageLimit"></span> 条，共 <span id="exportPageNum"></span> 页
+			</td>
+		</tr>
+		<tr>
+			<td width="85%" height="30">
+				请输入您要导出的页数范围：<input name="exportPageStart" id="exportPageStart" type="number" style="width:90px" min="1"/> - <input name="exportPageEnd" id="exportPageEnd" type="number" style="width:90px" min="1"/>
+			</td>
+			<td width="15%"><input type="button" id="exportPageSumbit" value="导出" /></td>
+		</tr>
+		<tr>
+			<td height="30">
+			</td>
+			<td width="15%">
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"><div id="exportPageMsg" style="color:#FF0000"></div></td>
+		</tr>
+		<tr>
+			<td colspan="2"><div id="exportPageResult" style="height:170px;overflow:auto"></div></td>
+		</tr>
+	</table>
+</div>
+
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script type="text/javascript" src="/static/js/mergely/codemirror.min.js"></script>
+<script type="text/javascript" src="/static/js/mergely/mergely.min.js"></script>
+<link rel="stylesheet" media="screen" type="text/css" href="/static/js/mergely/codemirror.css"/>
+<link rel="stylesheet" media="screen" type="text/css" href="/static/js/mergely/mergely.css"/>
+
+<script>
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">应急事件日志</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#webemergency" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        _crete_table();
+        $('#tabs').tabs();
+        $(".ui-tabs-nav").hide();
+        _resize();
+        _init_group_select_wedget();
+		$('#compare').mergely({
+			width: '1180',
+			height: '630', // containing div must be given a height
+			cmsettings: { readOnly: true }
+		});
+    })
+
+    $(window).resize(function () {
+        _resize();
+    });
+
+    function _resize() {
+        resizeright();
+        var width = $('.table_menu').width();
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+    function _crete_table() {
+        $("#list").jqGrid({
+            url: get_url(),
+            datatype: "json",
+            colNames: ['序号', '时间', '风险状态','检测项目', '事件描述', '监控目标', '组别','操作'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 30, sortable: true ,hidden:true},
+                {name: 'time', index: '1', align: "center", width: 160, sortable: true},
+                {name: 'status', index: '2', align: "center", width: 130, sortable: true},
+				{name: 'tamper-type', index: '3', align: "center", width: 130, sortable: false},
+                {name: 'description', index: '4', align: "left", width: 280, sortable: false},
+                {name: 'strategy', index: '5', align: "center", width: 250, sortable: false},
+                {name: 'group', index: '6', align: "center", width: 135, sortable: true},
+				{name: 'detail', index: '7', align: "center", width: 50, sortable: false,formatter:detailFmatter}
+            ],
+            height: 600,
+            rowNum:300,
+		    rowList:[100,200,300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+    }
+
+    $("#list .ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+    $('#list td').css('white-space', 'normal');
+
+	function showImage(json_obj)
+	{
+		if(json_obj.img_base)
+		{
+			$('#basediv').html('<a href="'+json_obj.img_base+'" target="_blank"><img src="'+json_obj.img_base+'" style="max-width:300px;"/></a>');
+		}
+		else
+		{
+			$('#basediv').html('无');
+		}
+		if(json_obj.img_current)
+		{
+			$('#currentdiv').html('<a href="'+json_obj.img_current+'" target="_blank"><img src="'+json_obj.img_current+'" style="max-width:300px;"/></a>');
+		}
+		else
+		{
+			$('#currentdiv').html('无');
+		}
+		$("#dialog_detail_image").dialog({
+			autoOpen: true,
+			height: 690,
+			width: 770,
+			modal: true,
+			title: '详细',
+			close: function(){
+			}
+		});
+	}
+
+	function showTxt(json_obj)
+	{
+		$('#compare').mergely('lhs', json_obj.lhs);
+		$('#compare').mergely('rhs', json_obj.rhs);
+
+		$("#dialog_detail_txt").dialog({
+			autoOpen: true,
+			height: 690,
+			width: 1200,
+			modal: true,
+			title: '详细',
+			close: function(){
+			}
+		});
+	}
+
+	function showTxtImage(json_obj)
+	{
+		var view_model = $('input[name="view-model"]:checked').val();
+		$("#dialog_detail_image_txt").attr('title', '详细').dialog({
+			autoOpen: true,
+			height: 230,
+			width: 350,
+			modal: true,
+			buttons: {
+                '确定': function () {
+					$(this).dialog('close');
+					var view_model = $('input[name="view-model"]:checked').val();
+					if(view_model == "1")
+					{
+						showImage(json_obj);
+					}
+					else
+					{
+						showTxt(json_obj);
+					}
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+			close: function () {
+			}
+		});
+		
+	}
+
+	function ShowDetail(json_obj)
+	{
+		if(json_obj.r!=0)
+		{
+			openErrorDialog({title:'错误',html:json_obj.e});
+			return;
+		}
+		if( json_obj.type == 'image' )
+		{
+			showImage(json_obj);
+			return;
+		}
+		else if( json_obj.type == 'txt' )
+		{
+			showTxt(json_obj);
+			return;
+		}
+		else if( json_obj.type == 'txt_image' )
+		{
+			showTxtImage(json_obj);	
+			return;
+		}
+		else
+		{
+			openErrorDialog({title:'错误',html:'暂不支持查看'});
+		}
+	}
+
+	function getDetail(id)
+	{
+		$('#basediv').html('无');
+		$('#currentdiv').html('无');
+		myAjaxPost('../webguard_handle/?a=get_log_detail', 'id='+id, ShowDetail);
+	}
+
+	function detailFmatter(cellvalue, options, rowObjec)
+	{
+		var id = rowObjec[0];
+		var status = rowObjec[2];
+		var tamper_type = rowObjec[3];
+		if(status=='风险已移除' || tamper_type == '敏感词')
+		{
+			return '--';
+		}
+
+		return '<span style="color:#000088;cursor:pointer;" onclick="getDetail('+id+')">详细</sapn>';
+	}
+
+    function _init_group_select_wedget() {
+        myAjaxPost('../webguard_handle/?a=get_strategy_available_groups', '', init_select_call_back);
+    }
+
+    function init_select_call_back(js_str) {
+        $('#group_list option:gt(0)').remove();
+        $.each(js_str.groups, function () {
+            var o = $('<option></option>').val(this).text(this);
+            $('#group_list').append(o);
+        })
+    }
+
+    $('.menu_btn').button().click(function () {
+        switch ($(this).attr('id')) {
+            case 'search':
+                return search_item();
+            case 'show_all':
+                return show_all();
+            case 'delete':
+                return delete_item();
+
+        }
+    });
+
+    function open_dialog(id, options) {
+        var o = {
+            autoOpen: true,
+            width: 400,
+            modal: true
+        };
+        if (typeof options == 'object') {
+            $.extend(o, options);
+        }
+        $('#' + id).dialog(o);
+    }
+
+    function search_item() {
+        var op = {
+            buttons: [
+                {
+                    text: '查询',
+                    click: function () {
+                        st_search();
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        }
+        open_dialog('new_dialog_content', op);
+    }
+
+    function show_all() {
+        var newUrl = '../webguard_handle/?a=get_em_events';
+        init_filter();
+        $('#list').setGridParam({url: newUrl});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function init_filter() {
+        $("#new_dialog_content input").val('');
+        $("#new_dialog_content select").val('0');
+    }
+
+    function st_search() {
+        var newUrl = '../webguard_handle/?a=get_em_events' + get_filter();
+
+        $('#list').setGridParam({url: newUrl});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function get_filter() {
+        var parms = '&search_key=';
+        var data = {};
+        data.event_name = encodeURIComponent($('#event_name').val());
+		var group = $('#group_list').val();
+		if(group!=0)
+		{
+			data.group = $('#group_list').val();
+		}
+		var st_time = $('#stime').val();
+		if(st_time)
+		{
+			data.st_time = st_time;
+		}
+		var ed_time = $('#etime').val();
+		if(ed_time)
+		{
+			data.ed_time = ed_time;
+		}
+        return parms + JSON.stringify(data);
+    }
+
+    function delete_item() {
+        debugger;
+    }
+
+    // 从 cookies 中读取值，并删除。
+    function get_url() {
+        var url = '../webguard_handle/?a=get_em_events';
+        var cookie_val = $.cookie('parms');
+        if (cookie_val) {
+            url = url + '&' + cookie_val;
+            $.cookie('parms', null, { path: '/' });
+        }
+        return url;
+    }
+
+function ExPortCallback(jsonstr)
+{
+	$('#exportPageSumbit').prop('disabled',false);
+	$('#exportPageMsg').html('');
+	if(jsonstr.r!=0)
+	{
+		$('#exportPageResult').html(jsonstr.e);
+	}
+	else
+	{
+		$('#exportPageMsg').html('导出完成，请点击文件名下载。');
+		$('#exportPageResult').html('<br><a href="'+jsonstr.url+'" target="_blank">'+jsonstr.filename+'</a><br>');
+	}
+}
+
+$('#exportPageSumbit')
+.button()
+.click(function() {
+	$('#exportPageSumbit').prop('disabled',true);
+    if(!CheckerInputRange($('#exportPageStart').val(), $('#exportPageEnd').val(), $('#exportPageNum').html())){
+        $('#exportPageSumbit').prop('disabled',false);
+        return false;
+    }
+
+	$('#exportPageMsg').html('<img src="/static/images/loading.gif" height="30" width="30" /> 导出中，请稍侯...');
+	var filter='a=exportLog&rows='+$('#exportPageLimit').html()+'&startpage='+$('#exportPageStart').val()+'&endpage='+$('#exportPageEnd').val();
+	myAjaxGet('../webguard_handle/',filter+get_filter(),ExPortCallback);
+});
+
+$('#exportForm')
+.button()
+.click(function() {
+	var list = $('#list');
+	var records = list.getGridParam('records');
+	var limit = list.getGridParam('rowNum');
+	var num = Math.ceil(records/limit);
+	
+	$('#exportPageRecords').html(records);
+	$('#exportPageLimit').html(limit);
+	$('#exportPageNum').html(num);
+	$('#exportPageMsg').html('');
+	$('#exportPageResult').html('');
+
+	$("#exportDiv").attr('title','导出').dialog({
+		autoOpen: true,
+		height: 470,
+		width: 500,
+		modal: true,
+		buttons: {			
+			'关闭': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+});
+
+</script>

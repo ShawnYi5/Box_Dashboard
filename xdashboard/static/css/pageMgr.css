@@ -1,0 +1,164 @@
+@charset "utf-8";
+/* CSS Document*/
+.pageMgr_menu{
+	width:750px; 
+	height:41px; 
+	background:url(../images/table_menu.gif) repeat-x; 
+	margin: 0px 0px 0px 0px; 
+	padding:0px 0px 0px 0px; 
+	border:0px; 
+}
+.pageMgr_btn_add{
+	margin-top:14px;
+	margin-left:40px;
+	float:left;
+	cursor:pointer;
+}
+.pageMgr_btn_del{
+	margin-top:14px;
+	margin-left:40px;
+	float:left;
+	cursor:pointer;	
+}
+.pageMgr_btn_help{
+	margin-top:14px;
+	margin-right:40px;
+	float:right;
+	cursor:pointer;	
+}
+.pageMgr_action{
+	margin-top:10px;
+	margin-bottom:10px;
+}
+.pageMgr_search{
+	margin-top:10px;
+	margin-left:40px;
+	float:left;
+}
+.pageMgr_text{
+	margin-top:5px;
+	float:left;
+	width:180px;
+}
+.pageMgr_btn{
+	margin-top:10px;
+	float:left;
+}
+
+.rates_content{
+	margin-top:10px;
+}
+.rates_select{
+	margin-top:5px;
+	margin-left:40px;
+	float:left;
+	width:180px;
+}
+.rates_list{
+	width:200px;
+}
+.rates_td{
+	height:25px;
+}
+
+#pageMgr_add_div {
+	background:#333;
+}
+
+#pageMgr_add_div td{
+	text-align:center
+}
+
+#pageMgr_add_div input{
+	width:100px;
+}
+
+.tstart{
+	width:194px;
+}
+.tend{
+	width:194px;
+}
+
+#syslog_search{
+	width:350px;
+	background:#333;
+	display:none;
+}
+
+#syslog_search td{
+	height:30px;
+}
+
+#btnDetermine{
+	width:50px;
+}
+
+#tasklog_search{
+	width:350px;
+	background:#333;
+	display:none;
+}
+#tasklog_search td{
+	height:30px;
+}
+
+#printer_form{
+	background:#333;
+	display:none;
+}
+
+#printer_add table{
+	width:750px;
+}
+
+.printerListBox{
+	width:250px;
+	height:100px;
+}
+.printer_td_0{
+	height: 20px;
+}
+#printer_default_title{
+	margin-top:10px;
+	cursor:pointer;
+}
+#printer_default_content{
+	display:none;
+}
+#printer_default_content td{
+	height:25px;
+}
+#printer_append_title{
+	color:#00F;
+	cursor:pointer;
+}
+#printer_append{
+	display:none;
+	margin-bottom:5px;
+}
+#printer_list_pageszie{
+	height:20px;
+}
+#log_view{
+	display:none;
+}
+#printer_list{
+	margin-top:10px;
+}
+.wbPrice{
+
+}
+
+#dialog-form div{
+	padding-bottom:6px;
+}
+
+.homePrinter{
+	margin-left:100px;
+	height:20px;
+}
+.noInput{
+	border:none;
+	background:#FFF;
+}

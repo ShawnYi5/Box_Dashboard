@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/static/images/favicon.ico" />
+<title>{{title}}</title>
+<link href="/static/css/login.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="/static/js/noReload.js"></script>
+<script language="javascript" src="/static/js/main.js"></script>
+<script language="javascript" src="/static/js/comm.js"></script>
+<script language="javascript" src="/static/js/comm2.js"></script>
+<script language="javascript" src="/static/js/base64.js"></script>
+</head>
+<style type="text/css">
+.login input {background-color:transparent;border: 0;outline:0px;}
+.login input:focus {background-color:transparent;border: 0;outline:0px;}
+</style>
+<body style="background-color:#e1e1e1;">
+
+<div id="login_div" style="min-width:1416px;width:100%">
+
+<div id="login1_div" style="float:left;height:720px;background-image:url('/static/images/login/bg_1.jpg'">
+</div>
+
+<div class="login" style="float:left;margin-left: 0px;width:1140px;height:720px;background-image:url('/static/images/login/bg_2.jpg');position:relative">
+	<div style="position:absolute;top:307px;left:845px;font-size:14px;background-color:transparent;border: 0;" id="umask">用户名</div>
+	<div style="position:absolute;top:373px;left:845px;font-size:14px;background-color:transparent;border: 0;" id="pmask">密码</div>
+	<div style="position:absolute;top:298px;left:845px;">
+		<input id="username" name="username" type="text" maxlength="40px" autocomplete="off" style="width:220px;height:34px;line-height:34px;vertical-align:middle;" />
+	</div>
+	<div style="position:absolute;top:364px;left:845px;">
+		<input id="password" name="password" type="password" maxlength="40px" autocomplete="new-password" style="width:220px;height:34px;line-height:34px;vertical-align:middle;" />
+	</div>
+	<div id="getTokenDom" style="position:absolute;top:430px;left:800px;width:262px;height:39px;cursor:pointer;background:url(/static/images/login/desktop_nomal.png);"></div>
+	<div id="loginmsg" style="position:absolute;top:485px;left:880px;width: 220px;text-align:right;"></div>
+	<div style="position:absolute;top:485px;left:780px;"><span id="retsetpwd" style="color:#9E9E9E;cursor:pointer;">忘记密码</span></div>
+	<div style="position:absolute;top:485px;left:840px;" id="browserdiv">
+		<a href="/static/download/tools.zip" style="color:#9E9E9E;text-decoration:none;display:none;" target="_blank" id="toolurl">第三方工具</a>
+		<a href="/static/download/user_update_tools.zip" style="color:#9E9E9E;text-decoration:none;display:none;" target="_blank" id="toolurl2">驱动工具</a>
+		<a href="/static/download/browser.zip" style="color:#9E9E9E;display:none;" target="_blank" id="browerurl"><span id="lowbr">浏览器版本过低，请下载安装新的版本</span></a>
+	</div>
+    <div style="position:absolute;top:200px;left:770px;">
+        <span id="isEvaluation" style="display: none">{{ is_evaluation }}</span>
+        <span id="isExpiration" style="display: none">{{ is_expiration }}</span>
+		<span id="expir_date" style="display: none">{{ expir_date }}</span>
+		<span id="is_evaluation" style="color:#FFFFFF;"></span>
+	</div>
+</div>
+
+<div id="login3_div" style="float:left;margin-left: 0px;height:720px;background-image:url('/static/images/login/bg_1.jpg'">
+</div>
+
+</div>
+
+<div id="setEmailFormDiv" title="设置邮箱地址" class="ajaxForm">
+	<div style="margin-top:10px;margin-left:20px;">请输入用户名（邮箱地址），接收重设密码的链接</div>
+	<div style="margin-top:10px;margin-left:20px;">超级管理员请直接输入账号</div>
+	<div style="margin-top:15px;margin-left:20px;">邮箱地址：<input type="text" name="email" id="email" style="width:220px;"/></div>
+</div>
+
+<div id="resetpwdFormDiv" title="设置密码" class="ajaxForm">
+	<div style="margin-top:20px;margin-left:20px;" id="loginpwdpolicy"></div>
+	<div style="margin-top:10px;margin-left:20px;">
+		<b>新密码</b><input type="password" name="NPass" id="NPass" class="text ui-widget-content ui-corner-all" />
+	</div>
+	<div style="margin-top:10px;margin-left:20px;">
+		<b>重复新密码</b><input type="password" name="NPass2" id="NPass2" class="text ui-widget-content ui-corner-all" />
+	</div>
+	<div class="validateTips" style="margin-top:10px;margin-left:20px;"></div>
+</div>
+
+
+<form method="post" name="loginForm" id="loginForm"></form>
+<script>
+// 登录之前: 处理试用版本情况
+$(function () {
+    var isEvaluation = $('#isEvaluation').text();
+    var isExpiration = $('#isExpiration').text();
+	var expir_date = $('#expir_date').text();
+    var msgEvaluation = $('#is_evaluation');
+
+    if(isEvaluation === 'yes'){
+        msgEvaluation.text('试用版本，到期时间：'+expir_date);
+    }
+    else {
+        msgEvaluation.text('')
+    }
+
+    if((isEvaluation === 'yes') && (isExpiration === 'yes')){
+        openErrorDialog({title:'试用版本', html:'试用期已结束，为了您的数据安全，请联系管理员'});
+    }
+});
+
+$('#password')
+.keypress(function(event){
+	if(detectCapsLock(event))
+	{
+		$('#loginmsg').html('<font color="#ff0000">大写锁定键被按下，请注意大小写</font>');
+	}
+	else
+	{
+		$('#loginmsg').html('');
+	}
+});
+
+function click_reset_pwd_btn()
+{
+	$.each($("#resetpwdFormDiv").parent().find('button'),function(i,e){
+			var btn = $(e).find('.ui-button-text');
+			if(btn.html() == '确定')
+			{
+				btn.click();
+			}
+		});
+}
+
+
+$('#NPass').keypress(function(event){
+	if(event.key == "Enter"){
+		click_reset_pwd_btn();
+	}
+});
+
+$('#NPass2').keypress(function(event){
+	if(event.key == "Enter"){
+		click_reset_pwd_btn();
+	}
+});
+
+var flag=true;
+$(function(){
+	document.onkeydown = function(e){
+		if ($('#resetpwdFormDiv').is(':visible'))
+		{
+			return true;
+		}
+		var ev = document.all ? window.event : e; 
+		if(ev.keyCode==13) {// 如（ev.ctrlKey && ev.keyCode==13）为ctrl+Center 触发  
+		    if($('#getTokenDom').click() == flag){return true}else{return false}
+		} 
+		else if(event.ctrlKey && event.altKey && ev.keyCode == 80)
+		{
+			//Ctrl+Alt+p
+			$('#toolurl').show();
+			$('#toolurl2').show();
+		}
+	} 
+});
+
+var is_superuser=0;
+var home = 'home';
+function loginchangePwdCallback(jsonObj)
+{
+	if(jsonObj.r!=0)
+	{
+		$('.validateTips').html('<font color="#ff0000">'+jsonObj.e+'</font>');
+		return;
+	}
+	$('#resetpwdFormDiv').dialog('close');
+	if(is_superuser==1)
+	{
+		location.href='../admin/';
+	}
+	else
+	{
+		location.href='../' + home + '/';
+	}
+}
+
+function getTokenCallback(jsonObj)
+{
+	if(jsonObj.r!=0)
+	{
+		$('#browserdiv').hide();
+		$('#loginmsg').html('<font color="#ff0000">'+jsonObj.e+'</font>');
+	}
+	else
+	{
+		if(jsonObj.binitpwd==1 || jsonObj.bexpirepwd==1)
+		{
+			if(jsonObj.binitpwd==1)
+			{
+				$('.validateTips').html('请更改初始密码');
+			}
+			else if(jsonObj.bexpirepwd==1)
+			{
+				$('.validateTips').html('密码已过期，请更改密码。当前密码周期为'+jsonObj.pwdcycle+'天');
+			}
+			switch(jsonObj.policy)
+			{
+				case '1':
+					$('#loginpwdpolicy').html('密码强必须包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等），且密码长度为10-32个字符');
+					break;
+				case '2':
+					$('#loginpwdpolicy').html('密码中至少包括英文大写字母（A到Z），英文小写字母（a到z），10 个基本数字（0到9）和非字母字符（如：~!@#等）中的三种，且密码长度为10-32个字符');
+					break;
+				case '3':
+					$('#loginpwdpolicy').html('密码字符类型不限定，密码长度为1-32个字符');
+					break;
+			}
+			$("#resetpwdFormDiv").attr('title','设置密码').dialog({
+				autoOpen: true,
+				height: 270,
+				width: 400,
+				modal: true,
+				buttons: {
+					'确定': function(){
+						var NPass=$('#NPass').val();
+						var NPass2=$('#NPass2').val();
+						var policy = $('#policy').val();
+						if(NPass=='')
+						{
+							openErrorDialog({title:'错误',html:'新密码不能为空。'});
+							return;
+						}
+						if(NPass!=NPass2)
+						{
+							openErrorDialog({title:'错误',html:'两次密码不相同，请重新输入。'});
+							return;
+						}
+						var policy = jsonObj.policy;
+						if( policy == '1')
+						{
+							var re=/^\s*\S{10,32}\s*$/;
+							if(!re.test(NPass))
+							{
+								openErrorDialog({title:'错误',html:'密码长度不符合要求。'});
+								return;
+							}
+
+							re=/[A-Z]+/;
+							if(!re.test(NPass))
+							{
+								openErrorDialog({title:'错误',html:'密码中应包含A-Z'});
+								return;
+							}
+
+							re=/[a-z]+/;
+							if(!re.test(NPass))
+							{
+								openErrorDialog({title:'错误',html:'密码中应包含a-z'});
+								return;
+							}
+
+							re=/[0-9]+/;
+							if(!re.test(NPass))
+							{
+								openErrorDialog({title:'错误',html:'密码中应包含0-9'});
+								return;
+							}
+
+							re=/[~!@#\'\"\/\\,.<>`%\$\(\)\*\+\.\[\]\?\\\^\{\}\|]+/;
+							if(!re.test(NPass))
+							{
+								openErrorDialog({title:'错误',html:'密码中应包含特殊字符。'});
+								return;
+							}
+						}
+						else if( policy == '2')
+						{
+							var re=/^\s*\S{10,32}\s*$/;
+							if(!re.test(NPass))
+							{
+								openErrorDialog({title:'错误',html:'密码长度不符合要求。'});
+								return;
+							}
+							var n=0;
+							re=/[A-Z]+/;
+							if(re.test(NPass))
+							{
+								n++;
+							}
+							re=/[a-z]+/;
+							if(re.test(NPass))
+							{
+								n++;
+							}
+
+							re=/[0-9]+/;
+							if(re.test(NPass))
+							{
+								n++;
+							}
+
+							re=/[~!@#\'\"\/\\,.<>`%\$\(\)\*\+\.\[\]\?\\\^\{\}\|]+/;
+							if(re.test(NPass))
+							{
+								n++;
+							}
+
+							if (n<3)
+							{
+								openErrorDialog({title:'错误',html:'密码必须包含3种字符。'});
+								return;
+							}
+						}
+						else if( policy == '3')
+						{
+							var re=/^\s*\S{1,32}\s*$/;
+							if(!re.test(NPass))
+							{
+								openErrorDialog({title:'错误',html:'密码不符合要求。'});
+								return;
+							}
+						}
+						is_superuser=jsonObj.is_superuser;
+						home = jsonObj.home;
+                        var newpass = new Base64().encode(NPass);
+                        newpass = encodeURIComponent(newpass)
+						var params='a=changepwdex';
+						params+="&newpwd="+newpass;
+						myAjaxPost('../user_handle/',params,loginchangePwdCallback);
+					},
+					'取消': function(){
+						$(this).dialog('close');
+					}
+				},
+				close: function(){
+				}
+			});
+		}
+		else if(jsonObj.is_superuser==1)
+		{
+			location.href='../admin/';
+		}
+		else
+		{
+			location.href='../' + jsonObj.home + '/';
+		}
+	}
+}
+
+$("#getTokenDom").mouseover(function(){
+	$(this).css("background-image","url(/static/images/login/desktop_up.png)");
+});
+
+$("#getTokenDom").mousedown(function(){
+	$(this).css("background-image","url(/static/images/login/desktop_down.png)");
+});
+
+$("#getTokenDom").mouseleave(function(){
+	$(this).css("background-image","url(/static/images/login/desktop_nomal.png)");
+});
+
+$('#getTokenDom')
+.click(function() {
+
+	var autologin=$("#autologin").prop('checked');
+	var savecookie=1;
+	if(autologin)
+	{
+		savecookie=2;	
+	}
+    var pass = new Base64().encode($('#password').val());
+	var params="a=login&u="+encodeURIComponent($('#username').val())+"&p="+encodeURIComponent(pass)+"&savecookie="+savecookie;
+	myAjaxPost('../login/',params,getTokenCallback);
+});
+
+$("#username").keyup(function(){
+	if($(this).val())
+	{
+		$('#umask').hide();
+	}
+	else
+	{
+		$('#umask').show();
+	}
+});
+
+$("#password").keyup(function(){
+	if($(this).val())
+	{
+		$('#pmask').hide();
+	}
+	else
+	{
+		$('#pmask').show();
+	}
+});
+
+function forgetCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	openSuccessDialog({title:'成功',html:'重设密码的邮件已成功发送，请12小时内重设密码。'});
+}
+
+$('#retsetpwd').click(function(){
+	$("#setEmailFormDiv").attr('title','邮箱地址').dialog({
+		autoOpen: true,
+		height: 240,
+		width: 400,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var params="a=forget&email="+$("#email").val();;
+				myAjaxPost('../forget_handle/',params,forgetCallback);
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+		},
+		close: function(){
+		}
+	});
+});
+
+$(function() {
+	$.cookie('left_menu_status', null, {path: '/'});
+	$('#username').focus();
+	if(!CheckBrowserVer())
+	{
+		$('#lowbr').html('浏览器版本过低，请下载新的版本')
+		$('#browerurl').show();
+	}
+	else if(!window.FileReader)
+	{
+		$('#lowbr').html('浏览器不支持Html5，请下载新的版本')
+		$('#browerurl').show();
+	}
+	setTimeout(function(){
+		if($('#username').val())
+		{
+			$('#umask').hide();
+		}
+		if($('#password').val())
+		{
+			$('#pmask').hide();
+		}
+	},1000);
+	login_resize();
+});
+
+function login_resize()
+{
+	var login_width = $('#login_div').width();
+	var login_fix_div = (login_width-1140)/2;
+	$('#login1_div').width(login_fix_div);
+	$('#login3_div').width(login_fix_div);
+}
+
+$(window).resize(function () {
+	login_resize();
+});
+
+</script>
+</body>
+</html>

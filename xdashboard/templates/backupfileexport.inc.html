@@ -1,0 +1,613 @@
+<style type="text/css">
+    .btn_nav {
+        float: right;
+        margin-top: 10px;
+    }
+
+    .prev, .next {
+        width: 100px;
+        height: 32px;
+        line-height: 32px;
+        background: url(btn_bg.gif) repeat-x bottom;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+    }
+
+    .myhiden {
+        width: 100px;
+        height: 32px;
+    }
+
+    .myoneday {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+        float: left
+    }
+
+    .myonedayselected {
+        background-color: #8ccad5
+    }
+
+    .aciTree div {
+        padding: 0em;
+    }
+
+    .manage-item, .manage-item-4cdp {
+        margin-top: 8px;
+    }
+
+    .manage {
+        margin-bottom: 16px;
+        margin-left: 16px
+    }
+
+    .pull-down-control {
+        cursor: pointer;
+    }
+
+    div.centent {
+        float: left;
+        text-align: center;
+    }
+
+    span.moveBt {
+        display: block;
+        margin: 10px;
+        padding: 4px 10px;
+        background: #898989;
+        cursor: pointer;
+        font-size: 12px;
+        color: white;
+    }
+
+    .selectCls {
+        width: 100px;
+        height: 122px;
+    }
+
+    .client_search {
+        border: 2px solid #dce4ec;
+        color: #34495e;
+        font-family: "Lato", sans-serif;
+        font-size: 14px;
+        padding: 3px 0 3px 10px;
+        width: 200px;
+        background: #fff url(/static/images/icon_search_1649.gif) no-repeat right;
+    }
+
+    .src_host_tip_class {
+        max-width: 800px;
+    }
+</style>
+
+<head>
+    <script type="text/javascript" src="/static/js/jquery.json.js"></script>
+</head>
+
+<div id="host-detail-template" class="ajaxForm">
+    <div>
+        <br/>客户端详细描述<br/>
+        <table width="100%" cellpadding="0" cellspacing="1" class="normal_table_info border_table">
+            <tr height="25">
+                <td width="30%" align="left">客户端名称</td>
+                <td width="70%">
+                    <div class="show_servername host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">计算机名</td>
+                <td align="left">
+                    <div class="show_pcname host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">IP地址</td>
+                <td align="left">
+                    <div class="show_ip host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">MAC地址</td>
+                <td align="left">
+                    <div class="show_mac host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">操作系统</td>
+                <td align="left">
+                    <div class="show_os host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">Build Num</td>
+                <td align="left">
+                    <div class="show_buildnum host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">磁盘数量</td>
+                <td align="left">
+                    <div class="show_harddisknum host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">磁盘信息</td>
+                <td align="left">
+                    <div class="show_harddiskinfo host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">总容量</td>
+                <td align="left">
+                    <div class="show_total host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td align="left">已使用空间</td>
+                <td align="left">
+                    <div class="show_use host-detail-item"></div>
+                </td>
+            </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="1" class="nas_table_info border_table"
+               style="display:none;">
+            <tr height="25">
+                <td width="30%" align="left">客户端名称</td>
+                <td width="70%">
+                    <div class="show_nas_servername host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td width="30%" align="left">协议</td>
+                <td width="70%">
+                    <div class="show_nas_protocol host-detail-item"></div>
+                </td>
+            </tr>
+            <tr height="25">
+                <td width="30%" align="left">NAS路径</td>
+                <td width="70%">
+                    <div class="show_nas_path host-detail-item"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="disk-syncs-template" class="ajaxForm">
+    <div>
+    <div class="disk_style"  id='disk_style' style="margin-top:35px;">
+        <input type="checkbox" id='disk_checkbox'onclick="activeDiskModule()" name="disk_checkbox">
+        <span>源客户端中需要备份的目录或文件：</span>
+        <input id="normal_disk_directory_input" name="normal_disk_directory_input" class='disk_input normal_disk_directory_input' type="text" placeholder='示例：D:\resource file' style="width:calc(100% - 245px)" onblur="removespace(this)">
+        <button class='disk_input' style="cursor:pointer;float:right;margin-top: 3px;" onclick="add_normal_disk_directory(this);return false;">增加</button>
+        <div style="clear:both"></div>
+    </div>
+    <div id="vdisk_box1" style="display:none">
+    <div id="vdisk_style" class="vdisk_style"  style="margin-top:20px;" >
+        <input type="checkbox" id='vdisk_checkbox' name="vdisk_checkbox" onclick="activeVdiskModule()">
+        <span>源客户端中虚拟机磁盘内需要备份的目录或文件：</span>
+        <div  id="vdisk_complete_path" class="vdisk_complete_path" style="margin-top:10px;margin-left:23px;padding-top:5px;padding-bottom:10px;padding-left:2em;">
+            <span>虚拟机磁盘镜像文件的全路径：</span>
+            <input id="vdisk_directory_input" name="vdisk_directory_input" class="vdisk_input vdisk_directory_input" type="text" placeholder='示例：E:\New Virtual Hard Disk.vhd' style="width:calc(100% - 194px)"  onblur="removespace(this)">
+            <button class="vdisk_input" style="cursor:pointer;float:right;margin-top: 3px;" onclick="add_vdisk_directory(this);return false;">增加</button>
+            <div style="clear:both"></div>
+            <div  id="vdisk_partition" class="vdisk_partition" name="vdisk_partition" style="padding-top:5px;padding-bottom:10px;padding-left:2em;">
+                <span>磁盘镜像中备份数据所在的分区序号：</span>
+                <input  name="vdisk_partition_input" class="vdisk_input vdisk_partition_input" type="text" placeholder='示例：1' style="width:calc(100% - 234px)"  onblur="removespace(this)">
+                <button class="vdisk_input" style="cursor:pointer;float:right;margin-top: 3px;" onclick="add_vdisk_partition(this);return false;">增加</button>
+                <div style="clear:both"></div>
+                <div id="vdisk_data_directory" style="padding-top:5px;padding-bottom:10px;padding-left:2em;">
+                    <span>该分区中需要备份的目录或文件：</span>
+                    <input id="vdisk_data_directory_input" name="vdisk_data_directory_input" class="vdisk_input vdisk_data_directory_input" type="text" placeholder='示例：　\resource file' style="width:calc(100% - 208px)"  onblur="removespace(this)">
+                    <button class="vdisk_input" style="cursor:pointer;float:right;margin-top: 3px;" onclick="add_vdisk_data_directory(this);return false;">增加</button>
+                    <div style="clear:both"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+<div id="newbackupFormDiv" title="" class="ajaxForm">
+    <input type="hidden" id="taskid" name="taskid"/>
+    <form id="newbackupForm" action="#" method="post">
+        <div id="tabs">
+            <ul>
+                <li><a href="#tabs-1">导出源</a></li>
+                <li><a href="#tabs-4">其它设置</a></li>
+                <li><a href="#tabs-2">导出目标</a></li>
+                <li><a href="#tabs-3">导出计划</a></li>
+                <li><a href="#tabs-5">信息确认</a></li>
+            </ul>
+            <div id="tabs-1" style="margin-top:0px;margin-left:30px;">
+                <div style="margin-bottom:10px;float:left;">选择导出源客户端</div>
+                <div style="float:left;margin-left:5px;cursor:pointer;"><span id="src_host_tip" title=""
+                                                                              class="ui-icon ui-icon-info"></span></div>
+                <div class="clear"></div>
+                <div style="float:left;"><input name="client_search" type="text" placeholder="开始搜索"
+                                                class="client_search"/></div>
+                <div id="RefreshSrcServer" style="cursor:pointer;float:right;margin-right:0px;">刷新连接列表</div>
+                <div class="clear"></div>
+                <div id="Servers_Tree1" class="aciTree"
+                     style="width:100%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+                <div style="width:100%;height:295px;overflow:auto;" id="host1-detail-container">
+                </div>
+            </div>
+            <div id="tabs-2" style="margin-left:30px;">
+                <div style="margin-bottom:10px;float:left;">选择导出目标客户端及归档文件或文件夹</div>
+                <div style="float:left;margin-left:5px;cursor:pointer;"><span id="dest_host_tip" title=""
+                                                                              class="ui-icon ui-icon-info"></span></div>
+                <div class="clear"></div>
+                <div style="float:left;"><input name="client_search2" type="text" placeholder="开始搜索"
+                                                class="client_search"/></div>
+                <div id="RefreshSrcServer2" style="cursor:pointer;float:right;margin-right:0px;">刷新连接列表</div>
+                <div class="clear"></div>    <!-- #5563  -->
+                <div id="Servers_Tree2" class="aciTree"
+                     style="width:100%;height:175px;border:1px solid #ccc;overflow:auto;"></div>
+                <span style="margin-top:5px " >目标客户端中保存文档的磁盘号：</span>
+                <input id="sync_destination" name="sync_destination" class="" type="text" placeholder='示例： E' style="width:calc(100% - 566px);margin-top:8px"  onblur="removespace(this)">
+                <div style="width:100%;height:295px;overflow:auto;" id="host2-detail-container">
+                </div>
+            </div>
+            <div id="tabs-3" style="margin-top:30px;margin-left:30px;">
+                <div id="task_names_container">
+                    <input type="hidden" id="uitasktype" value="task"/>
+                    <div id="task_names"><span class="taskshowname">计划名称</span>：<input type="text" class="input"
+                                                                                       maxlength="120" id="taskname"
+                                                                                       name="taskname"
+                                                                                       style="width:400px;"
+                                                                                       onblur="removespace(this)"
+                                                                                       onmouseover="this.title=this.value"/>
+                    </div>
+                </div>
+                <div style="width:95%;overflow:auto;">
+                    <table width="100%" border="0" cellspacing="5" cellpadding="0">
+                        <tr class="normalbackupchoices">
+                            <td><label><input class="radio" type="radio" value="2" name="bakschedule" checked="checked">仅导出一次</label>
+                            </td>
+                        </tr>
+                        <tr class="normalbackupchoices">
+                            <td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;仅执行一次导出计划，设定开始日期及时间即可，完成导出后任务即终结。</span><br/><br/>
+                                <div id="bakschedule2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input
+                                        name="stime1" type="text" class="textTime Wdate" id="stime1" style="width:170px"
+                                        onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"
+                                        onblur="removespace(this)"/></div>
+                            </td>
+                        </tr>
+                        <tr class="normalbackupchoices">
+                            <td><label><input class="radio" type="radio" value="3" name="bakschedule"/>按间隔时间</label>
+                            </td>
+                        </tr>
+                        <tr class="normalbackupchoices">
+                            <td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出间隔可设置为分/时/天，需设定导出的开始时间。</span>
+                                <br/><br/>
+                                <div id="bakschedule3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input
+                                        name="stime2" type="text" class="textTime Wdate" id="stime2" style="width:170px"
+                                        onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"
+                                        onblur="removespace(this)"/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;每<input type="number" min="1" max="365" class="input"
+                                                                    value="1" id="timeinterval" name="timeinterval"
+                                                                    style="width:41px" onblur="removespace(this)"/>
+                                    <select id="interval-unit">
+                                        <option value="min">分钟</option>
+                                        <option value="hour">小时</option>
+                                        <option value="day" selected="selected">天</option>
+                                    </select>
+                                    执行
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="normalbackupchoices">
+                            <td>
+                                <label><input class="radio" type="radio" value="4" name="bakschedule">每周</label></td>
+                        </tr>
+                        <tr class="normalbackupchoices">
+                            <td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出间隔为周，设定每周的星期x为导出时间，如：每周星期一、星期四导出。</span><br/><br/>
+                                <div id="bakschedule4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input
+                                        name="stime3" type="text" class="textTime Wdate" id="stime3" style="width:170px"
+                                        onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"
+                                        onblur="removespace(this)"/>
+                                    <br/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" value="1"
+                                                                                           name="perweek"/>星期一&nbsp;&nbsp;<input
+                                            type="checkbox" value="2" name="perweek"/>星期二&nbsp;&nbsp;<input
+                                            type="checkbox" value="3" name="perweek"/>星期三&nbsp;&nbsp;<input
+                                            type="checkbox" value="4" name="perweek"/>星期四&nbsp;&nbsp;<input
+                                            type="checkbox" value="5" name="perweek"/>星期五&nbsp;&nbsp;<input
+                                            type="checkbox" value="6" name="perweek"/>星期六&nbsp;&nbsp;<input
+                                            type="checkbox" value="7" name="perweek"/>星期日
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="normalbackupchoices">
+                            <td>
+                                <label><input class="radio" type="radio" value="5" name="bakschedule">每月</label></td>
+                        </tr>
+                        <tr class="normalbackupchoices">
+                            <td><span class="form_tips">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;导出间隔为月，设定每月的x日导出，如：每月的10、20、29日导出。</span><br/><br/>
+                                <div id="bakschedule5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;开始时间：<input
+                                        name="stime4" type="text" class="textTime Wdate" id="stime4" style="width:170px"
+                                        onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"
+                                        onblur="removespace(this)"/>
+                                    <div style="margin-left:10px;">
+                                        <br/>每月导出日期：
+                                        <br/>
+                                        <div id="dayselect"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="taskpolicyintro"></div>
+            </div>
+            <div id="tabs-4" style="margin-top:30px;margin-left:30px;margin-right:30px">
+                <div style="width:100%;height:527px;overflow:auto;">
+                    <div>
+                        <p>导出规则设置:</p>
+                        <div id="sync_dir_rules" style="width:600px;" >
+                            <div id="aio_ip"  style="margin-top:10px;padding-botton:30px;">
+                                <span>选择能够与目标客户端直接通信的本系统IP: </span>
+                                <span id="aio_ip_value" style="margin-top:50px;margin-left:23px;">
+                                    <select id="ipOptions" name="ip" >
+                                    </select>
+                                </span>
+                            </div>
+                            <div class="sync-files">
+                            </div>
+                        </div>
+{#                        <textarea id="sync_dir_rules" style="width: 600px;height: 400px" onblur="removespace(this)"></textarea> <!-- todo 5563这个地方放新的html-->#}
+                    </div>
+                </div>
+            </div>
+            <div id="tabs-5" style="margin-top:30px;margin-left:30px;">
+                <div style="width:95%;height:520px;overflow:auto;">
+                    <table width="100%" cellpadding="10" cellspacing="1" class="border_table">
+                        <tr height="25">
+                            <td width="40%" align="left"><span class="taskshowname">计划名称</span></td>
+                            <td width="60%">
+                                <div id="confirm_taskname">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25" class="storagedevicediv">
+                            <td align="left">导出源</td>
+                            <td align="left">
+                                <div id="confirm_src">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">导出目标</td>
+                            <td align="left">
+                                <div id="confirm_dest">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">导出周期</td>
+                            <td align="left">
+                                <div id="confirm_schedule">&nbsp;</div>
+                            </td>
+                        </tr>
+                        <tr height="25">
+                            <td align="left">导出规则设置</td>
+                            <td align="left">
+                                <div><pre id="confirm_dir_rules"></pre></div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="btn_nav">
+        <input type="button" id="prev" class="prev" style="float:left" value="&laquo;上一步"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input
+            type="button" id="next" class="next" style="float:right" value="下一步&raquo;"/>
+    </div>
+</div>
+
+
+
+<div id="finishFrom" title="完成" class="ajaxForm">
+    点击“立即导出”，将会创建此计划任务，并立即导出。<br/><br/>
+    点击“完成设置”，将会创建此计划。
+</div>
+
+<div id="src_host_tip_from" style="display:none;">
+    <div style="width:800px;line-height:30px;">
+        <div>支持对Windows/Linux操作系统在以下场景的灾备保护功能：</div>
+        <div style="margin-top:10px;">★虚拟化主机：提供对Microsoft Hyper-V、VMware vSphere（ESX\ESXi）、KVM、Citrix Xen、IBM Power
+            VM、Red Hat Enterprise Virtulization、Huawei FusionSphere等虚拟化主机的灾备保护功能；
+        </div>
+        <div style="margin-top:10px;">★私有云/超融合云：提供对基于Openstack、Vmware和KVM技术且采用Vmware Vsan、glusterfs
+            或ceph分布式存储技术搭建的私有云/超融合云的灾备保护功能；
+        </div>
+        <div style="margin-top:10px;">★公有云主机：提供对基于KVM、Xen、Microsoft Hyper-V和Oracle
+            VirtualBox技术的公有云主机（不限于：阿里云、腾讯云、百度云、华为云、AWS亚马逊、微软云、浪潮云、金山云、京东云、沃云、天翼云、移动云和Oracle Cloud）等云主机的灾备保护功能；
+        </div>
+    </div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+
+<script language="javascript">
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").tabs("option", "active", 0);
+        $(".ui-tabs-nav").hide();
+        $(".prev").hide();
+        $('#navigation').html('<div class="font_navigation">导出 > 新建导出计划 > 导出源</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#newbackupmission" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        init_vdisk_directory();
+	    $(".sync-files .disk_input").prop("disabled",true);
+	    $(".sync-files .vdisk_input").prop("disabled",true);
+	    $("#sync_destination").val("");
+	    var params="a=getiplist";
+        myAjaxGet('../download_handle/',params,getiplist);
+    });
+
+function getiplist(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+    $('#ipOptions').empty();
+	if(jsonstr.list.length > 1 )
+	{
+		$('<option></option>').val(-1).text('--请选择--').appendTo($('#ipOptions'));
+	}
+    $.each(jsonstr.list, function(index, elem){
+        $('<option></option>').val(elem).text(elem).appendTo($('#ipOptions'));
+    });
+}
+
+    var curTime = '{{ now|date:"Y-m-d H:i:s" }}';
+
+    $("input[name='backupobj']").change(function () {
+        if ($(this).val() == '2') {
+            RefreshSrcServer2();
+            $('#volselectdiv').slideDown(600);
+        } else {
+            $('#volselectdiv').slideUp(600);
+        }
+    });
+
+    $('.pull-down-control').click(function () {
+        var manage_id = $(this).attr('for');
+        var isShown = $('#' + manage_id).is(':visible');
+
+        if (!isShown) {
+            $('#' + manage_id).slideDown();
+            $(this).find("span").text('▼');
+        } else {
+            $('#' + manage_id).slideUp();
+            $(this).find("span").text('▶');
+        }
+    });
+
+    $(document).on('keyup', 'input[name=client_search]', function () {
+        var s_key = $('input[name=client_search]').val().toLowerCase();
+        var api = $('#Servers_Tree1').aciTree('api');
+        var children = api.children(null, true, true);
+        api.radios(children).each(api.proxy(function (element) {
+            var node = $(element);
+            var label = this.getLabel(node).toLowerCase();
+            if (label.indexOf(s_key) == -1) {
+                api.hide(node);
+            } else {
+                api.show(node);
+            }
+        }, true));
+    });
+
+    $(document).on('keyup', 'input[name=client_search2]', function () {
+        var s_key = $('input[name=client_search2]').val().toLowerCase();
+        var api = $('#Servers_Tree2').aciTree('api');
+        var children = api.children(null, true, true);
+        api.radios(children).each(api.proxy(function (element) {
+            var node = $(element);
+            var label = this.getLabel(node).toLowerCase();
+            if (label.indexOf(s_key) == -1) {
+                api.hide(node);
+            } else {
+                api.show(node);
+            }
+        }, true));
+    });
+
+    $('#enable-backup-retry').click(function () {
+        if ($('#enable-backup-retry').prop('checked')) {
+            $('#retry-counts').prop('disabled', false);
+            $('#retry-interval').prop('disabled', false);
+        } else {
+            $('#retry-counts').prop('disabled', true);
+            $('#retry-interval').prop('disabled', true);
+        }
+    });
+
+    $("#src_host_tip").tooltip({
+        tooltipClass: 'src_host_tip_class',
+        content: function () {
+            return $('#src_host_tip_from').html();
+        }
+    });
+
+    $("#dest_host_tip").tooltip({
+        tooltipClass: 'src_host_tip_class',
+        content: function () {
+            return $('#src_host_tip_from').html();
+        }
+    });
+
+	function init_vdisk_directory()
+	{
+	var $vdisk_box1 = $("#vdisk_box1");
+	var $vdiskDirectory = $vdisk_box1.find(".vdisk_style").clone();
+    var $vdiskPath = $vdiskDirectory.find("#vdisk_complete_path");
+	$vdiskPath.attr("id","vdisk_complete_path_copy");
+	$vdiskPath.attr("class","vdisk_complete_path vdisk_complete_path_copy");
+	$(".disk_style").after($vdiskDirectory);
+	}
+
+	function add_normal_disk_directory(obj)
+	{
+	var $diskDirectory = $(obj).prev().clone();
+	$diskDirectory.css("margin-left","239px");
+	$diskDirectory.css("margin-top","4px");
+	$diskDirectory.val("");
+	$(obj).prev().after($diskDirectory);
+	}
+
+	function add_vdisk_directory(obj)
+	{
+	var $vdisk_box1 = $("#vdisk_box1");
+	var $vdiskDirectory = $vdisk_box1.find("#vdisk_complete_path").clone();
+	$vdiskDirectory.attr("id","vdisk_complete_path_copy");
+	$vdiskDirectory.attr("class","vdisk_complete_path vdisk_complete_path_copy");
+	$(obj).parent().after($vdiskDirectory);
+	}
+
+	function add_vdisk_partition(obj)
+	{
+	var $vdisk_box1 = $("#vdisk_box1");
+	var $vdiskPartion = $vdisk_box1.find("#vdisk_partition").clone();
+	$(obj).parent().after($vdiskPartion);
+	}
+
+	function add_vdisk_data_directory(obj)
+	{
+	var $vidskDataDirectoryText = $(obj).prev().prev().clone();
+	var $vidskDataDirectoryInput = $(obj).prev().clone();
+	$vidskDataDirectoryInput.css("margin-left","5px");
+	$vidskDataDirectoryInput.css("margin-top","4px");
+	$vidskDataDirectoryInput.val("");
+	$(obj).prev().after($vidskDataDirectoryText);
+	$(obj).prev().after($vidskDataDirectoryInput);
+	}
+
+	function activeDiskModule(){
+		if ($('.sync-files #disk_checkbox').is(':checked'))
+		{
+			$(".disk_input").prop("disabled",false);
+		} else {
+			$(".disk_input").prop("disabled",true);
+		}
+	}
+
+	function activeVdiskModule(){
+		if ($('.sync-files #vdisk_checkbox').is(':checked'))
+		{
+			$(".vdisk_input").prop("disabled",false);
+		} else {
+			$(".vdisk_input").prop("disabled",true);
+		}
+	}
+
+</script>

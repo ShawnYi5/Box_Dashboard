@@ -1,0 +1,479 @@
+<div class="right">
+	<div style="float:left;width: 30%;">
+		<div>存储单元池</div>
+		<div>
+			<div id="Servers_Tree1" class="aciTree" style="width:100%;height:560px;border:1px solid #ccc;overflow:auto;"></div>
+		</div>
+	</div>
+	<div style="float:right;width:68%;" id="left2div">
+		<div>存储单元用户配额状态</div>
+		<div style="">
+			<div>总空间：<span id="total"></span></div>
+			<div>可使用空间：<span id="free"></span></div>
+			<div>
+				<table id="list">
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+    <div class="menu_btn" id="refresh" style="float:left;margin-top:12px;"><span style="cursor:pointer;" id="Refresh">刷新</span></div>
+	<div style="float:right;margin-top: 10px;margin-right: 10px;">
+		<div class="menu_btn" style="float:right;" id="delbutton">删除</div>
+		<div class="menu_btn" style="float:right;margin-right:20px;" id="editbutton">编辑</div>
+		<div class="menu_btn" style="float:right;margin-right:20px;" id="addbutton">添加用户配额</div>
+	</div>
+</div>
+
+<div id="quotaFormDiv" title="用户配置" class="ajaxForm">
+	<div style="margin-top: 20px;margin-left: 20px;">选择用户：<select id="userlist" ></select></div>
+	<div style="margin-top: 20px;margin-left: 20px;">设置所选用户配额限制：</div>
+	<input type="hidden" id="subquotaid" name="subquotaid" />
+	<div style="margin-top: 10px;margin-left: 30px;">
+		<input class="radio" type="radio" value="1" name="limittype" checked="checked" />不限制磁盘使用
+		<br /><br />
+		<input class="radio" type="radio" value="2" name="limittype" />将存储单元空间限制为：<input type="number" style="width:50px;" class="input" id="limit"/>
+		<select id="sellimit" >
+			<option value='MB' selected='selected'>MB</option>
+			<option value='GB'>GB</option>
+			<option value='TB'>TB</option>
+			<option value='PB'>PB</option>
+		</select>
+	</div>
+	<div style="margin-top:10px;margin-left:20px;">
+		将警告等级设定为：<input type="number" style="width:50px;" class="input" id="waring"/>
+		<select id="selwaring" >
+			<option value='MB' selected='selected'>MB</option>
+			<option value='GB'>GB</option>
+			<option value='TB'>TB</option>
+			<option value='PB'>PB</option>
+		</select>（0或不填时不警告）
+	</div>
+	<div style="margin-top: 10px;margin-left: 20px;">
+	*到达警告等级时将发送警告邮件给此用户
+	</div>
+</div>
+
+{% include 'tree.inc.html' %}
+<script type="text/javascript">
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'',
+		datatype: "local",
+		colNames:['用户名','userid','配额限制（MB）','警告等级（MB）','可使用（MB）','已使用（MB）'],
+
+		colModel:[
+			{name:'username',index:'0',align:"center", width:110,sortable: true},
+			{name:'userid',index:'1',align:"center", width:110,sortable: true,hidden:true},
+			{name:'docMark',index:'2',align:"center", width:110,sortable: true,formatter:qutoaFmatter},
+			{name:'printType',index:'3',align:"center", width:100,sortable: true,formatter:qutoaFmatter1},
+			{name:'insertCopySeq',index:'4',align:"center", width:110,sortable: true},
+			{name:'used',index:'5',align:"center", width:110,sortable: true}
+		],
+		width:500,
+		height:500,
+		rowNum:300,
+		rowList:[100,200,300],
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true,
+		onSelectRow: function(ids) {
+			//$('#userid').val(ids);
+			//var params="taskid="+ids;
+			//myAjaxGet('../getbackupinfo_handle/',params,GetBackupInfo);
+		}
+	});
+});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' }); 
+
+function qutoaFmatter(cellvalue, options, rowObject)
+{
+	var prestr=cellvalue;
+	if(cellvalue==-1)
+	{
+		prestr='无限制';
+	}
+	
+	return prestr;
+}
+
+function qutoaFmatter1(cellvalue, options, rowObject)
+{
+	var prestr=cellvalue;
+	if(cellvalue==-1)
+	{
+		prestr='无警告';
+	}
+
+	return prestr;
+}
+
+function DelCallback(jsonstr)
+{   var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(jsonstr.r == '1')
+	{
+		openConfirmDialog({
+			title:'确认信息',
+			html:'用户配额上有备份计划，确认要删除？删除后导致该计划不能被执行！同时该用户无法进行备份，及CDP的保护！取消将不执行删除操作',
+			onBeforeOK:function(){
+				var params="a=deletequota&ids="+ids;
+			    myAjaxGet('../storage_handle/',params+'&confirm=1',DelCallback);
+				$(this).dialog('close');
+			}
+		});
+	}
+    if(jsonstr.r == '2')
+	{
+		openConfirmDialog({
+			title:'确认信息',
+			html:'确认要删除配额吗？删除后无法进行备份，及CDP的保护！取消将不执行删除操作',
+			onBeforeOK:function(){
+				var params="a=deletequota&ids="+ids;
+			    myAjaxGet('../storage_handle/',params+'&confirm=1',DelCallback);
+				$(this).dialog('close');
+			}
+		});
+	}
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+}
+
+$('#delbutton')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length==0)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+    var params="a=deletequota&ids="+ids;
+    myAjaxGet('../storage_handle/',params,DelCallback);
+    $(this).dialog('close');
+});
+
+function limittypeStatus(type)
+{
+	if( type == 1 )
+	{
+		$("input[name='limittype'][value='1']").prop('checked',true);
+		$("input[name='limittype'][value='2']").prop('checked',false);
+		$('#limit').prop('disabled',true);
+		$('#sellimit').prop('disabled',true);
+		$('#limit').prop('disabled',true);
+	}
+	else if( type == 2 )
+	{
+		$("input[name='limittype'][value='2']").prop('checked',true);
+		$("input[name='limittype'][value='1']").prop('checked',false);
+		$('#limit').prop('disabled',false);
+		$('#sellimit').prop('disabled',false);
+		$('#limit').prop('disabled',false);
+	}
+}
+
+$("input[name='limittype']").click(function() {
+	limittypeStatus(this.value);
+});
+
+function SetQuotaSize(quota_size,caution_size)
+{
+	if( quota_size >= 1073741824 && quota_size % 1073741824 == 0 )
+	{
+		$('#limit').val(quota_size/1073741824);
+		$('#sellimit').val('PB');
+	}
+	else if( quota_size >= 1048576 && quota_size % 1048576 == 0 )
+	{
+		$('#limit').val(quota_size/1048576);
+		$('#sellimit').val('TB');
+	}
+	else if( quota_size >= 1024 && quota_size % 1024 == 0 )
+	{
+		$('#limit').val(quota_size/1024);
+		$('#sellimit').val('GB');
+	}
+	else if( quota_size == -1 )
+	{
+		$('#limit').val('');
+		$('#sellimit').val('MB');
+	}
+	else
+	{
+		$('#limit').val(quota_size);
+	}
+
+	if( caution_size >= 1073741824 && caution_size % 1073741824 == 0 )
+	{
+		$('#waring').val(caution_size/1073741824);
+		$('#selwaring').val('PB');
+	}
+	else if( caution_size >= 1048576 && caution_size % 1048576 == 0 )
+	{
+		$('#waring').val(caution_size/1048576);
+		$('#selwaring').val('TB');
+	}
+	else if( caution_size >= 1024 && caution_size % 1024 == 0 )
+	{
+		$('#waring').val(caution_size/1024);
+		$('#selwaring').val('GB');
+	}
+	else if( caution_size == -1 )
+	{
+		$('#waring').val('0');
+		$('#selwaring').val('MB');
+	}
+	else
+	{
+		$('#waring').val(caution_size);
+	}
+}
+
+function GetQuotaInfoCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	var quota_size = jsonstr.quota_size;
+	var caution_size = jsonstr.caution_size;
+	SetQuotaSize(quota_size,caution_size);
+
+	if( quota_size == -1 )
+	{
+		limittypeStatus(1);
+	}
+	else
+	{
+		limittypeStatus(2);
+	}
+
+	$("#quotaFormDiv").attr('title','编辑用户配额').dialog({
+		autoOpen: true,
+		height: 540,
+		width: 500,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				var params='a=editquota';
+				params+='&id='+$('#subquotaid').val();
+				userid=$("#userlist").val();
+				params+='&userid='+userid;
+				params+='&limittype='+$("input[name='limittype']:checked").val();
+				params+='&limit='+$("#limit").val();
+				params+='&limitunit='+$("#sellimit").val();
+				params+='&waring='+$("#waring").val();
+				params+='&waringunit='+$("#selwaring").val();
+                $("#quotaFormDiv").dialog('close');
+				myAjaxGet('../storage_handle/',params,AddQuotaCallback);
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+			
+		},
+		close: function(){
+		}
+	});
+}
+
+$('#editbutton')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+
+	$("#userlist").empty();
+	$('#subquotaid').val(ids);
+	var username=$('#list').jqGrid('getRowData',ids).username;
+	var userid=$('#list').jqGrid('getRowData',ids).userid;
+	$("#userlist").append("<option value='"+userid+"'  selected=\"selected\" >"+username+"</option>");
+	var params="a=getquotainfo&id="+ids;
+	myAjaxGet('../storage_handle/',params,GetQuotaInfoCallback);
+});
+
+function AddQuotaCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+    successTipBox("添加成功");
+}
+
+function CheckData()
+{
+	var userid = $("#userlist").val();
+	if(userid==-1)
+	{
+		openErrorDialog({title:'错误',html:'请选择用户'});
+		return false;
+	}
+	var limttype=$("input[name='limittype']:checked").val();
+	if(limttype==2)
+	{
+        var lim = $("#limit").val();
+		if( $("#limit").val() <= 0 )
+		{
+			openErrorDialog({title:'错误',html:'请填写正确的限制大小'});
+			return false;
+		}
+        if (!isNum(lim)){
+            openErrorDialog({title:'错误',html:'请输入正整数'});
+            return false;
+    }
+	}
+    var war = $("#waring").val();
+    if (!war)return true;
+    if (!isNum(war)){
+        openErrorDialog({title:'错误',html:'请输入正整数'});
+        return false;
+    }
+	return true;
+}
+
+function InitControl()
+{
+	$('#sellimit').val('MB');
+	$('#selwaring').val('MB');
+	$('#limit').val('');
+	$('#waring').val('');
+}
+
+function GetUserListCallback(jsonstr)
+{
+	$("#userlist").empty();
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	
+	$("#userlist").append("<option value='-1'  selected=\"selected\" >--请选择--</option>");
+
+	$.each(jsonstr.list, function(i, item){
+
+		$("#userlist").append("<option value='"+item.value+"'>"+item.name+"</option>"); 
+
+	});
+
+	limittypeStatus(1);
+	$("#quotaFormDiv").attr('title','添加用户配额').dialog({
+		autoOpen: true,
+		height: 350,
+		width: 450,
+		modal: true,
+		buttons: {
+			'确定': function(){
+				if(!CheckData())
+				{
+					return;
+				}
+				var params='a=addquota';
+				params+='&userid='+$("#userlist").val();
+				params+='&quotaid='+getaciTreeChecked('Servers_Tree1');
+				params+='&limittype='+$("input[name='limittype']:checked").val();
+				params+='&limit='+$("#limit").val();
+				params+='&limitunit='+$("#sellimit").val();
+				params+='&waring='+$("#waring").val();
+				params+='&waringunit='+$("#selwaring").val();
+                $("#quotaFormDiv").dialog('close');
+				myAjaxGet('../storage_handle/',params,AddQuotaCallback);
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+			
+		},
+		close: function(){
+		}
+	});
+}
+
+$('#addbutton')
+.button()
+.click(function() {
+	var quotaid=getaciTreeChecked('Servers_Tree1');
+	if(quotaid=='')
+	{
+		openErrorDialog({title:'错误',html:'请选择存储单元池'});
+		return;
+	}
+	InitControl();
+	var params='a=getuserlist';
+	params+='&quotaid='+getaciTreeChecked('Servers_Tree1');
+	myAjaxGet('../storage_handle/',params,GetUserListCallback);
+});
+
+function GetQuotaSizeCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		$('#total').html(jsonstr.e);
+		return;
+	}
+	$('#total').html(jsonstr.total);
+	$('#free').html(jsonstr.free);
+}
+
+$('#Servers_Tree1').on('acitree', function(event, api, item, eventName, options) {
+	if (eventName == 'selected'){
+		// do something when a item is selected
+		var itemData = api.itemData(item);
+		var id=api.getId(item);
+		$('#total').html('');
+		$('#free').html('');
+		myAjaxGet('../storage_handle/','a=getquotasize&id='+id,GetQuotaSizeCallback);
+		$("#list").jqGrid('setGridParam',{datatype:"json",url:"../storage_handle/?a=getquotalist&id="+id});
+		$('#list').trigger("reloadGrid",[{
+			current:true
+		}]);
+	}
+});
+
+$(function() {
+	initAciTree('Servers_Tree1','../storage_handle/?a=getstoragelist&id=');
+	$('#navigation').html('<div class="font_navigation">存储配额管理</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#storagequta" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	quotamgr_resize();
+
+});
+
+function shwoall() {
+    RefreshAciTree('Servers_Tree1','../storage_handle/?a=getstoragelist&id=');
+    $('#list').clearGridData({clearfooter:true});
+}
+
+$('#refresh')
+.button()
+.click(function() {
+    shwoall();
+});
+
+function quotamgr_resize()
+{
+	resizeright();
+	var width = $('#left2div').width()-5;
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	quotamgr_resize();	
+});
+</script>

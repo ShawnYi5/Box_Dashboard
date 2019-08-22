@@ -1,0 +1,248 @@
+<style>
+.ui-jqgrid tr.jqgroup{
+	background: #eeeeee;
+}
+</style>
+<div class="right">
+	<div id="tabs">
+		<ul>	
+		</ul>
+	</div>
+	<div id="linux_jqgrid">
+		<table id="list"></table>
+	</div>
+</div>
+
+<div id="AddVermagicFormDiv" title="增加" class="ajaxForm">
+	<div style="margin-left:20px;margin-top: 20px;">
+	源操作系统版本：<span id="sys_vermagic" style="white-space:nowrap;"></span>
+	</div>
+	<div style="margin-left:20px;margin-top: 20px;">
+	请选择要兼容支持的操作系统中的一个驱动文件上传：
+	</div>
+	<div style="margin-left:20px;margin-top: 10px;">
+	比如/lib/modules/x.xx.x-xxx.el7.x86_64/kernel/drivers/scsi/sg.ko
+	</div>
+	<div style="margin-left:20px;margin-top: 20px;">
+        <div style="margin-top: 2px;">
+            <input type="file" id="localfile"/>
+        </div>
+		<div style="margin-top: 10px;">
+			<input type="button" id="uploadImg" value="获取操作系统版本"/>
+		</div>
+		<div class="clear"></div>
+        <div id="info" style="margin-top: 10px;"></div>
+    </div>
+    <div style="margin-top:20px;margin-left:20px;">兼容的操作系统版本：<input type="text" id="user_vermagic" style="width: 600px"/></div>
+</div>
+
+
+<script type="text/javascript">
+	var g_tabs_obj = null;
+	$(function () {
+		jQuery("#list").jqGrid({
+			url: '',
+			datatype: "json",
+			colNames: ['序号','id', '源操作系统版本', '兼容的操作系统版本','os_ver'],
+			rownumbers: true,
+			colModel: [
+				{name: 'index', index: '0', align: "center", width:14,sortable: false},
+				{name: 'id', index: '1', align: "center", width:10,sortable: true, hidden: true},
+				{name: 'vermagic', index: '2',width:250, align: "left", sortable: false},
+				{name: 'user_vermagic', index: '3', width:200, align: "left", sortable: false},
+				{name: 'os_ver', index: '4', width:10, align: "left", sortable: false}
+			],
+			width: 748,
+			height: 600,
+			rowNum:50000,
+			sortname: 'id',
+			recordpos: 'left',
+			viewrecords: true,
+			sortorder: "desc",
+			shrinkToFit: true,
+			multiselect: false,
+			grouping:true,
+			groupingView : {
+				groupField : ['os_ver'],
+				groupColumnShow : [false],
+				groupCollapse : false,
+				groupText : ['<strong>{0}</strong>']
+			}
+		});
+	});
+	$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' });
+
+	function get_linux_tabs_callback(jsonobj)
+	{
+		g_tabs_obj = jsonobj.tabs;
+		var tabs = $( "#tabs" ).tabs();
+		for(var i=0;i<jsonobj.tabs.length;i++)
+		{
+			var navobj= tabs.find( ".ui-tabs-nav" );
+			var tab_id = 'tabs-'+i;
+			g_tabs_obj[i].tab_id = tab_id;
+			navobj.append( "<li><a href='#"+tab_id+"'>"+jsonobj.tabs[i].name+"</a></li>" );
+			navobj.after('<div id="'+tab_id+'"></div>');
+		}
+		
+		tabs.tabs( "refresh" );
+		$("#tabs").tabs("option", "active", 0);
+		setTimeout(function () {
+			reloadGrid();;
+		}, 500);
+		
+	}
+
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">配置linux操作系统兼容列表</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#linuxcompatible" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        $('#new_tunnelport').val('3345');
+		myAjaxPost('../linuxcompatible_handle/?a=get_linux_tabs','',get_linux_tabs_callback);
+        linuxcompatible_resize();
+    });
+
+    function reloadGrid() {
+		var tabid = 'tabs-'+$("#tabs").tabs("option", "active");
+		var linux_name = $('#tabs').find('a[href="#'+tabid+'"]').text();
+
+		var new_url = '../linuxcompatible_handle/?a=getlist&name='+linux_name;
+		$('#list').setGridParam({url:new_url});
+
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+	function user_vermagic_callback(jsonobj)
+	{
+		if(jsonobj.r!=0)
+		{
+			openErrorDialog({title:'错误',html:jsonobj.e});
+		}
+		reloadGrid();
+	}
+
+	function del_user_vermagic(id,user_vermagic)
+	{
+		openConfirmDialog({
+			title:'确认信息',
+			html:'你确定要删除'+user_vermagic+'吗?',
+			onBeforeOK:function(){
+				myAjaxPost('../linuxcompatible_handle/?a=del_user_vermagic','id='+id+'&user_vermagic='+user_vermagic,user_vermagic_callback);
+				$(this).dialog('close');
+			}
+		});
+	}
+
+	function add_user_vermagic(id,display_id)
+	{
+		$('#sys_vermagic').text(display_id);
+		$("#AddVermagicFormDiv").attr('title','增加').dialog({
+			autoOpen: true,
+			height: 350,
+			width: 840,
+			modal: true,
+			buttons: {		
+				'确定': function(){
+					$(this).dialog('close');
+					var user_vermagic = $('#user_vermagic').val();
+					if(user_vermagic=='')
+					{
+						return;
+					}
+					myAjaxPost('../linuxcompatible_handle/?a=add_user_vermagic','id='+id+'&user_vermagic='+user_vermagic,user_vermagic_callback);
+				},
+				'取消': function(){
+					$(this).dialog('close');
+					
+				}
+				
+			},
+			close: function(){
+			}
+		});
+	}
+
+	function UploadCallback(jsonstr) {
+        if (jsonstr.r == 200) {
+			$('#user_vermagic').val(jsonstr.vermagic);
+            $('#info').html('');
+            return;
+        }
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        var file = $('#localfile').get(0).files[0];
+        var start = jsonstr.start;
+        var total = file.size;
+		var tmp_dir = jsonstr.tmp_dir;
+        var html = "<div>上传进度：" + FmtSize(start) + "/" + FmtSize(total) + '（MB）</div>';
+        $('#info').html(html);
+        if (start < total) {
+            FileReaderReadFile(file, start, 1024 * 1024,tmp_dir);
+        }
+    }
+
+	function FileReaderReadFile(file, start, step,tmp_dir) {
+        var reader = new FileReader();
+        var buffer = null;
+        var total = file.size;
+        reader.onload = function (e) {
+            buffer = e.target.result;
+        }
+        reader.onloadend = function (e) {
+            var url = '../linuxcompatible_handle/?a=upload';
+            url += '&type=' + $('#updatetype').val();
+            url += '&name=' + file.name;
+            url += '&start=' + start;
+            url += '&step=' + 1024 * 1024;
+            url += '&total=' + total;
+            myPostBinary(url, buffer, UploadCallback);
+        }
+        //var slicer = fileOrBlob.slice || fileOrBlob.mozSlice || fileOrBlob.webkitSlice;
+        var blob = file.slice(start, start + step);
+        reader.readAsDataURL(blob);
+    }
+
+	$('#uploadImg').click(function () {
+        //html5
+		var file = $('#localfile').get(0).files[0];
+		if(file)
+		{
+			FileReaderReadFile(file, 0, 1024 * 1024,'');
+		}
+    });
+
+	$('#tabs').on('tabsactivate', function (event, ui) {
+        var newPanel = ui.newPanel.attr('id');
+		$('#'+newPanel).append($('#linux_jqgrid'));
+		for(var i=0;i<g_tabs_obj.length;i++)
+		{
+			if(g_tabs_obj[i].tab_id == newPanel)
+			{
+				if(g_tabs_obj[i].count > 20 )
+				{
+					$('#list').setGridParam({groupingView:{groupCollapse : true}});
+				}
+				else
+				{
+					$('#list').setGridParam({groupingView:{groupCollapse : false}});
+				}
+			}
+		}
+		
+		reloadGrid();
+    });
+
+    function linuxcompatible_resize() {
+        resizeright();
+		var width = $("#tabs").width()-50;
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        linuxcompatible_resize();
+    });
+</script>

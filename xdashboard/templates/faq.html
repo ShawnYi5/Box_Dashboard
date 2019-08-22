@@ -1,0 +1,764 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <title>{{title}}帮助文档</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'microsoft yahei', Tahoma, Verdana, sans-serif, simsun;
+            font-size: 13px;
+            color: #505050;
+        }
+
+        h1, h2, h3, ul, li {
+            margin: 0;
+            padding: 0;
+        }
+
+        p {
+            margin: 0 0 10px;
+            line-height: 2;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        #hd {
+            background: #3D485A;
+            height: 65px;
+        }
+
+        .header {
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            padding: 20px 0 0;
+            font: bold 18px 'microsoft yahei', '黑体', '宋体';
+            color: #E06329;
+        }
+
+        #ft {
+            background: #3D485A;
+            padding: 10px;
+            text-align: center;
+            color: #eee;
+            clear: both;
+        }
+
+        .wrap {
+            margin: 0 0 10px;
+            border: 1px solid #CDE1EF;
+            background: #fff;
+            padding: 10px;
+        }
+
+        .wrap-contact {
+            margin: 0;
+            padding: 10px 10px 10px 25px;
+        }
+
+        .block {
+            padding: 10px;
+        }
+
+        .block .hd {
+            padding: 0 0 3px 15px;
+            border-bottom: 1px solid #CEE1EE;
+        }
+
+        .block h3 {
+            padding: 6px 0;
+            color: #336699;
+            font-size: 16px;
+        }
+
+        .block h4 {
+            font-size: 14px;
+        }
+
+        .block h5 {
+            font-size: 13px;
+        }
+
+        .block .bd {
+            padding: 6px 0 0 15px;
+        }
+
+        .block .bd strong {
+            color: #000;
+            font-weight: normal;
+        }
+
+        .block .ft .imgMain {
+            padding: 10px 0 0;
+            text-align: center;
+        }
+
+        .block .ft ul {
+            height: 30px;
+            margin: 0 0 0 250px;
+        }
+
+        .block .ft li {
+            float: left;
+            margin: 0 50px 0 20px;
+        }
+
+        .block ul {
+            margin: 0 0 0 20px;
+        }
+
+        .block a {
+            text-decoration: none;
+        }
+
+        .block a:link {
+            color: #6D6D6D
+        }
+
+        .block a:visited {
+            color: #6D6D6D
+        }
+
+        .block a:hover {
+            color: #ff0000
+        }
+
+        .block a:active {
+            color: #6D6D6D
+        }
+
+        ul.index {
+            line-height: 1.8;
+        }
+
+        a.backToTop {
+            width: 60px;
+            height: 60px;
+            background: #eaeaea url(/static/images/top.gif) no-repeat -51px 0;
+            text-indent: -999em
+        }
+
+        a.backToTop:hover {
+            background-position: -113px 0
+        }
+
+        .block .bd p {
+            text-indent: 2em;
+            font-size: 13px;
+            line-height: 18px;
+        }
+
+        .block .bd img {
+            margin: 20px 0 20px 0;
+        }
+
+        .bd_left {
+            float: left;
+            width: 20%;
+            margin: 5px 10px 0 0;
+        }
+
+        .bd_right {
+            float: left;
+            width: 75%;
+            border: 1px solid #CDE1EF;
+            margin: 5px 0 0 0;
+        }
+
+        ul {
+            counter-reset: section;
+            list-style-type: none;
+        }
+
+        li::before {
+            content: counters(section, ".") " ";
+            counter-increment: section;
+        }
+        body{
+            counter-reset: h-section;
+        }
+        .block-title{
+            counter-reset: sub-section;
+        }
+        .bd_right h3::before {
+            content: counter(h-section) " ";
+            counter-increment: h-section;
+        }
+        .bd_right h4::before {
+            counter-increment: sub-section;
+            content: counter(h-section) "." counter(sub-section) " ";
+        }
+
+    </style>
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="/static/js/gototop.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $(".backToTop").goToTop();
+            $(window).bind('scroll resize', function () {
+                $(".backToTop").goToTop();
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="hd">
+    <div class="header">
+        <h1>{{title}}帮助文档</h1>
+    </div>
+</div>
+<div id="bd">
+    <div class="bd_left">
+        <div class="wrap">
+            <div class="block">
+                <div class="hd"><h3>目 录</h3></div>
+                <div class="bd">
+                    <ul class="index">
+                        <li><a href="#block-1">网络管理</a>
+                            <ul>
+                                <li><a href="#netset">网络设置</a></li>
+                                <li><a href="#smtp">邮件服务</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-2">用户管理</a>
+                            <ul>
+                                <li><a href="#usermanager">用户</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-3">存储管理</a>
+                            <ul>
+                                <li><a href="#storageunit">存储单元管理</a></li>
+                                <li><a href="#storagequta">存储配额管理</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-4">设置</a>
+                            <ul>
+                                <li><a href="#aioupdate">系统更新</a></li>
+                                <li><a href="#agentmanager">客户端管理</a></li>
+                                <li><a href="#giveright">授权管理</a></li>
+                                <li><a href="#sysset">系统设置</a></li>
+                                <li><a href="#mekestartmiedu">制作启动介质</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-5">日志管理</a>
+                            <ul>
+                                <li><a href="#operationglog">操作日志</a></li>
+                                <li><a href="#updatalog">更新日志</a></li>
+                                <li><a href="#agentlog">客户端日志</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-6">备份</a>
+                            <ul>
+                                <li><a href="#newbackupmission">新建备份计划</a></li>
+                                <li><a href="#backupmanager">备份计划管理</a></li>
+                                <li><a href="#taskpolicy">备份计划策略</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-7">恢复</a>
+                            <ul>
+                                <li><a href="#restore">恢复</a></li>
+                                <li><a href="#reviewbackupdata">浏览备份</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-8">部署</a>
+                            <ul>
+                                <li><a href="#deploy">部署</a></li>
+                                <li><a href="#addmirror">添加镜像</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-9">迁移</a>
+                            <ul>
+                                <li><a href="#migrations">迁移</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#block-10">业务报告</a>
+                            <ul>
+                                <li><a href="#storagestatus">容量状态报告</a></li>
+                                <li><a href="#devicestatus">设备历史状态报告</a></li>
+                                <li><a href="#safetyreport">安全状态报告(普通管理员)</a></li>
+                                <li><a href="#storagestatus1">容量状态报告(普通管理员)</a></li>
+                                <li><a href="#devicestatus1">设备历史状态报告(普通管理员)</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bd_right">
+        <div class="block block-title" id="block-1">
+            <div class="hd"><h3>网络管理</h3></div>
+        </div>
+        <div class="block" id="netset">
+            <div class="hd"><h4>网络设置</h4></div>
+            <div class="bd">
+                <p>{{title}}所用设备会搭配多块网卡，默认情况下会将全部网卡聚合为一个网络接口， 这样可成N倍的提高网络吞吐，并自动均衡各物理网卡的负载。
+                    如需在不同的子网中使用{{title}}，可从聚合网络接口中移除网卡，单独设置其IP为其它的子网网段。</p>
+                <img src="/static/help/images/image001.png" alt="">
+                <p>所有设置完成后“保存”才会生效。其中PXE功能是用于客户端通过PXE连接到{{title}}设备进行恢复操作。</p>
+            </div>
+        </div>
+        <div class="block" id="smtp">
+            <div class="hd"><h4>邮件服务</h4></div>
+            <div class="bd">
+                <p>
+                    邮件服务器作为{{title}}向用户发送邮件的平台，可用于找回忘记的密码、告知{{title}}各项任务的执行结果、产生的错误及其它重要的需要用户了解的信息。设置邮件服务器前，请先完成网络设置，确保{{title}}可访问到邮件服务器；并核对发件人的邮箱/用户名/密码真实有效。</p>
+                <img src="/static/help/images/image003.png" alt="">
+                <p>设置邮件服务器信息，并核对发件人的邮箱/用户名/密码真实有效，设置完成后可点击“发送测试邮件”按钮，如果能接收到测试邮件说明设置正确，设置完成后点击“保存”按钮保存设置。</p>
+                <img src="/static/help/images/image005.png" alt="">
+                <p>在“发送邮件范围”页面，根据用户需求设置自动发送邮件的条件，设置完成后请点击“保存”按钮保存设置。</p>
+            </div>
+        </div>
+        <div class="block block-title" id="block-2">
+            <div class="hd"><h3>用户管理</h3></div>
+        </div>
+        <div class="block" id="usermanager">
+            <div class="hd"><h4>用户</h4></div>
+            <div class="bd">
+                <p><strong>新建用户：</strong>创建{{title}}系统管理员用户，使用此用户Web登录{{title}}管理界面，实现对权限内的客户端做备份、恢复、部署、迁移等及其它各项管理。</p>
+                <img src="/static/help/images/image007.png" alt="">
+                <p>请使用邮箱作为用户名，用于接收{{title}}发送各种通知和设定的任务的执行状态，设置好用户名和用户描述后，请切换到功能授权页面勾选用户授权功能；</p>
+                <img src="/static/help/images/image009.png" alt="">
+                <p>除系统状态外，其它所有功能项都支持授权或不授权，然后点击“确定”完成新建用户操作。在不更改功能授权项时，用户默认已授权的功能包括：系统状态、备份、恢复、设置、日志管理和业务报告。</p>
+                <p><strong>编辑用户：</strong>在用户列表中，选择一个需要更改的用户，然后点击”编辑用户“功能按钮，在用户信息页面，可以更改用户描述，在功能授权页面，
+                    除系统状态外，其它所有功能项都支持状态更改。更改完成后，请点击“确定”按钮使更改生效。</p>
+                <p><strong>删除用户：</strong>删除用户前请保证以下资源已移除：1.分配给此用户的客户端；2.存储配额。如果以上两项其中一项未移除，则不能删除此用户。在用户列表中，选择一个或多个需要删除的用户，然后点击“删除”按钮，删除后用户的操作日志也将一并删除，且不可恢复。
+                </p>
+                <p><strong>启用\禁用用户：</strong>在用户列表中，选择一个或多个需要改变状态的用户，然后点击“启用\禁用”按钮改变用户状态。</p>
+                <p><strong>重置密码：</strong>如果用户忘记登录密码，在用户列表中勾选需要重置密码的用户，然后点击“重置密码”按钮，会发送重置密码链接到邮箱，用户点击此链接进去设置新密码即可。</p>
+                <p><strong>登录解锁：</strong>如果有用户被锁定，在用户列表中勾选需要解锁的用户，然后点击“登录解锁”按钮，在弹出的提示中点击“确定”成功解锁所选用户。</p>
+
+            </div>
+        </div>
+        <div class="block block-title" id="block-3">
+            <div class="hd"><h3>存储管理</h3></div>
+            <div class="bd">
+                <p>挂接了本地存储设备或物理连接了外部存储到{{title}}设备后，需要通过存储单元管理中的”添加“功能将存储添加到存储单元池并在存储配额管理中分配给用户后，用户才能使用。</p>
+            </div>
+        </div>
+        <div class="block" id="storageunit">
+            <div class="hd"><h4>存储单元管理</h4></div>
+            <div class="bd">
+                <h5>添加：</h5>
+                <p><strong>添加本地存储：</strong>存储单元管理界面点击“添加”按钮，在弹出的向导中选择添加本地存储，选择刷新出来的本地存储，点击“初始化并添加”，弹出确认提示，确认后开始添加本地存储；
+                </p>
+                <p><strong>添加外地存储：</strong>存储单元管理界面点击“添加”按钮，在弹出的向导中选择添加外地存储，连接一个或多个iSCSI外部存储设备，并将每一个LUN添加为一个外部存储单元。</p>
+                <img src="/static/help/images/image011.png" alt="">
+                <p>
+                    外部存储是通过IP地址连接，端口根据外部存储实际端口填写，默认端口是3260，CHAP信息根据实际配置填写，如果要使用相互身份验证功能，请在此界面上点“配置”设置或在连接配置中进行发起程序CHAP机密设置，填写完成后点击“连接”连接外部存储。</p>
+                <h5>重命名：</h5>
+                <p>重命名存储单元名称，此名称在创建备份计划选择存储设备时被使用。</p>
+                <h5>删除：</h5>
+                <p>
+                    如果有存在于存储单元池中但物理设备已经移除，或不再使用的的存储单元，可以进行删除，操作步骤：在存储单元管理界面，选择要删除一个或多个存储单元，点击“删除”按钮，在弹出的提示中点击“确认”。删除存储单元不会删除存储单元中的数据，如果选择当前正在备份的存储单元，会弹出删除配额后再来删除的提示。</p>
+                <h5>连接配置：</h5>
+                <p>iSCSI发起程序名称（IQN）默认有一个名称，可以更改此名称，也可以进行发起程序CHAP机密设置。</p>
+            </div>
+        </div>
+        <div class="block" id="storagequta">
+            <div class="hd"><h4>存储配额管理</h4></div>
+            <div class="bd">
+                <p>管理所有已添加的存储单元的分配情况。</p>
+                <h5>添加用户配置：</h5>
+                <p>在存储单元池中选择要添加用户配额的存储单元，点击“添加用户配置”；</p>
+                <img src="/static/help/images/image013.png" alt="">
+                <p>根据需要给用户分配配额，到达警告等级时将会发送警告邮件给用户，分配完成后，会显示到存储单元用户配额状态列表中。</p>
+                <h5>编辑：</h5>
+                <p>首先在存储单元池中选择要编辑的用户配额所在存储单元，然后在存储单元用户配额状态列表中勾选要编辑的项，点击“编辑”更改用户配额。</p>
+                <h5>删除：</h5>
+                <p>首先在存储单元池中选择要删除的用户配额所在存储单元，然后在存储单元用户配额状态列表中勾选要删除的项，点击“删除”删除用户配额，用户配额删除后将无法进行备份，及CDP的保护。</p>
+
+            </div>
+        </div>
+        <div class="block block-title" id="block-4">
+            <div class="hd"><h3>设置</h3></div>
+        </div>
+        <div class="block" id="aioupdate">
+            <div class="hd"><h4>系统更新</h4></div>
+            <div class="bd">
+                <p><strong>{{title}}更新：</strong>点击{{title}}更新界面上的“立即更新”，先在下载地址下载更新镜像文件，然后选择此镜像文件，点击“上传并更新”按钮，服务器会立即执行更新命令。
+                </p>
+                <p><strong>启动介质数据源更新：</strong>点击启动介质数据源更新界面上的“立即更新”，先在下载地址下载更新镜像文件，然后选择此镜像文件，点击“上传并更新”按钮，服务器会立即执行更新命令。
+                </p>
+                <p><strong>服务器驱动更新：</strong></p>
+                <p><strong>去重数据更新：</strong></p>
+            </div>
+        </div>
+        <div class="block" id="agentmanager">
+            <div class="hd"><h4>客户端管理</h4></div>
+            <div class="bd">
+                <h5>普通管理员</h5>
+                <p><strong>查询：</strong>根据客户端名称及所属用户进行过滤，两个过滤条件只能选择其中一个条件进行过滤查询操作。</p>
+                <p><strong>重命名：</strong>在客户端管理列表中，选择需要重命名的客户端，点击“重命名”，更改客户端名称。</p>
+                <p><strong>分配给：</strong>在客户端管理列表中，选择一个或多个客户端，点击“分配给”，将所选客户端分配给用户，每台客户端只能分配给一个用户。</p>
+                <h5>超级管理员</h5>
+                <p>查看并管理分配给此登录系统管理员的客户端。</p>
+                <img src="/static/help/images/image082.png" alt="">
+                <p>
+                    列表中会列表出所有已分配给此登录系统管理员的客户端，显示出包括客户端名称、机器名、在线状态和最近在线时间。勾选某一客户端，在页面下方会列出此客户端的所有详细信息。“重命名”功能可以修改选中的客户端名称，一次只能选择一个客户端进行重命名</p>
+            </div>
+
+        </div>
+        <div class="block" id="giveright">
+            <div class="hd"><h4>授权管理</h4></div>
+            <div class="bd">
+                <p></p>
+            </div>
+        </div>
+        <div class="block" id="sysset">
+            <div class="hd"><h4>系统设置</h4></div>
+            <div class="bd">
+                <p><strong>维护密钥：</strong>
+                <p>
+                    登录{{company}}一体机工程师模式，需要得到{{company}}售后和企业管理员的共同授权——双方人员提供各自的密码，并将密码组合后才是有效的登录密码，才能使用工程师模式登录一体机后台做必要的维护或设置。</p>
+                <p>本机制旨在维护{{company}}知识产权和企业数据的安全性。工程师模式的登录密码由一体机的admin用户的密码 ＋ 维护密钥转换密码 构成，且每次更改admin密码后，维护密钥也会发生相应的改变</p></p>
+                <p><strong>电源管理：</strong>通过电源管理可以在一分钟内重启或关闭{{title}}设备，也可以取消重启或关机命令。</p>
+                <p><strong>密码策略：</strong>用于设置密码安全等级，设置后用户新设置的密码必须符合设定的安全等级的要求；而已经设定的密码仍然可用，无论是否符合安全等级的要求。</p>
+                <p><strong>登录设置：</strong>用于设置通过WEB登录锁定账号及自动解锁设置。</p>
+                <p><strong>服务器时间：</strong>用于设置当前{{title}}设备时间。</p>
+            </div>
+        </div>
+        <div class="block" id="mekestartmiedu">
+            <div class="hd"><h4>制作启动介质</h4></div>
+            <div class="bd">
+                <p>
+                    启动介质是用于在使用{{title}}的备份点恢复目标客户端时，需要客户端重启到此启动介质，并通过启动介质中内建的程序连接{{title}}，完成恢复的过程。启动介质可以是光盘或U盘。</p>
+                <img src="/static/help/images/image078.png" alt="">
+                <p>第一步：请先选择连接的{{title}}IP地址，这里会列出{{title}}使用的所有IP地址，根据实际需求进行选择；</p>
+                <p>第二步：设定启动介质IP，启动介质启动后可通过DHCP方式自动获取指定的IP设置（需要网络中有DHCP
+                    Server），也可以设置为静态的IP。请根据当前的网络情况来做适当的IP设置。其中端口号设置为20000，不然无法连接{{title}}。</p>
+                <p>第三步：第一步和第二步设置完成后，点击“重成下载链接”生成ISO文件，等待几分钟待ISO文件成功后，点击ISO下载链接下载ISO文件。</p>
+                <p>第四步：制作启动介质：</p>
+                <p style="text-indent: 4em">启动光盘：使用光盘刻录软件（建议使用Nero）将”步骤三“中下载的ISO文件刻录为启动光盘。</p>
+                <p style="text-indent: 4em">启动U盘：使用第三方工具UItraISO－”启动“－”写入硬盘映像...“功能将ISO文件写如到U盘。</p>
+                <div class="block" id="mekestartmiedu2">
+                    <div class="hd">
+                        <h6>当用于VMware虚拟化环境 Windows Serever 2003 32位时，请按下图更改设置为64位：</h6>
+                    </div>
+                    <img src="/static/help/images/image083.png" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="block block-title" id="block-5">
+            <div class="hd"><h3>日志管理</h3></div>
+        </div>
+        <div class="block" id="operationglog">
+            <div class="hd"><h4>操作日志</h4></div>
+            <div class="bd">
+                <p>在操作日志中，显示所有操作日志。</p>
+                <p><strong>查询：</strong>根据类型、事件、描述及操作时间段等条件查询操作日志。</p>
+                <img src="/static/help/images/image014.png" alt="">
+                <p><strong>导出：</strong>导出列表中的部份或所有日志，导出后需要手动下载。</p>
+                <img src="/static/help/images/image015.png" alt="">
+                <p>
+                    <srrong>删除：</srrong>
+                    删除一条或多条操作日志。
+                </p>
+                <p>
+                    <srrong>全部删除：</srrong>
+                    删除所有已产生的操作日志。
+                </p>
+                <p>
+                    <srrong>显示所有：</srrong>
+                    显示所有已产生的操作日志。
+                </p>
+            </div>
+        </div>
+        <div class="block" id="updatalog">
+            <div class="hd"><h4>更新日志</h4></div>
+            <div class="bd">
+                <p>在更新日志中，显示admin用户所有更新日志。</p>
+                <p><strong></strong>查询：根据类型、事件、描述及操作时间段等条件查询日志。</p>
+                <p><strong></strong>导出：导出列表中的部份或所有日志，导出后需要手动下载。</p>
+                <p><strong></strong>删除：删除一条或多条日志。</p>
+                <p><strong></strong>全部删除：删除所有已产生的日志。</p>
+                <p><strong></strong>显示所有：显示所有已产生的日志。</p>
+            </div>
+        </div>
+        <div class="block" id="agentlog">
+            <div class="hd"><h4>客户端日志</h4></div>
+            <div class="bd">
+                <p>所有分配给登录的系统管理员的客户端的日志都会显示到客户端日志中。</p>
+                <p><strong>查询：</strong>根据类型、事件、描述及操作时间段等条件查询日志。</p>
+                <p><strong>导出：</strong>导出列表中的部份或所有日志，导出后需要手动下载。</p>
+                <p><strong>删除：</strong>删除一条或多条日志。</p>
+                <p><strong>全部删除：</strong>删除所有已产生的日志。</p>
+                <p><strong>显示所有：</strong>显示所有已产生的日志。</p>
+            </div>
+        </div>
+        <div class="block block-title" id="block-6">
+            <div class="hd"><h3>备份</h3></div>
+        </div>
+        <div class="block" id="newbackupmission">
+            <div class="hd"><h4>新建备份计划</h4></div>
+            <div class="bd">
+                <h5>新建定时备份计划</h5>
+                <p>定时备份是在备份计划设置的时间自动进行客户端备份。在客户端列表中，选择需要创建备份计划的客户端，然后点击“下一步”；</p>
+                <img src="/static/help/images/image017.png" alt="">
+                <p>设置任务名称及选择备份存储设备后，点击“下一步”；</p>
+                <img src="/static/help/images/image019.png" alt="">
+                <p><strong></strong>仅备份一次：仅执行一次备份计划，设定开始日期及时间即可，完成备份后任务即终结。</p>
+                <p><strong></strong>按间隔时间： 备份间隔可设置为分/时/天，需设定备份的开始时间。</p>
+                <p><strong></strong>每周：备份间隔为周，设定每周的星期x为备份时间，如：每周星期二、星期四备份，需设定备份的开始时间。</p>
+                <p><strong></strong>每月：备份间隔为月，设定每月的x日备份，如：每月的10、20、29日备份，需设定备份的开始时间。</p>
+                <p>设置好备份计划后，点击“下一步”；</p>
+                <img src="/static/help/images/image021.png" alt="">
+                <p>设置任务名称及选择备份存储设备后，点击“下一步”；</p>
+                <img src="/static/help/images/image023.png" alt="">
+                <p>
+                    确认备份计划信息，如果需要更改，请用“上一步”返回更改任务，点击“完成”完成备份计划的创建，完成后会弹出完成窗口，点击“完成设置”，将会创建此计划，点击“立即备份”，将会创建此计划任务，并立即备份。</p>
+                <h5>新建连续数据保护(CDP)备份计划</h5>
+                <p>连续数据保护(CDP)对数据源做连续的数据保护，可将被保护的数据源恢复到任意时间点（最小间隔可低于1秒）也需要更多的存储空间。在客户端列表中，选择需要创建备份计划的客户端，然后点击“下一步”；</p>
+                <img src="/static/help/images/image017.png" alt="">
+                <p>设置任务名称及选择备份存储设备后，点击“下一步”；</p>
+                <img src="/static/help/images/image025.png" alt="">
+                <p>勾选“连续数据保护（CDP）”项，点击“下一步”；</p>
+                <img src="/static/help/images/image027.png" alt="">
+                <p>
+                    根据需要进行备份数据空间清理和备份网络带宽占用等设置，默认CDP会设置为期1周的连续数据保护的窗口期，在此时间段内，{{title}}会记录任意时刻客户机的状态，还原时可使用精确到微秒级的时间点做恢复；超过窗口期，CDP数据将按天做数据合并，每天仅保留和开始时间相对应时间点的客户端状态。</p>
+                <p>{{title}}同时提供同步和异步2种方式的连续数据保护CDP模式，用户可根据自生企业服务器的业务需求选择适合的保护模式。</p>
+                <p><strong>同步CDP：</strong>数据优先的连续数据保护模式。本模式下客户端被保护数据会被同步备份到{{title}}的存储单元，{{title}}和被保护客户端的数据保持完全一致，实现RTO＝0，客户端的出现任何的数据损坏或丢失，都可以得到恢复。
+                </p>
+                <p>同步CDP模式适合对RTO指标要求高的企业客户，需要LAN的网络带宽要求高，1Gb或10Gb的网络带宽。</p>
+                <p><strong>异步CDP：</strong>业务优先的连续数据保护模式。本模式下客户端被保护数据写入本地磁盘的同时会被copy一份到内存中，并在稍后的时间里被写入到{{title}}的存储单元。异步CDP模式优先考虑客户端业务系统的执行效率，做到实现CDP保护的同时，对业务系统性能的影响近乎为0。
+                </p>
+                <p>异步CDP模式适合对业务系统的执行和实时响应要求高的企业。</p>
+                <p>所有设置设置好后，点击“下一步”；</p>
+                <img src="/static/help/images/image029.png" alt="">
+                <p>
+                    确认备份计划信息，如果需要更改，请用“上一步”返回更改任务，点击“完成”完成备份计划的创建，完成后会弹出完成窗口，点击“完成设置”，将会创建此计划，点击“立即备份”，将会创建此计划任务，并立即备份。</p>
+            </div>
+        </div>
+        <div class="block" id="backupmanager">
+            <div class="hd"><h4>备份计划管理</h4></div>
+            <div class="bd">
+                <h5>新建备份：</h5>
+                <p>创建新的备份计划，详细操作参见：新建备份计划功能说明。</p>
+                <h5>立即备份：</h5>
+                <p>勾选备份计划列表中处于启用状态的任意一个或多个备份计划，点击“立即备份”，在弹出的提示中点击“确定”，如果此任务的客户端没有处于备份状态，则会立即进行备份。</p>
+                <h5>删除任务：</h5>
+                <p>勾选备份计划列表中任一备份计划，点击“删除任务”，在弹出的提示中点击“确定”，勾选的备份计划被删除，备份计划删除后相关备份点也会被成功删除。</p>
+                <h5>启用\禁用：</h5>
+                <p>选择一个或多个备份计划，点击“启用/禁用”按钮，在弹出的提示中点击“确定”，如果是已处于启用状态的备份计划，那么会禁用此备份计划，如果是已处于禁用状态的备份计划，那么会启用此备份计划。</p>
+                <h5>更改计划：</h5>
+                <p>选择需要更改的一个备份计划，点击“更改计划”按钮，根据向导修改所选备份计划设置。</p>
+                <p>以下不能修改项：</p>
+                <p style="text-indent:4em;">1．不能将定时备份修改为cdp保护；</p>
+                <p style="text-indent:4em;">2．不能将cdp保护修改为定时备份；</p>
+                <p style="text-indent:4em;">3．不能将同步cdp保护修改为异步cdp保护；</p>
+                <p style="text-indent:4em;">4．不能将异步cdp保护修改为同步cdp保护；</p>
+                <p style="text-indent:4em;">5. 不能修改备份源客户端。</p>
+                <h5>刷新：</h5>
+                <p>刷新备份计划。</p>
+            </div>
+        </div>
+        <div class="block" id="taskpolicy">
+            <div class="hd"><h4>备份计划策略</h4></div>
+            <div class="bd">
+                <h5>新建策略</h5>
+                <p>点击“新建策略”弹出新建策略向导界面；</p>
+                <img src="/static/help/images/image031.png" alt="">
+                <p><strong>连续数据保护（CDP）: </strong>连续数据保护(CDP)对数据源做连续的数据保护，可将被保护的数据源恢复到任意时间点（最小间隔可低于1秒）也需要更多的存储空间。</p>
+                <p><strong>仅备份一次：</strong>仅执行一次备份计划，设定开始日期及时间即可，完成备份后任务即终结。</p>
+                <p><strong>按间隔时间： </strong>备份间隔可设置为分/时/天，需设定备份的开始时间。</p>
+                <p><strong>每周：</strong>备份间隔为周，设定每周的星期x为备份时间，如：每周星期二、星期四备份，需设定备份的开始时间。</p>
+                <p><strong>每月：</strong>备份间隔为月，设定每月的x日备份，如：每月的10、20、29日备份，需设定备份的开始时间。</p>
+                <h5>新建定时备份策略</h5>
+                <p>定时备份策略是在设置的计划时间自动进行备份，进入新建策略向导界面；
+                    <img src="/static/help/images/image031.png" alt="">
+                <p>定时备份策略包括仅备份一次、按间隔时间、每周、每月，设置好策略名称和备份计划后，点击“下一步”；</p>
+                <img src="/static/help/images/image034.png" alt="">
+                <p>根据需要进行备份数据空间清理、备份网络带宽占用及数据传输方式等设置，然后点击“下一步”；</p>
+                <img src="/static/help/images/image036.png" alt="">
+                <p>确认备份计划信息，点击“完成”完成备份计划的创建，完成后会弹出完成窗口，点击“完成”创建此策略</p>
+                <h5>新建连续数据保护(CDP)策略</h5>
+                <p>连续数据保护(CDP)对数据源做连续的数据保护，可将被保护的数据源恢复到任意时间点（最小间隔可低于1秒）也需要更多的存储空间。</p>
+                <img src="/static/help/images/image038.png" alt="">
+                <p>设置好策略名称，勾选连续数据保护（CDP）项后，点击“下一步”；</p>
+                <img src="/static/help/images/image040.png" alt="">
+                <p>
+                    根据需要进行备份数据空间清理和备份网络带宽占用等设置，默认CDP会设置为期1周的连续数据保护的窗口期，在此时间段内，{{title}}会记录任意时刻客户机的状态，还原时可使用精确到微秒级的时间点做恢复；超过窗口期，CDP数据将按天做数据合并，每天仅保留和开始时间相对应时间点的客户端状态。</p>
+                <p>{{title}}同时提供数据优先和业务优先2种方式的连续数据保护CDP模式，用户可根据自生企业服务器的业务需求选择适合的保护模式。</p>
+                <p><strong>数据优先：</strong>本模式下客户端被保护数据会被同步备份到{{title}}的存储单元，{{title}}和被保护客户端的数据保持完全一致，实现RTO（复原时间目标）＝0，客户端的出现任何的数据损坏或丢失，都可以得到恢复。
+                </p>
+                <p>数据优先模式适合对RTO指标要求高的企业客户，需要LAN的网络带宽要求高。</p>
+                <p><strong>业务优先：</strong>本模式下客户端被保护数据写入本地磁盘的同时会被copy一份到内存中，并在稍后的时间里被写入到{{title}}的存储单元。业务优先模式优先考虑客户端业务系统的执行效率，做到实现CDP保护的同时，对业务系统性能的影响近乎为0。
+                </p>
+                <p>业务优先模式适合对业务系统的执行和实时响应要求高的企业。</p>
+                <p>所有设置设置好后，点击“下一步”；</p>
+                <img src="/static/help/images/image042.png" alt="">
+                <p>确认备份计划信息，点击“完成”完成备份计划的创建。</p>
+                <h5>更改策略</h5>
+                <p>在备份计划策略列表中，选择需要更改的策略，然后点击“更改策略”，然后根据向导更改策略。更改策略不会影响之前使用此策略的备份计划，更改后再有备份计划用此策略时，那么使用的是更改后的策略。</p>
+                <h5>删除策略</h5>
+                <p>在备份计划策略列表中，选择需要删除的策略，然后点击“删除策略”。删除策略不会影响已使用此策略的备份计划。</p>
+                <h5>导入策略</h5>
+                <p>在备份计划策略界面上，点击“导入策略”；</p>
+                <img src="/static/help/images/image044.png" alt="">
+                <p>根据需要选择是“保留所有策略”还是“覆盖同名策略”，点击“选择文件”选择需要导入的策略文件，然后点击“导入策略”进行策略导入操作。</p>
+                <h5>导出策略</h5>
+                <p>在备份计划策略列表中，选择需要导出的策略，然后点击“导出策略”，导出后需要后动下载。</p>
+
+            </div>
+        </div>
+        <div class="block block-title" id="block-7">
+            <div class="hd"><h3>恢复</h3></div>
+        </div>
+        <div class="block" id="restore">
+            <div class="hd"><h4>恢复</h4></div>
+            <div class="bd">
+                <p>
+                    {{title}}采用虚拟重定向(独有核心技术)技术，能在数分钟内重新构建客户完整的业务系统，无论此业务系统需要恢复的数据量有多巨大。恢复时，虚拟重定向技术在{{title}}内使用备份点数据虚拟备份点状态的磁盘，从此磁盘虚拟启动，获取重构客户业务系统必须的数据信息，仅将这些获取到的核心数据重定向恢复到目标机；再重启客户端到OS，此时客户的业务系统已经处于可运行状态，从而实现了快速的重构。此时，剩余的备份点数据仍然存放在{{title}}中，这些数据的将遵循先用先恢复的原则在业务系统运行的同时，同步写入到本地磁盘中。</p>
+                <p><strong>{{title}}支持的多种连接恢复方式：</strong></p>
+                <p><strong>PXE连接：</strong>PXE连接需要做如下2项设置：1.
+                    使用管理员账户登录{{title}}Web管理界面，在网络设置中开启PXE服务，在客户端电脑BIOS中设置LAN为第一启动顺序，完成如上步骤后，即可启动客户端电脑连接到{{title}}，任意一个系统管理员登录到Web管理界面中完成恢复过程。
+                </p>
+                <p><strong>启动介质：</strong>包括启动U盘和启动光盘，制作启动介质的ISO是在哪个管理员下下载制作的的，通过启动介质启动连接到{{title}}后就登录到哪个管理员下执行恢复操作。
+                </p>
+                <p>启动U盘和启动光盘的制作方法详见“设置”—“制作启动介质”。</p>
+                <p><strong>Agent还原：</strong>客户端连接到服务器即可恢复。通过Agent登录还原的客户端，如果此客户端处于未分配状态，那么连接{{title}}后，可以由任意一个系统管理员登录到Web管理界面执行恢复操作，如果此客户端已经分配给其中一个管理员，那么只能由此管理员登录WEB执行恢复操作。
+                </p>
+                <p>
+                    通过PXE或启动介质连接还原，如果还原前客户端已经属于某一用户管理，那么还原后此客户端仍然是属于原来的那个用户管理，如果还原前客户端不属于任一用户管理，那么还原后此客户端自动分配给还原此客户端的这个用户管理。</p>
+                <p>需要恢复的计算机通过以上任意一种连接方式连接到{{title}}，然后系统管理员登录到WEB上，并转到恢复页面，需要要恢复的备份点，然后点击“恢复”；</p>
+                <img src="/static/help/images/image045.png" alt="">
+                <p>客户端列表中列出通过各种连接方式连接到{{title}}的客户端，如果已连接的客户端没有列到此列表中，可以点击“刷新客户端列表”按钮刷新列表。</p>
+                <p>
+                    如果选择的是CDP备份点，那么可以选择还原到此CDP备份点的某一时间点，精确到微秒，如果选择的是非CDP备份点，则还原时间点不能更改，然后选择要恢复的客户端，点击“下一步”，一次只能选择一个客户端进行恢复；</p>
+                <img src="/static/help/images/image047.png" alt="">
+                <p>设置恢复目标机的IP地址信息，一定要设置正确的IP地址等信息，以保证数据能正常恢复，设置好后点击“下一步”；</p>
+                <img src="/static/help/images/image049.png" alt="">
+                <p>列表中会列出所有备份源服务器名硬盘数据，选择源服务器名硬盘数据及相对应的要恢复到的目标机硬盘，引导盘必须要恢复，其它非引导盘可以根据需要进行勾选，然后点击“下一步”；</p>
+                <p>
+                    弹出的确认窗口中点击“确定”开始恢复操作。正常状态几分钟后恢复机就能启动到操作系统，此时恢复机能正常使用，恢复数据会在后台继续恢复，但是硬盘数据并未完全恢复，所以数据恢复完成前，保证客户端正常连接到{{title}}，如果恢复过程中客户端掉线，请在24小时内恢复连接，否则系统将不能正常使用。</p>
+            </div>
+        </div>
+        <div class="block" id="reviewbackupdata">
+            <div class="hd"><h4>浏览备份</h4></div>
+            <div class="bd">
+                <h5>浏览备份数据</h5>
+                <p>在恢复功能页面上，选择需要浏览数据的备份点，包括CDP和非CDP备份点，然后点击“浏览备份数据”</p>
+                <img src="/static/help/images/image051.png" alt="">
+                <p>弹出浏览备份数据窗口，如果是CDP备份，则可以选择此备份点范围内的所有时间点，然后点击“确定”；</p>
+                <img src="/static/help/images/image052.png" alt="">
+                <p>生成访问地址、用户名和密码信息，打开访问地址，输入正确的用户名和密码就能浏览备份数据。在此窗口中点击“关闭访问链接”关闭此备份点数据的浏览。</p>
+                <h5>浏览备份</h5>
+                <p>打开WEB上的浏览备份功能项，里面列出所有已打开的备份点；</p>
+                <img src="/static/help/images/image053.png" alt="">
+                <p>鼠标移动到某一列表上，会出现“关闭”按钮，点击后关闭相应浏览备份点的访问地址。</p>
+                <p>
+                    重置浏览备份点的用户名和密码：在使用此功能前所打开的所有备份点的访问地址、用户名和密码都是相同的，重置浏览备份点的用户名和密码前，请先关闭所有的备份点，然后再点击“重置浏览备份点的用户名和密码”按钮；</p>
+                <img src="/static/help/images/image055.png" alt="">
+                <p>在弹出的确认窗口中点击“确定”，需要重启计算机或使用net use命令清除缓存才能生效。</p>
+            </div>
+        </div>
+        <div class="block block-title" id="block-8">
+            <div class="hd"><h3>部署</h3></div>
+        </div>
+        <div class="block" id="deploy">
+            <div class="hd"><h4>部署</h4></div>
+            <div class="bd">
+                <p>内置企业用户常用OS环境，可通过部署功能快速将系统部署到物理机、虚拟化或公/私有云端；</p>
+                <p>支持在{{company}}云端购买/下载适应各种业务场景的定制解决方案的云计算产品，免去了从安装OS、搭建业务系统、配置等繁琐冗长的部署过程，极大的节省了时间和精力。注：此功能需要{{company}}云端
+                    提供各项产品支持。</p>
+                <img src="/static/help/images/image056.png" alt="">
+                <p>点击“下一步”；</p>
+                <img src="/static/help/images/image058.png" alt="">
+                <p>客户端列表中显示出所有以各种方式连接到{{title}}上的客户端，选择要部署的客户端，然后点击“下一步”；</p>
+                <img src="/static/help/images/image060.png" alt="">
+                <p>填写正确的IP地址等信息，点击“下一步”；</p>
+                <img src="/static/help/images/image062.png" alt="">
+                <p>选择需要部署的目标机硬盘，然后点击“开始部署”部署选定的系统。</p>
+            </div>
+        </div>
+        <div class="block" id="addmirror">
+            <div class="hd"><h4>添加镜像</h4></div>
+            <div class="bd">
+                <p>从已有的备份点或从{{company}}云端添加为镜像文件，以用于通过部署功能快速将系统部署到物理机、虚拟化或公/私有云端。</p>
+                <p><strong>从备份点添加：</strong></p>
+                <p>从用户各备份源客户端中的备份点中选择需要添加为镜像的备份点；</p>
+                <img src="/static/help/images/image064.png" alt="">
+                <p>点击“添加到镜像”；</p>
+                <img src="/static/help/images/image066.png" alt="">
+                <p>在弹确认信息窗口，点击“确定”，此备份点被成功添加到镜像，添加后该点不会被自动删除，在部署页面会看到此镜像被列出。</p>
+            </div>
+        </div>
+        <div class="block block-title" id="block-9">
+            <div class="hd"><h3>迁移</h3></div>
+        </div>
+        <div class="block" id="migrations">
+            <div class="hd"><h4>迁移</h4></div>
+            <div class="bd">
+                <p>
+                    实现将客户端整机－包括OS、业务系统和各种业务数据整体迁移到指定的目标机中的功能。迁移不会受到硬件平台的限制，可在完全不同的硬件平台之间实现迁移。源客户端可以是物理机、虚拟化平台、公/私有云端；目标执行环境也可以是物理机、虚拟化平台、公/私有云端。</p>
+                <img src="/static/help/images/image067.png" alt="">
+                <p>选择需要迁移的客户端，然后点击“下一步”；</p>
+                <img src="/static/help/images/image069.png" alt="">
+                <p>选择迁移到的目标机，源和目标机不能是同一台客户端，点击“下一步”；</p>
+                <img src="/static/help/images/image071.png" alt="">
+                <p>设置正常的IP地址等信息后，点击“下一步”；</p>
+                <img src="/static/help/images/image073.png" alt="">
+                <p>列表中会列出所有备份源服务器名硬盘数据，选择源服务器名硬盘数据及相对应的要迁移到的目标机硬盘，引导盘必须要迁移，其它非引导盘可以根据需要进行勾选，然后点击“开始迁移”；</p>
+                <p>在弹出的确认信息提示中点击“确定”；</p>
+                <img src="/static/help/images/image075.png" alt="">
+                <p>开始执行迁移操作，详细信息请在客户端日志中查看。迁移执行几分钟后，目标机便能启动到系统中并能正常使用，但此时迁移并未完成，迁移完成前，迁移源机器必须一直在线状态。</p>
+            </div>
+        </div>
+        <div class="block block-title" id="block-10">
+            <div class="hd"><h3>业务报告</h3></div>
+        </div>
+        <div class="block" id="storagestatus">
+            <div class="hd"><h4>容量状态报告(超级管理员)</h4></div>
+            <div class="bd">
+                <p>查看或导出各存储单元的容量空间使用状态以及某一时间段的容量空间增长情况。</p>
+            </div>
+        </div>
+        <div class="block" id="devicestatus">
+            <div class="hd"><h4>设备历史状态报告(超级管理员)</h4></div>
+            <div class="bd">
+                <p>查看或导出{{title}}的宽带占用历史状态和磁盘读写历史状态。</p>
+            </div>
+        </div>
+        <div class="block" id="safetyreport">
+            <div class="hd"><h4>安全状态报告(普通管理员)</h4></div>
+            <div class="bd">
+                <p><strong>概述：</strong>查看分配给登录的系统管理员的所有客户端的风险统计和最近风险，分别统计最近任务失败次数与成功次数，这里的任务包含备份、还原和迁移。</p>
+                <p><strong>数据安全风险：</strong>表中以客户端为对象，展示了客户端最近的备份点时间，用以评估数据的安全风险。风险等级：以备份点距离现在的天数，来划分风险等级，风险等级可以自行设定。</p>
+                <p><strong>执行风险：</strong>表中以客户端为对象，展示了客户端最近一次备份任务失败的时间，用以评估执行备份任务的风险。</p>
+                <p><strong>数据恢复风险：</strong>表中以客户端为对象，展示了客户端最近一次恢复任务失败的时间，用以评估执行恢复任务的风险。</p>
+                <p><strong>迁移风险：</strong>表中以客户端为对象，展示了客户端最近一次迁移任务失败的时间，用以评估执行迁移任务的风险。</p>
+            </div>
+        </div>
+        <div class="block" id="storagestatus1">
+            <div class="hd"><h4>容量状态报告(普通管理员)</h4></div>
+            <div class="bd">
+                <p><strong>容量空间使用状态：</strong>查看给登录的系统管理员分配有配置的各存储单元的使用情况，</p>
+                <p><strong>容量空间的增长：</strong>查看给登录的系统管理员分配有配置的各存储单元在某一时间段的存储容量变更情况。</p>
+            </div>
+        </div>
+        <div class="block" id="devicestatus1">
+            <div class="hd"><h4>容量状态报告(普通管理员)</h4></div>
+            <div class="bd">
+                <p>查看{{title}}的宽带占用历史状态和磁盘IO历史状态。</p>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div id="ft">
+    <div class="footer">{{title}}</div>
+</div>
+
+</body>
+</html>

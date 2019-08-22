@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>接管主机</title>
+    <script type="text/javascript" src="/static/js/noReload.js"></script>
+    <style type="text/css">
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            background-color: #E0E0E0;
+            font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            text-align: center;
+        }
+
+        h1, p {
+            padding: 0;
+            margin: 0;
+        }
+
+        .wrapper {
+            width: 350px;
+            margin: 200px auto;
+        }
+
+        .wrapper p a {
+            color: #757575;
+            text-decoration: none;
+        }
+
+        .wrapper .load-bar {
+            width: 100%;
+            height: 10px;
+            border-radius: 30px;
+            background-color: #D9D9D9;
+            position: relative;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .wrapper .load-bar:hover .load-bar-inner, .wrapper .load-bar:hover #counter {
+            animation-play-state: paused;
+            -moz-animation-play-state: paused;
+            -o-animation-play-state: paused;
+            -webkit-animation-play-state: paused;
+        }
+
+        .wrapper .load-bar-inner {
+            height: 99%;
+            width: 0%;
+            border-radius: inherit;
+            position: relative;
+            background-color: #0096F5;
+            animation: loader 10s linear infinite;
+            -moz-animation: loader 10s linear infinite;
+            -webkit-animation: loader 10s linear infinite;
+            -o-animation: loader 10s linear infinite;
+        }
+
+        .wrapper #counter {
+            position: absolute;
+
+            padding: 5px 10px;
+            border-radius: 0.4em;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 2px 4px 1px rgba(0, 0, 0, 0.2), 0 1px 3px 1px rgba(0, 0, 0, 0.1);
+            left: -25px;
+            top: -35px;
+            font-size: 12px;
+            font-weight: bold;
+            width: 44px;
+            animation: counter 10s linear infinite;
+            -moz-animation: counter 10s linear infinite;
+            -webkit-animation: counter 10s linear infinite;
+            -o-animation: counter 10s linear infinite;
+        }
+
+        .wrapper #counter:after {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #E7E6E3;
+            transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            left: 50%;
+            margin-left: -4px;
+            bottom: -4px;
+            box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 3px 0;
+        }
+
+        .wrapper h1 {
+            font-size: 28px;
+            padding: 20px 0 8px 0;
+        }
+
+        .wrapper p {
+            font-size: 13px;
+        }
+
+        @keyframes loader {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @-moz-keyframes loader {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @-webkit-keyframes loader {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @-o-keyframes loader {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes counter {
+            from {
+                left: -25px;
+            }
+            to {
+                left: 323px;
+            }
+        }
+
+        @-moz-keyframes counter {
+            from {
+                left: -25px;
+            }
+            to {
+                left: 323px;
+            }
+        }
+
+        @-webkit-keyframes counter {
+            from {
+                left: -25px;
+            }
+            to {
+                left: 323px;
+            }
+        }
+
+        @-o-keyframes counter {
+            from {
+                left: -25px;
+            }
+            to {
+                left: 323px;
+            }
+        }
+
+        @keyframes loader {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        .load-bar-inner {
+            height: 99%;
+            width: 0%;
+            border-radius: inherit;
+            position: relative;
+            background: #c2d7ac;
+
+            animation: loader 10s linear infinite;
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrapper">
+    <div class="load-bar">
+        <div class="load-bar-inner" data-loading="0"></div>
+    </div>
+    <h1><span id="kvm_status"></span></h1>
+    <p>正在启动：<span id="kvm_name"></span></p>
+    <div style="display:none;" id="4debug">debug：<span id="kvm_debug"></span></div>
+</div>
+</body>
+
+<script type="text/javascript">
+    if (!window.location.origin) {
+        window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+    }
+
+    if (window.location.protocol == 'https:') {
+        var my_origin = "http://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname + window.location.search;
+        location.href = my_origin;
+    }
+
+    g_get_kvm_info = null;
+    g_kvm_msg = '';
+
+    function get_kvm_run_info_callback(jsonobj) {
+        if (jsonobj.r != 0) {
+            $('#counter').html('0');
+            $('#kvm_status').html(jsonobj.e);
+            return;
+
+        }
+
+        if (jsonobj.info == null) {
+            $('#counter').html('0');
+            $('#kvm_status').html('已发起开机命令，但未检测到接管主机。');
+            return;
+        }
+
+		$('#kvm_name').html(jsonobj.info.kvm_name);
+        $('#kvm_debug').html(jsonobj.info.debug);
+        if (jsonobj.info.debug.indexOf('内存不足') > 0) {
+            $('#kvm_status').html('内存不足');
+        }
+        else {
+            $('#kvm_status').html(jsonobj.info.msg);
+        }
+        if (g_kvm_msg != jsonobj.info.msg) {
+            g_kvm_msg = jsonobj.info.msg;
+            try {
+                if (window.opener) {
+                    window.opener.myopenErrorDialog(null);
+                }
+            }
+            catch (e) {
+            }
+        }
+        if (jsonobj.info.msg == '已开机') {
+            clearInterval(g_get_kvm_info);
+            var port = parseInt(jsonobj.info.vnc_address.split(':')[1]) + 5900;
+            var kvm_pwd = jsonobj.info.kvm_pwd;
+            var id = {{ id }};
+            location.href = "../vnclite?title=" + encodeURIComponent($('#kvm_name').html()) + "&password=" + kvm_pwd + "&token=" + port + "&id=" + id;
+        }
+
+    }
+
+    function get_kvm_info(id) {
+        var params = "id=" + id;
+		params+='&debug=1';
+        myAjaxGet('../takeover_handle/?a=get_kvm_run_info', params, get_kvm_run_info_callback);
+    }
+
+    function myClose() {
+		window.close();
+    }
+
+
+    $(function () {
+        $('#counter').html('20');
+		$('#kvm_status').html('已发送开机命令');
+        var id = {{ id }};
+        g_get_kvm_info = setInterval('get_kvm_info(' + id + ')', 1000);
+
+    });
+
+    $(document).keydown(function (event) {
+        if (event.ctrlKey && event.altKey && event.key == 'p') {
+            $('#4debug').show();
+        }
+    });
+</script>
+</html>

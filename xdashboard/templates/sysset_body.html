@@ -1,0 +1,195 @@
+<div class="right">
+    <table name="ipset" style="margin-left: 10px">
+        <tr><td><p style="margin-bottom:0 ">使用{{ title }}的备份点恢复目标客户端时，需要客户端重启到此启动介质，并通过启动介质中内建的程序连接{{ title }}，完成恢复的过程</p></td></tr>
+        <tr><td style="width: auto"><h4>步骤一：选择{{ title }}IP</h4>
+            <p>选择需要连接的{{ title }}IP地址，启动介质启动后将使用此IP连接{{ title }}。</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <select id="selectoptions">
+            </select>
+            </td>
+        </tr>
+        <tr><td><h4>步骤二：填写IP信息</h4>
+        <p>设定启动介质IP：启动介质启动后可通过DHCP方式自动获取指定的IP设置（需要网络中有DHCP Server），也可以设置一组静态的IP。启动介质启动后会在这一组静态IP中侦测出一个未使用的IP来使用。</p>
+		<p>请根据当前的网络情况来做适当的IP设置。</p></td></tr>
+        <tr>
+            <td><input type="radio" name="bStatic" value="0" checked="checked" id="dhcp" style="margin-left: 0">DHCP(自动获得)&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="bStatic" value="1" id="static">静态</td>
+        </tr>
+        <table id="effect" style="margin-left: 10px;">
+        <tr><td><label for="start_ip">开始IP</label></td>
+        <td><input type="text" name="start_ip" id="start_ip" disabled="true" class="ip" onblur="removespace(this)"></td>
+        <td><label for="end_ip">结束IP</label></td>
+        <td><input type="text" name="end_ip" id="end_ip" disabled="true" class="ip" onblur="removespace(this)"></td>
+        </tr>
+        <tr><td><label for="mask">子网掩码</label></td>
+        <td><input type="text" name="mask" id="mask" disabled="true" class="ip" onblur="removespace(this)"></td>
+        </tr>
+        <tr><td><label for="gateway_ip">默认网关</label></td>
+        <td><input type="text" id="gateway_ip" name="gateway_ip" disabled="true" class="ip" onblur="removespace(this)"></td>
+        </tr>
+        <tr><td><label for="dns1">DNS</label></td>
+        <td><input type="text" id="dns1" name="dns1"disabled="true" class="ip" onblur="removespace(this)"></td>
+        </tr>
+        </table>
+    </table>
+    <div style="margin-left:10px"><h4>步骤三：获取下载链接</h4></div>
+    <div class="menu_btn" style="float:left;margin-right:60px; margin-left:10px" id="button">生成下载链接</div>
+    <div style="display: block; clear:both;margin-top:60px; margin-left:10px;" id="href"><p id="href1"></p></div>
+	<div class="clear"></div>
+    <div style="margin-left:10px">
+        <h4>步骤四：制作启动介质说明</h4>
+        <p>启动光盘：使用光盘刻录软件（建议使用Nero）将”步骤三“中下载的ISO文件刻录为启动光盘。</p>
+        <p>启动U盘：使用第三方工具UItraISO－”启动“－”写入硬盘映像...“功能将ISO文件写如到U盘。</p>
+    </div>
+
+    <div class="mywaite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 50%; display:none;">
+	<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+	<strong>请稍候</strong>正在生成ISO文件，请稍等几分钟</p>
+    </div>
+</div>
+
+<script language="javascript">
+$(function()
+{
+	$('#navigation').html('<div class="font_navigation">制作启动介质</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#mekestartmiedu" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+    myAjaxGet('../download_handle/','a=getiplist',ipListCallback);
+    myAjaxGet('../syssetget_handle/','a=getstartupmedia',FormCallback);
+    $( document ).tooltip({position: { my: "left+15 center", at: "right center" }});
+
+}); 
+
+$("#static").click(function () {
+    $('#effect').show('blind');
+    $(".ip").attr("disabled",false);
+
+});
+
+$("#dhcp").click(function () {
+    $('#effect').hide('blind');
+    $(".ip").attr("disabled",true);
+});
+
+$('#button').button().click(function () {
+
+    var parmars = $("table input").serialize();
+    parmars +="&serv_ip="+$("#selectoptions").val();
+    myAjaxGet('../syssetget_handle/','a=setstartupmedia&'+parmars,GenerateHrefCallback);
+    $("#button" ).button( "option", "disabled", true );
+    $('.mywaite').show();
+    $('#href').css('visibility','hidden');
+
+
+});
+
+function GenerateHrefCallback(jsonstr)
+{
+    $('#href').css('visibility','visible');
+    $('.mywaite').hide();
+    $("#button" ).button( "option", "disabled", false );
+    if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+    if(jsonstr.r!=1)
+	{
+		successTipBox(jsonstr.e);
+	}
+    var host = window.location.origin;
+    var url = host +jsonstr.url
+	$('#href1').html('');
+	$('#href1').append('<p><span>使用启动介质的客户端</span><span style="color:red;">内存</span><span>不低于</span><span style="color:red;">2GB</span></p>');
+    $('#href1').append('<p>下载链接：<a href="'+jsonstr.url+'" style="text-decoration:none;">'+url+'</a><p>');
+	if(window.location.protocol=='http:')
+	{
+		var iso_https_url = 'https://'+window.location.host+jsonstr.url;
+		$('#href1').append('<p>下载链接（https）：<a href="'+iso_https_url+'" style="text-decoration:none;" target="_blank">'+iso_https_url+'</a><p>');
+	}
+    $('#href1').append('<p>链接过期日期：'+jsonstr.exp_data+'</p>');
+	$('#href1').append('<a href="/xdashboard/faq/#mekestartmiedu2" style="color:#555555;" target="blank">当用于<span style="color:red;">VMware</span>虚拟化环境 <span style="color:red;">Windows Serever 2003 32位</span>时，请点击配置说明。</a>');
+}
+
+function FormCallback(jsonstr)
+{
+    if(jsonstr.r!=0)
+	{
+        $('#effect').hide('blind');
+		return;
+	}
+    if(jsonstr.bStatic=='0')
+    {
+        $('#effect').hide('blind');
+        $('#dhcp').prop('checked',true);
+        $('#static').prop('checked',false);
+        if(jsonstr.is_exp =='0')
+        {
+            var host = window.location.origin;
+            var url = host +jsonstr.url
+			$('#href1').html('');
+			$('#href1').append('<p><span>使用启动介质的客户端</span><span style="color:red;">内存</span><span>不低于</span><span style="color:red;">2GB</span></p>');
+			$('#href1').append('<p>下载链接：<a href="'+jsonstr.url+'" style="text-decoration:none;">'+url+'</a></p>');
+			if(window.location.protocol=='http:')
+			{
+				var iso_https_url = 'https://'+window.location.host+jsonstr.url;
+				$('#href1').append('<p>下载链接（https）：<a href="'+iso_https_url+'" style="text-decoration:none;" target="_blank">'+iso_https_url+'</a><p>');
+			}
+			$('#href1').append('<p>链接过期日期：'+jsonstr.exp_data+'</p>');
+			$('#href1').append('<a href="/xdashboard/faq/#mekestartmiedu2" style="color:#555555;" target="blank">当用于<span style="color:red;">VMware</span>虚拟化环境 <span style="color:red;">Windows Serever 2003 32位</span>时，请点击配置说明。</a>');
+        }
+        return;
+    }
+    else
+    {
+		$(".ip").attr("disabled",false);
+		$('#static').attr('checked',true);
+		$('#start_ip').val(jsonstr.start_ip);
+		$('#end_ip').val(jsonstr.end_ip);
+		$('#mask').val(jsonstr.mask);
+		$('#gateway_ip').val(jsonstr.gateway_ip);
+		$('#dns1').val(jsonstr.dns1);
+		if(jsonstr.is_exp =='0')
+		{
+			$('#href1').html('下载链接：<a href="'+jsonstr.url+'" style="text-decoration:none;">'+jsonstr.url+'</a>');
+			$('#href1').append('<p>过期日期:'+jsonstr.exp_data+'</p>');
+			$('#href1').append('<a href="/xdashboard/faq/#mekestartmiedu2" target="blank" style="color:red;">当用于VMware虚拟化环境 Windows Serever 2003 32位时，请点击配置说明。</a>');
+		}
+    }
+}
+
+function ipListCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:'获取AIO地址失败'});
+		return;
+	}
+    var mylist=jsonstr.list;
+    $('#selectoptions').find('.ipchoice').remove();
+    $.each(mylist,function (i,item) {
+       $('#selectoptions').append("<option class='ipchoice' value='"+item+"'>"+item+"</option>");
+    });
+}
+
+$(function () {
+    if (!window.location.origin) {
+        window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
+    }
+	sysset_resize();
+});
+
+function sysset_resize()
+{
+	resizeright();
+	var width = $('.table_menu').width();
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	sysset_resize();	
+});
+</script>

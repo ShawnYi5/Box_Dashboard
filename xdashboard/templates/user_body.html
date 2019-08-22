@@ -1,0 +1,699 @@
+<style type="text/css">
+.aciTree div{ padding: 0em;}
+</style>
+<div class="right">
+	<div class="table_menu">
+		<div class="menu_btn" id="addForm">新建用户</div>
+		<div class="menu_btn" id="editForm">编辑用户</div>
+		<div class="menu_btn" id="delForm">删除用户</div>
+		<div class="menu_btn" id="enbaleForm">启用/禁用</div>
+		<div class="menu_btn" id="resetForm">重置密码</div>
+		<div class="menu_btn" id="unlockForm">登录解锁</div>
+	</div>
+	<input type="hidden" id="userid" name="userid" />
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+
+<div id="userFormDiv" title="新建" class="ajaxForm">
+    <div id="tabs">
+        <ul>
+        <li><a href="#tabs-1">用户信息</a></li>
+        <li><a href="#tabs-2">功能授权</a></li>
+        </ul>
+        <div id="tabs-1">
+            <span>用户角色：</span>
+            <select id="user-type">
+            </select>
+			<div style="margin-top:20px;" id="user_desc"></div>
+            <div style="margin-top:30px;">
+                <table width="100%" border="0" cellspacing="5" cellpadding="0">
+                    <tr height="20">
+                        <td width="25%" align="left">用户名/邮箱：</td>
+                        <td width="75%"><input type="text" class="input" id="username" name="username" onblur="removespace(this)" maxlength="50"/></td>
+                    </tr>
+                    <tr height="20">
+                        <td align="left">&nbsp;</td>
+                        <td><span class="form_tips">
+                            <div id="username_desc"></div>
+                        </span></td>
+                    </tr>
+
+                    <tr height="20">
+                        <td width="25%" align="left">企业微信：</td>
+                        <td width="75%"><input type="text" class="input" id="weixin" name="weixin" onblur="removespace(this)" maxlength="50"/><span class="ui-icon ui-icon-help" style="display: inline-block;top: 2.5px;left: 2.5px;position: relative;" title="在企业微信管理后台->“通讯录”->点进某位成员的详情页获取"></span></td>
+                    </tr>
+                    <tr height="20">
+                        <td align="left">&nbsp;</td>
+                        <td><span class="form_tips">
+                            <div class="normalMode">说明：用于接收{{ title }}发送各种通知和设定的任务的执行状态及找回密码</div>
+{#                            <div class="contentMode">说明：邮箱地址作为登录用户名，用于接收{{ title }}发送各种通知和找回密码</div>#}
+                        </span></td>
+                    </tr>
+
+
+                    <tr height="10">
+                        <td width="25%" align="left">&nbsp;</td>
+                        <td width="75%">&nbsp;</td>
+                    </tr>
+                    <tr height="10">
+                        <td width="25%" align="left">用户描述：</td>
+                        <td width="75%"><textarea id="desc" style="width:200px;height:50px;"></textarea></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="tabs-2">
+            <div>为本用户分配可使用的功能</div>
+            <div>
+            功能授权列表<br /><br />
+            <div id="Servers_Tree1" class="aciTree" style="width:95%;height:290px;border:1px solid #ccc;overflow:auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mywaite ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 50%; display:none;z-index:999;">
+	<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+	<strong>请稍候</strong> 正在发送邮件。</p>
+</div>
+
+{% include 'tree.inc.html' %}
+
+<script type="text/javascript">
+
+var g_user_type = '{{ user_type }}';
+{% if separation_of_the_three_members %}
+var g_separation_of_the_three_members = true;
+{% else %}
+var g_separation_of_the_three_members = false;
+{% endif %}
+
+$(function () {
+    var params="a=get_create_user_type";
+	myAjaxGet('../user_handle/', params, get_create_user_type_callback);
+});
+
+function get_create_user_type_callback(jsonobj) {
+	
+	for(var i=0;i<jsonobj.user_type_list.length;i++)
+	{
+		if(i==0)
+		{
+			set_user_text(jsonobj.user_type_list[i].type,jsonobj.user_type_list[i].name);
+		}
+		$('#user-type').append('<option value="'+jsonobj.user_type_list[i].type+'">'+jsonobj.user_type_list[i].name+'</option>');
+	}
+}
+
+function set_user_text(user_type,user_type_name)
+{
+	if(user_type=='normal-admin')
+	{
+		$('#user_desc').text('创建{{ title }}'+user_type_name+'用户，使用此用户Web登录{{ title }}管理界面，实现对权限内的客户端做备份、恢复、部署、迁移等及其它各项管理。');
+	}
+	else if(user_type=='aud-admin')
+	{
+		$('#user_desc').text('创建{{ title }}'+user_type_name+'，对系统管理员、安全保密管理员的操作行为进行审计跟踪分析和监督检查。');
+	}
+	else if(user_type=='audit-admin')
+	{
+		$('#user_desc').text('创建{{ title }}'+user_type_name+'，对验证及恢复进行审批、查看审批的任务的执行情况、操作/审批日志。');
+	}
+	else if(user_type=='content-admin')
+	{
+		$('#user_desc').text('在需要更新网站内容时，先使用此管理员登录{{ title }}，在登录期间对网站所有的更改都被视为合法，不会触发各策略中设置的告警和恢复事件。');
+		
+	}
+
+	if(user_type=='normal-admin')
+	{
+		$( "#tabs" ).tabs( "enable", 1 );
+	}
+	else
+	{
+		$( "#tabs" ).tabs( "disable", 1 );
+	}
+
+	if(user_type=='normal-admin')
+	{
+		$('#username_desc').text('说明：邮箱地址作为登录用户名，用于接收{{ title }}发送各种通知和设定的任务的执行状态及找回密码');
+	}
+	else
+	{
+		$('#username_desc').text('说明：邮箱地址作为登录用户名，用于接收{{ title }}发送各种通知和找回密码');
+	}
+}
+
+$('#user-type').change(function(){
+
+	set_user_text($(this).val(),$(this).find("option:selected").text());	
+});
+
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../user_handle/?a=list',
+		datatype: "json",
+		colNames:['用户名','企业微信','状态','登录锁定','用户描述','用户类型'],
+
+		colModel:[
+			{name:'username',index:'0',align:"center", width:200,sortable: true},
+            {name:'wei_xin',index:'1',align:"center", width:200,sortable: true},
+			{name:'printType',index:'2',align:"center", width:50,sortable: true},
+            {name:'status',index:'3',align:"center", width:100,sortable: true},
+			{name:'desc',index:'4',align:"left", width:220,sortable: true},
+			{name:'user_type',index:'5',align:"left", width:200,sortable: false, formatter: fmt_user_type}
+		],
+		width:748,
+		height:500,
+		rowNum:300,
+		rowList:[100,200,300],
+		pager: '#pager',
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true,
+		onSelectRow: function(ids) {
+			//$('#userid').val(ids);
+			//var params="taskid="+ids;
+			//myAjaxGet('../getbackupinfo_handle/',params,GetBackupInfo);
+		}
+	});
+});
+jQuery("#list").jqGrid('navGrid','#pager',{add:false,search:false,del:false,edit:false,position:'right'});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' }); 
+
+function fmt_user_type(cellvalue, options, rowObject) {
+        var prestr = cellvalue;
+
+        switch (prestr) {
+            case 'normal-admin':
+				if(g_separation_of_the_three_members)
+				{
+					return '普通用户';
+				}
+				else
+				{
+					return '系统管理员';
+				}
+            case 'content-admin':
+                return '内容管理员';
+            case 'aud-admin':
+                return '安全审计管理员';
+			case 'sec-admin':
+				return '安全保密管理员';
+			case 'sys-admin':
+				return '系统管理员';
+			case 'audit-admin':
+				return '验证/恢复审批管理员';
+        }
+
+        return '未知(' + prestr + ')';
+    }
+
+function ReloadGridCallback(jsonstr)
+{
+    $('.mywaite').hide();
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+}
+
+function SaveUserCallback(jsonstr)
+{
+	$('.mywaite').hide();
+	$('#list').trigger("reloadGrid",[{page:1}]);
+
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	openSuccessDialog({title:'成功',html:jsonstr.e});
+}
+
+function updateUser(p,callback)
+{
+	var username=encodeURIComponent($('#username').val().trim())+'';
+	var weixin=encodeURIComponent($('#weixin').val().trim())+'';
+	var params='username='+username+'&wei_xin='+weixin;
+	if( p == 'a=new' )
+	{
+		$('.mywaite').show();
+	}
+
+	if($('#user-type').val()=='normal-admin')
+	{
+		params+="&modules="+getAciTreeBoxChecked("Servers_Tree1");
+	}
+	else
+	{
+		params+="&modules=0";
+	}
+
+	var desc=encodeURIComponent($('#desc').val())+'';
+
+	params+="&desc="+desc;
+
+	params+="&"+p;
+
+	params+="&user-type=" + $('#user-type').val();
+	myAjaxPost('../user_handle/',params,callback);
+
+	return true;
+}
+
+function SaveUser()
+{
+	var username=encodeURIComponent($('#username').val().trim())+'';
+	var params='username='+username;
+	if(username=='')
+	{
+		openErrorDialog({title:'错误',html:'用户名/邮箱不能为空。'});
+		$( "#tabs" ).tabs( "option", "active", 0 );
+		return false;
+	}
+	if( !isEmail($('#username').val()) )
+	{
+		openConfirmDialog({
+		title:'确认信息',
+		html:'用户名/邮箱不是有效的email格式，这将导致不能给该用户发送邮件，推荐点击“取消”，使用email格式的用户名。点击“确定”，仍然创建该用户。',
+		height:250,
+		onBeforeOK:function(){
+				$(this).dialog('close');
+				updateUser('a=new',SaveUserCallback);
+			}
+		});
+	}
+	else
+	{
+		return updateUser('a=new',SaveUserCallback);
+	}
+
+	return true;
+}
+
+function initUserForm()
+{
+	$( "#tabs" ).tabs( "option", "active", 0 );
+	$('#username').val('');
+	$('#desc').val('');
+	$('#weixin').val('');
+}
+
+function UserForm(title,fun)
+{
+	$("#userFormDiv").dialog({
+		autoOpen: true,
+		height: 540,
+		width: 500,
+		modal: true,
+		title:title,
+		buttons: {
+			'确定': function(){
+				if(fun())
+				{
+					$(this).dialog('close');
+				}
+			},
+			'取消': function(){
+				$(this).dialog('close');
+			}
+			
+		},
+		close: function(){
+		}
+	});
+}
+
+$('#addForm')
+.button()
+.click(function() {
+	$('#username').prop('disabled',false);
+	$('#user-type').prop('disabled',false);
+	RefreshAciTree('Servers_Tree1','../user_handle/?a=getcomponents&id=');
+	initUserForm();
+	UserForm('新建用户',SaveUser);
+});
+
+function EditUser()
+{
+	return updateUser('a=edit',ReloadGridCallback);
+}
+
+function GetUserInfoCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	$('#username').val(jsonstr.username);
+	$('#weixin').val(jsonstr.wei_xin);
+	$('#desc').val(jsonstr.desc);
+
+	var modules = jsonstr.modules;
+
+	UnCheckAllAciTreeBox('Servers_Tree1');
+	CheckAciTreeBox('Servers_Tree1',1);
+	if(modules & 2)
+	{
+		CheckAciTreeBox('Servers_Tree1',2);
+	}
+	if(modules & 4)
+	{
+		CheckAciTreeBox('Servers_Tree1',4);
+	}
+	if(modules & 8)
+	{
+		CheckAciTreeBox('Servers_Tree1',8);
+	}
+	if(modules & 16)
+	{
+		CheckAciTreeBox('Servers_Tree1',16);
+	}
+	if(modules & 32)
+	{
+		CheckAciTreeBox('Servers_Tree1',32);
+	}
+	if(modules & 64)
+	{
+		CheckAciTreeBox('Servers_Tree1',64);
+	}
+	if(modules & 128)
+	{
+		CheckAciTreeBox('Servers_Tree1',128);
+	}
+	if(modules & 256)
+	{
+		CheckAciTreeBox('Servers_Tree1',256);
+	}
+	if(modules & 512)
+	{
+		CheckAciTreeBox('Servers_Tree1',512);
+	}
+	if(modules & 1024)
+	{
+		CheckAciTreeBox('Servers_Tree1',1024);
+	}
+	if(modules & 2048)
+	{
+		CheckAciTreeBox('Servers_Tree1',2048);
+	}
+	if(modules & 4096)
+	{
+		CheckAciTreeBox('Servers_Tree1',4096);
+	}
+	if(modules & 8192)
+	{
+		CheckAciTreeBox('Servers_Tree1',8192);
+	}
+	if(modules & 16384)
+	{
+		CheckAciTreeBox('Servers_Tree1',16384);
+	}
+	if(modules & 32768)
+	{
+		CheckAciTreeBox('Servers_Tree1',32768);
+	}
+	if(modules & 65536)
+	{
+		CheckAciTreeBox('Servers_Tree1',65536);
+	}
+	if(modules & 65536 * 2)
+	{
+		CheckAciTreeBox('Servers_Tree1',65536 * 2);
+	}
+	if(modules & 65536 * 4)
+	{
+		CheckAciTreeBox('Servers_Tree1',65536 * 4);
+	}
+	if(modules & 65536 * 8)
+	{
+		CheckAciTreeBox('Servers_Tree1',65536 * 8);
+	}
+    if(modules & 65536 * 16)
+	{
+		CheckAciTreeBox('Servers_Tree1',65536 * 16);
+	}
+	if(modules & 65536 * 32)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 32);
+    }
+    if(modules & 65536 * 64)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 64);
+    }
+    if(modules & 65536 * 128)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 128);
+    }
+    if(modules & 65536 * 256)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 256);
+    }
+	if(modules & 65536 * 512)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 512);
+    }
+	if(modules & 65536 * 1024)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 1024);
+    }
+	if(modules & 65536 * 2048)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 2048);
+    }
+	if(modules & 65536 * 4096)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 4096);
+    }
+	if(modules & 65536 * 8192)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 8192);
+    }
+	if(modules & 65536 * 16384)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 16384);
+    }
+	if(modules & 65536 * 32768)
+	{
+        CheckAciTreeBox('Servers_Tree1',65536 * 32768);
+    }
+
+	var user_type = jsonstr.type;
+	$('#user-type').val(user_type);
+
+	set_user_text(user_type,$('#user-type option:selected').text());
+
+    UserForm('编辑用户',EditUser);
+}
+
+$('#editForm')
+.button()
+.click(function() {
+	$('#username').prop('disabled',true);
+	$('#user-type').prop('disabled',true);
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+	initUserForm();
+	var params="a=getuserinfo&userid="+ids;
+	myAjaxGet('../user_handle/',params,GetUserInfoCallback);
+});
+
+function DelCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		var html=jsonstr.e;
+		openErrorDialog({title:'错误',html:html});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+		current:true
+	}]);
+}
+
+$('#delForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length<1)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+	
+	var html = '删除后用户的操作日志也将一并删除，且不可恢复。删除用户前请保证以下资源已移除：<br /><br />1.分配给此用户的客户端<br />2.存储配额<br />';
+
+	for(var i=0;i<ids.length;i++)
+	{
+		var user_type = $('#list').jqGrid('getRowData', ids[i]).user_type;
+		
+		if(user_type=='验证/恢复审批管理员')
+		{
+			html = '确定要删除验证/恢复审批管理员吗？';
+		}
+
+	}
+
+	openConfirmDialog({
+		title:'确认信息',
+		html:html,
+		height:250,
+		onBeforeOK:function(){
+			var params="a=del&ids="+ids;
+			myAjaxGet('../user_handle/',params,DelCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+$('#enbaleForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length<1)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要启用/禁用用户吗?',
+		onBeforeOK:function(){
+			var params="a=enbale&ids="+ids;
+			myAjaxGet('../user_handle/',params,ReloadGridCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+function resetCallback(jsonstr)
+{
+	$('.mywaite').hide();
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+
+	openSuccessDialog({title:'成功',html:'已发送重置密码邮件，请在12小时内完成重置密码'});
+}
+
+$('#resetForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length<1)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要重置所选用户的密码吗?',
+		onBeforeOK:function(){
+			var params="a=resetpwd&ids="+ids;
+			$('.mywaite').show();
+			myAjaxPost('../user_handle/',params,resetCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+function unlockCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	openSuccessDialog({title:'成功',html:'已解锁指定用户'});
+    $('#list').trigger("reloadGrid",[{current:true}]);
+}
+
+$('#unlockForm')
+.button()
+.click(function() {
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length<1)
+	{
+		openErrorDialog({title:'错误',html:'请至少选择一条数据。'});
+		return;
+	}
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要解锁所选用户的吗?',
+		onBeforeOK:function(){
+			var params="a=unlock&ids="+ids;
+			myAjaxPost('../user_handle/',params,unlockCallback);
+			$(this).dialog('close');
+		}
+	});
+});
+
+function delallCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	openSuccessDialog({title:'成功',html:'已删除日志，请重新尝试删除用户'});
+}
+
+function delalllog(ids)
+{
+	openConfirmDialog({
+		title:'确认信息',
+		html:'你确定要删除此用户的所有日志吗?此操作不可恢复。',
+		onBeforeOK:function(){
+			var params="a=delalllogbyuser&ids="+ids;
+			myAjaxPost('../logsystem_handle/',params,delallCallback);
+			$(this).dialog('close');
+		}
+	});
+}
+
+$(function() {
+	$("#tabs").tabs();
+	$("#tabs").css('height',410);
+	initAciTree('Servers_Tree1','../user_handle/?a=getcomponents&id=');
+	//$('#Servers_Tree1').aciTree('option','checkboxChain',1); 
+	$('#navigation').html('<div class="font_navigation">用户管理</div>');
+	$('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#usermanager" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	user_resize();
+	{% ifequal  user_type 'aud-admin' %}
+	$(".ui-tabs-nav").hide();
+	{% endifequal %}
+
+});
+
+function user_resize()
+{
+	resizeright();
+	var width = $('.table_menu').width()-5;
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	user_resize();	
+});
+</script>

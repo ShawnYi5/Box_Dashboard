@@ -1,0 +1,1678 @@
+<style type="text/css">
+    .tab {
+        margin-top: 30px;
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+
+    .btn_nav {
+        float: right;
+        margin-top: 10px;
+    }
+
+    .item {
+        margin-bottom: 16px;
+    }
+
+    .short {
+        width: 40px;
+    }
+
+    .manage-item {
+        margin-top: 8px;
+    }
+
+    .manage {
+        margin-bottom: 16px;
+        margin-left: 16px;
+    }
+
+    .pull-down-control {
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .url-list {
+        width: 97%;
+        margin-top: 8px;
+        margin-left: 10px;
+    }
+
+    .prev, .next {
+        width: 100px;
+        height: 32px;
+        line-height: 32px;
+        background: url(btn_bg.gif) repeat-x bottom;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+    }
+
+    .add-to-list, .rm-list-elem, .add-to-path {
+        float: right;
+        cursor: pointer;
+        padding: 1px 3px;
+        margin-right: 5px;
+    }
+</style>
+
+<head>
+    <script type="text/javascript" src="/static/js/jquery.json.js"></script>
+    <script type="text/javascript" src="/static/js/moment.js"></script>
+</head>
+
+<div id="strategies-detail" style="display: none;">
+    <table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+        <tr height="25">
+            <td align="left" width="30%">监控目标</td>
+            <td align="left" width="70%">
+                <div id="strategy-name"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left" width="30%">分组名称</td>
+            <td align="left" width="70%">
+                <div id="group-name"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">报警等级</td>
+            <td align="left">
+                <div id="alarm-value"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">监控类型</td>
+            <td align="left">
+                <div id="strategy-type"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">目标URL</td>
+            <td align="left">
+                <div id="target-url" style="word-break: break-all"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">目标域名</td>
+            <td align="left">
+                <div id="target-domain" style="word-break: break-all"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">层级范围</td>
+            <td align="left">
+                <div id="level-url"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">检测间隔时间</td>
+            <td align="left">
+                <div id="interval-time"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">存储设备</td>
+            <td align="left">
+                <div id="storage-device"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">检测项目</td>
+            <td align="left">
+                <div id="inspect-item"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">排除URL</td>
+            <td align="left">
+                <div id="exclude-urls" style="word-break: break-all"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">检测目录</td>
+            <td align="left">
+                <div id="include-path" style="word-break: break-all"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">排除项目</td>
+            <td align="left">
+                <div id="exclude-path" style="word-break: break-all"></div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="right" style="height: 500px">
+    <div class="table_menu" id="strategy">
+        <div class="menu_btn" id="new">添加</div>
+        <div class="menu_btn" id="delete">删除</div>
+        <div class="menu_btn" id="edit">编辑</div>
+        <div class="menu_btn" id="on">启用</div>
+        <div class="menu_btn" id="off">禁用</div>
+        <div class="menu_btn" id="refresh">刷新</div>
+    </div>
+    <table id="list"></table>
+    <div id="pager"></div>
+    <div id="show-detail" style="height: 235px;overflow: auto"></div>
+</div>
+
+<div id="dialog-input-url" title="输入URL" style="display: none">
+    <div style="margin: 10px">
+        URL：<input type="text" style="width: 280px" onblur="removespace(this)">
+    </div>
+</div>
+
+<div id="dialog-input-domain" title="输入域名" style="display: none">
+    <div style="margin: 10px">
+        域名：<input type="text" style="width: 280px" onblur="removespace(this)">
+    </div>
+</div>
+
+<datalist id="group-list" style="display: none">
+</datalist>
+
+<!--
+tabs-n: 分布情况(tabs-0有三类，对应三分支)
+         1-- 2-- 3
+tabs-0   4-- 5-- 6
+         7-- 8-- 9
+-->
+
+<div id="new-strategies" title="" class="ajaxForm">
+    <form action="#" method="post" onsubmit="return false">
+        <div id="tabs" style="height: 530px;overflow: auto">
+            <ul>
+                <li><a href="#tabs-0">tabs-0</a></li>
+                <li><a href="#tabs-1">tabs-1</a></li>
+                <li><a href="#tabs-2">tabs-2</a></li>
+                <li><a href="#tabs-3">tabs-3</a></li>
+                <li><a href="#tabs-4">tabs-4</a></li>
+                <li><a href="#tabs-5">tabs-5</a></li>
+                <li><a href="#tabs-6">tabs-6</a></li>
+                <li><a href="#tabs-7">tabs-7</a></li>
+                <li><a href="#tabs-8">tabs-8</a></li>
+                <li><a href="#tabs-9">tabs-9</a></li>
+            </ul>
+            <div id="tabs-0" class="tab">
+                <div class="item">监控目标名称：
+                    <input type="text" id="strategy-name" value="" style="width: 400px" onblur="removespace(this)">
+                </div>
+                <div class="item">选择(创建)分组：
+                    <input type="text" name="group" list="group-list" onblur="removespace(this)">
+                </div>
+                <div class="item">
+                    <input type="radio" name="analyze-model" value="web-home" checked="checked"><span>首页检测</span>
+                    <div class="form_tips" style="margin-left: 34px">
+                        对一个或多个网站的首页做快速的检测，首页被攻击后在短时间内能侦测到发生的改变，有较高的实效性，适用敏感度较高的网站首页的保护。
+                    </div>
+                </div>
+                <div class="item">
+                    <input type="radio" name="analyze-model" value="web-site"><span>网站检测</span>
+                    <div class="form_tips" style="margin-left: 34px">
+                        检测目标为一个网站的多级子页面，能全面的检测网站各级页面发生的改变，让任何未经授权的更改、黑链、违法网站链接、恶意内容、恶意图片都被暴露。
+                    </div>
+                </div>
+                <div class="item">
+                    <input type="radio" name="analyze-model" value="web-file"><span>文件检测</span>
+                    <div class="form_tips" style="margin-left: 34px">
+                        在一体机内部将IO录像数据重组为网站服务器磁盘文件，对正常时间点的文件和最新时间点的文件做比较，实现强大的带外比较，应用木马、驱动动木马、MBR级木马、Web 后台程序、病毒无处遁形。
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabs-1" class="tab">
+                <label for="base-manage" class="pull-down-control"><span>▼</span>检测设置</label><br>
+                <div id="base-manage" class="manage">
+                    <hr>
+                    <div class="manage-item">
+                        ●监控目标URL：<input type="url" id="include-url" style="width: 82%" onblur="removespace(this)">
+                    </div>
+                    <div class="manage-item">
+                        ●监控目标域名列表：
+                        <button class="add-to-list" title="添加" value="domain-list">
+                            <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                        </button>
+                        <button class="rm-list-elem" title="删除">
+                            <span class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                        </button>
+                        <select multiple id="domain-list" class="url-list">
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="number" id="level-start" value="1" class="short">-
+                        <input type="number" id="level-end" value="1" class="short">层级
+                    </div>
+                    <div class="manage-item">
+                        ●检测间隔时间：
+                        <input type="number" id="interval-time" value="60" class="short">
+                        <select id="unit">
+                            <option value="secs">秒</option>
+                            <option value="mins">分</option>
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●存储设备：
+                        <select id="storage-device">
+                            <option value='-1' selected="selected">请稍候</option>
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●是否截屏：
+                        <input type="radio" name="site_screenshot" value="1"><span>是</span>
+                        <input type="radio" name="site_screenshot" checked="checked" value="0"><span>否</span>
+                    </div>
+                </div>
+
+                <label for="check-items-manage" class="pull-down-control"><span>▼</span>检测项目</label><br>
+                <div id="check-items-manage" class="manage">
+                    <hr>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="key-word"><span>敏感词</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="content-tamper"><span>网页文字篡改</span>
+                    </div>
+
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="pictures-tamper"><span>网页图片篡改</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="resources-tamper"><span>网页下载资源篡改</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="links-tamper"><span>网页链接篡改</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="frameworks-tamper"><span>网页框架篡改</span>
+                    </div>
+                </div>
+
+                <label for="exclude-urls-manage" class="pull-down-control"><span>▼</span>排除URL</label><br>
+                <div id="exclude-urls-manage" class="manage">
+                    <hr>
+                    <div class="manage-item">
+                        ●已排除的URL列表：
+                        <button class="add-to-list" title="添加" value="exclude-list">
+                            <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                        </button>
+                        <button class="rm-list-elem" title="删除">
+                            <span class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                        </button>
+                        <select multiple id="exclude-list" class="url-list">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabs-2" class="tab">
+                <label for="alarm-manage" class="pull-down-control"><span>▼</span>报警等级设置</label><br>
+                <div id="alarm-manage" class="manage">
+                    <hr>
+                    <div class="manage-item" style="margin-top: 26px">
+                        ●<input type="checkbox" id="alarm-high" class="alarm-box">
+                        <span>
+                            当检测到<input type="number" max="99" min="1" value="1" class="short" id="alarm-high-num">处篡改风险时，为高篡改风险等级
+                        </span>
+                    </div>
+                    <div class="manage-item" style="margin-top: 26px">
+                        ●<input type="checkbox" id="alarm-medium" class="alarm-box">
+                        <span>
+                            当检测到<input type="number" max="99" min="1" value="1" class="short" id="alarm-medium-num">处篡改风险时，为中篡改风险等级
+                        </span>
+                    </div>
+                    <div class="manage-item" style="margin-top: 26px">
+                        ●<input type="checkbox" id="alarm-low" class="alarm-box">
+                        <span>
+                            当检测到<input type="number" max="99" min="1" value="1" class="short" id="alarm-low-num">处篡改风险时，为低篡改风险等级
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabs-3" class="tab"></div>
+            <div id="tabs-4" class="tab">
+                <label for="check-file-manage" class="pull-down-control"><span>▼</span>检测目录设置</label><br>
+                <div id="check-file-manage" class="manage">
+                    <hr>
+                    <div class="manage-item">
+                        ●目标目录：<input type="url" id="add-include-path" style="width: 450px">
+                        <button class="add-to-path" title="添加">
+                            <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                        </button>
+                    </div>
+                    <div class="manage-item">
+                        ●已添加的目录列表：
+                        <button class="rm-list-elem" title="删除">
+                            <span class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                        </button>
+                        <select multiple id="include-path-list" class="url-list">
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●检测间隔时间：
+                        <input type="number" id="interval-time" value="60" class="short">
+                        <select id="unit">
+                            <option value="secs">秒</option>
+                            <option value="mins">分</option>
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●存储设备：
+                        <select id="storage-device">
+                            <option value='-1' selected="selected">请稍候</option>
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●排除项：<input type="url" id="add-exclude-path" style="width: 450px">
+                        <button class="add-to-path" title="添加">
+                            <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                        </button>
+                    </div>
+                    <div class="manage-item">
+                        ●已排除项列表：
+                        <button class="rm-list-elem" title="删除">
+                            <span class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                        </button>
+                        <select multiple id="exclude-path-list" class="url-list">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="tabs-5" class="tab">
+                <label for="alarm-manage" class="pull-down-control"><span>▼</span>报警等级设置</label><br>
+                <div class="manage">
+                    <hr>
+                    <div class="manage-item" style="margin-top: 26px">
+                        ●<input type="checkbox" id="alarm-high" class="alarm-box">
+                        <span>
+                            当检测到<input type="number" max="99" min="1" value="3" class="short" id="alarm-high-num">处篡改风险时，为高篡改风险等级
+                        </span>
+                    </div>
+                    <div class="manage-item" style="margin-top: 26px">
+                        ●<input type="checkbox" id="alarm-medium" class="alarm-box">
+                        <span>
+                            当检测到<input type="number" max="99" min="1" value="2" class="short" id="alarm-medium-num">处篡改风险时，为中篡改风险等级
+                        </span>
+                    </div>
+                    <div class="manage-item" style="margin-top: 26px">
+                        ●<input type="checkbox" id="alarm-low" class="alarm-box">
+                        <span>
+                            当检测到<input type="number" max="99" min="1" value="1" class="short" id="alarm-low-num">处篡改风险时，为低篡改风险等级
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div id="tabs-6" class="tab"></div>
+
+            <div id="tabs-7" class="tab">
+                <label for="base-manage" class="pull-down-control"><span>▼</span>检测设置</label><br>
+                <div id="base-manage" class="manage">
+                    <hr>
+                    <div class="manage-item">
+                        ●监控目标URL列表：
+                        <button class="add-to-list" title="添加"
+                                value="include-list">
+                            <span class="ui-icon ui-icon-circle-plus" style="padding: 0"></span>
+                        </button>
+                        <button class="rm-list-elem" title="删除">
+                            <span class="ui-icon ui-icon-trash" style="padding: 0"></span>
+                        </button>
+                        <select multiple id="include-list" class="url-list">
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●检测间隔时间：
+                        <input type="number" id="interval-time" value="60" class="short">
+                        <select id="unit">
+                            <option value="secs">秒</option>
+                            <option value="mins">分</option>
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●存储设备：
+                        <select id="storage-device">
+                            <option value='-1' selected="selected">请稍候</option>
+                        </select>
+                    </div>
+                    <div class="manage-item">
+                        ●是否截屏：
+                        <input type="radio" name="web_screenshot" checked="checked" value="1"><span>是</span>
+                        <input type="radio" name="web_screenshot" value="0"><span>否</span>
+                    </div>
+                </div>
+
+                <label for="check-items-manage" class="pull-down-control"><span>▼</span>检测项目</label><br>
+                <div id="check-items-manage" class="manage">
+                    <hr>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="key-word"><span>敏感词</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="content-tamper"><span>内容篡改</span>
+                    </div>
+
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="pictures-tamper"><span>网页图片篡改</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="resources-tamper"><span>网页下载资源篡改</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="links-tamper"><span>网页链接篡改</span>
+                    </div>
+                    <div class="manage-item">
+                        ●<input type="checkbox" value="frameworks-tamper"><span>网页框架篡改</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabs-8" class="tab">
+                <div id="tabs-2" class="tab">
+                    <label for="alarm-manage" class="pull-down-control"><span>▼</span>报警等级设置</label><br>
+                    <div id="alarm-manage" class="manage">
+                        <hr>
+                        <div class="manage-item" style="margin-top: 26px">
+                            ●<input type="checkbox" id="alarm-high" class="alarm-box">
+                            <span>
+                                当检测到<input type="number" max="99" min="1" value="1" class="short" id="alarm-high-num">处篡改风险时，为高篡改风险等级
+                            </span>
+                        </div>
+                        <div class="manage-item" style="margin-top: 26px">
+                            ●<input type="checkbox" id="alarm-medium" class="alarm-box">
+                            <span>
+                                当检测到<input type="number" max="99" min="1" value="1" class="short" id="alarm-medium-num">处篡改风险时，为中篡改风险等级
+                            </span>
+                        </div>
+                        <div class="manage-item" style="margin-top: 26px">
+                            ●<input type="checkbox" id="alarm-low" class="alarm-box">
+                            <span>
+                                当检测到<input type="number" max="99" min="1" value="1" class="short" id="alarm-low-num">处篡改风险时，为低篡改风险等级
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabs-9" class="tab"></div>
+        </div>
+    </form>
+    <div class="btn_nav">
+        <input type="button" id="prev" class="prev" style="float:left;margin-right: 50px" value="«上一步"/>
+        <input type="button" id="next" class="next" style="float:right" value="下一步»"/>
+    </div>
+</div>
+
+<div id="on-dialogue" style="display: none">
+    <fieldset>
+        <legend>选择基准点</legend>
+        <input type="radio" name="fiducial" value="fiducial-now" checked="checked">已当前为基准点<br>
+        <input type="radio" name="fiducial" value="fiducial-last">以最后一次快照为基准点
+    </fieldset>
+</div>
+
+<div id="pointFormDiv" title="网页查看" class="ajaxForm">
+    <div>
+        <table id="webpage-list"></table>
+        <div id="webpage-pager"></div>
+    </div>
+</div>
+
+<!--suppress JSUnresolvedVariable -->
+<script type="text/javascript">
+    $(function () {
+        $('#strategies-detail').clone().show().appendTo('#new-strategies #tabs-3');
+        $('#strategies-detail').clone().show().appendTo('#show-detail');
+        $('#strategies-detail').clone().show().appendTo('#new-strategies #tabs-6');
+        $('#strategies-detail').clone().show().appendTo('#new-strategies #tabs-9');
+    });
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").tabs("option", "active", 0);
+        $(".ui-tabs-nav").hide();
+        $(".prev").hide();
+        $('#navigation').html('<div class="font_navigation">备份 > 新建备份计划 > 备份源</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#newbackupmission" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+    });
+
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">监控目标</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#tunnel" ' +
+            'target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        strategyManage();
+        strategy_resize();
+    });
+
+    // 展开、收起控制
+    /*
+     $('.pull-down-control').click(function () {
+     var manage_id = $(this).attr('for');
+     var isShown = $('#' + manage_id).is(':visible');
+
+     if (!isShown) {
+     $('#' + manage_id).slideDown();
+     $(this).find("span").text('▼');
+     } else {
+     $('#' + manage_id).slideUp();
+     $(this).find("span").text('▶');
+     }
+     });
+     */
+
+    // 下一步之前，检验本页数据
+    function check_params_before_next(curIndex) {
+        if (curIndex == 0) {
+            var name = $('#tabs-0').find('#strategy-name').val();
+            var groupName = $('#tabs-0').find('input[name=group]').val();
+            if (name == '') {
+                openErrorDialog({title: '错误', html: '监控目标名称输入无效，请重新输入'});
+                return false;
+            }
+            if (groupName == '') {
+                openErrorDialog({title: '错误', html: '分组名称输入无效，请重新输入'});
+                return false;
+            }
+        }
+        if (curIndex == 1) {
+            if (!IsURL($('#tabs-1').find('#include-url').val())) {
+                openErrorDialog({title: '错误', html: '目标URL输入无效，请重新输入  \n例如：http://172.16.1.10:8081等'});
+                return false;
+            }
+            if ($('#tabs-1').find('#domain-list').children().length == 0) {
+                openErrorDialog({title: '错误', html: '域名列表不可以为空'});
+                return false;
+            }
+            if (!CheckerInputRange($('#tabs-1').find('#level-start').val(), $('#tabs-1').find('#level-end').val(), 1, 99, '层级')) {
+                return false;
+            }
+            if (!isNum($('#tabs-1').find('#interval-time').val())) {
+                openErrorDialog({title: '错误', html: '检测间隔时间输入无效，请重新输入'});
+                return false;
+            }
+            if (String($('#tabs-1').find('#storage-device').val()).length < 10) {
+                openErrorDialog({title: '错误', html: '请选择存储设备'});
+                return false;
+            }
+            if ($('#tabs-1').find('#check-items-manage input:checked').length == 0) {
+                openErrorDialog({title: '错误', html: '请至少勾选一个检测项目'});
+                return false;
+            }
+        }
+        if (curIndex == 2) {
+            // 必须定义一个等级
+            if ($('#tabs-2').find('.manage-item input.alarm-box:checked').length == 0) {
+                openErrorDialog({title: '错误', html: '请至少勾选一个等级'});
+                return false;
+            }
+            // 正整数判断
+            var highBox = $('#tabs-2').find('#alarm-high');
+            var highVal = $('#tabs-2').find('#alarm-high-num').val();
+            var meduBox = $('#tabs-2').find('#alarm-medium');
+            var meduVal = $('#tabs-2').find('#alarm-medium-num').val();
+            var lowBox = $('#tabs-2').find('#alarm-low');
+            var lowVal = $('#tabs-2').find('#alarm-low-num').val();
+            if ((highBox.prop('checked') && (!isNum(highVal) || parseInt(highVal) == 0))
+                || (meduBox.prop('checked') && ((!isNum(meduVal) || parseInt(meduVal) == 0)))
+                || (lowBox.prop('checked') && ((!isNum(lowVal) || parseInt(lowVal) == 0)))
+            ) {
+                openErrorDialog({title: '错误', html: '检测篡改风险项输入无效，请重新输入'});
+                return false;
+            }
+        }
+        if (curIndex == 4) {
+            if (!isNum($('#tabs-4 .manage-item #interval-time').val())) {
+                openErrorDialog({title: '错误', html: '检测间隔时间输入无效，请重新输入'});
+                return false;
+            }
+            if (String($('#tabs-4 .manage-item #storage-device').val()).length < 10) {
+                openErrorDialog({title: '错误', html: '请选择存储设备'});
+                return false;
+            }
+            if (!$('#tabs-4').find('#include-path-list option').length) {
+                openErrorDialog({title: '错误', html: '请加入检测目录'});
+                return false;
+            }
+        }
+        if (curIndex == 5) {
+            // 必须定义一个等级
+            if ($('#tabs-5 .manage-item input.alarm-box:checked').length == 0) {
+                openErrorDialog({title: '错误', html: '请至少勾选一个等级'});
+                return false;
+            }
+            // 正整数判断
+            if (($('#tabs-5 #alarm-high').prop('checked') && !isNum($('#tabs-5 #alarm-high-num').val()))
+                || ($('#tabs-5 #alarm-medium').prop('checked') && !isNum($('#tabs-5 #alarm-medium-num').val()))
+                || ($('#tabs-5 #alarm-low').prop('checked') && !isNum($('#tabs-5 #alarm-low-num').val()))) {
+                openErrorDialog({title: '错误', html: '篡改风险项输入无效，请重新输入'});
+                return false;
+            }
+        }
+        if (curIndex == 7) {
+            if ($('#tabs-7').find('#include-list').children().length == 0) {
+                openErrorDialog({title: '错误', html: 'URL列表不可以为空'});
+                return false;
+            }
+            if (!isNum($('#tabs-7').find('#interval-time').val())) {
+                openErrorDialog({title: '错误', html: '检测间隔时间输入无效，请重新输入'});
+                return false;
+            }
+            if (String($('#tabs-7').find('#storage-device').val()).length < 10) {
+                openErrorDialog({title: '错误', html: '请选择存储设备'});
+                return false;
+            }
+            if ($('#tabs-7').find('#check-items-manage input:checked').length == 0) {
+                openErrorDialog({title: '错误', html: '请至少勾选一个检测项目'});
+                return false;
+            }
+        }
+        if (curIndex == 8) {
+            // 必须定义一个等级
+            if ($('#tabs-8').find('.manage-item input.alarm-box:checked').length == 0) {
+                openErrorDialog({title: '错误', html: '请至少勾选一个等级'});
+                return false;
+            }
+            // 正整数判断
+            var highBox = $('#tabs-8').find('#alarm-high');
+            var highVal = $('#tabs-8').find('#alarm-high-num').val();
+            var meduBox = $('#tabs-8').find('#alarm-medium');
+            var meduVal = $('#tabs-8').find('#alarm-medium-num').val();
+            var lowBox = $('#tabs-8').find('#alarm-low');
+            var lowVal = $('#tabs-8').find('#alarm-low-num').val();
+            if ((highBox.prop('checked') && (!isNum(highVal) || parseInt(highVal) == 0))
+                || (meduBox.prop('checked') && ((!isNum(meduVal) || parseInt(meduVal) == 0)))
+                || (lowBox.prop('checked') && ((!isNum(lowVal) || parseInt(lowVal) == 0)))
+            ) {
+                openErrorDialog({title: '错误', html: '检测篡改风险项输入无效，请重新输入'});
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // 下一步
+    $('#new-strategies').find('#next').click(function () {
+        var curIndex = $("#tabs").tabs('option', 'active');
+        if (!check_params_before_next(curIndex)) return false;
+
+        switch (curIndex) {
+            // 分析类型
+            case 0:
+                var type = $('input[name="analyze-model"]:checked').val();
+                if (type == 'web-site') {
+                    activeOneTab(1);
+                }
+                if (type == 'web-file') {
+                    activeOneTab(4);
+                }
+                if (type == 'web-home') {
+                    activeOneTab(7);
+                }
+                break;
+            // 站点分析
+            case 1:
+                activeOneTab(2);
+                break;
+            case 2:
+                showDetailInfo('tabs-3');
+                activeOneTab(3);
+                break;
+            case 3:
+                OnFinish_WebSite();
+                break;
+            // 文件分析
+            case 4:
+                activeOneTab(5);
+                break;
+            case 5:
+                showDetailInfo('tabs-6');
+                activeOneTab(6);
+                break;
+            case 6:
+                OnFinish_WebFile();
+                break;
+            // 首页分析
+            case 7:
+                activeOneTab(8);
+                break;
+            case 8:
+                showDetailInfo('tabs-9');
+                activeOneTab(9);
+                break;
+            case 9:
+                OnFinish_WebHome();
+                break;
+        }
+    });
+
+    // 上一步
+    $('#new-strategies').find('#prev').click(function () {
+        var curIndex = $("#tabs").tabs('option', 'active');
+
+        switch (curIndex) {
+            case 9:
+                activeOneTab(8);
+                break;
+            case 8:
+                activeOneTab(7);
+                break;
+            case 7:
+                activeOneTab(0);
+                break;
+            case 6:
+                activeOneTab(5);
+                break;
+            case 5:
+                activeOneTab(4);
+                break;
+            case 4:
+                activeOneTab(0);
+                break;
+            case 3:
+                activeOneTab(2);
+                break;
+            case 2:
+                activeOneTab(1);
+                break;
+            case 1:
+                activeOneTab(0);
+                break;
+        }
+    });
+
+    function activeOneTab(tabNum) {
+        if (tabNum == 0) {
+            $('#prev').hide();
+        }
+        else {
+            $('#prev').show();
+        }
+
+        if (tabNum == 3 || tabNum == 6 || tabNum == 9) {
+            $('#next').val('完成');
+        }
+        else {
+            $('#next').val('下一步»');
+        }
+        $("#tabs").tabs('option', 'active', tabNum);
+    }
+
+    function reloadGrid() {
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    // 新建
+    $('#strategy').find('#new').button().click(function () {
+        window.dialg = 'create';
+        initForm(true);
+        openCreateStrategyDvi()
+    });
+
+    // 删除
+    $('#strategy').find('#delete').button().click(function () {
+        var selectedIds = getSelectedIds('many');
+        if (selectedIds == null) return;
+        openConfirmDialog({
+            title: '确认信息',
+            html: '你确定要删除选择的监控目标吗？',
+            onBeforeOK: function () {
+                var params = 'ids={0}'.replace('{0}', selectedIds);
+                myAjaxGet('../webguard_handle/?a=delete_strategies', params, reloadGrid);
+                $(this).dialog('close');
+            }
+        });
+
+    });
+
+    // 编辑
+    var edit_id = null;
+    $('#strategy').find('#edit').button().click(function () {
+        var selectedId = getSelectedIds('one');
+        if (selectedId == null) return;
+
+        edit_id = selectedId;
+        window.dialg = 'edit';
+        var params = 'lab_id={0}'.replace('{0}', selectedId);
+        myAjaxGet('../webguard_handle/?a=get_strategy_info', params, getStrategyInfoCallBk);
+    });
+
+    // 启用
+    $('#strategy').find('#on').button().click(function () {
+        var selectedIds = getSelectedIds('many');
+        if (selectedIds == null) return;
+
+        $("#on-dialogue").dialog({
+            autoOpen: true,
+            height: 180,
+            width: 340,
+            modal: true,
+            title: '启用监控目标',
+            close: function () {
+            },
+            buttons: {
+                '确定': function () {
+                    var fiducial = $('#on-dialogue').find('input[name=fiducial]:checked').val();
+                    var params = 'ids={0}&fiducial={1}'.replace('{0}', selectedIds).replace('{1}', fiducial);
+                    myAjaxGet('../webguard_handle/?a=on_strategy', params, reloadGrid);
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
+    // 禁用
+    $('#strategy').find('#off').button().click(function () {
+        var selectedIds = getSelectedIds('many');
+        if (selectedIds == null) return;
+
+        var params = 'ids={0}'.replace('{0}', selectedIds);
+        myAjaxGet('../webguard_handle/?a=disable_strategies', params, reloadGrid);
+    });
+
+    // 刷新
+    $('#strategy').find('#refresh').button().click(function () {
+        reloadGrid();
+    });
+
+    function strategyManage() {
+        jQuery("#list").jqGrid({
+            url: '../webguard_handle/?a=get_strategies_info',
+            datatype: "json",
+            colNames: ['序号', '监控目标', '基准点', 'crawl_site_name', '启用', '上次执行时间', '状态', 'crawl_curr_site_name'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 100, sortable: true, hidden: true},
+                {name: 'name', index: '1', align: "center", width: 200, sortable: true},
+                {
+                    name: 'credible_time',
+                    index: '2',
+                    align: "center",
+                    width: 200,
+                    sortable: true,
+                    formatter: pointFmatter
+                },
+                {name: 'crawl_site_name', index: '3', align: "center", hidden: true, width: 100, sortable: true},
+                {name: 'is_on', index: '4', align: "center", width: 100, sortable: true},
+                {name: 'last_run', index: '5', align: "center", width: 200, sortable: true},
+                {name: 'status', index: '6', align: "center", width: 293, sortable: true, formatter: statusFmatter},
+                {name: 'crawl_curr_site_name', index: '7', hidden: true, align: "center", width: 293, sortable: true}
+            ],
+            width: 748,
+            height: 432,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (lab_id) {
+                var params = 'lab_id={0}'.replace('{0}', lab_id);
+                myAjaxGet('../webguard_handle/?a=get_strategy_info', params, getStrategyInfoCallBk);
+            }
+        });
+    }
+
+    function strategy_resize() {
+        resizeright();
+        var width = $('.table_menu').width();
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+    $(window).resize(function () {
+        strategy_resize();
+    });
+
+    $(function () {
+        jQuery("#webpage-list").jqGrid({
+            url: '',
+            datatype: "local",
+            colNames: ['标题', 'URL', '层级', 'page_path'],
+
+            colModel: [
+                {name: 'username', index: 'username', align: "left", width: 110, sortable: false},
+                {name: 'userid', index: 'userid', align: "left", width: 200, sortable: false},
+                {name: 'docMark', index: 'docMark', align: "center", width: 110, sortable: false, hidden: true},
+                {name: 'page_path', index: 'page_path', align: "center", width: 50, sortable: false, hidden: true}
+            ],
+            width: 770,
+            height: 470,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#webpage-pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: false
+        });
+    });
+
+    $("#webpage-list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+    jQuery("#webpage-list").jqGrid('navGrid', '#webpage-pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+
+    function viewpoint(crawl_site_name) {
+        var url = '../webguard_handle/?a=get_webpage_list&crawl_site_name=' + crawl_site_name;
+        $("#webpage-list").jqGrid('setGridParam', {datatype: "json"});
+        $("#webpage-list").jqGrid('setGridParam', {url: url});
+        $('#webpage-list').trigger("reloadGrid", [{page: 1}]);
+
+        $("#pointFormDiv").attr('title', '网页查看').dialog({
+            autoOpen: true,
+            height: 600,
+            width: 800,
+            modal: true,
+            close: function () {
+            }
+        });
+    }
+
+    function pointFmatter(cellvalue, options, rowObjec) {
+        var crawl_site_name = rowObjec[3];
+        if (crawl_site_name == 'none') {
+            return cellvalue;
+        }
+        return cellvalue + '<span style="color:#000088;cursor:pointer;" onclick="viewpoint(\'' + crawl_site_name + '\')">[查看]</sapn>';
+    }
+
+    function statusFmatter(cellvalue, options, rowObjec) {
+        var crawl_site_name = rowObjec[7];
+        if (crawl_site_name == 'none') {
+            return cellvalue;
+        }
+        return cellvalue + '<span style="color:#000088;cursor:pointer;" onclick="viewpoint(\'' + crawl_site_name + '\')">[查看]</sapn>';
+    }
+
+    function openAddDialog(fromWhich) {
+        if (fromWhich == 'domain-list') {
+            $("#dialog-input-domain").dialog({
+                autoOpen: true,
+                height: 180,
+                width: 'auto',
+                modal: true,
+                title: '请输入域名',
+                buttons: {
+                    '添加': function () {
+                        var inputUrl = $('#dialog-input-domain').find('input').val();
+                        if (!IsDomain(inputUrl)) {
+                            openErrorDialog({title: '错误', html: '输入无效，请重新输入  \n例如：baidu.com、172.16.6.10等'});
+                            return;
+                        }
+                        appendToItList(inputUrl, fromWhich);
+                        $(this).dialog('close');
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                    $('#dialog-input-domain').find('input').val('');
+                }
+            });
+        }
+
+        if (fromWhich == 'exclude-list' || fromWhich == 'include-list') {
+            $("#dialog-input-url").dialog({
+                autoOpen: true,
+                height: 180,
+                width: 'auto',
+                modal: true,
+                title: '请输入URL',
+                buttons: {
+                    '添加': function () {
+                        var inputUrl = $('#dialog-input-url').find('input').val();
+                        if (!IsURL(inputUrl)) {
+                            openErrorDialog({title: '错误', html: '输入无效，请重新输入  \n例如：http://172.16.1.10:8081等'});
+                            return;
+                        }
+                        appendToItList(inputUrl, fromWhich);
+                        $(this).dialog('close');
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                    $('#dialog-input-url').find('input').val('');
+                }
+            });
+        }
+    }
+
+    // URL添加到对应的列表
+    function appendToItList(url, which) {
+        var option = $('<option></option>').val(url).text(url);
+
+        if (which == 'exclude-list') {
+            option.appendTo('#tabs-1 #exclude-list');
+        }
+        if (which == 'include-list') {
+            option.appendTo('#tabs-7 #include-list');
+        }
+        if (which == 'domain-list') {
+            option.appendTo('#tabs-1 #domain-list');
+        }
+    }
+
+    // 添加URL,按钮监听
+    $('.add-to-list').click(function () {
+        var butVal = $(this).val();
+        openAddDialog(butVal);
+    });
+
+    var p1 = new RegExp(/^[a-zA-Z]:(\/\w*)+$/); //windows 路径
+    var p2 = new RegExp('^/|(/\w*)+$'); //linux 路径
+    var p3 = new RegExp(/^[a-zA-Z\*]\w*(\.[a-zA-Z\*\-_]+)+$/); // 文件名
+
+    $('.add-to-path').click(function () {
+        var input = $(this).siblings().filter('input').first();
+        var path = input.val();
+        if (!path) {
+            openErrorDialog({title: '错误', html: '请输入有效值'});
+            return false;
+        }
+        var option = $('<option></option>').val(path).text(path);
+        if (input.attr('id') == 'add-include-path') {
+            var p = get_partten();
+            if (p && !p.test(path)) {
+                openErrorDialog({title: '错误', html: '请输入一致的目录,windows风格或者linux风格.'});
+                return false;
+            }
+            else if (!p2.test(path) && !p1.test(path)) {
+                openErrorDialog({title: '错误', html: '请输入合法的目录  \n例如:/path1/path2 或者 C:/path1/path2'});
+                return false;
+            }
+            option.appendTo('#include-path-list');
+        }
+        if (input.attr('id') == 'add-exclude-path') {
+            if (!p1.test(path) && !p2.test(path) && !p3.test(path)) {
+                openErrorDialog({title: '错误', html: '请输入合法的排除项，目录或者文件通配符。'});
+                return false;
+            }
+            option.appendTo('#exclude-path-list');
+        }
+        input.val('');
+    });
+
+    function get_partten() {
+        if ($('#include-path-list option').length == 0) {
+            return 0;
+        } else {
+            var value = $('#include-path-list option').first().val();
+            return p1.test(value) ? p1 : p2;
+        }
+    }
+
+    $('.rm-list-elem').click(function () {
+        $(this).parent().find('select option:selected').remove();
+    });
+
+    // '1,2,3,4,5'、'1'、null
+    function getSelectedIds(Cnt) {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (Cnt == 'one' && ids.length != 1) {
+            openErrorDialog({title: '错误', html: '请选择一条数据。'});
+            return null;
+        }
+        if (Cnt == 'many' && ids.length == 0) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return null;
+        }
+        return ids.join(',');
+    }
+
+    $('.alarm-box').click(function () {
+        if (this.checked) {
+            $(this).parent().find('input[type=number]').prop('disabled', false);
+        }
+        else {
+            $(this).parent().find('input[type=number]').prop('disabled', true);
+        }
+    });
+
+    // tabs0, 1, 2, 3
+    function OnFinish_WebSite() {
+        var alarmSet = {};
+        if ($('#tabs-2').find('#alarm-high').prop('checked')) {
+            alarmSet.high = $('#tabs-2').find('#alarm-high-num').val();
+        }
+        if ($('#tabs-2').find('#alarm-medium').prop('checked')) {
+            alarmSet.medium = $('#tabs-2').find('#alarm-medium-num').val();
+        }
+        if ($('#tabs-2').find('#alarm-low').prop('checked')) {
+            alarmSet.low = $('#tabs-2').find('#alarm-low-num').val();
+        }
+        var domains = [];
+        $('#tabs-1').find('#domain-list option').each(function () {
+            domains.push($(this).val());
+        });
+        var excludes = [];
+        $('#tabs-1').find('#exclude-list option').each(function () {
+            excludes.push($(this).val());
+        });
+        var items = [];
+        $('#tabs-1').find('#check-items-manage input:checked').each(function () {
+            items.push($(this).val());
+        });
+
+        var ext_info = {
+            alarm: alarmSet,
+            strategy_type: $('#tabs-0').find('input[name=analyze-model]:checked').val(),
+            target_urls: [$('#tabs-1').find('input#include-url').val()],
+            target_domains: domains,
+            exclude_urls: excludes,
+            level_url: {
+                "start": $('#tabs-1').find('#level-start').val(),
+                "end": $('#tabs-1').find('#level-end').val()
+            },
+            interval_time: {
+                "time": $('#tabs-1').find('.manage-item #interval-time').val(),
+                "unit": $('#tabs-1').find('.manage-item #unit option:checked').val()
+            },
+            storage_device: {
+                "ident": $('#tabs-1').find('.manage-item #storage-device option:checked').val(),
+                "name": $('#tabs-1').find('.manage-item #storage-device option:checked').text().split('（')[0]
+            },
+            screenshot: $("input[name='site_screenshot']:checked").val(),
+            inspect_item: items
+        };
+        var params = 'name={0}&ext_info={1}&from={2}&edit_id={3}&group={4}'
+            .replace('{0}', $('#tabs-0').find('#strategy-name').val())
+            .replace('{1}', $.toJSON(ext_info))
+            .replace('{2}', window.dialg)
+            .replace('{3}', edit_id)
+            .replace('{4}', $('#tabs-0').find('input[name=group]').val());
+        myAjaxPost('../webguard_handle/?a=create_strategy', params, reloadGrid);
+        $('#new-strategies').dialog('close');
+    }
+
+    // tabs0, 4, 5, 6
+    function OnFinish_WebFile() {
+        var alarmSet = {};
+        if ($('#tabs-5').find('#alarm-high').prop('checked')) {
+            alarmSet.high = $('#tabs-5').find('#alarm-high-num').val();
+        }
+        if ($('#tabs-5').find('#alarm-medium').prop('checked')) {
+            alarmSet.medium = $('#tabs-5').find('#alarm-medium-num').val();
+        }
+        if ($('#tabs-5').find('#alarm-low').prop('checked')) {
+            alarmSet.low = $('#tabs-5').find('#alarm-low-num').val();
+        }
+        var includes = [];
+        $('#tabs-4').find('#include-path-list option').each(function () {
+            includes.push($(this).val());
+        });
+        var excludes = [];
+        $('#tabs-4').find('#exclude-path-list option').each(function () {
+            excludes.push($(this).val());
+        });
+
+        var ext_info = {
+            alarm: alarmSet,
+            strategy_type: $('#tabs-0').find('input[name=analyze-model]:checked').val(),
+            exclude_path: excludes,
+            include_path: includes,
+            interval_time: {
+                "time": $('#tabs-4').find('.manage-item #interval-time').val(),
+                "unit": $('#tabs-4').find('.manage-item #unit option:checked').val()
+            },
+            storage_device: {
+                "ident": $('#tabs-4').find('.manage-item #storage-device option:checked').val(),
+                "name": $('#tabs-4').find('.manage-item #storage-device option:checked').text().split('（')[0]
+            }
+        };
+        var params = 'name={0}&ext_info={1}&from={2}&edit_id={3}&group={4}'
+            .replace('{0}', $('#tabs-0').find('#strategy-name').val())
+            .replace('{1}', $.toJSON(ext_info))
+            .replace('{2}', window.dialg)
+            .replace('{3}', edit_id)
+            .replace('{4}', $('#tabs-0').find('input[name=group]').val());
+        myAjaxPost('../webguard_handle/?a=create_strategy', params, reloadGrid);
+        $('#new-strategies').dialog('close');
+    }
+
+    // tabs0, 7， 8， 9
+    function OnFinish_WebHome() {
+        var alarmSet = {};
+        if ($('#tabs-8').find('#alarm-high').prop('checked')) {
+            alarmSet.high = $('#tabs-8').find('#alarm-high-num').val();
+        }
+        if ($('#tabs-8').find('#alarm-medium').prop('checked')) {
+            alarmSet.medium = $('#tabs-8').find('#alarm-medium-num').val();
+        }
+        if ($('#tabs-8').find('#alarm-low').prop('checked')) {
+            alarmSet.low = $('#tabs-8').find('#alarm-low-num').val();
+        }
+        var items = [];
+        $('#tabs-7').find('#check-items-manage input:checked').each(function () {
+            items.push($(this).val());
+        });
+        var urls = [];
+        $('#tabs-7').find('#include-list option').each(function () {
+            urls.push($(this).val());
+        });
+
+        var ext_info = {
+            alarm: alarmSet,
+            strategy_type: $('#tabs-0').find('input[name=analyze-model]:checked').val(),
+            target_urls: urls,
+            interval_time: {
+                "time": $('#tabs-7').find('.manage-item #interval-time').val(),
+                "unit": $('#tabs-7').find('.manage-item #unit option:checked').val()
+            },
+            storage_device: {
+                "ident": $('#tabs-7').find('.manage-item #storage-device option:checked').val(),
+                "name": $('#tabs-7').find('.manage-item #storage-device option:checked').text().split('（')[0]
+            },
+            screenshot: $("input[name='web_screenshot']:checked").val(),
+            inspect_item: items
+        };
+        var params = 'name={0}&ext_info={1}&from={2}&edit_id={3}&group={4}'
+            .replace('{0}', $('#tabs-0').find('#strategy-name').val())
+            .replace('{1}', $.toJSON(ext_info))
+            .replace('{2}', window.dialg)
+            .replace('{3}', edit_id)
+            .replace('{4}', $('#tabs-0').find('input[name=group]').val());
+        myAjaxPost('../webguard_handle/?a=create_strategy', params, reloadGrid);
+        $('#new-strategies').dialog('close');
+    }
+
+    // 参数确认界面：网站分析、首页检测
+    // 从创建策略的Div，提取信息，显示到指定的table
+    function showDetailInfo(parId) {
+        var parent = $('#' + parId);
+        parent.find('tr div').empty();
+        parent.find('#strategy-name').html($('#tabs-0').find('#strategy-name').val());
+        parent.find('#group-name').html($('#tabs-0').find('input[name=group]').val());
+        parent.find('#strategy-type').html($('#tabs-0').find('input[name=analyze-model]:checked').next().text());
+
+        var alarmDesc = [];
+        var items = [];
+        var strInfo = '当检测到{0}处篡改风险时，为{1}告警等级';
+        if ($('#tabs-0').find('input[name=analyze-model]:checked').val() == 'web-site') {
+            if ($('#tabs-2').find('#alarm-high').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-2').find('#alarm-high-num').val()).replace('{1}', '高'));
+            }
+            if ($('#tabs-2').find('#alarm-medium').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-2').find('#alarm-medium-num').val()).replace('{1}', '中'));
+            }
+            if ($('#tabs-2').find('#alarm-low').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-2').find('#alarm-low-num').val()).replace('{1}', '低'));
+            }
+            parent.find('#alarm-value').html(alarmDesc.join('<br>'));
+            parent.find('#target-url').html($('#tabs-1').find('input#include-url').val());
+            var domains = [];
+            $('#tabs-1').find('#domain-list option').each(function () {
+                domains.push($(this).text());
+            });
+            parent.find('#target-domain').html(domains.join('<br>'));
+            var tarUrls = [];
+            $('#tabs-1').find('#exclude-list option').each(function () {
+                tarUrls.push($(this).text());
+            });
+            parent.find('#exclude-urls').html(tarUrls.join('<br>'));
+            parent.find('#level-url').html('{0}-{1}层'.replace('{0}', $('#tabs-1').find('#level-start').val()).replace('{1}', $('#tabs-1').find('#level-end').val()));
+            parent.find('#interval-time').html($('#tabs-1').find('.manage-item #interval-time').val() + $('#tabs-1').find('.manage-item #unit option:checked').text());
+            parent.find('#storage-device').html($('#tabs-1').find('.manage-item #storage-device option:checked').text());
+            $('#tabs-1').find('#check-items-manage input:checked').each(function () {
+                items.push($(this).next().text());
+            });
+            parent.find('#inspect-item').html(items.join('、'));
+        }
+        if ($('#tabs-0').find('input[name=analyze-model]:checked').val() == 'web-home') {
+            if ($('#tabs-8').find('#alarm-high').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-8').find('#alarm-high-num').val()).replace('{1}', '高'));
+            }
+            if ($('#tabs-8').find('#alarm-medium').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-8').find('#alarm-medium-num').val()).replace('{1}', '中'));
+            }
+            if ($('#tabs-8').find('#alarm-low').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-8').find('#alarm-low-num').val()).replace('{1}', '低'));
+            }
+            parent.find('#alarm-value').html(alarmDesc.join('<br>'));
+            var urls = [];
+            $('#tabs-7').find('#include-list option').each(function () {
+                urls.push($(this).text());
+            });
+            parent.find('#target-url').html(urls.join('<br>'));
+            parent.find('#interval-time').html($('#tabs-7').find('.manage-item #interval-time').val() + $('#tabs-7').find('.manage-item #unit option:checked').text());
+            parent.find('#storage-device').html($('#tabs-7').find('.manage-item #storage-device option:checked').text());
+            $('#tabs-7').find('#check-items-manage input:checked').each(function () {
+                items.push($(this).next().text());
+            });
+            parent.find('#inspect-item').html(items.join('、'));
+            //parent.find('#target-domain').html('-');
+            //parent.find('#level-url').html('-');
+            //parent.find('#exclude-urls').html('-');
+        }
+        if ($('#tabs-0').find('input[name=analyze-model]:checked').val() == 'web-file') {
+            if ($('#tabs-5').find('#alarm-high').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-5').find('#alarm-high-num').val()).replace('{1}', '高'));
+            }
+            if ($('#tabs-5').find('#alarm-medium').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-5').find('#alarm-medium-num').val()).replace('{1}', '中'));
+            }
+            if ($('#tabs-5').find('#alarm-low').prop('checked')) {
+                alarmDesc.push(strInfo.replace('{0}', $('#tabs-5').find('#alarm-low-num').val()).replace('{1}', '低'));
+            }
+            var includes = [];
+            $('#tabs-4').find('#include-path-list option').each(function () {
+                includes.push($(this).text());
+            });
+            var excludes = [];
+            $('#tabs-4').find('#exclude-path-list option').each(function () {
+                excludes.push($(this).text());
+            });
+            parent.find('#alarm-value').html(alarmDesc.join('<br>'));
+            parent.find('#exclude-path').html(excludes.join('<br>'));
+            parent.find('#include-path').html(includes.join('<br>'));
+            parent.find('#interval-time').html($('#tabs-4').find('.manage-item #interval-time').val() + $('#tabs-4').find('.manage-item #unit option:checked').text());
+            parent.find('#storage-device').html($('#tabs-4').find('.manage-item #storage-device option:checked').text());
+        }
+
+        // 让非空的 tr 排列在前面。
+        var trs = parent.find('tr');
+        var empty_index = [];
+        $.each(trs, function (index, item) {
+            var _v = $(this).find('td:eq(1) div').text();
+            if (!_v) {
+                empty_index.push($(this));
+            } else {
+                var p = empty_index.shift();
+                if (p) {
+                    var em_html = $(p).html();
+                    var this_html = $(this).html();
+                    $(p).html(this_html);
+                    $(this).html(em_html);
+                    empty_index.push($(this));
+                }
+            }
+        });
+    }
+
+    // 编辑策略、点击策略时，回调函数
+    // 设置创建策略的Div
+    var lastNodeIdent = null;
+    var lastStrategyGroup = null;
+
+    function getStrategyInfoCallBk(jsonStr) {
+        initForm(false);
+        var name = jsonStr.name;
+        var ext_info = $.evalJSON(jsonStr.ext_info);
+        var groupName = jsonStr.group_name;
+        var strategy_type = ext_info.strategy_type;
+
+        $('#tabs-0').find('#strategy-name').val(name);
+        $('#tabs-0').find('input[name=group]').val(groupName);
+        $('#tabs-0').find('input[name=analyze-model][value=arg]'.replace('arg', strategy_type)).prop('checked', true);
+
+        if (strategy_type == 'web-home') {
+            $(ext_info.target_urls).each(function () {
+                $('<option></option>').val(this).text(this).appendTo('#tabs-7 select#include-list');
+            });
+            $('#tabs-7').find('.manage-item #interval-time').val(ext_info.interval_time.time);
+            $('#tabs-7').find('.manage-item #unit option[value=arg]'.replace('arg', ext_info.interval_time.unit)).prop('selected', true);
+            var storageSelect = $('#tabs-7').find('#storage-device');
+            storageSelect.empty();
+            storageSelect.append($('<option></option>').val(ext_info.storage_device.ident).text(ext_info.storage_device.name));
+
+            var web_screenshot = parseInt(ext_info.screenshot);
+            if (web_screenshot) {
+                $($('#tabs-7').find("input[name='web_screenshot']")[0]).prop('checked', true);
+            }
+            else {
+                $($('#tabs-7').find("input[name='web_screenshot']")[1]).prop('checked', true);
+            }
+
+            $('#tabs-7').find('#check-items-manage input').prop('checked', false);
+            $(ext_info.inspect_item).each(function () {
+                $('#tabs-7').find('#check-items-manage input[value=arg]'.replace('arg', this)).prop('checked', true);
+            });
+            $('#tabs-8').find('input[type=checkbox]').prop('checked', false);
+            $('#tabs-8').find('input[type=number]').prop('disabled', true);
+            for (var rank  in  ext_info.alarm) {
+                var alarmBox = $('#tabs-8').find('#alarm-arg'.replace('arg', rank));
+                var alarmInput = $('#tabs-8').find('#alarm-arg-num'.replace('arg', rank));
+                alarmInput.val(ext_info.alarm[rank]);
+                if (!alarmBox.prop('checked')) {
+                    alarmBox.click();
+                }
+            }
+        }
+
+        if (strategy_type == 'web-site') {
+            $('#tabs-1').find('#include-url').val(ext_info.target_urls[0]);
+            $(ext_info.target_domains).each(function () {
+                $('<option></option>').val(this).text(this).appendTo('#tabs-1 select#domain-list');
+            });
+            $('#tabs-1').find('#level-start').val(ext_info.level_url.start);
+            $('#tabs-1').find('#level-end').val(ext_info.level_url.end);
+            $('#tabs-1').find('.manage-item #interval-time').val(ext_info.interval_time.time);
+            $('#tabs-1').find('.manage-item #unit option[value=arg]'.replace('arg', ext_info.interval_time.unit)).prop('selected', true);
+            var storageSelect = $('#tabs-1').find('#storage-device');
+            storageSelect.empty();
+            storageSelect.append($('<option></option>').val(ext_info.storage_device.ident).text(ext_info.storage_device.name));
+
+            var site_screenshot = parseInt(ext_info.screenshot);
+            if (site_screenshot) {
+                $($('#tabs-1').find("input[name='site_screenshot']")[0]).prop('checked', true);
+            }
+            else {
+                $($('#tabs-1').find("input[name='site_screenshot']")[1]).prop('checked', true);
+            }
+
+            $('#tabs-1').find('#check-items-manage input').prop('checked', false);
+            $(ext_info.inspect_item).each(function () {
+                $('#tabs-1').find('#check-items-manage input[value=arg]'.replace('arg', this)).prop('checked', true);
+            });
+            $(ext_info.exclude_urls).each(function () {
+                $('<option></option>').val(this).text(this).appendTo('#tabs-1 select#exclude-list');
+            });
+            $('#tabs-2').find('input[type=checkbox]').prop('checked', false);
+            $('#tabs-2').find('input[type=number]').prop('disabled', true);
+            for (var rank  in  ext_info.alarm) {
+                var alarmBox = $('#tabs-2').find('#alarm-arg'.replace('arg', rank));
+                var alarmInput = $('#tabs-2').find('#alarm-arg-num'.replace('arg', rank));
+                alarmInput.val(ext_info.alarm[rank]);
+                if (!alarmBox.prop('checked')) {
+                    alarmBox.click();
+                }
+            }
+        }
+
+        if (strategy_type == 'web-file') {
+            $(ext_info.include_path).each(function () {
+                $('<option></option>').val(this).text(this).appendTo('#tabs-4 select#include-path-list');
+            });
+            $(ext_info.exclude_path).each(function () {
+                $('<option></option>').val(this).text(this).appendTo('#tabs-4 select#exclude-path-list');
+            });
+            $('#tabs-4').find('.manage-item #interval-time').val(ext_info.interval_time.time);
+            $('#tabs-4').find('.manage-item #unit option[value=arg]'.replace('arg', ext_info.interval_time.unit)).prop('selected', true);
+
+            var storageSelect = $('#tabs-4').find('#storage-device');
+            storageSelect.empty();
+            storageSelect.append($('<option></option>').val(ext_info.storage_device.ident).text(ext_info.storage_device.name));
+
+            $('#tabs-5').find('input[type=checkbox]').prop('checked', false);
+            $('#tabs-5').find('input[type=number]').prop('disabled', true);
+            for (var rank  in  ext_info.alarm) {
+                var alarmBox = $('#tabs-5').find('#alarm-arg'.replace('arg', rank));
+                var alarmInput = $('#tabs-5').find('#alarm-arg-num'.replace('arg', rank));
+                alarmInput.val(ext_info.alarm[rank]);
+                if (!alarmBox.prop('checked')) {
+                    alarmBox.click();
+                }
+            }
+        }
+
+        if (window.dialg == 'edit') {
+            openCreateStrategyDvi();
+            setStorageOption();
+            setStrategyGroups();
+            lastNodeIdent = ext_info.storage_device.ident;
+            lastStrategyGroup = jsonStr.group_name;
+        }
+        else {
+            showDetailInfo('show-detail');
+        }
+    }
+
+    // 初始化表单
+    function initForm(setStorageAndGroup) {
+        $('#tabs-0').find('#strategy-name').val('监控目标(' + moment().format('YYYY-MM-DD HH:mm:ss') + ')');
+        $('#tabs-0').find('input[type=radio][value=web-home]').prop('checked', true);
+        $('#tabs-0').find('input[name=group]').val('');
+
+        $('#tabs-1').find('#include-url').val('');
+        $('#tabs-1').find('#include-domain').val('');
+        $('#tabs-1').find('#domain-list').empty();
+        $('#tabs-1').find('#level-start').val('1');
+        $('#tabs-1').find('#level-end').val('1');
+        $('#tabs-1').find('#interval-time').val('3');
+        $('#tabs-1').find('.manage-item #unit').val('mins');
+        $('#tabs-1').find('#storage-device').empty();
+        $('#tabs-1').find('#check-items-manage input').prop('checked', true);
+        $('#tabs-1').find('#exclude-url').val('');
+        $('#tabs-1').find('#exclude-list').empty();
+        $('#tabs-2').find('#alarm-high-num').prop('disabled', true).val('3');
+        $('#tabs-2').find('#alarm-medium-num').prop('disabled', false).val('2');
+        $('#tabs-2').find('#alarm-low-num').prop('disabled', true).val('1');
+        $('#tabs-2').find('#alarm-high').prop('checked', false);
+        $('#tabs-2').find('#alarm-medium').prop('checked', true);
+        $('#tabs-2').find('#alarm-low').prop('checked', false);
+
+        $('#tabs-4').find('#add-include-path').val('');
+        $('#tabs-4').find('#include-path-list').empty();
+        $('#tabs-4').find('#add-exclude-path').val('');
+        $('#tabs-4').find('#exclude-path-list').empty();
+        $('#tabs-4').find('#interval-time').val('60');
+        $('#tabs-4').find('.manage-item #unit').val('secs');
+        $('#tabs-4').find('#storage-device').empty();
+        $('#tabs-5').find('#alarm-high-num').prop('disabled', false).val('3');
+        $('#tabs-5').find('#alarm-medium-num').prop('disabled', false).val('2');
+        $('#tabs-5').find('#alarm-low-num').prop('disabled', false).val('1');
+        $('#tabs-5').find('#alarm-high').prop('checked', false);
+        $('#tabs-5').find('#alarm-medium').prop('checked', false);
+        $('#tabs-5').find('#alarm-low').prop('checked', false);
+
+        $('#tabs-7').find('#add-include-url').val('');
+        $('#tabs-7').find('#include-list').empty();
+        $('#tabs-7').find('#interval-time').val('30');
+        $('#tabs-7').find('.manage-item #unit').val('secs');
+        $('#tabs-7').find('#storage-device').empty();
+        $('#tabs-7').find('#check-items-manage input').prop('checked', true);
+        $('#tabs-8').find('#alarm-high-num').prop('disabled', true).val('3');
+        $('#tabs-8').find('#alarm-medium-num').prop('disabled', false).val('2');
+        $('#tabs-8').find('#alarm-low-num').prop('disabled', true).val('1');
+        $('#tabs-8').find('#alarm-high').prop('checked', false);
+        $('#tabs-8').find('#alarm-medium').prop('checked', true);
+        $('#tabs-8').find('#alarm-low').prop('checked', false);
+
+        if (setStorageAndGroup) {
+            setStorageOption();
+            setStrategyGroups();
+        }
+    }
+
+    // 打开对话框：新建、编辑
+    function openCreateStrategyDvi() {
+        activeOneTab(0);
+        $("#new-strategies").dialog({
+            autoOpen: true,
+            width: 800,
+            modal: true,
+            title: '添加监控目标',
+            close: function () {
+                window.dialg = null;
+            }
+        });
+    }
+
+    /**正整数，范围校验
+     * @return {boolean}
+     */
+    function CheckerInputRange(startNum, endNum, minNum, maxNum, desc) {
+        startNum = parseInt(startNum);
+        endNum = parseInt(endNum);
+
+        if (isNaN(startNum) || isNaN(endNum) || startNum < minNum || endNum > maxNum || startNum > endNum) {
+            openErrorDialog({
+                title: '错误',
+                html: '{0}范围输入无效，请重新输入，{0}范围：{1}-{2}'
+                    .replace('{0}', desc).replace('{0}', desc)
+                    .replace('{1}', minNum).replace('{2}', maxNum)
+            });
+            return false;
+        }
+        return true;
+    }
+
+    // 策略分组，动作
+    $('#tabs-0').find('input[name=group]').click(function () {
+        $(this).attr('placeholder', $(this).val());
+        $(this).val('');
+    });
+
+    $('#tabs-0').find('input[name=group]').mouseleave(function () {
+        if ($(this).val() == '') {
+            $(this).val($(this).attr('placeholder'));
+        }
+    });
+
+    // 设置可用的策略组
+    function setStrategyGroups() {
+        $('datalist#group-list').empty();
+        myAjaxPost('../webguard_handle/?a=get_strategy_available_groups', '', setStrategyGroupsCallbk);
+    }
+
+    var defaultGrp = '默认分组';
+
+    function setStrategyGroupsCallbk(jsonStr) {
+        $(jsonStr.groups).each(function () {
+            var GrpName = this;
+            if (GrpName == defaultGrp) {
+                $('#tabs-0').find('input[name=group]').val(GrpName);
+            }
+            $('<option></option>').val(GrpName).appendTo('#group-list');
+        });
+
+        if (window.dialg == 'edit') {
+            $('#tabs-0').find('input[name=group]').val(lastStrategyGroup);
+        }
+    }
+
+    // 设置可选存储单元: 编辑策略、创建策略时
+    function setStorageOption() {
+        $('#tabs-1').find('div.manage-item #storage-device').empty();
+        $('#tabs-4').find('div.manage-item #storage-device').empty();
+        $('#tabs-7').find('div.manage-item #storage-device').empty();
+        myAjaxGet('../backup_handle/', 'a=getstoragedevice', setStorageOptionCallbk);
+    }
+
+    function setStorageOptionCallbk(retjson) {
+        $.each(retjson, function (i, item) {
+            var free_GB = (item.value == -1) ? 0 : (item.free / Math.pow(1024, 1)).toFixed(2);
+            var html = "（可用：{3}）".replace('{3}', free_GB + 'GB');
+            $('#tabs-1').find('div.manage-item #storage-device').append($('<option></option>').val(item.value).text(item.name + html));
+            $('#tabs-4').find('div.manage-item #storage-device').append($('<option></option>').val(item.value).text(item.name + html));
+            $('#tabs-7').find('div.manage-item #storage-device').append($('<option></option>').val(item.value).text(item.name + html));
+        });
+        if (window.dialg == 'edit') {
+            $('#tabs-1').find('div.manage-item #storage-device').val(lastNodeIdent);
+            $('#tabs-4').find('div.manage-item #storage-device').val(lastNodeIdent);
+            $('#tabs-7').find('div.manage-item #storage-device').val(lastNodeIdent);
+        }
+    }
+</script>

@@ -1,0 +1,261 @@
+<div class="right">
+	<div class="table_menu">
+		<div class="menu_btn" id="searchForm" style="display:none;">查询</div>
+        <div class="menu_btn" id="showall">显示所有</div>
+	</div>
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+</div>
+
+<div id="searchFormDiv" title="查询" class="ajaxForm">
+	<br />
+	<table width="100%" border="0" cellspacing="3" cellpadding="0">
+		<tr>
+			<td align="right">类型：</td>
+			<td align="left">
+				<select id="type" name="type" style="width:182px">
+					<option value='0'  selected="selected" >所有</option>
+					<option value='1'>信息</option>
+					<option value='2'>警告</option>
+					<option value='3'>错误</option>
+				</select>
+			</td>
+			<td align="right">描述：</td>
+			<td align="left"><input type="text" name="desc" id="desc" onblur="removespace(this)"  /></td>
+		</tr>
+		{% if separation_of_the_three_members %}
+		{% ifequal user_type 'aud-admin' %}
+		<tr>
+			<td align="right">操作者：</td>
+			<td align="left"><input type="text" name="username" id="username" onblur="removespace(this)"  /></td>
+			<td align="right">操作者类型：</td>
+			<td align="left">
+				<select id="user_type" name="user_type" style="width:182px">
+					<option value=''  selected="selected" >所有</option>
+					<option value='normal-admin'>系统管理员</option>
+					<option value='sec-admin'>安全保密管理员</option>
+				</select>
+			</td>
+		</tr>
+		{% endifequal %}
+		{% ifequal user_type 'sec-admin' %}
+		<tr>
+			<td align="right">操作者：</td>
+			<td align="left"><input type="text" name="username" id="username" onblur="removespace(this)"  /></td>
+			<td align="right">操作者类型：</td>
+			<td align="left">
+				<select id="user_type" name="user_type" style="width:182px">
+					<option value=''  selected="selected" >所有</option>
+					<option value='normal-admin'>系统管理员</option>
+					<option value='aud-admin'>安全审计管理员</option>
+				</select>
+			</td>
+		</tr>
+		{% endifequal %}
+		{% endif %}
+		<tr>
+			<td align="right">事件：</td>
+			<td align="left">
+                <select id="event" name="event" style="width:182px">
+					<option value='0'  selected="selected" >所有</option>
+                    {% if not is_superuser %}
+                     <option value='3'>备份计划管理</option>
+                     <option value='4'>客户端管理</option>
+                     <option value='5'>恢复</option>
+                     <option value='6'>迁移</option>
+					 <option value='10'>启动介质</option>
+					 <option value='11'>操作日志</option>
+					 <option value='12'>客户端日志</option>
+					 <option value='13'>浏览备份</option>
+					 <option value='24'>热备</option>
+					 <option value='27'>接管</option>
+                    {% else %}
+					<option value='1'>邮件服务器</option>
+					<option value='2'>网络设置</option>
+                    <option value='7'>存储管理</option>
+                    <option value='8'>用户管理</option>
+					<option value='9'>系统设置</option>
+                    {% endif %}
+				</select>
+            </td>
+			<td align="right" class="operator_user" style="display:none;">操作者：</td>
+			<td align="left" class="operator_user" style="display:none;"><input type="text" name="operator_user" id="operator_user" /></td>
+		</tr>
+		<tr>
+			<td align="right">开始时间：</td>
+			<td align="left"><input name="stime" type="text" class="textTime Wdate" id="stime" style="width:180px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)"/></td>
+			<td align="right">结束时间：</td>
+			<td align="left"><input name="etime" type="text" class="textTime Wdate" id="etime" style="width:180px" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" onblur="removespace(this)"/></td>
+		</tr>
+	</table>
+</div>
+
+
+<style>
+.ui-jqgrid tr.jqgrow td {
+  white-space: normal !important;
+ }
+</style>
+<script type="text/javascript" src="/static/js/WdatePicker.js"></script>
+<script language="javascript"> 
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../audittask_handle/?a=get_approved_task_list',
+		datatype: "json",
+		colNames:['id','类型','客户端名称','审批时间','描述'],
+
+		colModel:[
+			{name: 'id', index: 'id', align: "center", width: 20, hidden: true, sortable: false},
+			{name:'task_type',index:'task_type',align:"center", width:20,sortable: false},
+			{name:'operator',index:'operator',align:"center", width:90,sortable: false},
+			{name:'audit_datetime',index:'audit_datetime',align:"center", width:40,sortable: true},
+			{name:'user_type',index:'user_type',align:"center", width:90,sortable: false }
+		],
+		width:748,
+		height:550,
+		rowNum:300,
+		rowList:[100,200,300],
+		pager: '#pager',
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true
+
+	});
+});
+jQuery("#list").jqGrid('navGrid','#pager',{add:false,search:false,del:false,edit:false,refresh:true,position:'right'});
+
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' }); 
+
+
+function ReloadGridCallback(jsonstr)
+{
+	if(jsonstr.r!=0)
+	{
+		openErrorDialog({title:'错误',html:jsonstr.e});
+		return;
+	}
+	$('#list').trigger("reloadGrid",[{
+				current:true
+			}]);
+}
+
+
+function GetFilterString()
+{
+	var filter="";
+	if($("div#searchFormDiv #type").val()==0)
+	{
+		
+	}
+	else
+	{
+		filter+="&type="+$("div#searchFormDiv #type").val();
+	}
+	if($("div#searchFormDiv #username").val())
+	{
+		filter+="&username="+$("div#searchFormDiv #username").val();
+	}
+	if($("div#searchFormDiv #user_type").val())
+	{
+		filter+="&user_type="+$("div#searchFormDiv #user_type").val();
+	}
+	if($("div#searchFormDiv #operator_user").val())
+	{
+		filter+="&operator_user="+encodeURIComponent($("div#searchFormDiv #operator_user").val());
+	}
+	if($("div#searchFormDiv #event").val())
+	{
+		filter+="&event="+$("div#searchFormDiv #event").val();
+	}
+	if($("div#searchFormDiv #desc").val())
+	{
+		filter+="&desc="+$("div#searchFormDiv #desc").val();
+	}
+	if($("div#searchFormDiv #stime").val())
+	{
+		filter+="&stime="+$("div#searchFormDiv #stime").val();
+	}
+	if($("div#searchFormDiv #etime").val())
+	{
+		filter+="&etime="+$("div#searchFormDiv #etime").val();
+	}
+
+	return filter;
+}
+
+function init_filter() {
+    $("div#searchFormDiv input").val('');
+}
+
+function OnSearch()
+{
+	var newUrl='../audittask_handle/?a=get_approved_task_list'+GetFilterString();
+	
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+function shwoall() {
+    var newUrl='../audittask_handle/?a=get_approved_task_list';
+    init_filter();
+	$('#list').setGridParam({url:newUrl});
+	$('#list').trigger("reloadGrid",[{page:1}]);
+}
+
+$('#showall')
+.button()
+.click(function() {
+    shwoall();
+});
+
+$('#searchForm')
+.button()
+.click(function() {
+	$("#searchFormDiv").attr('title','查询').dialog({
+		autoOpen: true,
+		height: 300,
+		width: 600,
+		modal: true,
+		buttons: {		
+			'确定': function(){
+				OnSearch();
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+				
+			}
+			
+		},
+		close: function(){
+		}
+	});
+});
+
+
+
+$(function()
+{
+	$('#navigation').html('<div class="font_navigation">已审批的任务</div>');
+    $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#audittask" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	approved_resize();
+
+});
+
+function approved_resize()
+{
+	resizeright();
+	var width = $('.table_menu').width() - 5;
+	$("#list").setGridWidth(width);
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	approved_resize();	
+});
+</script>

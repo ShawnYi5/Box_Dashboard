@@ -1,0 +1,175 @@
+<style type="text/css">
+</style>
+<div class="right">
+    <div id="tabs" style="padding-bottom: 20px">
+        <ul>
+            <li><a href="#tabs-1">磁带库信息</a></li>
+            <li><a href="#tabs-3">驱动器管理</a></li>
+            <li><a href="#tabs-2">磁带信息</a></li>
+        </ul>
+        <div id="tabs-1">
+            <div class="table_menu">
+                <div class="menu_btn" id="refresh">刷新</div>
+            </div>
+            <table id="list-1"></table>
+        </div>
+        <div id="tabs-2">
+            <div class="table_menu">
+                <div class="menu_btn" id="load">刷新</div>
+            </div>
+            <table id="list-2"></table>
+        </div>
+        <div id="tabs-3">
+            <div class="table_menu">
+                <div class="menu_btn" id="load_1">重新扫描磁带库关系</div>
+            </div>
+            <table id="list-3">
+            </table>
+        </div>
+    </div>
+</div>
+
+<script language="javascript">
+    $('#load')
+        .button()
+        .click(function () {
+            $('#list-2').trigger("reloadGrid", [{
+                current: true
+            }]);
+        })
+    $('#load_1')
+        .button()
+        .click(function () {
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要重新扫描磁带库关系吗?这可能要几分钟',
+                onBeforeOK: function () {
+                    myAjaxGet('../storage_handle/?a=refresh_link_info', '', delCallback);
+                    $('#load_1').trigger("reloadGrid", [{
+                        current: true
+                    }]);
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+    function delCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+    }
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 600);
+        $("#tabs").tabs("option", "active", 0);
+        system_resize()
+    });
+
+    function system_resize() {
+        resizeright();
+        var width = $("#tabs").width() - 50;
+        $("#list-2").setGridWidth(width);
+        $("#list-2").setGridHeight(400);
+        $("#list-1").setGridWidth(width);
+        $("#list-1").setGridHeight(400);
+        $("#list-3").setGridWidth(width);
+        $("#list-3").setGridHeight(400);
+        baseresize();
+    }
+
+    $(function () {
+        jQuery("#list-1").jqGrid({
+            url: '../storage_handle/?a=libraryinfo',
+            datatype: "json",
+            colNames: ['序号', '厂商', '型号', '驱动器数', '磁带数', '出入槽位数', '槽位数'],
+
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 50, sortable: true, hidden: true},
+                {name: 'producer', index: '1', align: "center", width: 50, sortable: true},
+                {name: 'type', index: '2', align: "center", width: 110, sortable: true},
+                {name: 'numberofdrives', index: '3', align: "center", width: 120, sortable: true},
+                {name: 'numberoftapes', index: '4', align: "center", width: 120, sortable: true},
+                {name: 'iooftapes', index: '5', align: "center", width: 120, sortable: true},
+                {name: 'numberofslots', index: '6', align: "center", width: 120, sortable: true}
+            ],
+            width: 700,
+            height: 250,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+        system_resize();
+    });
+    $(function () {
+        jQuery("#list-2").jqGrid({
+            url: '../storage_handle/?a=tapesinfo',
+            datatype: "json",
+            colNames: ['序号', '磁带标签', '磁带存储卷池', '位置', '所属带库'],
+
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 50, sortable: true, hidden: true},
+                {name: 'barcode', index: '1', align: "center", width: 50, sortable: true},
+                {name: 'capacity', index: '2', align: "center", width: 100, sortable: true},
+                {name: 'usedsize', index: '3', align: "center", width: 50, sortable: true},
+                {name: 'position', index: '4', align: "center", width: 200, sortable: true}
+            ],
+            width: 700,
+            height: 250,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+        system_resize();
+    });
+    $(function () {
+        jQuery("#list-3").jqGrid({
+            url: '../storage_handle/?a=driverinfo',
+            datatype: "json",
+            colNames: ['厂家', '型号', '状态', '序列号', '所属带库'],
+
+            colModel: [
+                {#{name: 'id', index: '0', align: "center", width: 50, sortable: true, hidden: true},#}
+                {name: 'barcode', index: '1', align: "center", width: 50, sortable: true},
+                {name: 'capacity', index: '2', align: "center", width: 50, sortable: true},
+                {name: 'usedsize', index: '3', align: "center", width: 100, sortable: true},
+                {name: 'status', index: '4', align: "center", width: 50, sortable: true},
+                {name: 'library', index: '5', align: "center", width: 200, sortable: true}
+            ],
+            width: 700,
+            height: 250,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+        system_resize();
+    });
+    $(window).resize(function () {
+        system_resize();
+    });
+    $('#delete')
+        .button()
+    $('#refresh')
+        .button()
+        .click(function () {
+            $('#list-1').trigger("reloadGrid", [{
+                current: true
+            }]);
+        })
+</script>

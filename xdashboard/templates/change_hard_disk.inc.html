@@ -1,0 +1,2111 @@
+<style>
+ .board {
+  width: 100%;
+}
+.board-column {
+  background: #f0f0f0;
+  border-radius: 3px;
+  margin-top:2px;
+}
+.board-column-header {
+  height: 75px;
+  width: 120px;
+  float:left;
+  text-align: left;
+  background: #333;
+  color: #fff;
+  border-radius: 3px 3px 0 0;
+}
+
+.board-column.src-harddisk .board-column-header {
+  background: #4A9FF9;
+  cursor: move;
+}
+.board-column.dest-harddisk .board-column-header {
+  background: #4A9FF9;
+}
+/* This is the secret sauce,
+   always use a wrapper for setting
+   the "overflow: scroll/auto" */
+.board-column-content-wrapper {
+  height: 77px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+/* Never ever set "overflow: auto/scroll"
+   to the muuri element, stuff will break */
+.board-column-content {
+  border: 2px solid transparent;
+  height: 95px;
+}
+.board-item {
+  float:left;
+}
+
+.board-item-hover {
+  border:1px solid #2196F3;
+}
+
+.dest-board-item-hover {
+  border:1px solid #ff0000;
+}
+
+.board-item-active{
+  border:1px solid #2196F3;
+}
+
+.board-item-content {
+  padding: 10px;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  -webkit-box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+  box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+}
+
+.ui_used{
+	opacity: 0.5;
+	cursor:no-drop;
+}
+
+.ui_not_used{
+	opacity: 1;
+	cursor:cell;
+}
+
+.src-harddisk .board-item-content {
+}
+
+.partition-style{
+	height:5px;
+}
+
+.drag_pos{
+	float:right;
+	display:none;
+	width:30px;
+}
+
+.card {
+  position: relative;
+}
+
+.card-remove {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 400;
+  cursor: pointer;
+  -moz-transform: scale(0);
+  -webkit-transform: scale(0);
+  -o-transform: scale(0);
+  -ms-transform: scale(0);
+  transform: scale(0);
+  -webkit-transition: all 0.15s ease-out;
+  -moz-transition: all 0.15s ease-out;
+  -ms-transition: all 0.15s ease-out;
+  -o-transition: all 0.15s ease-out;
+  transition: all 0.15s ease-out;
+}
+.card:hover > .card-remove {
+  -moz-transform: scale(1);
+  -webkit-transform: scale(1);
+  -o-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+}
+
+ </style>
+<div style="float: left;">源硬盘：</div>
+<div style="float: right;">
+	<div class="menu_btn" id="refresh_dest_disk">重置</div>
+</div>
+<div class="clear"></div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px 10px 10px 10px;">
+	<div class="board src_disk"></div>
+</div>
+
+<div style="margin-top: 5px;height: 50px;">
+	<div style="margin-top:7px;">将源硬盘拖动到目标硬盘上。<label><input type="checkbox" id="show_dest_disk_partition">显示目标硬盘原始分区结构</label></div>
+	<div style="margin-top:7px;">目标硬盘：</div>
+</div>
+<div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px 10px 10px 10px;">
+	<div class="board dest_disk"></div>
+</div>
+
+<div style="display:none;" id="src-board-column">
+  <div class="board-column src-harddisk">
+	<div class="board-column-header">
+		<div><span class="DiskTempGUID" style="display:none;"></span></div>
+		<div><span class="disknum" style="font-weight:bold;"></span></div>
+		<div><span class="DiskBootIndicator"></span><span class="dynamic_disk"></span></div>
+		<div><span class="disksize"></span></div>
+		<div><span class="disk_style"></span></div>
+	</div>
+	<div class="board-column-content-wrapper">
+		<div class="board-column-content">
+		</div>
+	</div>
+  </div>
+</div>
+
+<div style="display:none;" id="dest-board-column">
+  <div class="board-column dest-harddisk">
+	<div class="board-column-header">
+		<div class="vol-tip"></div>
+		<div><span class="DiskTempGUID" style="display:none;"></span></div>
+		<div><span class="disknum" style="font-weight:bold;"></span></div>
+		<div><span class="DiskBootIndicator"></span><span class="dynamic_disk"></span></div>
+		<div><span class="disksize"></span></div>
+		<div>
+			<select class="disk_style" onchange="on_disk_style_sel_change(this)">
+				<option value='mbr'>MBR</option>
+				<option value='gpt'>GPT</option>
+				<option value='null'>未知</option>
+			</select>
+		</div>
+	</div>
+	<div class="board-column-content-wrapper">
+		<div class="board-column-content">
+		</div>
+	</div>
+  </div>
+</div>
+
+<div id="blank-board-column-content" style="display:none;">
+	<div class="blank-board-item" style="height: 95px;float:left;">
+		<div class="vol-tip"></div>
+	</div>
+</div>
+
+<div id="src-board-column-content" style="display:none;">
+	<div class="board-item">
+		<div class="vol-tip"></div>
+		<div class="partition-style"></div>
+		<div class="board-item-content">
+			<div><span class="PartitionTempGUID" style="display:none;"></span></div>
+			<div style="height:18px;"><span class="VolumeName" style="font-weight:bold;"></span></div>
+			<div style="width:122px;height:18px;"><span class="VolumeSize"></span><span class="FileSystem" style="margin-left:5px;"></span></div>
+			<div style="height:18px;">(<span class="MBRBootIndicator"></span><span class="PartitionStyle"></span>)</div>
+		</div>
+	</div>
+</div>
+
+<div id="dest-board-column-content" style="display:none;">
+	<div class="board-item">
+		<div class="card">
+			<div style="float:left;">
+				<div class="vol-tip"></div>
+				<div class="partition-style"></div>
+				<div class="board-item-content">
+					<div><span class="PartitionTempGUID" style="display:none;"></span></div>
+					<div style="height:18px;"><span class="VolumeName" style="font-weight:bold;"></span></div>
+					<div style="width:122px;height:18px;">
+						<input type="text" style="width:60px;" class="vol_size" readonly="readonly" onclick="javascript:set_vol_size(this);"/><span class="VolumeSizeUnit"></span>
+						<span class="FileSystem" style="margin-left:5px;"></span>
+					</div>
+					<div style="height:18px;">(
+					<span class="MBRBootIndicator"></span>
+					<span class="PartitionStyle"></span>
+					<select class="selPartitionStyle" onchange="OnChangePartitionStyle(this)">
+						<option value='mbrprimary'>主分区</option>
+						<option value='mbrlogical'>逻辑分区</option>
+					</select>
+					)
+					</div>
+				</div>
+			</div>
+			<div class="drag_pos">
+				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve" style="height:70px;margin-left:-20px;margin-top:3px;">
+					<path d="M520.2,949.6H662V990H520.2V949.6z"/>
+					<path d="M338,949.6h141.7V990H338V949.6z"/>
+					<path d="M479.8,50.3h40.4v899.3h-40.4V50.3L479.8,50.3z"/>
+					<path d="M520.2,10H662v40.3H520.2V10z"/>
+					<path d="M338,10h141.7v40.3H338V10z"/>
+				</svg>
+			</div>
+			<div class="card-remove" onclick="remove_partition(this)">x</div>
+		</div>
+		
+	</div>
+</div>
+
+<div id="set_vol_size_div" title="调整分区大小" class="ajaxForm" style="margin: 16px; font-family: Monaco">
+	<div>最大磁盘空间量（MB）：<span id="setVolSizeMaxPartitionLength" style="color:blue;cursor:pointer;text-decoration:underline;"></span></div>
+	<div style="margin-top:10px;">最小磁盘空间量（MB）：<span id="setVolSizeMinPartitionLength" style="color:blue;cursor:pointer;text-decoration:underline;"></span></div>
+	<div style="margin-top:10px;">分区大小（MB）：<input type="number" style="width:150px;" id="vol_size_input"/></div>
+</div>
+
+<div id="alert_div" style="display:none;">
+	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
+		<p>
+		<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+		<strong>警告</strong> <span id="alert_div_text"></span>
+		</p>
+	</div>
+
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		<p>
+		<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+		<strong>错误</strong> <span id="alert_div_text"></span>
+		</p>
+	</div>
+</div>
+
+<script>
+var g_src_diskpartition_info = null;
+var g_dest_diskpartition_info = null;
+var g_org_dest_diskpartition_info = null;
+var g_org_src_diskpartition_info = null;
+
+$('#setVolSizeMinPartitionLength').click(function(){
+	$('#vol_size_input').val($(this).text());
+});
+
+$('#setVolSizeMaxPartitionLength').click(function(){
+	$('#vol_size_input').val($(this).text());
+});
+
+function string2longlong(str)
+{
+	return parseInt(str);
+}
+
+function remove_partition(obj)
+{
+	var PartitionTempGUID = $(obj.parentElement.parentElement).find('.PartitionTempGUID').text();
+
+	OnDelPartitionForMove(PartitionTempGUID);
+	set_Partion_used(g_src_diskpartition_info,PartitionTempGUID,false);
+
+	$('.dest_disk').empty();
+	$('.src_disk').empty();
+	draw_src_diskpartition_info();
+	draw_dest_diskpartition_info();
+}
+
+
+function set_PartitionStyle_by_guid(PartitionTempGUID,PartitionStyle)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				PartitionEntry[j].PartitionStyle = PartitionStyle;
+				return;
+			}
+		}
+	}
+}
+
+function can_change_PartitionStyle(PartitionTempGUID,toPartitionStyle)
+{
+	//r:0 成功
+	//r:1 错误
+	//r:2 警告
+	if(toPartitionStyle=='mbrprimary')
+	{
+		var count = get_PartitionStyle_count(g_dest_diskpartition_info,PartitionTempGUID,'mbrprimary');
+		var e = '主分区';
+		if(have_logical_parttion(g_dest_diskpartition_info,PartitionTempGUID,false))
+		{
+			count++;
+			e += '+扩展分区';
+		}
+		if(count>3)
+		{
+			return {'r':1,'e':e+'的数量不能大于4'};
+		}
+
+		if(next_is_mbrlogical_for_move(g_dest_diskpartition_info,PartitionTempGUID) && pre_is_mbrlogical_for_move(g_dest_diskpartition_info,PartitionTempGUID))
+		{
+			return {'r':1,'e':'主分区不能位于逻辑分区之间'};
+		}
+	}
+	else if(toPartitionStyle=='mbrlogical')
+	{
+		if(have_logical_parttion(g_dest_diskpartition_info,PartitionTempGUID,true))
+		{
+			if(!next_is_mbrlogical_for_move(g_dest_diskpartition_info,PartitionTempGUID) && !pre_is_mbrlogical_for_move(g_dest_diskpartition_info,PartitionTempGUID))
+			{
+				return {'r':1,'e':'逻辑分区必须在一起'};
+			}
+		}
+	}
+	else
+	{
+		debugger;
+		alert(toPartitionStyle);
+	}
+	return {'r':0}
+}
+
+function OnChangePartitionStyle(obj)
+{
+	var PartitionTempGUID = $(obj.parentElement.parentElement).find('.PartitionTempGUID').text();
+	var PartitionStyle = $(obj).val();
+	var check_result = can_change_PartitionStyle(PartitionTempGUID,PartitionStyle);
+	if(check_result.r==0)
+	{
+		set_PartitionStyle_by_guid(PartitionTempGUID,PartitionStyle);
+		$('.dest_disk').empty();
+		draw_dest_diskpartition_info();
+	}
+	else if(check_result.r==1)
+	{
+		var alert_div = $('#alert_div').find('.ui-state-error').clone();
+		alert_div.find('#alert_div_text').text(check_result.e);
+		$(obj.parentElement.parentElement.parentElement).find('.vol-tip').append(alert_div);	
+		setTimeout(function() {
+			$(obj.parentElement.parentElement.parentElement).find('.vol-tip').html('');
+			$('.dest_disk').empty();
+			draw_dest_diskpartition_info();
+		}, 2000 );
+	}
+	else
+	{
+		alert(check_result.e);
+	}
+}
+
+
+function set_dest_disk_info_by_guid(DiskTempGUID,name,value)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			eval('g_dest_diskpartition_info.DiskEntry[i].'+name+'="'+value+'"');
+			return;
+		}
+	}
+}
+
+function guid() {
+  function S4() {
+    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+  }
+  return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+}
+
+function gen_ESP_partition()
+{
+	return {
+		"PartitionTempGUID":guid(),
+		"ClwDiskid":"{12345678-0000-0000-0001-aabbccddeeff}",
+		"ClwPartitionGUID":"{12345678-0000-0000-0002-aabbccddeeff}",
+		"MBRprimary2logical":"0",
+		"ORGPartitionOffset":"32256", //构造一个，填写实际加载的位置。
+		"ORGPartitionLength":"104857600", //构造一个，填写实际的大小。
+		"MoveToOtherOffset":"1",
+		"MoveToOtherDisk":"0",
+		"MaxPartitionLength":"134217728", // 128*1024*1024
+		"MinPartitionLength":"67108864",   // 64*1024*1024
+		"PartitionRestoreType":"Normal",
+		"PartitionStyle": "gpt",
+		"DiskToken":"1232323413", // 目标硬盘的toket
+		"PartitionOffset":"32256", // 同ORGPartitionOffset一样
+		"PartitionLength":"104857600", // 同ORGPartitionLength一样。
+		"DeletePartition":"0",
+		"MBRPartitionType":"12",
+		"MBRBootIndicator":"1",
+		"MBRHiddenSectors":"0",
+		"MBRFirstCHS":"0",
+		"MBREndCHS":"0",
+		"GPTPartitionType":"{C12A7328-F81F-11D2-BA4B-00A0C93EC93B}",
+		"GPTPartitionId":"{"+guid()+"}",
+		"GPTAttributes":"-9223372036854775808",
+		"GPTName":"EFI system partition",
+		"Index": "0",
+		"Letter": "",
+		"VolumeLabel": "", 
+		"VolumeName": "",
+		"VolumeSize": "104857600",
+		"FileSystem":"" ,
+		"FreeSize": "0"
+	};
+}
+
+function have_EFI_system_partition(DiskTempGUID)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			for(var j=0;j<g_dest_diskpartition_info.DiskEntry[i].PartitionEntry.length;j++)
+			{
+				if(g_dest_diskpartition_info.DiskEntry[i].PartitionEntry[j].GPTPartitionType=='{C12A7328-F81F-11D2-BA4B-00A0C93EC93B}')
+				{
+					return g_dest_diskpartition_info.DiskEntry[i].PartitionEntry[j].PartitionTempGUID;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+function create_EFI_system_partition(DiskTempGUID)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			if(g_dest_diskpartition_info.DiskEntry[i].DiskBootIndicator!='0')
+			{
+				if(!have_EFI_system_partition(DiskTempGUID))
+				{
+					var ESP_partition = gen_ESP_partition();
+					g_dest_diskpartition_info.DiskEntry[i].PartitionEntry.splice(0, 0, ESP_partition);
+					return ESP_partition.PartitionTempGUID;
+					
+				}
+			}
+			return null;
+		}
+	}
+}
+
+function del_EFI_system_partition(DiskTempGUID)
+{
+	var PartitionTempGUID = have_EFI_system_partition(DiskTempGUID);
+	if(PartitionTempGUID)
+	{
+		OnDelPartitionForMove(PartitionTempGUID);
+	}
+
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+			for(j=0;j<PartitionEntry.length;j++)
+			{
+				//第一个分区位置移动到0x3f
+				PartitionEntry[j].PartitionOffset = '32256';
+				return PartitionEntry[j].PartitionTempGUID;
+			}
+			return null;
+		}
+	}
+	return null;
+}
+
+function on_disk_style_sel_change(obj)
+{
+	var DiskTempGUID = $(obj.parentElement.parentElement).find('.DiskTempGUID').text();
+	var PartitionTempGUID = null
+	if($(obj).val()=='gpt')
+	{
+		PartitionTempGUID = create_EFI_system_partition(DiskTempGUID);
+	}
+	else
+	{
+		PartitionTempGUID = del_EFI_system_partition(DiskTempGUID);
+	}
+	if(PartitionTempGUID)
+	{
+		change_PartitionOffset(DiskTempGUID,PartitionTempGUID);
+	}
+	set_dest_disk_info_by_guid(DiskTempGUID,'DiskStyle',$(obj).val());
+	$('.dest_disk').empty();
+	draw_dest_diskpartition_info();
+}
+
+
+$('#refresh_dest_disk').button().click(function(){
+	InitChangeHardDisk('refresh');
+});
+
+function get_vol_by_guid(PartitionTempGUID)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				return $.extend(true,{},PartitionEntry[j]);
+			}
+		}
+	}
+	return null;
+}
+
+function set_vol_size_by_guid(PartitionTempGUID,VolumeSize)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				if( VolumeSize > string2longlong(PartitionEntry[j].MaxPartitionLength) )
+				{
+					return {'r':1,'e':'设置的值需要小于最大磁盘空间量'+Math.floor(PartitionEntry[j].MaxPartitionLength/Math.pow(1024, 2))+'MB'};
+				}
+				if( VolumeSize < string2longlong(PartitionEntry[j].MinPartitionLength) )
+				{
+					return {'r':1,'e':'设置的值需要大于最小磁盘空间量'+Math.ceil(PartitionEntry[j].MinPartitionLength/Math.pow(1024, 2))+'MB'};
+				}
+				PartitionEntry[j].VolumeSize = VolumeSize;
+				return {'r':0};
+			}
+		}
+	}
+	return {'r':1,'e':'找不到分区'};
+}
+
+function set_vol_size(obj)
+{
+	var PartitionTempGUID = $(obj.parentElement.parentElement).find('.PartitionTempGUID').text();
+	var vol = get_vol_by_guid(PartitionTempGUID);
+	if(vol == null)
+	{
+		debugger;
+		alert("vol == null");
+		return;
+	}
+	$('#vol_size_input').val(Math.ceil(vol.VolumeSize/Math.pow(1024, 2)));
+	$('#setVolSizeMaxPartitionLength').text(Math.floor(vol.MaxPartitionLength/Math.pow(1024, 2)));
+	$('#setVolSizeMinPartitionLength').text(Math.ceil(vol.MinPartitionLength/Math.pow(1024, 2)));
+	$('#set_vol_size_div').dialog({
+        title: '调整分区大小',
+        autoOpen: true,
+        modal: true,
+        width: 360,
+        height: 240,
+        buttons: [
+            {
+                text: '确认',
+                click: function () {
+					var VolumeSize = $('#vol_size_input').val()*Math.pow(1024, 2);
+					var result = set_vol_size_by_guid(PartitionTempGUID,VolumeSize);
+					if(result.r!=0)
+					{
+						openErrorDialog('错误',result.e);
+						return;
+					}
+					$('.dest_disk').empty();
+					draw_dest_diskpartition_info();
+					$(this).dialog('close');
+                }
+            },
+            {
+                text: '取消',
+                click: function () {
+					$(this).dialog('close');
+                }
+            }
+        ]
+    });
+}
+
+function fmt_size(size_bytes)
+{
+	if(size_bytes>1024*1024*1024*1024)
+	{
+		return (size_bytes / Math.pow(1024, 4)).toFixed(2) + 'TB';
+	}
+
+	if(size_bytes>1024*1024*1024)
+	{
+		return (size_bytes / Math.pow(1024, 3)).toFixed(2) + 'GB';
+	}
+
+
+	return (size_bytes / Math.pow(1024, 2)).toFixed(2) + 'MB';
+
+}
+
+function fmt_size_no_unit(size_bytes)
+{
+	if(size_bytes>1024*1024*1024*1024)
+	{
+		return (size_bytes / Math.pow(1024, 4)).toFixed(2);
+	}
+
+	if(size_bytes>1024*1024*1024)
+	{
+		return (size_bytes / Math.pow(1024, 3)).toFixed(2);
+	}
+
+	return (size_bytes / Math.pow(1024, 2)).toFixed(2);
+
+}
+
+function fmt_size_only_unit(size_bytes)
+{
+	if(size_bytes>1024*1024*1024*1024)
+	{
+		return 'TB';
+	}
+
+	if(size_bytes>1024*1024*1024)
+	{
+		return 'GB';
+	}
+
+	return 'MB';
+
+}
+
+function fmt_PartitionStyle(PartitionStyle)
+{
+	PartitionStyle = PartitionStyle.toLowerCase();
+	if(PartitionStyle=='mbrprimary')
+	{
+		return '主分区';
+	}
+	if(PartitionStyle=='mbrlogical')
+	{
+		return '逻辑分区';
+	}
+	if(PartitionStyle=='gpt')
+	{
+		return 'GPT分区';
+	}
+
+	return PartitionStyle;
+}
+
+function get_partition_style_color(PartitionStyle)
+{
+	PartitionStyle = PartitionStyle.toLowerCase();
+	if(PartitionStyle=='mbrprimary')
+	{
+		return '#0824bf';
+	}
+	if(PartitionStyle=='mbrlogical')
+	{
+		return '#008200';
+	}
+	if(PartitionStyle=='gpt')
+	{
+		return '#0824bf';
+	}
+
+	return '#000000';
+}
+
+function fmt_disk_style(disk_style)
+{
+	disk_style = disk_style.toLowerCase();
+	if(disk_style=='mbr')
+	{
+		return 'MBR';
+	}
+
+	if(disk_style=='gpt')
+	{
+		return 'GTP';
+	}
+
+	if(disk_style=='null')
+	{
+		return '未知';
+	}
+
+	return disk_style;
+}
+
+function get_src_diskpartition_info_callback(jsonobj,type)
+{
+	if (jsonobj.r != 0)
+	{
+		$('.mywaite').hide();
+        openErrorDialog('错误',jsonobj.e);
+		return;
+    }
+	g_src_diskpartition_info = jsonobj;
+	g_org_src_diskpartition_info=$.extend(true,{},g_src_diskpartition_info);
+	myAjaxGet('../restore_handle/','a=get_dest_diskpartition_info',get_dest_diskpartition_info_callback,type);
+
+}
+
+function dest_board_item_mouseover(e)
+{
+	
+	var PartitionTempGUID = $(e.currentTarget).find('.PartitionTempGUID').text();
+	var node = $('.src_disk').find(".PartitionTempGUID:contains('"+PartitionTempGUID+"')");
+	if(node.length)
+	{
+		node.parent().parent().parent().addClass('dest-board-item-hover');
+		$(e.currentTarget).addClass('dest-board-item-hover');
+	}
+
+}
+
+function dest_board_item_mouseout(e)
+{
+	var PartitionTempGUID = $(e.currentTarget).find('.PartitionTempGUID').text();
+	var node = $('.src_disk').find(".PartitionTempGUID:contains('"+PartitionTempGUID+"')");
+	if(node.length)
+	{
+		node.parent().parent().parent().removeClass('dest-board-item-hover');
+		$(e.currentTarget).removeClass('dest-board-item-hover');
+	}
+}
+
+function get_dest_diskpartition_info_callback(jsonobj,type)
+{
+	$('.mywaite').hide();
+	if (jsonobj.r != 0)
+	{
+        openErrorDialog('错误',jsonobj.e);
+		return;
+    }
+	g_dest_diskpartition_info = jsonobj;
+	g_org_dest_diskpartition_info=$.extend(true,{},g_dest_diskpartition_info);
+
+	$('.src_disk').empty();
+	$('.dest_disk').empty();
+	draw_src_diskpartition_info();
+	draw_dest_diskpartition_info();
+
+	if(type=='network')
+	{
+		setTimeout(function () {
+			$('#tabs-7').scrollTop(220);
+		}, 100);
+	}
+}
+
+var g_initChangeHardDisk = false;
+
+function InitChangeHardDisk(type)
+{
+	if(type=='network' && g_initChangeHardDisk)
+	{
+		return;
+	}
+	$('#msg').html('正在获取硬盘信息。');
+    $('.mywaite').show();
+	g_initChangeHardDisk = true;
+	myAjaxGet('../restore_handle/','a=get_src_diskpartition_info',get_src_diskpartition_info_callback,type);
+}
+
+function draw_dest_diskpartition_info()
+{
+	jsonobj = g_dest_diskpartition_info;
+	if(jsonobj==null)
+	{
+		return;
+	}
+	var max_PartitionLength = get_max_PartitionLength();
+	
+	for(var i=0;i<jsonobj.DiskEntry.length;i++)
+	{
+		var board_column =  $('#dest-board-column').find('.board-column').clone();
+		board_column.find('.board-column-header .disknum').text('磁盘 '+jsonobj.DiskEntry[i].DiskNum).attr('title',jsonobj.DiskEntry[i].DiskName);
+		var dynamic_disk = '动态盘';
+		if(jsonobj.DiskEntry[i].dynamic_disk == '0')
+		{
+			dynamic_disk = '基本';
+		}
+		if(jsonobj.DiskEntry[i].DiskBootIndicator != '0')
+		{
+			board_column.find('.board-column-header .DiskBootIndicator').text('启动,');
+		}
+		board_column.find('.board-column-header .DiskTempGUID').text(jsonobj.DiskEntry[i].DiskTempGUID);
+		board_column.find('.board-column-header .dynamic_disk').text(dynamic_disk);
+		board_column.find('.board-column-header .disksize').text(fmt_size(jsonobj.DiskEntry[i].DiskSize));
+		var disk_style = jsonobj.DiskEntry[i].DiskStyle.toLowerCase();
+		board_column.find('.board-column-header .disk_style').val(disk_style);
+		if(disk_style == 'mbr' && jsonobj.DiskEntry[i].MBR2GPT == '0')
+		{
+			board_column.find('.board-column-header .disk_style option[value=gpt]').prop('disabled',true);
+		}
+		else if(disk_style == 'gpt' && jsonobj.DiskEntry[i].GPT2MBR == '0')
+		{
+			board_column.find('.board-column-header .disk_style option[value=mbr]').prop('disabled',true);
+		}
+
+		var board_column_content = board_column.find('.board-column-content');
+	
+		var PartitionEntry = jsonobj.DiskEntry[i].PartitionEntry;
+		var br_length = 40;
+		
+		if(PartitionEntry.length>3)
+		{
+			board_column.find('.board-column-content-wrapper').css('height','90px');
+		}
+
+		var DiskRestoreType = jsonobj.DiskEntry[i].DiskRestoreType;
+		if(DiskRestoreType=='overwrite')
+		{
+			board_column.find('.board-column-header').css('background','#f9944a');
+		}
+		else
+		{
+			board_column.find('.board-column-header').css('background','#2ac06d');
+		}
+		for(var j=0;j<PartitionEntry.length;j++)
+		{
+			if(!$('#show_dest_disk_partition').prop('checked') && DiskRestoreType!='overwrite')
+			{
+				break;
+			}
+			var Letter = PartitionEntry[j].Letter;
+			var VolumeLabel = PartitionEntry[j].VolumeLabel;
+			var VolumeSize = PartitionEntry[j].VolumeSize;
+			var FileSystem = PartitionEntry[j].FileSystem;
+			var PartitionStyle = PartitionEntry[j].PartitionStyle;
+			var MBRprimary2logical = PartitionEntry[j].MBRprimary2logical;
+			var MBRBootIndicator = PartitionEntry[j].MBRBootIndicator;
+			var DeletePartition = PartitionEntry[j].DeletePartition;
+
+			if(disk_style == 'gpt')
+			{
+				PartitionStyle = 'mbrprimary';
+				MBRprimary2logical = '0';
+				if(PartitionEntry[j].GPTPartitionType != '{C12A7328-F81F-11D2-BA4B-00A0C93EC93B}')
+				{
+					MBRBootIndicator = '0';
+				}
+			}
+
+			var board_item = $('#dest-board-column-content').find('.board-item').clone();
+
+			if(DiskRestoreType=='overwrite')
+			{
+				board_item.addClass('ui_not_used');
+			}
+
+			board_item.find('.PartitionTempGUID').text(PartitionEntry[j].PartitionTempGUID);
+			board_item.find('.vol_size').val(fmt_size_no_unit(VolumeSize));
+			board_item.find('.VolumeSizeUnit').text(fmt_size_only_unit(VolumeSize));
+			if(DeletePartition == '0')
+			{
+				if(Letter)
+				{
+					board_item.find('.VolumeName').text(VolumeLabel+'('+Letter+':)');
+				}
+				else
+				{
+					board_item.find('.VolumeName').text(VolumeLabel);
+				}
+				board_item.find('.FileSystem').text(FileSystem);
+				if(DiskRestoreType=='overwrite')
+				{
+					if(PartitionStyle.toLowerCase() == 'mbrprimary')
+					{
+						if(MBRprimary2logical=='0')
+						{
+							board_item.find('.selPartitionStyle').hide();
+							board_item.find('.PartitionStyle').text(fmt_PartitionStyle(PartitionStyle));
+						}
+						else
+						{
+							board_item.find('.PartitionStyle').hide();
+							board_item.find('.selPartitionStyle').val(PartitionStyle.toLowerCase());
+						}
+					}
+					else
+					{
+						board_item.find('.PartitionStyle').hide();
+						board_item.find('.selPartitionStyle').val(PartitionStyle.toLowerCase());
+					}
+				}
+				else
+				{
+					board_item.find('.selPartitionStyle').hide();
+					board_item.find('.PartitionStyle').text(fmt_PartitionStyle(PartitionStyle));
+				}
+				if(MBRBootIndicator!='0')
+				{
+					board_item.find('.MBRBootIndicator').text('引导,');
+				}
+			}
+			else
+			{
+				board_item.find('.VolumeName').text('');
+				board_item.find('.FileSystem').text('');
+				board_item.find('.selPartitionStyle').hide();
+				board_item.find('.PartitionStyle').text('未分配');
+			}
+			board_item.find('.partition-style').css('background',get_partition_style_color(PartitionStyle));
+
+
+			
+			var item_len = 150+150*string2longlong(PartitionEntry[j].VolumeSize)/max_PartitionLength;
+			br_length += item_len;
+
+			board_item.find('.vol-tip').css('width',item_len+'px');
+
+			if(DiskRestoreType!='overwrite')
+			{
+				board_item.find('.card').removeClass('card');
+			}
+			
+			board_item.on('mouseover', dest_board_item_mouseover);
+			board_item.on('mouseout', dest_board_item_mouseout);
+
+			board_column_content.append(board_item);
+		}
+
+		var blank_board_column =  $('#blank-board-column-content').find('.blank-board-item').clone();
+		board_column_content.append(blank_board_column);
+
+		$('.dest_disk').append(board_column);
+
+		var board_column_content_width = board_column_content.width();
+		
+		if(br_length<board_column_content_width)
+		{
+			blank_board_column.css('width',(board_column_content_width-br_length+6)+'px');
+			br_length = board_column_content_width;
+		}
+		board_column_content.css('width',br_length+'px');
+	}
+	InitDraggable('dest');
+}
+
+function get_max_PartitionLength()
+{
+	var PartitionLength = 0;
+	if(g_src_diskpartition_info)
+	{
+		for(var i=0;i<g_src_diskpartition_info.DiskEntry.length;i++)
+		{
+			var PartitionEntry = g_src_diskpartition_info.DiskEntry[i].PartitionEntry;
+			for(j=0;j<PartitionEntry.length;j++)
+			{
+				if(string2longlong(PartitionEntry[j].VolumeSize) > PartitionLength)
+				{
+					PartitionLength = string2longlong(PartitionEntry[j].VolumeSize);
+				}
+			}
+		}
+	}
+
+	if(g_dest_diskpartition_info)
+	{
+		for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+		{
+			var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+			for(j=0;j<PartitionEntry.length;j++)
+			{
+				if(string2longlong(PartitionEntry[j].VolumeSize) > PartitionLength)
+				{
+					PartitionLength = string2longlong(PartitionEntry[j].VolumeSize);
+				}
+			}
+		}
+	}
+
+	return PartitionLength;
+
+}
+
+function draw_src_diskpartition_info()
+{
+	
+	var jsonobj = g_src_diskpartition_info;
+	if(jsonobj==null)
+	{
+		return;
+	}
+	var max_PartitionLength = get_max_PartitionLength();
+	
+		
+	for(var i=0;i<jsonobj.DiskEntry.length;i++)
+	{
+		var board_column =  $('#src-board-column').find('.board-column').clone();
+		board_column.find('.board-column-header .disknum').text('磁盘 '+jsonobj.DiskEntry[i].DiskNum).attr('title',jsonobj.DiskEntry[i].DiskName);
+		var dynamic_disk = '动态盘';
+		if(jsonobj.DiskEntry[i].dynamic_disk == '0')
+		{
+			dynamic_disk = '基本';
+		}
+		if(jsonobj.DiskEntry[i].DiskBootIndicator != '0')
+		{
+			board_column.find('.board-column-header .DiskBootIndicator').text('启动,');
+		}
+		board_column.find('.board-column-header .DiskTempGUID').text(jsonobj.DiskEntry[i].DiskTempGUID);
+		board_column.find('.board-column-header .dynamic_disk').text(dynamic_disk);
+		board_column.find('.board-column-header .disksize').text(fmt_size(jsonobj.DiskEntry[i].DiskSize));
+		board_column.find('.board-column-header .disk_style').text(fmt_disk_style(jsonobj.DiskEntry[i].DiskStyle));
+
+		var board_column_content = board_column.find('.board-column-content');
+		
+		var PartitionEntry = jsonobj.DiskEntry[i].PartitionEntry;
+		var br_length = 10;
+		
+		if(PartitionEntry.length>3)
+		{
+			board_column.find('.board-column-content-wrapper').css('height','90px');
+		}
+		for(var j=0;j<PartitionEntry.length;j++)
+		{
+			var Letter = PartitionEntry[j].Letter;
+			var VolumeLabel = PartitionEntry[j].VolumeLabel;
+			var VolumeSize = fmt_size(PartitionEntry[j].VolumeSize);
+			var FileSystem = PartitionEntry[j].FileSystem;
+			var PartitionStyle = PartitionEntry[j].PartitionStyle;
+			var MBRBootIndicator = PartitionEntry[j].MBRBootIndicator;
+			var b_UI_Used = PartitionEntry[j].b_UI_Used;
+			if(!b_UI_Used && PartitionEntry[j].MoveToOtherDisk=='0')
+			{
+				//b_UI_Used = true;
+			}
+
+			var board_item = $('#src-board-column-content').find('.board-item').clone();
+			if(b_UI_Used)
+			{
+				board_item.addClass('ui_used');
+			}
+			else
+			{
+				board_item.addClass('ui_not_used');
+			}
+			board_item.find('.PartitionTempGUID').text(PartitionEntry[j].PartitionTempGUID);
+			if(Letter)
+			{
+				board_item.find('.VolumeName').text(VolumeLabel+'('+Letter+':)');
+			}
+			else
+			{
+				board_item.find('.VolumeName').text(VolumeLabel);
+			}
+			board_item.find('.VolumeSize').text(VolumeSize);
+			board_item.find('.FileSystem').text(FileSystem);
+			board_item.find('.PartitionStyle').text(fmt_PartitionStyle(PartitionStyle));
+			board_item.find('.partition-style').css('background',get_partition_style_color(PartitionStyle));
+			if(MBRBootIndicator!='0')
+			{
+				board_item.find('.MBRBootIndicator').text('引导,');
+			}
+
+			var item_len = 150+150*string2longlong(PartitionEntry[j].VolumeSize)/max_PartitionLength;
+			br_length += item_len;
+			board_item.find('.vol-tip').css('width',item_len+'px');
+
+			board_column_content.append(board_item);
+		}
+		board_column_content.css('width',br_length+'px');
+		$('.src_disk').append(board_column);
+	}
+
+	InitDraggable('src');
+}
+
+function get_partition_by_guid(diskpartition_info,PartitionTempGUID)
+{
+	for(var i=0;i<diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				return PartitionEntry[j];
+			}
+		}
+	}
+	return null;
+}
+
+function replace_partition(partition_info,PartitionTempGUID)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				var replace_PartitionEntry=$.extend(true,{},PartitionEntry[j]);
+				PartitionEntry[j] = partition_info;
+				PartitionEntry[j].MaxPartitionLength = replace_PartitionEntry.MaxPartitionLength;
+				PartitionEntry[j].MinPartitionLength = replace_PartitionEntry.MinPartitionLength;
+				PartitionEntry[j].PartitionOffset = replace_PartitionEntry.PartitionOffset;
+				PartitionEntry[j].PartitionLength = replace_PartitionEntry.PartitionLength;
+				PartitionEntry[j].VolumeSize = replace_PartitionEntry.VolumeSize;
+				PartitionEntry[j].VolumeLabel = replace_PartitionEntry.VolumeLabel;
+				PartitionEntry[j].Letter = replace_PartitionEntry.Letter;
+				PartitionEntry[j].PartitionStyle = replace_PartitionEntry.PartitionStyle;
+				return;
+			}
+		}
+	}
+}
+
+function set_Partion_used(diskpartition_info,PartitionTempGUID,b_UI_Used)
+{
+	for(var i=0;i<diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				PartitionEntry[j].b_UI_Used = b_UI_Used;
+				return;
+			}
+		}
+	}
+}
+
+function OnDragPartition(src_PartitionTempGUID,dest_PartitionTempGUID)
+{
+	var src_diskpartition_info=$.extend(true,{},g_src_diskpartition_info);
+	var partition_info = get_partition_by_guid(src_diskpartition_info,src_PartitionTempGUID);
+	if(!partition_info)
+	{
+		debugger;
+		alert('partition_info==null');
+		return;
+	}
+
+	replace_partition(partition_info,dest_PartitionTempGUID);
+
+	set_Partion_used(g_src_diskpartition_info,src_PartitionTempGUID,true);
+	set_Partion_used(g_src_diskpartition_info,dest_PartitionTempGUID,false);
+}
+
+function replace_disk(disk_info,DiskTempGUID)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			var replace_DiskEntry=$.extend(true,{},g_dest_diskpartition_info.DiskEntry[i]);
+			g_dest_diskpartition_info.DiskEntry[i] = disk_info;
+			g_dest_diskpartition_info.DiskEntry[i].DiskNum = replace_DiskEntry.DiskNum;
+			g_dest_diskpartition_info.DiskEntry[i].DiskSize = replace_DiskEntry.DiskSize;
+			g_dest_diskpartition_info.DiskEntry[i].DiskToken = replace_DiskEntry.DiskToken;
+			g_dest_diskpartition_info.DiskEntry[i].DiskCHS = replace_DiskEntry.DiskCHS;
+			g_dest_diskpartition_info.DiskEntry[i].DiskName = replace_DiskEntry.DiskName;
+			g_dest_diskpartition_info.DiskEntry[i].DiskBootIndicator = replace_DiskEntry.DiskBootIndicator;
+			g_dest_diskpartition_info.DiskEntry[i].DiskRestoreType = 'overwrite';
+			return replace_DiskEntry;
+		}
+	}
+	return false;
+}
+
+function get_disk_by_guid(diskpartition_info,DiskTempGUID)
+{
+	for(var i=0;i<diskpartition_info.DiskEntry.length;i++)
+	{
+		
+		if(diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			return diskpartition_info.DiskEntry[i];
+		}
+
+	}
+	return null;
+}
+
+function set_disk_used(diskpartition_info,DiskTempGUID,b_UI_Used)
+{
+	for(var i=0;i<diskpartition_info.DiskEntry.length;i++)
+	{
+		if(diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			var PartitionEntry = diskpartition_info.DiskEntry[i].PartitionEntry;
+			for(j=0;j<PartitionEntry.length;j++)
+			{
+				PartitionEntry[j].b_UI_Used = b_UI_Used;
+			}
+			return;
+		}
+	}
+}
+
+function OnDragDisk(src_DiskTempGUID,dest_DiskTempGUID)
+{
+	var src_diskpartition_info=$.extend(true,{},g_src_diskpartition_info);
+	var disk_info = get_disk_by_guid(src_diskpartition_info,src_DiskTempGUID);
+	if(!disk_info)
+	{
+		debugger;
+		alert('disk_info==null');
+		return;
+	}
+
+	var replace_DiskEntry = replace_disk(disk_info,dest_DiskTempGUID);
+		
+	for(var i=0;i<replace_DiskEntry.PartitionEntry.length;i++)
+	{
+		set_Partion_used(g_src_diskpartition_info,replace_DiskEntry.PartitionEntry[i].PartitionTempGUID,false);
+	}
+	//要先set_Partion_used，才能将（源）整个硬盘的分区设置为不可拖动
+	set_disk_used(g_src_diskpartition_info,src_DiskTempGUID,true);
+	
+	$('.src_disk').empty();
+	$('.dest_disk').empty();
+	draw_src_diskpartition_info();
+	draw_dest_diskpartition_info();
+}
+
+function get_parttion_info(dest_diskpartition_info,PartitionTempGUID)
+{
+	for(var i=0;i<dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				return $.extend(true,{},PartitionEntry[j]);
+			}
+		}
+	}
+	return null;
+}
+
+function check_partition_can_drop(src_PartitionTempGUID,dest_PartitionTempGUID)
+{
+	//r:0 成功
+	//r:1 错误
+	//r:2 警告
+	var src_partition_info = get_parttion_info(g_src_diskpartition_info,src_PartitionTempGUID);
+	var dest_partition_info = get_parttion_info(g_dest_diskpartition_info,dest_PartitionTempGUID);
+
+	if(string2longlong(src_partition_info.VolumeSize) > string2longlong(dest_partition_info.VolumeSize))
+	{
+		return {'r':1,e:'源分区大于目标分区','code':1};
+	}
+
+	if(src_partition_info.PartitionStyle.toLowerCase()=='mbrprimary' && src_partition_info.MBRprimary2logical=='0')
+	{
+		if(dest_partition_info.PartitionStyle.toLowerCase()=='mbrlogical')
+		{
+			var DiskEntry = get_DiskEntry_by_PartitionTempGUID(g_dest_diskpartition_info,dest_PartitionTempGUID);
+			if(DiskEntry == null)
+			{				
+				debugger;
+				alert('check_partition_can_drop DiskEntry == null');
+			}
+			else if(DiskEntry.DiskStyle.toLowerCase() == 'gpt')
+			{
+				return {'r':2,e:'该源主分区不能转换成逻辑分区，目标硬盘将不能从GPT转换成MBR','code':2};
+			}
+			return {'r':1,e:'该源主分区不能转换成逻辑分区','code':3};
+		}
+	}
+
+
+	return {'r':0,'code':0};
+}
+
+function isDropDest(src_PartitionTempGUID)
+{
+	//在目标硬盘拖动
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == src_PartitionTempGUID)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+function get_parttion_info_for_move(dest_diskpartition_info,PartitionTempGUID,dest_DiskTempGUID)
+{
+	for(var i=0;i<dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		if(PartitionEntry.length==0 && PartitionTempGUID == '')
+		{
+			if(dest_diskpartition_info.DiskEntry[i].DiskTempGUID != dest_DiskTempGUID)
+			{
+				continue;
+			}
+
+			return {"DiskTempGUID":dest_diskpartition_info.DiskEntry[i].DiskTempGUID,"DiskRestoreType":dest_diskpartition_info.DiskEntry[i].DiskRestoreType,"PartitionEntry":null};
+			
+		}
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				return {"DiskTempGUID":dest_diskpartition_info.DiskEntry[i].DiskTempGUID,"DiskRestoreType":dest_diskpartition_info.DiskEntry[i].DiskRestoreType,"PartitionEntry":$.extend(true,{},PartitionEntry[j])};
+			}
+		}
+	}
+	return null;
+}
+
+function get_DiskEntry_by_PartitionTempGUID(diskpartition_info,PartitionTempGUID)
+{
+	for(var i=0;i<diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				return diskpartition_info.DiskEntry[i];
+			}
+		}
+	}
+	return null;
+}
+
+function have_logical_parttion(diskpartition_info, PartitionTempGUID, contain_self)
+{
+	var DiskEntry = get_DiskEntry_by_PartitionTempGUID(diskpartition_info,PartitionTempGUID);
+
+	if(DiskEntry == null)
+	{
+		return false;
+	}
+
+	for(var i=0;i<DiskEntry.PartitionEntry.length;i++)
+	{
+		var PartitionEntry = DiskEntry.PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(!contain_self)
+			{
+				if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+				{
+					//不包含自己
+					continue;
+				}
+			}
+			if(PartitionEntry[j].PartitionStyle.toLowerCase() == 'mbrlogical')
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+function get_PartitionStyle_count(diskpartition_info, PartitionTempGUID,PartitionStyle)
+{
+	var DiskEntry = get_DiskEntry_by_PartitionTempGUID(diskpartition_info,PartitionTempGUID);
+	var count = 0;
+
+	if(DiskEntry == null)
+	{
+		return 0;
+	}
+
+	var PartitionEntry = DiskEntry.PartitionEntry;
+	for(var i=0;i<PartitionEntry.length;i++)
+	{
+		if(PartitionEntry[i].PartitionStyle.toLowerCase() == PartitionStyle)
+		{
+			count++;
+		}
+	}
+
+	return count;
+}
+
+function next_is_mbrlogical_for_move(diskpartition_info,PartitionTempGUID)
+{
+	var DiskEntry = get_DiskEntry_by_PartitionTempGUID(diskpartition_info,PartitionTempGUID);
+	for(var i=0;i<DiskEntry.PartitionEntry.length;i++)
+	{
+		var PartitionEntry = DiskEntry.PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if( PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				if(j+1>=PartitionEntry.length)
+				{
+					return false;
+				}
+
+				if(PartitionEntry[j+1].PartitionStyle.toLowerCase() == 'mbrlogical')
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+function pre_is_mbrlogical_for_move(diskpartition_info,PartitionTempGUID)
+{
+	var DiskEntry = get_DiskEntry_by_PartitionTempGUID(diskpartition_info,PartitionTempGUID);
+	for(var i=0;i<DiskEntry.PartitionEntry.length;i++)
+	{
+		var PartitionEntry = DiskEntry.PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if( PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+			{
+				if(j-1<0)
+				{
+					return false;
+				}
+
+				if(PartitionEntry[j-1].PartitionStyle.toLowerCase() == 'mbrlogical')
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+function check_partition_can_move(src_PartitionTempGUID,dest_PartitionTempGUID,dest_DiskTempGUID)
+{
+	//r:0 成功
+	//r:1 错误
+	//r:2 警告
+	var src_partition_info_for_move = get_parttion_info_for_move(g_dest_diskpartition_info,src_PartitionTempGUID,dest_DiskTempGUID);
+	var dest_partition_info_for_move = get_parttion_info_for_move(g_dest_diskpartition_info,dest_PartitionTempGUID,dest_DiskTempGUID);
+	var src_partition_info = null;
+	var dest_partition_info = null;
+	var code = 1;
+
+	var DiskEntry = get_DiskEntry_by_PartitionTempGUID(g_dest_diskpartition_info,dest_PartitionTempGUID);
+	if(DiskEntry == null)
+	{				
+		//目标没有分区，不影响判断分区个数和逻辑分区必然在一起，忽略这个错误
+	}
+	else if(DiskEntry.DiskStyle.toLowerCase() == 'gpt')
+	{
+		code = 2;
+	}
+
+	if(src_partition_info_for_move==null)
+	{
+		alert('src_partition_info_for_move == null');
+		return;
+	}
+
+	if(dest_partition_info_for_move==null)
+	{
+		alert('dest_partition_info_for_move == null');
+		return;
+	}
+	
+
+	src_partition_info = src_partition_info_for_move.PartitionEntry;
+	dest_partition_info = dest_partition_info_for_move.PartitionEntry;
+
+	if(dest_partition_info_for_move.DiskRestoreType != 'overwrite')
+	{
+		return {'r':1,'e':'不能将分区移动到非重建分区的硬盘','code':1};
+	}
+
+
+	if(src_partition_info.MoveToOtherOffset=='0')
+	{
+		return {'r':1,'e':'不能移动本分区到其他位置','code':1};
+	}
+
+	if(src_partition_info.MoveToOtherDisk=='0')
+	{
+		if(src_partition_info_for_move.DiskTempGUID != dest_partition_info_for_move.DiskTempGUID)
+		{
+			return {'r':1,'e':'不能移动本分区到其他的硬盘上','code':1};
+		}
+	}
+
+	var check_result = check_change_PartitionOffset(dest_partition_info_for_move.DiskTempGUID,dest_PartitionTempGUID);
+	if(check_result.r!=0)
+	{
+		return check_result;
+	}
+
+	if(src_partition_info.PartitionStyle.toLowerCase() == 'mbrlogical')
+	{
+		if(dest_partition_info.PartitionStyle.toLowerCase() == 'mbrlogical')
+		{
+			//移动到了逻辑分区之后
+			return {'r':0,'code':1};
+		}
+
+		if(!have_logical_parttion(g_dest_diskpartition_info,dest_PartitionTempGUID,true))
+		{
+			//这个硬盘没有逻辑分区
+			if(get_PartitionStyle_count(g_dest_diskpartition_info,dest_PartitionTempGUID,'mbrprimary')>3)
+			{
+				return {'r':code,'e':'主分区+扩展分区的数量不能大于4','code':code};
+			}
+			else
+			{
+				return {'r':0,'code':0};
+			}
+		}
+		else
+		{
+			if(next_is_mbrlogical_for_move(g_dest_diskpartition_info,dest_PartitionTempGUID))
+			{
+				//后面是逻辑分区
+				return {'r':0,'code':0};
+			}
+			else
+			{
+				if(src_partition_info_for_move.DiskTempGUID != dest_partition_info_for_move.DiskTempGUID)
+				{
+					//不在同一块硬盘拖动
+					return {'r':code,'e':'逻辑分区必须在一起','code':code};
+				}
+				else
+				{
+					var count = get_PartitionStyle_count(g_dest_diskpartition_info,dest_PartitionTempGUID,'mbrlogical');
+					if(count>1)
+					{
+						return {'r':code,'e':'逻辑分区必须在一起','code':code};
+					}
+				}
+			}
+
+		}
+	}
+	else if(src_partition_info.PartitionStyle.toLowerCase() == 'mbrprimary')
+	{
+		if(src_partition_info_for_move.DiskTempGUID != dest_partition_info_for_move.DiskTempGUID)
+		{
+			var count = get_PartitionStyle_count(g_dest_diskpartition_info,dest_PartitionTempGUID,'mbrprimary');
+			var e = '主分区';
+			if(have_logical_parttion(g_dest_diskpartition_info,dest_PartitionTempGUID,true))
+			{
+				count++;
+				e += '+扩展分区';
+			}
+			if(count>3)
+			{
+				return {'r':code,'e':e+'的数量不能大于4','code':code};
+			}
+		}
+
+		if(dest_partition_info && dest_partition_info.PartitionStyle.toLowerCase() == 'mbrlogical')
+		{
+			if(next_is_mbrlogical_for_move(g_dest_diskpartition_info,dest_PartitionTempGUID))
+			{
+				return {'r':code,'e':'主分区不能位于逻辑分区之间','code':code};
+			}
+		}
+	}
+
+
+	return {'r':0,'code':0};
+}
+
+function move_partion(dest_PartitionTempGUID,src_partition_info)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == dest_PartitionTempGUID)
+			{
+				PartitionEntry.splice(j+1, 0, src_partition_info);
+				return {"DiskTempGUID":g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID,"PartitionTempGUID":src_partition_info.PartitionTempGUID};
+			}
+		}
+	}
+	return null;
+}
+
+function change_PartitionOffset(DiskTempGUID,PartitionTempGUID)
+{
+	var offset = -1;
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+			for(j=0;j<PartitionEntry.length;j++)
+			{
+				if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+				{
+					//每个分区之间，间隔0x3f个扇区
+					var ipos = j-1;
+					if(ipos<0)
+					{
+						ipos = 0;
+					}
+					offset = string2longlong(PartitionEntry[ipos].PartitionOffset)+string2longlong(PartitionEntry[ipos].PartitionLength) + 32256;
+					if(ipos<0)
+					{
+						continue;
+					}
+				}
+				if(offset == -1)
+				{
+					continue;
+				}
+				PartitionEntry[j].PartitionOffset = offset.toString();
+				offset = string2longlong(PartitionEntry[j].PartitionOffset) + string2longlong(PartitionEntry[j].PartitionLength) + 32256;
+			}
+		}
+	}
+}
+
+function check_change_PartitionOffset(DiskTempGUID,PartitionTempGUID)
+{
+	//r:0 成功
+	//r:1 错误
+	//r:2 警告
+	var offset = -1;
+	var PartitionEntry = null;
+	var DiskSize = 0;
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == DiskTempGUID)
+		{
+			PartitionEntry = $.extend(true,[],g_dest_diskpartition_info.DiskEntry[i].PartitionEntry);
+			DiskSize = string2longlong(g_dest_diskpartition_info.DiskEntry[i].DiskSize);
+			break;
+		}
+	}
+
+	if(PartitionEntry == null)
+	{
+		debugger;
+		return {"r":1,"e":"check_change_PartitionOffset PartitionEntry==null"};
+	}
+
+	for(var j=0;j<PartitionEntry.length;j++)
+	{
+		if(PartitionEntry[j].PartitionTempGUID == PartitionTempGUID)
+		{
+			//每个分区之间，间隔0x3f个扇区
+			offset = string2longlong(PartitionEntry[j].PartitionOffset)+string2longlong(PartitionEntry[j].MaxPartitionLength) + 32256;
+			if(DiskSize<disk_offset)
+			{
+				return {"r":1,"e":"硬盘大小不够，至少需要"+fmt_size(disk_offset)};
+			}
+			continue;
+		}
+		if(offset == -1)
+		{
+			continue;
+		}
+		PartitionEntry[j].PartitionOffset = offset.toString();
+		var disk_offset = string2longlong(PartitionEntry[j].PartitionOffset) + string2longlong(PartitionEntry[j].MaxPartitionLength);
+		offset = disk_offset + 32256;
+		if(DiskSize<disk_offset)
+		{
+			return {"r":1,"e":"硬盘大小不够，至少需要"+fmt_size(disk_offset)};
+		}
+	}
+
+	return {"r":0};
+}
+
+function OnMovePartition(src_partition_info,dest_PartitionTempGUID)
+{
+	var partion_info = move_partion(dest_PartitionTempGUID,src_partition_info);
+	if(!partion_info)
+	{
+		debugger;
+		alert('OnMovePartition partion_info==null');
+		return;
+	}
+
+	change_PartitionOffset(partion_info.DiskTempGUID,partion_info.PartitionTempGUID);
+}
+
+function move_partion_to_disk(dest_DiskTempGUID,src_partition_info)
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID == dest_DiskTempGUID)
+		{
+			g_dest_diskpartition_info.DiskEntry[i].PartitionEntry.splice(0, 0, src_partition_info);
+			return {"DiskTempGUID":dest_DiskTempGUID,"PartitionTempGUID":src_partition_info.PartitionTempGUID};
+		}
+	}
+	return null;
+}
+
+function OnMovePartitionToDisk(src_partition_info,dest_DiskTempGUID)
+{
+	var partion_info = move_partion_to_disk(dest_DiskTempGUID,src_partition_info);
+	if(!partion_info)
+	{
+		debugger;
+		alert('OnMovePartitionToDisk partion_info==null');
+		return;
+	}
+}
+
+function OnDelPartitionForMove(src_PartitionTempGUID)
+{
+	var src_partition_info = null;
+
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			if(PartitionEntry[j].PartitionTempGUID == src_PartitionTempGUID)
+			{
+				src_partition_info = $.extend(true,{},PartitionEntry[j]);
+				if(false && PartitionEntry[j].DeletePartition == '0')
+				{
+					//第一次删除，不移动分区，只是设置标识，变为RAW格式
+					PartitionEntry[j].DeletePartition = '1';
+					PartitionEntry[j].PartitionStyle = 'RAW';
+					PartitionEntry[j].PartitionTempGUID = 'del_'+PartitionEntry[j].PartitionTempGUID;
+				}
+				else
+				{
+					PartitionEntry.splice(j, 1);
+				}
+				return src_partition_info;
+			}
+		}
+	}
+
+	return src_partition_info;
+}
+
+function check_disk_can_drop(src_DiskTempGUID,dest_DiskTempGUID)
+{
+	//r:0 成功
+	//r:1 错误
+	//r:2 警告
+	if(src_DiskTempGUID==dest_DiskTempGUID)
+	{
+		return {'r':0};
+	}
+
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID==src_DiskTempGUID)
+		{
+			return {'r':1,'e':'该硬盘已经复制到了目标硬盘'};
+		}
+	}
+
+	var src_DiskSize = 0;
+	var dest_DiskSize = 0;
+
+	for(var i=0;i<g_src_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_src_diskpartition_info.DiskEntry[i].DiskTempGUID==src_DiskTempGUID)
+		{
+			src_DiskSize = string2longlong(g_src_diskpartition_info.DiskEntry[i].DiskSize);
+			break;
+		}
+	}
+
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		if(g_dest_diskpartition_info.DiskEntry[i].DiskTempGUID==dest_DiskTempGUID)
+		{
+			dest_DiskSize = string2longlong(g_dest_diskpartition_info.DiskEntry[i].DiskSize);
+			break;
+		}
+	}
+
+
+	if(src_DiskSize > dest_DiskSize)
+	{
+		return {'r':1,'e':'目标硬盘大小不够'};
+	}
+
+
+	return {'r':0};
+}
+
+function InitDraggable(type)
+{
+	if(type=='dest')
+	{
+		$( ".dest-harddisk .board-item" ).droppable({
+			accept: ".ui_not_used",
+			hoverClass:"board-item-hover",
+			drop:function(event,ui){
+				var src_PartitionTempGUID = ui.draggable.find('.PartitionTempGUID').text();
+				var dest_PartitionTempGUID = $(this).find('.PartitionTempGUID').text();
+				if(isDropDest(src_PartitionTempGUID))
+				{
+					$(this).find('.drag_pos').css('display','none');
+					var dest_DiskTempGUID = null;
+					if(dest_PartitionTempGUID=='')
+					{
+						dest_DiskTempGUID = $(this).parent().parent().parent().find('.DiskTempGUID').text();
+					}
+					var check_result = check_partition_can_move(src_PartitionTempGUID,dest_PartitionTempGUID,dest_DiskTempGUID);
+					if(check_result.r==0 || check_result.r==2)
+					{
+						var src_partition_info = OnDelPartitionForMove(src_PartitionTempGUID);
+						if(check_result.code == 2)
+						{
+							var DiskEntry = get_DiskEntry_by_PartitionTempGUID(g_dest_diskpartition_info,dest_PartitionTempGUID);
+							if(DiskEntry)
+							{				
+								DiskEntry.GPT2MBR = '0';
+							}
+						}
+						OnMovePartition(src_partition_info,dest_PartitionTempGUID);
+					}
+				}
+				else
+				{
+					var check_result = check_partition_can_drop(src_PartitionTempGUID,dest_PartitionTempGUID);
+					if(check_result.r==0 || check_result.r==2)
+					{
+						if(check_result.code == 2)
+						{
+							var DiskEntry = get_DiskEntry_by_PartitionTempGUID(g_dest_diskpartition_info,dest_PartitionTempGUID);
+							if(DiskEntry)
+							{				
+								DiskEntry.GPT2MBR = '0';
+							}
+						}
+						OnDragPartition(src_PartitionTempGUID,dest_PartitionTempGUID);
+					}
+					else
+					{
+						$(this).find('.vol-tip').html('');
+					}
+				}
+
+				$('.src_disk').empty();
+				$('.dest_disk').empty();
+				draw_src_diskpartition_info();
+				draw_dest_diskpartition_info();
+			 },
+			 over: function( event, ui ) {
+				 var src_PartitionTempGUID = ui.draggable.find('.PartitionTempGUID').text();
+				 var dest_PartitionTempGUID = $(this).find('.PartitionTempGUID').text();
+				 if(isDropDest(src_PartitionTempGUID))
+				 {
+					var dest_DiskTempGUID = null;
+					if(dest_PartitionTempGUID=='')
+					{
+						dest_DiskTempGUID = $(this).parent().parent().parent().find('.DiskTempGUID').text();
+					}
+					 var check_result = check_partition_can_move(src_PartitionTempGUID,dest_PartitionTempGUID,dest_DiskTempGUID);
+					 if(check_result.r==1)
+					 {
+						var alert_div = $('#alert_div').find('.ui-state-error').clone();
+						alert_div.find('#alert_div_text').text(check_result.e);
+						$(this).find('.vol-tip').append(alert_div);	 
+					 }
+					 else if(check_result.r==2)
+					 {
+						var alert_div = $('#alert_div').find('.ui-state-highlight').clone();
+						alert_div.find('#alert_div_text').text(check_result.e);
+						$(this).find('.vol-tip').append(alert_div);	 
+					 }
+
+					 if(check_result.r==0 || check_result.r==2)
+					 {
+						 $(this).find('.drag_pos').css('display','block');
+					 }
+				 }
+				 else
+				 {
+					 var check_result = check_partition_can_drop(src_PartitionTempGUID,dest_PartitionTempGUID);
+					 if(check_result.r==1)
+					 {
+						var alert_div = $('#alert_div').find('.ui-state-error').clone();
+						alert_div.find('#alert_div_text').text(check_result.e);
+						$(this).find('.vol-tip').append(alert_div);	 
+					 }
+					 else if(check_result.r==2)
+					 {
+						var alert_div = $('#alert_div').find('.ui-state-highlight').clone();
+						alert_div.find('#alert_div_text').text(check_result.e);
+						$(this).find('.vol-tip').append(alert_div);	 
+					 }
+				 }
+				 
+			 },
+			 out: function( event, ui ) {
+				 $(this).find('.vol-tip').html('');
+				 $(this).find('.drag_pos').css('display','none');
+			 }
+		});
+
+		$( ".dest-harddisk" ).droppable({
+			accept: ".src-harddisk",
+			hoverClass:"board-item-hover",
+			drop:function(event,ui){
+				var src_DiskTempGUID = ui.draggable.find('.DiskTempGUID').text();
+				var dest_DiskTempGUID = $(this).find('.DiskTempGUID').text();
+				var check_result = check_disk_can_drop(src_DiskTempGUID,dest_DiskTempGUID);
+				if(check_result.r==0  || check_result.r==2 )
+				{
+					OnDragDisk(src_DiskTempGUID,dest_DiskTempGUID);
+				}
+				$(this).find('.board-column-header > .vol-tip').html('');
+			 },
+			 over: function( event, ui ) {
+				 var src_DiskTempGUID = ui.draggable.find('.DiskTempGUID').text();
+				 var dest_DiskTempGUID = $(this).find('.DiskTempGUID').text();
+				 var check_result = check_disk_can_drop(src_DiskTempGUID,dest_DiskTempGUID)
+				 if(check_result.r==1)
+				 {
+					var alert_div = $('#alert_div').find('.ui-state-error').clone();
+					alert_div.find('#alert_div_text').text(check_result.e);
+					$(this).find('.board-column-header > .vol-tip').append(alert_div);	 
+				 }
+				 else if(check_result.r==2)
+				 {
+					var alert_div = $('#alert_div').find('.ui-state-highlight').clone();
+					alert_div.find('#alert_div_text').text(check_result.e);
+					$(this).find('.board-column-header > .vol-tip').append(alert_div);	 
+				 }
+			 },
+			 out: function( event, ui ) {
+				 $(this).find('.board-column-header > .vol-tip').html('');
+			 }
+		});
+
+		$( ".dest-harddisk .ui_not_used" ).draggable({opacity: 0.3, helper: "clone" });
+
+		$(".dest-harddisk .blank-board-item").droppable({
+			accept: ".ui_not_used",
+			hoverClass:"board-item-hover",
+			drop:function(event,ui){
+				var src_PartitionTempGUID = ui.draggable.find('.PartitionTempGUID').text();
+				var dest_PartitionTempGUID = $(this).prev().find('.PartitionTempGUID').text();
+				if(isDropDest(src_PartitionTempGUID))
+				{
+					$(this).prev().find('.drag_pos').css('display','none');
+					var dest_DiskTempGUID = null;
+					if(dest_PartitionTempGUID=='')
+					{
+						dest_DiskTempGUID = $(this).parent().parent().parent().find('.DiskTempGUID').text();
+					}
+					var check_result = check_partition_can_move(src_PartitionTempGUID,dest_PartitionTempGUID,dest_DiskTempGUID);
+					if(check_result.r==0 || check_result.r==2)
+					{
+						var src_partition_info = OnDelPartitionForMove(src_PartitionTempGUID);
+						if(dest_PartitionTempGUID=='')
+						{
+							var dest_DiskTempGUID = $(this).parent().parent().parent().find('.DiskTempGUID').text();
+							//第一个分区的位置移动到0x3f
+							src_partition_info.PartitionOffset = '32256';
+							OnMovePartitionToDisk(src_partition_info,dest_DiskTempGUID);
+						}
+						else
+						{
+							OnMovePartition(src_partition_info,dest_PartitionTempGUID);
+						}
+					}
+				}
+				else
+				{
+					
+				}
+
+				$('.src_disk').empty();
+				$('.dest_disk').empty();
+				draw_src_diskpartition_info();
+				draw_dest_diskpartition_info();
+			 },
+			 over: function( event, ui ) {
+				 var src_PartitionTempGUID = ui.draggable.find('.PartitionTempGUID').text();
+				 var dest_PartitionTempGUID = $(this).prev().find('.PartitionTempGUID').text();
+				 if(isDropDest(src_PartitionTempGUID))
+				 {
+					 var dest_DiskTempGUID = null;
+					if(dest_PartitionTempGUID=='')
+					{
+						dest_DiskTempGUID = $(this).parent().parent().parent().find('.DiskTempGUID').text();
+					}
+					 var check_result = check_partition_can_move(src_PartitionTempGUID,dest_PartitionTempGUID,dest_DiskTempGUID);
+					 if(check_result.r==1)
+					 {
+					 	var alert_div = $('#alert_div').find('.ui-state-error').clone();
+					 	alert_div.find('#alert_div_text').text(check_result.e);
+						if($(this).prev().find('.vol-tip').length)
+						{
+							$(this).prev().find('.vol-tip').append(alert_div);
+						}
+						else
+						{
+							$(this).find('.vol-tip').append(alert_div);
+						}
+					 }
+					 else if(check_result.r==2)
+					 {
+					 	var alert_div = $('#alert_div').find('.ui-state-highlight').clone();
+						alert_div.find('#alert_div_text').text(check_result.e);
+						if($(this).prev().find('.vol-tip').length)
+						{
+							$(this).prev().find('.vol-tip').append(alert_div);
+						}
+						else
+						{
+							$(this).find('.vol-tip').append(alert_div);
+						} 
+					 }
+
+					 if(check_result.r==0 || check_result.r==2)
+					 {
+						 $(this).prev().find('.drag_pos').css('display','block');
+					 }
+				 }
+				 else
+				 {
+				 }
+				 
+			 },
+			 out: function( event, ui ) {
+				 $(this).prev().find('.vol-tip').html('');
+				 $(this).find('.vol-tip').html('');
+				 $(this).prev().find('.drag_pos').css('display','none');
+			 }
+		});
+	}
+
+	if(type=='src')
+	{
+
+		$( ".src-harddisk" ).draggable({handle: ".board-column-header",opacity: 0.3, helper: "clone" });
+		$( ".src-harddisk .ui_not_used" ).draggable({opacity: 0.3, helper: "clone" });
+	}
+}
+
+function UnInitChangeHardDisk()
+{
+	g_initChangeHardDisk = false;
+	$('#show_dest_disk_partition').prop('checked',false);
+	$('.src_disk').empty();
+	$('.dest_disk').empty();
+}
+
+function get_resize_vol_result()
+{
+	for(var i=0;i<g_dest_diskpartition_info.DiskEntry.length;i++)
+	{
+		var DiskToken = g_dest_diskpartition_info.DiskEntry[i].DiskToken;
+		var PartitionEntry = g_dest_diskpartition_info.DiskEntry[i].PartitionEntry;
+		for(j=0;j<PartitionEntry.length;j++)
+		{
+			PartitionEntry[j].DiskToken = DiskToken;
+		}
+	}
+
+	return encodeURIComponent(JSON.stringify(g_dest_diskpartition_info));
+}
+
+$('#show_dest_disk_partition').click(function(){
+	$('.dest_disk').empty();
+	draw_dest_diskpartition_info();
+});
+ </script>

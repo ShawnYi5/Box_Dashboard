@@ -1,0 +1,1120 @@
+<style>
+	.mytable {margin:20px 0 0 -30px;width:520px;}
+	.mytable ul {width:500px;list-style:none}
+	.mytable li {border-left:1px solid #ccc;border-top:1px solid #ccc;float:left;text-align:center;line-height:33px;}
+	.mytable li.b {border-bottom:1px solid #ccc}
+	.mytable li.r {border-right:1px solid #ccc}
+	.mytable li.w1 {width:250px;}
+	.mytable li.w2 {width:150px;}
+	.mytable li.w3 {width:95px;}
+    .s_d_item{
+        padding: 0 6px;
+        border: 1px solid #d1dbe5;
+        background: #fff;
+        font-size: 13px;
+        min-width: 28px;
+        height: 28px;
+        line-height: 28px;
+        cursor: pointer;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    .s_d_button:focus{
+        outline: none;
+    }
+    .prev{
+        border-radius: 2px 0 0 2px;
+    }
+    .prev:hover{
+        color: black;
+    }
+    .s_d_button{
+        background: 50% no-repeat;
+        background-size: 16px;
+        background-color: #fff;
+        border: 1px solid #d1dbe5;
+        cursor: pointer;
+        margin: 0;
+        color: #97a8be;
+    }
+    .s_d_disabled{
+        color: #e4e4e4;
+        background-color: #fff;
+        cursor: not-allowed;
+    }
+    .next,.next_d{
+        border-radius: 0 2px 2px 0;
+    }
+    .next:hover{
+        color: black;
+    }
+</style>
+<div class="right">
+	<div class="table_menu">
+		<div class="menu_btn" id="switchbutton">切换到备机</div>
+        <div class="menu_btn" id="refresh">刷新</div>
+	</div>
+	<table id="list">
+	</table>
+	<div id="pager"></div>
+    {% include 'htb_schedule_detail.html' %}
+</div>
+
+<div id="hotbackupSwitchDiv" title="切换" class="ajaxForm">
+	<div class="hotbackupSwitchDiv_class">
+        <p>请选择切换方式：</p>
+		<div style="margin-top:10px;margin-left: 2em"><label><input class="radio" type="radio" value="1" name="switchip1" checked="checked" >切换IP和执行停止脚本</label></div>
+		<div style="margin-top:10px;margin-left: 2em"><label><input class="radio" type="radio" value="0" name="switchip1" >不切换IP（可用于演练和测试）</label></div>
+	</div>
+    <p>你确定要切换到备机吗？点击确认按钮，执行切换操作；点击取消按钮，放弃切换操作。</p>
+</div>
+
+<div id="hotbackupSwitchDiv2" title="切换" class="ajaxForm">
+	<input type="hidden" id="pointid" />
+	<div style="padding:20px 10px;">
+        <div style="margin-top:20px">切换类型选择</div>
+		<div style="margin-top:10px;margin-left: 20px"><label><input class="radio" type="radio" value="0" name="use_latest" checked="checked" >将备机切换到指定备份数据时间点（推荐）</label></div>
+		<div style="margin-top:10px;margin-left: 20px;margin-bottom: 20px">
+            <label><input class="radio" type="radio" value="1" name="use_latest" >
+                将备机切换到最新的数据<span id="switch_master_ip_add_info">,并切换IP和执行停止脚本</span>
+            </label>
+        </div>
+		<div style="margin-top:10px;margin-left: 20px;margin-bottom: 20px" id="s_d_vue">
+            {% verbatim %}
+            备份点时间：
+            <button  id="to_pre" class="s_d_button prev" title="前一天" v-on:click="to_pre">
+                <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <span id="c_date" class="s_d_item s_d_time">{{ time }}</span>
+            <button class="s_d_button next_d s_d_disabled" title="后一天" v-if="disabled">
+                <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </button>
+            <button class="s_d_button next" title="后一天" v-on:click="to_next" v-else>
+                <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </button>
+            <span style="color: #FF4949" >{{ error }}</span>
+            {% endverbatim %}
+        </div>
+        <table id="point_list"></table>
+        <div id="point_list_page"></div>
+		<div id="cdp_ui_id" style="display:none;">
+			<div style="height: 405px;">
+				<div id="select_cdp_point" style="border:1px solid #D4D7CB;padding:10px;margin-top:10px;">
+				点击选择还原时间段：<span style="margin-left: 310px">支持鼠标滚轮缩放，按下左键拖动</span><br>
+				<div id="visualization" style="padding-top:10px" title="支持鼠标滚轮缩放，按下左键拖动"></div>
+				<div id="timebar"></div>
+				<div style="padding-top:10px">
+					还原时间段窗口长度：
+					<input  id="id2s" type="radio" name="windowSize" value="2" >2秒
+					<input id="id20s" type="radio" name="windowSize" value="20" checked>20秒
+					<input id="id180s" type="radio" name="windowSize" value="180">3分
+					<div style="margin-top:10px">
+						<div id="yDscr" style="float: left;"><p style="margin-top: 3px;">高&nbsp;</p><p style="margin-top: 70px;width: 16px">安全等级&nbsp;</p><p style="margin-top: 70px;">低&nbsp;</p></div>
+						<div id="visualization2" title="支持鼠标滚轮缩放，按下左键拖动"></div>
+						<div id="timebar2"></div>
+					</div>
+				</div>
+				</div>
+			</div>
+			<div style="margin-top:10px">
+				还原时间点：<input name="restoretime" type="text" id="restoretime" style="width:180px" onblur="removespace(this)"/> 精确到微秒
+				<br />范围：<span id="show_cdpbackupstarttime"></span>&nbsp;&nbsp;-&nbsp;&nbsp;<span id="show_cdpbackupendtime"></span>
+			</div>
+		</div>
+        <div class="ipinfo"> {#  todo#}
+            <div style="margin-top:20px">从主机切换到备机，此操作不可逆。</div>
+		    <div style="margin-top:10px;margin-left: 20px"><label><input class="radio" type="radio" value="1" name="switchip" checked="checked" id="ipinfo_switch">切换IP和执行停止脚本</label></div>
+		    <div style="margin-top:10px;margin-left: 20px"><label><input class="radio" type="radio" value="0" name="switchip" >不切换IP（可用于演练和测试）</label></div>
+        </div>
+	</div>
+</div>
+
+<div id="networkDiv" title="网络" class="ajaxForm">
+	<div id="network_canvas_status" style="margin-top:20px;margin-left:20px;"></div>
+	<div id="network_canvas" style="margin-left:10px;width:500px;height:300px;border:1px solid #d3d3d3;"></div>
+	<div class="mytable">
+		<ul>
+		</ul>
+	</div>
+</div>
+
+<script type="text/javascript" src="/static/js/raphael-min.js"></script>
+<script type="text/javascript" src="/static/js/moment.js"></script>
+<link href="/static/css/vis.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">
+var timelineObj = null;
+var graph2d = null;
+var switch_change_master_ip=1;
+
+var s_d_vue = new Vue({
+    'el':'#s_d_vue',
+    data:{
+        moment_obj : '',
+        time: '',
+        today: moment().format('YYYY-MM-DD'),
+        plan_id:-1,
+        error:''
+    },
+    computed:{
+        disabled:function () {
+            return moment(this.time) >= moment(this.today)
+        }
+    },
+    methods:{
+        to_next:function () {
+            this.moment_obj.add(1, 'd');
+            this.update_time();
+            this.get_new_point();
+            $('#pointid').val('');
+        },
+        to_pre:function () {
+            this.moment_obj.add(-1, 'd');
+            this.update_time();
+            this.get_new_point();
+            $('#pointid').val('');
+        },
+        update_time:function () {
+            this.time = this.moment_obj.format('YYYY-MM-DD')
+        },
+        get_new_point:function () {
+            if (this.plan_id == -1){
+                return;
+            }else{
+                $('#cdp_ui_id').hide();
+                this.error = '';
+                jQuery("#point_list").jqGrid("clearGridData");
+		        myAjaxPost('../hotbackup_handle/', 'a=get_switch_params&id='+this.plan_id+'&st_date='+this.time,
+                    hotbackupSwitch_call_back,this.plan_id);
+            }
+        },
+        init:function () {
+            this.error = '';
+            this.plan_id = -1;
+        }
+    }
+})
+
+$(function(){
+	jQuery("#list").jqGrid({
+		url:'../hotbackup_handle/?a=listplan&html_mark=switch',
+		datatype: "json",
+		colNames:['序号','计划名称','源名称','目标名称','task_type','enabled','ext_config','状态','htb_progress','switch_change_master_ip','网络'],
+        rownumbers: true,
+		colModel:[
+			{name:'id',index:'0',align:"center", width:50,sortable: true,hidden:true},
+			{name:'planname',index:'1',align:"center", width:100,sortable: true},
+            {name:'hostName',index:'2',align:"center", width:100,sortable: true},
+			{name:'restore_target',index:'3',align:"center", width:100,sortable: true},
+			{name:'task_type',index:'4',align:"center", width:100,sortable: false,hidden:true},
+			{name:'enabled',index:'5',align:"center", width:100,sortable: false,hidden:true},
+			{name:'ext_config',index:'6',align:"center", width:100,sortable: false,hidden:true},
+			{name:'in_stand_by',index:'7',align:"left", width:100,sortable: true,formatter:statusFmatter},
+			{name:'htb_progress',index:'8',align:"left", width:100,sortable: false,hidden:true},
+            {name:'switch_change_master_ip',index:'9',align:"left", width:100,sortable: false,hidden:true},
+			{name:'network',index:'10',align:"center", width:50,sortable: true,formatter:networkFmatter}
+		],
+		width:748,
+		height:250,
+		rowNum:300,
+		rowList:[100,200,300],
+		pager: '#pager',
+		sortname: 'id',
+		recordpos: 'left',
+		viewrecords: true,
+		sortorder: "desc",
+		shrinkToFit:true,
+		multiselect: true,
+		onSelectRow: function(ids) {
+			var params="a=get_plan_detail&plan_id="+ids;
+			myAjaxGet('../hotbackup_handle/',params,GetBackupInfo);
+		},
+        beforeSelectRow: function(rowid, e)
+        {
+            jQuery("#list").jqGrid('resetSelection');
+            return true;
+        }
+	});
+});
+jQuery("#list").jqGrid('navGrid','#pager',{add:false,search:false,del:false,edit:false,position:'right'});
+$("#list").closest(".ui-jqgrid-bdiv").css({ 'overflow-x' : 'scroll' });
+
+var g_paper = new Raphael('network_canvas', 500, 300);
+
+function CreateInput(x,y,text)
+{
+	var input = null;
+	var tip_txt = '未配置';
+	if(text==undefined)
+	{
+		text = '';
+	}
+	if(text=='')
+	{
+		input = g_paper.text(x,y,tip_txt);
+		input.attr({"font-size":"12px","font-style":"italic","text-anchor":"start"});
+	}
+	else
+	{
+		input = g_paper.text(x,y,text);
+		input.attr({"font-size":"12px","text-anchor":"start"});
+	}
+	return input;
+}
+
+function show_network_detail(jsonobj)
+{
+	$('.mytable ul').empty();
+	$('.mytable ul').append('<li class="w1">方向</li><li class="w2">IP</li><li class="w3 r">状态</li>');
+
+	for(var i=0; i<jsonobj.master.control.length;i++)
+	{
+		var bsytel="";
+		if( jsonobj.master.business.length==0 && i == jsonobj.master.control.length-1)
+		{
+			bsytel=" b";
+		}
+		$('.mytable ul').append('<li class="w1{0}">备份一体机→主服务器（固有IP）</li>'.replace(/\{0\}/g, bsytel));
+		$('.mytable ul').append('<li class="w2{0}">{1}</li>'.replace(/\{0\}/g, bsytel).replace(/\{1\}/g, jsonobj.master.control[i].ip));
+		if(jsonobj.master.control[i].r == false )
+		{
+			$('.mytable ul').append('<li class="w3 r{0}" style="color:red;">无法访问</li>'.replace(/\{0\}/g, bsytel));
+		}
+		else
+		{
+			$('.mytable ul').append('<li class="w3 r{0}">正常</li>'.replace(/\{0\}/g, bsytel));
+		}
+	}
+
+	for(var i=0; i<jsonobj.master.business.length;i++)
+	{
+		var bsytel="";
+		if( i == jsonobj.master.business.length-1)
+		{
+			bsytel=" b";
+		}
+		$('.mytable ul').append('<li class="w1{0}">备份一体机→主服务器（漂移IP）</li>'.replace(/\{0\}/g, bsytel));
+		$('.mytable ul').append('<li class="w2{0}">{1}</li>'.replace(/\{0\}/g, bsytel).replace(/\{1\}/g, jsonobj.master.business[i].ip));
+		if(jsonobj.master.business[i].r == false )
+		{
+			$('.mytable ul').append('<li class="w3 r{0}" style="color:red;">无法访问</li>'.replace(/\{0\}/g, bsytel));
+		}
+		else
+		{
+			$('.mytable ul').append('<li class="w3 r{0}">正常</li>'.replace(/\{0\}/g, bsytel));
+		}
+	}
+
+	for(var i=0; i<jsonobj.standby.control.length;i++)
+	{
+		var bsytel="";
+		if( jsonobj.standby.control.length==0 && i == jsonobj.standby.control.length-1)
+		{
+			bsytel=" b";
+		}
+		$('.mytable ul').append('<li class="w1{0}">备份一体机→备服务器（固有IP）</li>'.replace(/\{0\}/g, bsytel));
+		$('.mytable ul').append('<li class="w2{0}">{1}</li>'.replace(/\{0\}/g, bsytel).replace(/\{1\}/g, jsonobj.standby.control[i].ip));
+		if(jsonobj.standby.control[i].r == false )
+		{
+			$('.mytable ul').append('<li class="w3 r{0}" style="color:red;">无法访问</li>'.replace(/\{0\}/g, bsytel));
+		}
+		else
+		{
+			$('.mytable ul').append('<li class="w3 r{0}">正常</li>'.replace(/\{0\}/g, bsytel));
+		}
+	}
+
+
+	for(var i=0; i<jsonobj.standby.business.length;i++)
+	{
+		var bsytel="";
+		if( jsonobj.standby.business.length==0 && i == jsonobj.standby.business.length-1)
+		{
+			bsytel=" b";
+		}
+		$('.mytable ul').append('<li class="w1{0}">备份一体机→备服务器（固有IP）</li>'.replace(/\{0\}/g, bsytel));
+		$('.mytable ul').append('<li class="w2{0}">{1}</li>'.replace(/\{0\}/g, bsytel).replace(/\{1\}/g, jsonobj.standby.business[i].ip));
+		if(jsonobj.standby.business[i].r == false )
+		{
+			$('.mytable ul').append('<li class="w3 r{0}" style="color:red;">无法访问</li>'.replace(/\{0\}/g, bsytel));
+		}
+		else
+		{
+			$('.mytable ul').append('<li class="w3 r{0}">正常</li>'.replace(/\{0\}/g, bsytel));
+		}
+	}
+
+
+}
+
+function network_status_call_back(jsonobj)
+{
+	if (jsonobj.r != 0)
+	{
+		$('#network_canvas_status').html(jsonobj.e);
+		return;
+    }
+	g_paper.clear();
+	$('#network_canvas_status').hide();
+	$('.mytable').show();
+	$('#network_canvas').show();
+
+	var switchtype = jsonobj.switchtype;
+	if(switchtype == 2)
+	{
+		g_paper.image("/static/images/pc.png", 223, 12, 30, 38);
+		g_paper.text(235,58,'仲裁服务器').attr({"font-size":"12px"});
+		if(jsonobj.arbitrate_ip)
+		{
+			g_paper.path("M235,88 L237,235");
+			var arbitrate_ip = jsonobj.arbitrate_ip;
+			g_paper.text(210,72,'IP：').attr({"font-size":"12px"});
+			g_arbitrate_ip_input = CreateInput(225,72,arbitrate_ip);
+		}
+		else
+		{
+			g_paper.path("M235,70 L237,235");
+			$('#arbitrate_div').hide();
+		}
+
+		g_paper.path("M175,155 Q230,130 230,68");
+	}
+	else
+	{
+		$('#arbitrate_div').hide();
+		g_paper.text(250,58,'手工切换').attr({"font-size":"15px"});
+		g_paper.path("M176,164 Q226,180 226,233");
+	}
+
+	g_paper.image("/static/images/pc.png", 125, 115, 30, 38);
+	g_paper.text(145,165,'主服务器').attr({"font-size":"12px"});
+	g_paper.text(95,185,'固有IP：').attr({"font-size":"12px"});
+	g_paper.text(95,205,'漂移IP：').attr({"font-size":"12px"});
+	g_paper.image("/static/images/pc.png", 339, 115, 30, 38);
+	g_paper.text(350,165,'备服务器').attr({"font-size":"12px"});
+	g_paper.text(320,185,'固有IP：').attr({"font-size":"12px"});
+	g_paper.text(320,205,'漂移IP：').attr({"font-size":"12px"});
+	g_paper.image("/static/images/pc.png", 224, 240, 30, 38);
+	g_paper.text(240,285,'备份一体机').attr({"font-size":"12px"});
+
+	g_paper.path("M247,233 Q260,180 318,163");
+
+	var master_control_ip = '';
+	var master_business_ip = '';
+	var standby_control_ip = '';
+	var standby_business_ip = '';
+	var aio_2_master_control_ip = true;
+	var aio_2_master_business_ip = true;
+	if( jsonobj.master.control.length > 0)
+	{
+		master_control_ip = jsonobj.master.control[0].ip;
+	}
+	else
+	{
+		aio_2_master_control_ip =false;
+	}
+
+	if( jsonobj.master.business.length > 0)
+	{
+		master_business_ip = jsonobj.master.business[0].ip;
+	}
+	else
+	{
+		aio_2_master_business_ip = false;
+	}
+
+	if( jsonobj.standby.control.length > 0)
+	{
+		standby_control_ip = jsonobj.standby.control[0].ip;
+	}
+
+	if( jsonobj.standby.business.length > 0)
+	{
+		standby_business_ip = jsonobj.standby.business[0].ip;
+	}
+
+	CreateInput(115,185,master_control_ip);
+	CreateInput(115,205,master_business_ip);
+	CreateInput(340,185,standby_control_ip);
+	CreateInput(340,205,standby_business_ip);
+
+	for(var i=0; i<jsonobj.master.control.length;i++)
+	{
+		if(jsonobj.master.control[i].r == false )
+		{
+			aio_2_master_control_ip = false;
+		}
+	}
+
+	for(var i=0; i<jsonobj.master.business.length;i++)
+	{
+		if(jsonobj.master.business[i].r == false )
+		{
+			aio_2_master_business_ip = false;
+		}
+	}
+
+	if(aio_2_master_control_ip)
+	{
+		g_paper.path("M177,163 Q227,179 227,232").attr({"stroke":"#0b7505"});
+	}
+	else
+	{
+		g_paper.path("M177,163 Q227,179 227,232").attr({"stroke":"#ff0000"});
+	}
+
+	if( aio_2_master_business_ip )
+	{
+		g_paper.path("M175,165 Q225,181 225,234").attr({"stroke":"#134868"});
+	}
+	else
+	{
+		g_paper.path("M175,165 Q225,181 225,234").attr({"stroke":"#ff0000"});
+	}
+
+	show_network_detail(jsonobj);
+}
+
+function showNetwork(id)
+{
+	$('#network_canvas_status').html('正在获取网络状态，这可能需要几分钟时间，请稍候...');
+	$('#network_canvas_status').show();
+	$('#network_canvas').hide();
+	$('.mytable').hide();
+	var params = 'a=network_status';
+	params += '&id='+id;
+	myAjaxGet('../hotbackup_handle/', params, network_status_call_back);
+	$("#networkDiv").attr('title','网络').dialog({
+		autoOpen: true,
+		height: 570,
+		width: 550,
+		modal: true
+	});
+}
+
+function networkFmatter(cellvalue, options, rowObjec)
+{
+	var id = rowObjec[0];
+	return '<span style="color:#000088;cursor:pointer;" onclick="showNetwork(\''+id+'\')">查看</span>';
+}
+
+
+function statusFmatter(cellvalue, options, rowObjec)
+{
+	var enabled = rowObjec[5];
+	//var in_stand_by = cellvalue;
+	var htb_progress = rowObjec[8];
+	if(enabled)
+	{
+		return htb_progress;
+	}
+	return '禁用';
+}
+
+function typeFmatter(cellvalue, options, rowObjec)
+{
+	var type = cellvalue;
+	if(type=='cdp')
+	{
+		return 'CDP';
+	}
+	if (type=='normal')
+	{
+		return '备份点';
+	}
+	return cellvalue;
+}
+
+jQuery("#point_list").jqGrid({
+	datatype: "local",
+	height: 200,
+	width:680,
+   	colNames:['id','point_id', '备份点', '类型', 'recommend'],
+   	colModel:[
+   		{name:'id',index:'id', width:60,hidden:true},
+        {name:'point_id',index:'point_id', width:60,hidden:true},
+   		{name:'time',index:'time', width:150, sorttype:"date"},
+   		{name:'type',index:'type', width:50,align:"center",formatter:typeFmatter},
+   		{name:'recommend',index:'recommend', hidden:true, width:30, align:"center"}
+   	],
+   	multiselect: true,
+    pager:'#point_list_page',
+    rowNum:10,
+    rowList:[10,20,30],
+    recordpos: 'left',
+    viewrecords: true,
+   	caption: "请选择需要切换的备份点",
+	onSelectRow: function(ids) {
+		var type=$('#point_list').jqGrid('getRowData',ids).type;
+		var id=$('#point_list').jqGrid('getRowData',ids).point_id;
+		console.log('choice id:'+ id);
+		$('#pointid').val(id);
+		if( type == 'CDP' )
+		{
+			var vec = id.split('|');
+			var cdpbackupstarttime = vec[2].replace(/T/g, ' ');
+			var cdpbackupendtime = vec[3].replace(/T/g, ' ');
+			$('#show_cdpbackupstarttime').html(cdpbackupstarttime);
+			$('#show_cdpbackupendtime').html(cdpbackupendtime);
+			$('#restoretime').val(cdpbackupendtime);
+			getRestoreTimeInit(id);
+			$('#cdp_ui_id').show();
+		}
+		else
+		{
+			$('#cdp_ui_id').hide();
+			$('#restoretime').val('');
+		}
+	},
+	beforeSelectRow: function(rowid, e)
+	{
+		$(this).jqGrid('resetSelection');
+		return(true);
+	},
+	gridComplete:function(){
+		$('#cb_point_list').hide();
+	}
+});
+
+jQuery("#point_list").jqGrid('navGrid','#point_list_page',{add:false,search:false,del:false,edit:false,position:'right'});
+
+$('input[name=use_latest]').click(function () {
+    var value = $(this).val();
+    var or_status = $('#cdp_ui_id').is('visible');
+    if (value == 1){ //  使用最新
+        $('#cdp_ui_id').hide();
+        $('#gbox_point_list').hide();
+        $('#s_d_vue').hide();
+		// 选择切换IP
+        $('#pointid').val('-1|-1|-1');
+        $('.ipinfo').hide();
+        $('#ipinfo_switch').click();
+
+    }else { // 使用历史
+        $('#cdp_ui_id').hide();
+        $('#gbox_point_list').show();
+        $('#s_d_vue').show();
+        $('#pointid').val('');
+        // 清空所有的选择
+        $("#point_list").jqGrid('resetSelection');
+        if (switch_change_master_ip == '0'){ // 演练模式
+            $('.ipinfo').hide();
+        }else{
+            $('.ipinfo').show();
+        }
+    }
+})
+
+function masterstandbyswitching_resize()
+{
+	resizeright();
+	var height=$(window).height()-250;
+	var width = $('.table_menu').width();
+	$("#list").setGridWidth(width);
+	$("#list").setGridHeight(height);
+	baseresize();
+}
+
+function LoadFromLink()
+{
+	var plan_id = $.cookie('plan_id');
+	var task_type = $.cookie('task_type');
+	switch_change_master_ip = $.cookie('switch_change_master_ip'); // 全局变量多处使用
+	if (plan_id && task_type)
+	{
+		onHotbackupSwitch(plan_id,task_type);
+		$.cookie('plan_id', null, {path: '/'});
+		$.cookie('task_type', null, {path: '/'});
+		$.cookie('switch_change_master_ip', null, {path: '/'});
+	}
+}
+
+$(function () {
+	$('#navigation').html('<div class="font_navigation">主备切换</div>');
+	$('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#masterstandbyswitching" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+	masterstandbyswitching_resize();
+	LoadFromLink();
+});
+
+function hotbackupSwitch_ret_call_back(jsonobj)
+{
+	if (jsonobj.r != 0)
+	{
+        openErrorDialog('错误',jsonobj.e);
+		return;
+    }
+	openSuccessDialog('成功','已成功发送切换命令');
+}
+
+function hotbackupSwitch_call_back(jsonobj,plan_id)
+{
+	if (jsonobj.r != 0)
+	{
+        openErrorDialog('错误',jsonobj.e);
+		return;
+    }
+
+	if (jsonobj.list.length==0)
+	{
+	    if (s_d_vue.plan_id == -1){
+	        openErrorDialog('错误','未能获取备份点信息');
+        }else{
+	        s_d_vue.error = s_d_vue.time + '没有备份点，重新选择其它时间';
+        }
+		return;
+	}
+
+	s_d_vue.plan_id = plan_id;
+	s_d_vue.time = jsonobj.st_date;
+	s_d_vue.moment_obj = moment(jsonobj.st_date);
+	jQuery("#point_list").jqGrid("clearGridData");
+
+	for(var i=0;i<jsonobj.list.length;i++)
+	{
+		var id = jsonobj.list[i].id;
+		var time = jsonobj.list[i].time;
+		var type = jsonobj.list[i].type;
+		var recommend = jsonobj.list[i].recommend;
+		if(recommend==false)
+		{
+			recommend='否';
+		}
+		else
+		{
+			recommend='是';
+		}
+		var tmp = {id:id,point_id:id,time:time,type:type,recommend:recommend};
+		jQuery("#point_list").jqGrid('addRowData',i+1,tmp);
+
+	}
+
+	jQuery("#point_list").trigger("reloadGrid");
+
+	$("#hotbackupSwitchDiv2").attr('title','切换').dialog({
+		autoOpen: true,
+		height: 650,
+		width: 730,
+		modal: true,
+		buttons: {
+			'确定': function(){
+			    if ($('input[name=use_latest]:checked').val() == 1){ // 切换到最新
+			        var use_latest = 1,
+                    point_id = -1,
+                    restoretime = -1,
+                    switchip = 1;
+                }else{ // 用户手动选择点, 需要校验数据
+                    if(!check_params()){
+                        return false;
+                    }
+			        var use_latest = 0,
+                    point_id = $('#pointid').val(),
+                    restoretime = $('#restoretime').val(),
+                    switchip = $('#hotbackupSwitchDiv2').find('input[name=switchip]:checked').val();
+                }
+				var params = 'a=hotabckup_switch';
+				params += '&task_type=1';
+				params += '&id='+plan_id;
+				params += '&point_id='+point_id;
+				params += '&restoretime='+restoretime;
+				params += '&use_latest='+use_latest;
+				params += '&switchip=' + switchip;
+				myAjaxPost('../hotbackup_handle/', params, hotbackupSwitch_ret_call_back);
+				$(this).dialog('close');
+			},
+			'取消': function(){
+				$(this).dialog('close');
+
+			}
+		}
+	});
+
+}
+
+function onHotbackupSwitch(plan_id,task_type)
+{
+	if(task_type==0)
+	{
+	    if (switch_change_master_ip == '0'){ // 演练模式
+            $('.hotbackupSwitchDiv_class').hide();
+        }else{
+            $('.hotbackupSwitchDiv_class').show();
+        }
+		//(OLD_POINT_NOT_NEED_UPDATE, '还原到特定点')
+		$("#hotbackupSwitchDiv").attr('title','切换').dialog({
+			autoOpen: true,
+			width: 400,
+			modal: true,
+			buttons: {
+				'确定': function(){
+				    var switchip = $('#hotbackupSwitchDiv').find('input[name=switchip1]:checked').val();
+					myAjaxPost('../hotbackup_handle/', 'a=hotabckup_switch&task_type='+task_type+'&id='+plan_id+'&switchip='+switchip, hotbackupSwitch_ret_call_back);
+					$(this).dialog('close');
+				},
+				'取消': function(){
+					$(this).dialog('close');
+
+				}
+			}
+		});
+		return;
+	}
+	else if(task_type==1)
+	{
+		//(NEW_POINT_NEED_UPDATE, '还原到最新')
+		$('#cdp_ui_id').hide();
+		s_d_vue.init();
+		$('#restoretime').val('');
+        $('#pointid').val('');
+		$('input[name=use_latest]').first().click();
+        $('input[name=switchip]').first().click();
+        if (switch_change_master_ip == '0'){ // 演练模式
+            $('.ipinfo').hide();
+            $('#switch_master_ip_add_info').hide();
+        }else{
+            $('.ipinfo').show();
+            $('#switch_master_ip_add_info').show();
+        }
+		myAjaxPost('../hotbackup_handle/', 'a=get_switch_params&id='+plan_id, hotbackupSwitch_call_back,plan_id);
+		return;
+	}
+	else
+	{
+		debugger;
+		alert('switchbutton Failed.task_type='+task_type);
+	}
+}
+
+
+$('#switchbutton')
+.button()
+.click(function(){
+	var ids=$('#list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return;
+	}
+
+	var idstring=ids.join(',');
+    var task_type=$('#list').jqGrid('getRowData',idstring).task_type;
+    var plan_id=$('#list').jqGrid('getRowData',idstring).id;
+    switch_change_master_ip = $('#list').jqGrid('getRowData',idstring).switch_change_master_ip;
+    if (switch_change_master_ip == '1'){
+        switch_change_master_ip = '1';
+    }else{
+        switch_change_master_ip = '0';
+    }
+    onHotbackupSwitch(plan_id,task_type);
+});
+
+
+$('#refresh')
+.button()
+.click(function(){
+	var new_url = '../hotbackup_handle/?a=listplan&html_mark=switch';
+    $('#list').setGridParam({url:new_url});
+    $('#list').trigger("reloadGrid",[{page:1}]);
+});
+
+function _isTime(input)
+{
+	//判断是不是日期和时间的：yyyy-MM-dd HH:CC:SS.000000
+	var patrn= /^([1][7-9][0-9][0-9]|[2][0][0-9][0-9])(\-)([0][1-9]|[1][0-2])(\-)([0][1-9]|[1-2][0-9]|[3][0-1])(.)([0-1][0-9]|[2][0-3])(:)([0-5][0-9])(:)([0-5][0-9])(\.)(\d{1,6})$/g;
+	if( patrn.exec(input) )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function getRestoreTimeInit(pointid) {
+    // 浏览器是否支持vis.js
+    $.getScript("/static/js/vis.js")
+    .done(function() {
+        $('#yDscr').hide();
+        $('#visualization').empty();
+        $('#visualization2').empty();
+        var parms = pointid.split('|');
+        var minTime = parms[2];
+        var maxTime = parms[3];
+        var container = $('#visualization')[0];
+        var items = new vis.DataSet([]);
+
+        var options = {
+            showCurrentTime: false,
+            min: minTime,
+            max: maxTime,
+            start: minTime,
+            end: maxTime,
+            format: {
+                minorLabels: {
+                    millisecond: 'SSSSSS',
+                    second: 'ss',
+                    minute: 'HH:mm',
+                    hour: 'HH:mm',
+                    weekday: 'DD[日]',
+                    day: 'DD[日]',
+                    month: 'MM[月]',
+                    year: 'YYYY[年]'
+                },
+                majorLabels: {
+                    millisecond: 'YYYY[年]MM[月]DD[日] HH:mm:ss',
+                    second: 'YYYY[年]MM[月]DD[日] HH:mm',
+                    minute: 'YYYY[年]MM[月]DD[日]',
+                    hour: 'YYYY[年]MM[月]DD[日]',
+                    weekday: 'YYYY[年]MM[月]',
+                    day: 'YYYY[年]MM[月]',
+                    month: 'YYYY[年]',
+                    year: ''
+                }
+            },
+            height: '45px'
+        };
+        timelineObj = new vis.Timeline(container, items, options);
+        var inputTime = $('#restoretime').val();
+        timelineObj.addCustomTime(inputTime, 'timebar');  // 初始以“输入时间”作默认位置
+
+        toGetTimesScores();
+    })
+    .fail(function() {
+        $('#select_cdp_point').empty();
+        $('#select_cdp_point').append('请更换高版本浏览器');
+        $('#select_cdp_point').show();
+    });
+}
+
+// 选择大致时间：1.作为窗口轴值  2.作为还原点时间
+$('#visualization').click(function (event) {
+    var props = timelineObj.getEventProperties(event);
+    timelineObj.removeCustomTime('timebar');
+    timelineObj.addCustomTime(props.time, 'timebar');
+    var centreTimeStp = props.time.getTime();
+
+    var _Date = new Date(centreTimeStp);
+    var time = _Date.Format("yyyy-MM-dd hh:mm:ss.S");
+    $('#restoretime').val(time);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    toGetTimesScores()
+});
+
+// 点击曲线图，作为还原点时间
+$('#visualization2').click(function (event){
+    if(window.waiting){
+        return;
+    }
+    var props = graph2d.getEventProperties(event);
+    var timeSelectedStp = props.time.getTime();
+
+    try{
+        graph2d.addCustomTime(props.time, 'timebar2');
+    }
+    // 存在bar，异常的处理
+    catch(err) {
+        graph2d.removeCustomTime('timebar2');
+        graph2d.addCustomTime(props.time, 'timebar2');
+    }
+
+    var _Date = new Date(timeSelectedStp);
+    var time = _Date.Format("yyyy-MM-dd hh:mm:ss.S");
+    $('#restoretime').val(time);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+    $('#restoretime').fadeOut(80).fadeIn(80);
+});
+
+function check_input_time(time) {
+    if(!_isTime(time)){
+        openErrorDialog({title:'错误',html:"请填写正确的时间格式：YYYY-MM-DD hh:ss:ii.dddddd"});
+        return false;
+    }
+    return true;
+}
+
+function holdWhenCdpUI(hold) {
+    if(hold){
+        $('#Msg4CdpUI').text('读取数据中...');
+        $('#IsShowCdpUI').show();
+    }
+    else {
+        $('#IsShowCdpUI').hide();
+    }
+}
+
+// 触发：初始，切换窗口，选择窗口轴
+function toGetTimesScores() {
+    var _pointParms = $('#pointid').val().split('|');
+    var _windowSize = $("input[name='windowSize']:checked").val();
+    var _centreTime = $('#restoretime').val();  // 始终取还原时间作为：窗口轴
+    if(!check_input_time(_centreTime)){
+            return;
+    }
+    var _centreTimeStp = moment(_centreTime).toDate().getTime();
+
+    var params = 'a=getiodaychart&centre={0}&window={1}&id={2}&sliceend={3}'
+        .replace('{0}', _centreTimeStp).replace('{1}', _windowSize).replace('{2}', _pointParms[1]).replace('{3}', _pointParms[3]);
+    holdWhenCdpUI(true);
+    window.waiting = true;
+    myAjaxGet('../restore_handle/', params, drawScore);
+}
+
+$("input[name='windowSize']").change(toGetTimesScores);
+
+function is_input_time_out_range(time) {
+    var cdpStarTime = $('#pointid').val().split('|')[2];
+    var cdpEndTime = $('#pointid').val().split('|')[3];
+    cdpStarTime = moment(cdpStarTime).toDate().getTime();
+    cdpEndTime = moment(cdpEndTime).toDate().getTime();
+    var inputTime = moment(time).toDate().getTime();
+    if(inputTime < cdpStarTime || inputTime > cdpEndTime){
+        openErrorDialog({title:'错误',html:"输入时间不在范围内"});
+        return true;
+    }
+    return false;
+}
+
+// 监听“还原时间点”输入控件：回车事件
+$('#restoretime').keypress(function (event) {
+    if(event.key == "Enter"){
+        // 设置窗口轴值
+        var inputTime = $('#restoretime').val();
+        if(!check_input_time(inputTime)){           // 格式
+            return;
+        }
+        if(is_input_time_out_range(inputTime)){     // 范围
+            return;
+        }
+        timelineObj.removeCustomTime('timebar');
+        timelineObj.addCustomTime(inputTime, 'timebar');
+        getRestoreTimeInit($('#pointid').val());
+    }
+});
+
+function drawScore(jstr) {
+    window.waiting = false;
+    holdWhenCdpUI(false);
+    $('#yDscr').show();
+    $('#visualization2').empty();
+    var _container = $('#visualization2')[0];
+    var _dataset = new vis.DataSet([]);
+
+    // jstr.times_scores长度始终：>=1
+    // 向其尾后追加一元素
+    var lastElem = jstr.times_scores[jstr.times_scores.length - 1];
+    var lastTime = new Date(moment(lastElem.time).toDate().getTime() + 100).Format("yyyy-MM-dd hh:mm:ss.S");
+    var lastScore = lastElem.score;
+    jstr.times_scores.push({'time':lastTime, 'score': lastScore});
+
+    // 首尾添加最值：固定高度
+    var Elem0 = jstr.times_scores[0];
+    var Elemn = jstr.times_scores[jstr.times_scores.length - 1];
+    var starT = new Date(moment(Elem0.time).toDate().getTime() - 1).Format("yyyy-MM-dd hh:mm:ss.S");
+    var endT = new Date(moment(Elemn.time).toDate().getTime() + 1).Format("yyyy-MM-dd hh:mm:ss.S");
+    jstr.times_scores.unshift({'time':starT, 'score': -1});
+    jstr.times_scores.push({'time':endT, 'score': -1});
+
+    var max_secs = 1;
+    var vtime = null;
+    var vsecs = null;
+    $.each(jstr.times_scores, function (i, time_score) {
+        vtime = time_score.time;
+        vsecs = time_score.score;
+        if(vsecs > max_secs || vsecs == -1){
+            vsecs = max_secs;
+        }
+        _dataset.add({x: vtime, y: vsecs * 1000, group: 0});
+    });
+
+    var groupData = {
+        id: 0,
+        options: {
+            drawPoints: {
+                style: 'circle',
+                size: 3
+            },
+            shaded: {
+                orientation: 'bottom'
+            }
+        }
+    };
+    var _groups = new vis.DataSet([groupData]);
+    var minTime = jstr.times_scores[0].time;
+    var maxTime = jstr.times_scores.pop().time;
+
+    var pointParams = $('#pointid').val().split('|');
+    var pointEndTime = moment(pointParams[3].replace('T', ' ')).toDate();
+    var _maxTime = moment(maxTime).toDate();
+    if (_maxTime > pointEndTime){
+        maxTime = pointEndTime;
+    }
+
+    var _options = {
+        showCurrentTime: false,
+        interpolation: false,
+        start: minTime,
+        min: minTime,
+        end: maxTime,
+        max: maxTime,
+        dataAxis: {
+            visible: false,
+            icons: false,
+            left: {
+                range: {
+                    min: 0,
+                    max: 1000 + 50
+                }
+            }
+        },
+        height: '270px'
+    };
+    graph2d = new vis.Graph2d(_container, _dataset, _groups, _options);
+
+    graph2d.addCustomTime($('#restoretime').val(), 'timebar2');
+    $('#select_cdp_point').show();
+}
+
+$(window).resize(function() {
+	masterstandbyswitching_resize();
+});
+
+function _isTime(input)
+{
+	//判断是不是日期和时间的：yyyy-MM-dd HH:CC:SS.000000
+	var patrn= /^([1][7-9][0-9][0-9]|[2][0][0-9][0-9])(\-)([0][1-9]|[1][0-2])(\-)([0][1-9]|[1-2][0-9]|[3][0-1])(.)([0-1][0-9]|[2][0-3])(:)([0-5][0-9])(:)([0-5][0-9])(\.)(\d{1,6})$/g;
+	if( patrn.exec(input) )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function check_params() {
+    if ($('#pointid').val() == undefined || $('#pointid').val() == ''){
+        openErrorDialog('错误', '请选择一个备份点！');
+        return false
+    }
+    var ids=$('#point_list').jqGrid('getGridParam','selarrrow');
+	if(ids.length!=1)
+	{
+		openErrorDialog({title:'错误',html:'请选择一条数据。'});
+		return false;
+	}
+    var type=$('#point_list').jqGrid('getRowData',ids).type;
+    if (type == 'CDP'){
+        var times = $('#restoretime').val();
+        if(!_isTime(times))
+		{
+			openErrorDialog({title:'错误',html:"请填写正确的时间格式：YYYY-MM-DD hh:ss:ii.dddddd"});
+			return false;
+		}
+    }
+    return true;
+}
+
+</script>

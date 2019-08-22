@@ -1,0 +1,1061 @@
+<style>
+    .kvm_op_disable {
+        color: #999999;
+        cursor: default;
+    }
+    .takeovers{
+        float:left;
+        padding-right:5px;
+        line-height:25px;
+    }
+</style>
+<div class="right">
+    <div class="table_menu">
+        <div class="menu_btn" id="addbutton">新建</div>
+        <div class="menu_btn" id="editbutton">编辑</div>
+        <div class="menu_btn" id="delbutton">删除</div>
+        <div class="menu_btn fordebug" id="startbutton" style="display: none">调试模式启动kvm</div>
+		<div class="menu_btn fordebug" id="delhddbutton" style="display: none">删除新增数据</div>
+        <div class="menu_btn" id="showall">刷新</div>
+		<div class="menu_btn fordebug" id="showall_debug" style="display: none">显示所有</div>
+    </div>
+    <div style="margin-bottom:10px;">
+        <div style="float:left;width:50%;">
+            <fieldset>
+                <legend>内存使用率</legend>
+                <div style="float:right;margin-left:10px;">
+                    <div style="float:left;height:11px;width:20px;border:1px solid #d3d3d3;"></div>
+                    <div style="float:left;margin-top:-3px;margin-left:5px;">可用</div>
+                    <div class="clear"></div>
+                </div>
+                <div style="float:right;margin-left:10px;">
+                    <div style="float:left;height:11px;width:20px;background-color:#477bc9;"></div>
+                    <div style="float:left;margin-top:-3px;margin-left:5px;">已使用</div>
+                    <div class="clear"></div>
+                </div>
+                <div style="float:right;">
+                    <div style="float:left;height:11px;width:20px;background-color:#91bef0;"></div>
+                    <div style="float:left;margin-top:-3px;margin-left:5px;">临时使用</div>
+                    <div class="clear"></div>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-top:20px;height:25px;">
+                    共：<span id="total_memory_mb_for_takeover"></span>MB　临时使用：<span
+                        id="used_memory_mb_for_restore"></span>MB　已使用：<span id="used_memory_mb_for_takeover"></span>MB　可用：<span
+                        id="canuse_memory_mb_for_takeover"></span>MB
+                </div>
+                <div style="border:1px solid #d3d3d3;width:100%;height:20px;margin-top:10px;margin-bottom:10px;padding:1px;">
+                    <div id="used_memory_mb_for_restore_div"
+                         style="float:left;height:18px;margin-top:1px;background-color:#91bef0;"></div>
+                    <div id="used_memory_mb_for_takeover_div"
+                         style="float:left;height:18px;background-color:#477bc9;margin-top:1px;"></div>
+                    <div class="clear"></div>
+                    <div>
+            </fieldset>
+        </div>
+        <div style="float:left;width:50%;">
+            <fieldset>
+                <legend>CPU核心数</legend>
+                <div style="float:right;margin-left:10px;">
+                    <div style="float:left;height:11px;width:20px;border:1px solid #d3d3d3;"></div>
+                    <div style="float:left;margin-top:-3px;margin-left:5px;">可用</div>
+                    <div class="clear"></div>
+                </div>
+                <div style="float:right;margin-left:10px;">
+                    <div style="float:left;height:11px;width:20px;background-color:#477bc9;"></div>
+                    <div style="float:left;margin-top:-3px;margin-left:5px;">已使用</div>
+                    <div class="clear"></div>
+                </div>
+                <div style="float:right;">
+                    <div style="float:left;height:11px;width:20px;background-color:#91bef0;"></div>
+                    <div style="float:left;margin-top:-3px;margin-left:5px;">临时使用</div>
+                    <div class="clear"></div>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-top:20px;height:25px;">
+                    共：<span id="total_cpu_number_for_takeover"></span>核　临时使用：<span
+                        id="used_cpu_number_for_restore"></span>核　已使用：<span id="used_cpu_number_for_takeover"></span>核　可用：<span
+                        id="canuse_cpu_number_for_takeover"></span>核
+                </div>
+                <div style="border:1px solid #d3d3d3;width:100%;height:20px;margin-top:10px;margin-bottom:10px;padding:1px;">
+                    <div id="used_cpu_number_for_restore_div"
+                         style="float:left;height:18px;margin-top:1px;background-color:#91bef0;"></div>
+                    <div id="used_cpu_number_for_takeover_div"
+                         style="float:left;height:18px;background-color:#477bc9;margin-top:1px;"></div>
+                    <div class="clear"></div>
+                    <div>
+            </fieldset>
+        </div>
+        <div style="float:left;width:100%;" id="need_create_backup_P">
+            <fieldset>
+                <legend>信息</legend>
+                <div id="need_create_backup" style="height: 102px;overflow: auto;"></div>
+            </fieldset>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <table id="list">
+    </table>
+    <div id="pager"></div>
+    <table width="100%" cellpadding="0" cellspacing="1" class="border_table">
+        <tr height="25">
+            <td width="30%" align="left">备份数据源：</td>
+            <td width="70%">
+                <div id="show_srcserver"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份计划名：</td>
+            <td align="left">
+                <div id="show_taskname"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份时间：</td>
+            <td align="left">
+                <div id="show_backuptime"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">备份类型：</td>
+            <td align="left">
+                <div id="show_backuptype"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">CDP：</td>
+            <td align="left">
+                <div id="show_iscdp"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">硬盘信息：</td>
+            <td align="left">
+                <div id="show_size"></div>
+            </td>
+        </tr>
+        <tr height="25">
+            <td align="left">操作系统：</td>
+            <td align="left">
+                <div id="show_os"></div>
+            </td>
+        </tr>
+    </table>
+    <div class="mywaite ui-state-highlight ui-corner-all"
+         style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 40%;left: 45%; z-index:1000;display:none;">
+        <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+            <strong>请稍候</strong> <span id="msg"></span></p>
+    </div>
+</div>
+
+<div id="addkvm" title="新建" class="ajaxForm">
+    <div style="margin-top:10px;margin-left:20px;">
+        <div>　　以“{{ title }}”内置物理资源(CPU、内存、存储...)为基础，配合指定的备份时间点数据，创建虚拟化主机。</div>
+        <div style="margin-top:10px;margin-left:20px;"><label><input type="radio" name="kvmtype" value="1"
+                                                                     checked="checked">创建虚拟化接管主机</label></div>
+        <div style="margin-left:20px;"><span class="">　　在源业务服务器不能正常工作时接管业务，减少业务中断时间，确保业务连续性；虚拟化接管主机中新产生的数据会被保存，可先使用“备份”功能备份，再使用“恢复”功能将最新的业务数据恢复到新建的业务主机中。</span>
+        </div>
+		{% if temporary_takeover_visible %}
+        <div style="margin-top:10px;margin-left:20px;"><label><input type="radio" name="kvmtype"
+                                                                     value="2">创建虚拟化快速验证主机</label></div>
+        <div style="margin-left:20px;"><span class="">　　仅用于对指定的备份时间点数据的验证，不会保存新产生的数据，不能对虚拟机做备份/恢复。</span></div>
+		{% endif %}
+    </div>
+</div>
+
+<div id="editkvm" title="编辑" class="ajaxForm">
+    <div style="margin-left:10px;">
+        {% include 'takeover.inc.html' %}
+    </div>
+</div>
+
+<div id="kvm_op_menudiv" style="position:absolute;z-index:9999;display:none;">
+    <ul id="kvm_op_menu" style="min-width: 60px">
+        <li style="height:32px" id="kvm_op_view">查看</li>
+        <li style="height:32px" id="kvm_op_shutdown">关机</li>
+        <li style="height:32px" id="kvm_op_reset">重启电源</li>
+        <li style="height:32px" id="kvm_op_poweroff">关闭电源</li>
+    </ul>
+</div>
+
+<div id="drill_tip_form" style="display:none;">
+	<div style="line-height:30px;">
+	　　提供整机恢复的灾难演练功能，无需了解操作系统、应用系统、数据库和业务逻辑，也无需逐步手工安装、配置，即可完成灾难演练；提供原主机和异构目标机（X86物理机、虚拟机和云主机）之间的自动化灾难演练功能，可以实现P2P、P2V、P2C、V2P、V2V、V2C、C2C、C2P和C2V的灾难演练；灾难演练时可通过灾备系统Web管理界面完成所有操作，无需业务系统开发商工程师、数据库工程师和灾备系统工程师支持，实现任意品牌/技术的X86服务器、虚拟机和云主机之间的异构自动化灾难演练；千兆网络环境中，无预置灾难演练环境条件下，无论数据量大小可分钟级将灾备点应用系统重建至异构主机上并可以对外提供服务实现业务恢复。
+	</div>
+</div>
+
+<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+<script type="text/javascript" src="/static/js/timeglider/js/underscore-min.js"></script>
+<script type="text/javascript">
+    {% include 'takeover.js' %}
+    $(function () {
+        jQuery("#list").jqGrid({
+            url: '../takeover_handle/?a=kvmlist',
+            datatype: "json",
+            colNames: ['id', '名称', '保留数据', '内存', 'CPU核数', '改变/新增数据', '备份点时间', '端口', '状态', '操作', 'pointid'],
+            colModel: [
+                {name: 'id', index: 'id', align: "center", width: 20, hidden: true, sortable: false},
+                {name: 'name', index: 'name', align: "center", width: 250, sortable: true},
+                {
+                    name: 'kvm_type',
+                    index: 'kvm_type',
+                    align: "center",
+                    width: 80,
+                    sortable: true,
+                    formatter: kvmtypeFmatter
+                },
+                {name: 'mem_size', index: 'mem_size', align: "center", width: 80, sortable: true},
+                {name: 'cpu_count', index: 'cpu_count', align: "center", width: 80, sortable: true},
+                {name: 'disk_size', index: 'disk_size', align: "center", width: 120, sortable: true},
+                {name: 'snapshot_time', index: 'snapshot_time', align: "center", width: 150, sortable: true},
+                {name: 'vnc_port', index: 'vnc_port', align: "center", width: 60, sortable: false},
+                {
+                    name: 'kvm_status',
+                    index: 'kvm_status',
+                    align: "center",
+                    width: 200,
+                    sortable: false,
+                    formatter: kvmstatusFmatter
+                },
+                {name: 'op', index: 'op', align: "center", width: 60, sortable: false},
+                {name: 'pointid', index: 'pointid', align: "center", width: 30, sortable: false, hidden: true}
+            ],
+            width: 748,
+            height: 350,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (ids) {
+                var pointid = $('#list').jqGrid('getRowData', ids).pointid;
+                var params = "a=gepointdetail&pointid=" + pointid;
+                myAjaxGet('../restore_handle/', params, GetPointDetail);
+            },
+            loadComplete: function () {
+                myAjaxGet('../takeover_handle/?a=check_host_need_plan', null, function (ret_list) {
+                    $('#need_create_backup').empty();
+                    if (ret_list.length === 0) {
+                        $('#need_create_backup_P').hide();
+                    }
+                    else {
+                        $('#need_create_backup_P').show();
+                        $('#need_create_backup').append('<div><span style="float:left;">业务主机虚拟化应急接管系统提供服务时，灾备系统可为虚拟化接管主机提供CDP保护，且新增的数据会形成备份点可进行灾难恢复，请在以下接管主机启动后创建备份计划, 以保护接管主机中新产生的数据</span><div class="clear"></div></div>');
+                    }
+
+                    $.each(ret_list, function (index, item) {
+                        var html = '<div style="margin-top:4px;"><span style="float:left;">{0}</span><span onclick="PreSelectHost4CreatePlan(\'{1}\')" style="float:right;margin-right:10px;color:blue;cursor:pointer;">创建</span><div class="clear"></div></div>'
+                            .replace('{0}', '接管主机<span style="font-weight: bolder;"> [' + item.take_over_name + '] </span>不存在备份计划')
+                            .replace('{1}', item.host_name);
+                        $('#need_create_backup').append(html);
+                    })
+                });
+            }
+        });
+    });
+
+    function kvmtypeFmatter(cellvalue, options, rowObject) {
+        if (cellvalue == 'forever_kvm') {
+            return '是';
+        }
+        return '否';
+    }
+
+    function kvmstatusFmatter(cellvalue, options, rowObject) {
+        if (cellvalue == '已开机') {
+            return '<span style="color:rgba(0, 200, 0, 1);">' + cellvalue + '</span>';
+        }
+		if (cellvalue == '异常') {
+			return '<span style="color:red;">' + cellvalue + '</span>';
+		}
+        return cellvalue;
+    }
+
+    function GetPointDetail(jsonstr) {
+        if (jsonstr.r != 0) {
+            $('div#show_srcserver').html(jsonstr.e);
+            return;
+        }
+
+        $('div#show_srcserver').html(jsonstr.srcserver);
+        $('div#show_taskname').html(jsonstr.taskname);
+        $('div#show_backuptype').html(jsonstr.backuptype);
+        if (jsonstr.iscdp == 1) {
+            $('div#show_iscdp').html('是');
+            $('div#show_backuptime').html(jsonstr.cdpbackupstarttime + ' ─ ' + jsonstr.cdpbackupendtime);
+        }
+        else {
+            $('div#show_iscdp').html('否');
+            $('div#show_backuptime').html(jsonstr.backuptime);
+        }
+        $('div#show_size').html(jsonstr.size);
+        $('div#show_os').html(jsonstr.system);
+    }
+
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    function ReloadGridCallback(jsonstr) {
+
+		$('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+    }
+
+
+    $(function () {
+        {% if takeover %}
+            $('#navigation').html('<div class="font_navigation"><div class="takeovers">接管主机</div><span style="color:red;">{{ takeover_license }}</span>　　<div style="float:left;"><img src="/static/images/header_notes_icon_1.png" height="24" width="24" class="show_support_dlg" style="color:blue;cursor:pointer;"></img></div></div>');
+        {% else %}
+            $('#navigation').html('<div class="font_navigation"><div class="takeovers">验证主机</div>　　<div style="float:left;"><img src="/static/images/header_notes_icon_1.png" height="24" width="24" class="show_support_dlg" style="color:blue;cursor:pointer;"></img></div></div>');
+        {% endif %}
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#takeover" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        takeover_resize();
+    });
+
+    function shwoall(debug) {
+        var newUrl = '../takeover_handle/?a=kvmlist';
+		if(debug)
+		{
+			newUrl+='&debug=1';
+		}
+
+        $('#list').setGridParam({url: newUrl});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    $('#showall')
+        .button()
+        .click(function () {
+            get_hardware_info();
+            shwoall(false);
+        });
+
+	$('#showall_debug').button()
+        .click(function () {
+            get_hardware_info();
+            shwoall(true);
+        });
+
+    $('#addbutton')
+        .button()
+        .click(function () {
+            {% if not takeover %}
+                $("input[name='kvmtype'][value='1']").prop('disabled', 'disabled');
+                $("input[name='kvmtype'][value='1']").parent().css('color', '#666666');
+                $("input[name='kvmtype'][value='1']").parent().parent().next().css('color', '#666666');
+                $("input[name='kvmtype'][value='2']").prop('checked', 'checked');
+            {% endif %}
+            $("#addkvm").dialog({
+                autoOpen: true,
+                height: 320,
+                width: 540,
+                modal: true,
+                title: '新建',
+                buttons: {
+                    '确定': function () {
+                        $(this).dialog('close');
+                        var kvmtype = $("input[name='kvmtype']:checked").val();
+                        if (kvmtype == "1") {
+                            location.href = '../restore/';
+                        }
+                        else {
+                            location.href = '../validate/';
+                        }
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+
+                },
+                close: function () {
+                }
+            });
+        });
+
+    $('#delbutton').button().click(function () {
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length == 0) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return;
+        }
+        var idents = [];
+        $.each(ids, function (index, id) {
+            var ident = $('#list').jqGrid('getRowData', id).id;
+            idents.push(ident);
+        })
+        var identstring = idents.join(",");
+        var html = '确定要删除选择的虚拟机？';
+        openConfirmDialog({
+            "title": "删除",
+            "html": html,
+            height: 200,
+            width: 274,
+            onBeforeOK: function () {
+                $(this).dialog('close');
+                myAjaxPost("../takeover_handle/?a=del_kvm", "ids=" + identstring, ReloadGridCallback);
+            }
+        });
+    });
+
+    function edit_kvm_callback(jsonobj) {
+        if (jsonobj.r != 0) {
+            openErrorDialog({title: '错误', html: jsonobj.e});
+            return;
+        }
+        $("#editkvm").dialog('close');
+        $('#list').trigger("reloadGrid", [{current: true}]);
+    }
+
+    function getkvminfocallback(jsonstr) {
+        $('.mywaite').hide();
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+
+        info = jsonstr.info;
+        if (info.is_poweroff) {
+            $('#kvm_cpu_sockets').prop('disabled', false);
+            $('#kvm_cpu_cores').prop('disabled', false);
+            $('#kvm_memory_size').prop('disabled', false);
+            $('#kvm_memory_unit').prop('disabled', false);
+            $("#hddctl").prop('disabled', false);
+            $("#vga").prop('disabled', false);
+            $("#net").prop('disabled', false);
+			$("#cpu").prop('disabled', false);
+        }
+        else {
+            $('#kvm_cpu_sockets').prop('disabled', true);
+            $('#kvm_cpu_cores').prop('disabled', true);
+            $('#kvm_memory_size').prop('disabled', true);
+            $('#kvm_memory_unit').prop('disabled', true);
+            $("#hddctl").prop('disabled', true);
+            $("#vga").prop('disabled', true);
+            $("#net").prop('disabled', true);
+			$("#cpu").prop('disabled', true);
+        }
+
+        if (info.logic == 'windows') {
+            $('#hddctl').find('[value=IDE]').prop('disabled', true);
+            $('#hddctl').find('[value=virtio-blk]').prop('disabled', true);
+        }
+        else {
+            $('#hddctl').find('[value=IDE]').prop('disabled', false);
+            $('#hddctl').find('[value=virtio-blk]').prop('disabled', false);
+        }
+
+        $('#hddctl').val(info.hddctl);
+        $('#vga').val(info.vga);
+        $('#net').val(info.net);
+		$('#cpu').val(info.cpu);
+		$('#boot_firmware').val(info.boot_firmware);
+
+        $('#phy_cpu_count').html(info.phy_cpu_count);
+        $('#phy_available').html(info.phy_available);
+        $('#kvm_name').val(info.name);
+        $('#kvm_cpu_count').html(info.kvm_cpu_count);
+        $('#kvm_cpu_sockets').val(info.kvm_cpu_sockets);
+        $('#kvm_cpu_cores').val(info.kvm_cpu_cores);
+        $('#kvm_memory_size').val(info.kvm_memory_size);
+        $('#kvm_memory_unit').val(info.kvm_memory_unit);
+        $('#kvm_storagedevice').empty();
+        $("#kvm_storagedevice").append("<option>" + info.storagenode + "</option>");
+        $("#kvm_storagedevice").prop('disabled', true);
+        $('.class_kvm_adpter_parent').find('.class_kvm_adpter').remove();
+        $('div.class_kvm_dns').find('input[name=kvm_gateway]').val('');
+        $('div.class_kvm_dns').find('.class_kvm_dns_s').remove();
+
+
+        var kvm_ip_html = $('.class_kvm_ip').prop('outerHTML');
+        var html = $('.class_kvm_adpter').prop('outerHTML');
+        var kvm_adpter = info.kvm_adpter;
+        if (kvm_adpter.length == 0) {
+            var kvm_adpter_div_obj = jQuery.extend(true, {}, $(html));
+            //var kvm_ip = jQuery.extend(true, {}, $(kvm_ip_html));
+            //kvm_ip.show();
+            //kvm_adpter_div_obj.find(".class_kvm_ip_parent").prepend(kvm_ip);
+            kvm_adpter_div_obj.find(".class_kvm_ip_parent").hide();
+			kvm_adpter_div_obj.find(".nic_name").hide();
+            var adpter_sel_obj = kvm_adpter_div_obj.find('select[name="adpter_name"]');
+            adpter_sel_obj.empty();
+            for (var i = 0; i < info.adapter_names.length; i++) {
+                adpter_sel_obj.append($('<option></option>').val(info.adapter_names[i]).text(info.adapter_names[i]));
+            }
+            adpter_sel_obj.append($('<option></option>').val('private_aio').text('私有网络'));
+
+
+            kvm_adpter_div_obj.show();
+            $('.class_kvm_adpter_parent').prepend(kvm_adpter_div_obj);
+            gen_mac();
+        }
+        for (var i = 0; i < kvm_adpter.length; i++) {
+            var kvm_adpter_div_obj = jQuery.extend(true, {}, $(html));
+			var vlan_no_obj = kvm_adpter_div_obj.find("input[name='vlan_no']");
+			kvm_adpter_div_obj.find(".nic_name").hide();
+
+            var adpter_sel_obj = kvm_adpter_div_obj.find('select[name="adpter_name"]');
+            if (info.is_poweroff) {
+                adpter_sel_obj.prop('disabled', false);
+            }
+            else {
+                adpter_sel_obj.prop('disabled', true);
+            }
+            adpter_sel_obj.empty();
+            var bhaveprivate_aio = false;
+            for (var j = 0; j < info.adapter_names.length; j++) {
+                var bfind = false;
+                if (kvm_adpter[i].name == 'private_aio') {
+                    adpter_sel_obj.append($('<option selected="selected"></option>').val('private_aio').text('私有网络'));
+                    var kvm_mac_obj = kvm_adpter_div_obj.find("input[name='kvm_mac']");
+                    if (info.is_poweroff) {
+                        kvm_mac_obj.prop('disabled', false);
+                    }
+                    else {
+                        kvm_mac_obj.prop('disabled', true);
+                    }
+                    kvm_mac_obj.val(kvm_adpter[i].mac);
+					vlan_no_obj.val(kvm_adpter[i].vlan_no);
+                    bhaveprivate_aio = true;
+                }
+                else if (kvm_adpter[i].name == info.adapter_names[j]) {
+                    if (info.adapter_names[j].indexOf('bond0') != -1) {
+                        adpter_sel_obj.append($('<option selected="selected"></option>').val(info.adapter_names[j]).text('聚合网卡'));
+                    }
+                    else if (info.adapter_names[j].indexOf('bond') != -1) {
+                        var tmpname = info.adapter_names[j].replace('bond', '聚合网卡');
+                        adpter_sel_obj.append($('<option selected="selected"></option>').val(tmpname).text('聚合网卡'));
+                    }
+                    else {
+                        adpter_sel_obj.append($('<option selected="selected"></option>').val(info.adapter_names[j]).text(info.adapter_names[j]));
+                    }
+                    var kvm_mac_obj = kvm_adpter_div_obj.find("input[name='kvm_mac']");
+                    if (info.is_poweroff) {
+                        kvm_mac_obj.prop('disabled', false);
+                    }
+                    else {
+                        kvm_mac_obj.prop('disabled', true);
+                    }
+                    kvm_mac_obj.val(kvm_adpter[i].mac);
+					vlan_no_obj.val(kvm_adpter[i].vlan_no);
+                    bfind = true;
+                }
+                if (!bfind) {
+                    if (info.adapter_names[j].indexOf('bond0') != -1) {
+                        adpter_sel_obj.append($('<option></option>').val(info.adapter_names[j]).text('聚合网卡'));
+                    }
+                    else if (info.adapter_names[j].indexOf('bond') != -1) {
+                        var tmpname = info.adapter_names[j].replace('bond', '聚合网卡');
+                        adpter_sel_obj.append($('<option></option>').val(tmpname).text('聚合网卡'));
+                    }
+                    else {
+                        adpter_sel_obj.append($('<option></option>').val(info.adapter_names[j]).text(info.adapter_names[j]));
+                    }
+                }
+            }
+            if (!bhaveprivate_aio) {
+                adpter_sel_obj.append($('<option></option>').val('private_aio').text('私有网络'));
+            }
+            var ips = kvm_adpter[i].ips;
+            for (var k = 0; k < ips.length; k++) {
+                var kvm_ip = jQuery.extend(true, {}, $(kvm_ip_html));
+                kvm_ip.find("input[name='kvm_ip']").val(ips[k].ip);
+                kvm_ip.find("input[name='kvm_mask']").val(ips[k].mask);
+                kvm_ip.show();
+                kvm_adpter_div_obj.find(".class_kvm_ip_parent").prepend(kvm_ip);
+            }
+            kvm_adpter_div_obj.find(".class_kvm_ip_parent").hide();
+
+            kvm_adpter_div_obj.show();
+            $('.class_kvm_adpter_parent').prepend(kvm_adpter_div_obj);
+			adpter_name_change(adpter_sel_obj);
+        }
+        $('.class_kvm_route_parent').hide();
+        $('.class_kvm_dns').hide();
+        //$('.class_kvm_route_parent').find('.class_kvm_route').remove();
+        //var kvm_route = info.kvm_route;
+        //var kvm_route_html = $('.class_kvm_route').prop('outerHTML');
+        //if(kvm_route.length == 0 )
+        //{
+        //	var kvm_route_div_obj = jQuery.extend(true, {}, $(kvm_route_html));
+        //	kvm_route_div_obj.show();
+        //	$('.class_kvm_route_parent').prepend(kvm_route_div_obj);
+        //}
+        //for(var i=0;i<kvm_route.length;i++)
+        //{
+        //	var kvm_route_div_obj = jQuery.extend(true, {}, $(kvm_route_html));
+        //	kvm_route_div_obj.find("input[name='kvm_route_ip']").val(kvm_route[i].ip);
+        //	kvm_route_div_obj.find("input[name='kvm_route_mask']").val(kvm_route[i].mask);
+        //	kvm_route_div_obj.find("input[name='kvm_route_gate']").val(kvm_route[i].gateway);
+        //	kvm_route_div_obj.show();
+        //	$('.class_kvm_route_parent').prepend(kvm_route_div_obj);
+        //}
+
+        //for(var i=0;i<info.kvm_gateway.length;i++)
+        //{
+        //	$('div.class_kvm_dns').find('input[name=kvm_gateway]').val(info.kvm_gateway[i]);
+        //}
+
+        //var kvm_dns_html = $('.class_kvm_dns_s').prop('outerHTML');
+        //if(info.kvm_dns.length == 0 )
+        //{
+        //	var kvm_dns_obj = jQuery.extend(true, {}, $(kvm_dns_html));
+        //	kvm_dns_obj.show();
+        //	$($('div.class_kvm_dns').find('div')[0]).after(kvm_dns_obj);
+        //}
+        //for(var i=0;i<info.kvm_dns.length;i++)
+        //{
+        //	var kvm_dns_obj = jQuery.extend(true, {}, $(kvm_dns_html));
+        //	kvm_dns_obj.find("input[name='kvm_dns']").val(info.kvm_dns[i]);
+        //	kvm_dns_obj.show();
+        //	$($('div.class_kvm_dns').find('div')[0]).after(kvm_dns_obj);
+        //}
+
+
+        $("#editkvm").dialog({
+            autoOpen: true,
+            height: 600,
+            width: 710,
+            modal: true,
+            title: '编辑',
+            buttons: {
+                '确定': function () {
+                    if (!kvm_checkdata()) {
+                        return;
+                    }
+                    var params = 'a=edit_kvm';
+                    params += '&kvm_name=' + encodeURIComponent($("#kvm_name").val());
+                    params += '&kvm_cpu_sockets=' + $("#kvm_cpu_sockets").val();
+                    params += '&kvm_cpu_cores=' + $("#kvm_cpu_cores").val();
+                    params += '&kvm_memory_size=' + $("#kvm_memory_size").val();
+                    params += '&kvm_memory_unit=' + $("#kvm_memory_unit").val();
+                    params += '&kvm_adpter=' + get_kvm_adpter();
+                    //params += '&kvm_route='+get_kvm_route();
+                    //params += '&kvm_gateway='+get_kvm_gateway();
+                    //params += '&kvm_dns='+get_kvm_dns();
+                    params += '&hddctl=' + $("#hddctl").val();
+                    params += '&vga=' + $("#vga").val();
+                    params += '&net=' + $("#net").val();
+					params += '&cpu=' + $("#cpu").val();
+                    params += '&id=' + info.id;
+                    myAjaxPost('../takeover_handle/', params, edit_kvm_callback);
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+
+            },
+            close: function () {
+            }
+        });
+    }
+
+    $('#editbutton').button().click(function () {
+        if ($('.mywaite').is(":visible")) {
+            return;
+        }
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length != 1) {
+            openErrorDialog({title: '错误', html: '请选择一条数据。'});
+            return;
+        }
+        $('#msg').html('正在获取网卡信息...');
+        $('.mywaite').show();
+        var idents = [];
+        $.each(ids, function (index, id) {
+            var ident = $('#list').jqGrid('getRowData', id).id;
+            idents.push(ident);
+        })
+        var identstring = idents.join(",");
+
+        myAjaxGet("../takeover_handle/?a=get_kvm_info", "id=" + identstring, getkvminfocallback);
+
+    });
+
+    function newWin(url, id) {
+        var a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('target', '_blank');
+        a.setAttribute('id', id);
+        // 防止反复添加
+        if (!document.getElementById(id)) document.body.appendChild(a);
+        a.click();
+    }
+
+    function myopenErrorDialog(html) {
+        if (html) {
+            openErrorDialog({title: '错误', html: html});
+        }
+        $('#list').trigger("reloadGrid", [{current: true}]);
+        get_hardware_info();
+    }
+
+	function start_kvm_callback(jsonstr, clinet_window)
+	{
+		if(jsonstr.r!=0)
+		{
+			try {
+				if(clinet_window)
+				{
+					clinet_window.myClose();
+				}
+			}
+			catch (e) {
+            }
+			openErrorDialog({title:'错误',html:jsonstr.e});
+			return;
+		}
+	}
+
+	function check_kvm_md5_file_callback(jsonstr, clinet_window)
+	{
+		var id = jsonstr.id;
+		var params = "id=" + id;
+		if(jsonstr.r==99)
+		{
+			openConfirmDialog({
+				title: '确认信息',
+				width: 500,
+				height: 240,
+				html: '接管主机“'+jsonstr.kvm_name+'”在第一次启动时不正常掉电，当前处于不可开机状态，<span style="color:red;cursor:pointer;" onclick="del_kvm_hdd('+id+')">点击这里删除新增数据</span>，然后重新开机。点击“确定”，继续开机。如果不知道该如何选择，请点击“取消”。',
+				onBeforeOK: function () {
+						$(this).dialog('close');
+						var url = "../novnc/?id=" + id;
+						var clinet_window = window.open(url);
+						myAjaxGet('../takeover_handle/?a=start_kvm', params, start_kvm_callback, clinet_window);
+					}
+			});
+			setTimeout(function () {
+                try {
+					if(clinet_window)
+					{
+						clinet_window.myClose();
+					}
+				}
+				catch (e) {
+					setTimeout(function () {
+						try {
+							if(clinet_window)
+							{
+								clinet_window.myClose();
+							}
+						}
+						catch (e) {
+						}
+					}, 5000);
+				}
+            }, 1000);
+			return;
+		}
+		else
+		{
+			myAjaxGet('../takeover_handle/?a=start_kvm', params, start_kvm_callback, clinet_window);
+		}
+	}
+
+
+    function startkvm(id) {
+        openConfirmDialog({
+            title: '确认信息',
+            html: '你确定启动接管主机吗?',
+            onBeforeOK: function () {
+                $(this).dialog('close');
+				var params = "id=" + id;
+				var url = "../novnc/?id=" + id;
+				var clinet_window = window.open(url);
+				myAjaxGet('../takeover_handle/?a=check_kvm_md5_file', params, check_kvm_md5_file_callback, clinet_window);
+            }
+        });
+    }
+
+    $('#startbutton').button().click(function () {
+
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length != 1) {
+            openErrorDialog({title: '错误', html: '请选择一条数据。'});
+            return;
+        }
+        var idents = [];
+        $.each(ids, function (index, id) {
+            var ident = $('#list').jqGrid('getRowData', id).id;
+            idents.push(ident);
+        })
+        var identstring = idents.join(",");
+        var vnc_port=$('#list').jqGrid('getRowData', ids[0]).vnc_port
+        var vnc_number=parseInt(vnc_port)-5900
+        var tcp_vnc=(vnc_number+5100).toString()
+        openConfirmDialog({
+            title: '确认信息',
+            html: '你确定以调试方式（-serial tcp::'+tcp_vnc+',server,nowait,nodelay或-serial file:/var/log/aio/debug_serial_kvm'+vnc_number.toString()+'.txt）启动接管主机吗?',
+            onBeforeOK: function () {
+                $(this).dialog('close');
+				var params = "id=" + identstring;
+				params += '&debug=1';
+				var url = "../novnc/?debug=1&id=" + identstring;
+				var clinet_window = window.open(url);
+				myAjaxGet('../takeover_handle/?a=start_kvm', params, start_kvm_callback, clinet_window);
+            }
+        });
+    });
+
+	$('#delhddbutton').button().click(function () {
+
+        var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length == 0) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return;
+        }
+        var idents = [];
+        $.each(ids, function (index, id) {
+            var ident = $('#list').jqGrid('getRowData', id).id;
+            idents.push(ident);
+        })
+        var identstring = idents.join(",");
+        var html = '确定要删除接管主机新增加的数据吗？该操作不可逆，如果不知道该选择什么，请选择取消。';
+        openConfirmDialog({
+            "title": "删除",
+            "html": html,
+            height: 200,
+            width: 400,
+            onBeforeOK: function () {
+                $(this).dialog('close');
+                myAjaxPost("../takeover_handle/?a=del_kvm_hdd", "ids=" + identstring, ReloadGridCallback);
+            }
+        });
+    });
+
+    function viewkvm(id) {
+        var params = "id=" + id;
+		var url = "../novnc/?id=" + id;
+		var clinet_window = window.open(url);
+        myAjaxGet('../takeover_handle/?a=start_kvm', params, start_kvm_callback, clinet_window);
+    }
+
+	function except_viewkvm(id) {
+
+		openConfirmDialog({
+            title: '确认信息',
+            html: '检查到主机异常',
+			confirm_text:'关闭电源',
+			cancel_text:'继续访问',
+            onBeforeOK: function () {
+                $(this).dialog('close');
+                closekvm(id);
+            },
+			onCancel:function(){
+                viewkvm(id);
+			}
+        });
+
+        
+    }
+
+    function opkvm(This, id, optpye, kvm_status) {
+        var top = $(This).offset().top;
+        var left = $(This).offset().left;
+        $('#kvm_op_view').removeAttr("onclick");
+        $('#kvm_op_shutdown').removeAttr("onclick");
+        $('#kvm_op_reset').removeAttr("onclick");
+        $('#kvm_op_poweroff').removeAttr("onclick");
+
+		if(kvm_status == '异常')
+		{
+			$('#kvm_op_view').attr("onclick", "except_viewkvm('" + id + "');");
+		}
+		else
+		{
+			$('#kvm_op_view').attr("onclick", "viewkvm('" + id + "');");
+		}
+        $('#kvm_op_poweroff').attr("onclick", "closekvm('" + id + "');");
+        if (optpye == 2) {
+            $('#kvm_op_shutdown').addClass('kvm_op_disable');
+            $('#kvm_op_reset').addClass('kvm_op_disable');
+        }
+        else {
+            $('#kvm_op_shutdown').removeClass('kvm_op_disable');
+            $('#kvm_op_reset').removeClass('kvm_op_disable');
+            $('#kvm_op_shutdown').attr("onclick", "powerdownkvm('" + id + "');");
+            $('#kvm_op_reset').attr("onclick", "resetkvm('" + id + "');");
+        }
+        $('#kvm_op_menudiv').css('top', top);
+        $('#kvm_op_menudiv').css('left', left - 12);
+        $("#kvm_op_menudiv").slideDown(600);
+    }
+
+    $("#kvm_op_menudiv").mouseleave(function () {
+        $(this).slideUp(600);
+    });
+
+    $("#kvm_op_menu li").mouseover(function () {
+        if ($(this).hasClass('kvm_op_disable')) {
+            return;
+        }
+        $(this).addClass('ui-state-focus ui-corner-all');
+    });
+
+    $("#kvm_op_menu li").mouseleave(function () {
+        $(this).removeClass('ui-state-focus ui-corner-all');
+    });
+
+    function closekvm(id) {
+        openConfirmDialog({
+            title: '确认信息',
+            html: '<span style="color:red;">请使用vnc远程登录后，关闭操作系统。断电功能仅实用于操作系统不能正常关闭的情况。</span>你确定要断电吗?',
+            onBeforeOK: function () {
+                var params = "id=" + id;
+                myAjaxGet('../takeover_handle/?a=close_kvm', params, ReloadGridCallback);
+                $(this).dialog('close');
+            }
+        });
+    }
+
+    function resetkvm(id) {
+        openConfirmDialog({
+            title: '确认信息',
+            html: '确定要重置该虚拟机吗?相当于计算机上的<span style="color:red;">复位(reset)键</span>。',
+            onBeforeOK: function () {
+                var params = "id=" + id;
+                myAjaxGet('../takeover_handle/?a=kvm_system_reset', params, ReloadGridCallback);
+                $(this).dialog('close');
+            }
+        });
+    }
+
+    function powerdownkvm(id) {
+        openConfirmDialog({
+            title: '确认信息',
+            html: '确定要关闭该虚拟机吗?相当于计算机上的<span style="color:red;">电源键</span>。',
+            onBeforeOK: function () {
+                var params = "id=" + id;
+                myAjaxGet('../takeover_handle/?a=kvm_system_powerdown', params, ReloadGridCallback);
+                $(this).dialog('close');
+            }
+        });
+    }
+
+    function get_hardware_info_callback(jsonobj) {
+        $('#total_memory_mb_for_takeover').html(jsonobj.total_memory_mb_for_takeover);
+        $('#total_cpu_number_for_takeover').html(jsonobj.total_cpu_number_for_takeover);
+        $('#canuse_memory_mb_for_takeover').html(jsonobj.canuse_memory_mb_for_takeover);
+        $('#canuse_cpu_number_for_takeover').html(jsonobj.canuse_cpu_number_for_takeover);
+        //$('#used_memory_mb').html(jsonobj.used_memory_mb);
+        $('#used_memory_mb_for_takeover').html(jsonobj.used_memory_mb_for_takeover);
+        $('#used_memory_mb_for_restore').html(jsonobj.used_memory_mb_for_restore);
+        //$('#used_cpu_number').html(jsonobj.used_cpu_number);
+        $('#used_cpu_number_for_restore').html(jsonobj.used_cpu_number_for_restore);
+        $('#used_cpu_number_for_takeover').html(jsonobj.used_cpu_number_for_takeover);
+
+        var used_memory_mb_for_takeover = parseInt(jsonobj.used_memory_mb_for_takeover),
+            total_memory_mb_for_takeover = parseInt(jsonobj.total_memory_mb_for_takeover),
+            used_cpu_number_for_takeover = parseInt(jsonobj.used_cpu_number_for_takeover),
+            total_cpu_number_for_takeover = parseInt(jsonobj.total_cpu_number_for_takeover);
+
+        var takeover_memory_percent = (used_memory_mb_for_takeover / total_memory_mb_for_takeover) * 100;
+        $('#used_memory_mb_for_takeover_div').css('width', takeover_memory_percent + '%');
+
+        var used_memory_mb_for_restore = parseInt(jsonobj.used_memory_mb_for_restore);
+        if (used_memory_mb_for_restore + used_memory_mb_for_takeover > total_memory_mb_for_takeover) {
+            used_memory_mb_for_restore = total_memory_mb_for_takeover - used_memory_mb_for_takeover;
+        }
+        var restore_memory_percent = (used_memory_mb_for_restore / total_memory_mb_for_takeover) * 100;
+        $('#used_memory_mb_for_restore_div').css('width', restore_memory_percent + '%');
+
+        var used_cpu_number_for_restore = parseInt(jsonobj.used_cpu_number_for_restore);
+        if (used_cpu_number_for_restore + used_cpu_number_for_takeover > total_cpu_number_for_takeover) {
+            used_cpu_number_for_restore = total_cpu_number_for_takeover - used_cpu_number_for_takeover;
+        }
+
+        var restore_cpu_number_percent = (used_cpu_number_for_restore / total_cpu_number_for_takeover) * 100;
+        $('#used_cpu_number_for_restore_div').css('width', restore_cpu_number_percent + '%');
+
+        var takeover_cpu_number_percent = (used_cpu_number_for_takeover / total_cpu_number_for_takeover) * 100;
+        $('#used_cpu_number_for_takeover_div').css('width', takeover_cpu_number_percent + '%');
+    }
+
+
+    function get_hardware_info() {
+        var params = "";
+        myAjaxGet('../takeover_handle/?a=get_hardware_info_no_unit', params, get_hardware_info_callback);
+    }
+
+    $(function () {
+        $("#kvm_op_menu").addClass("my-ui-menu ui-menu ui-widget ui-widget-content ui-corner-all");
+        var run_takeover_id = $.cookie('run_takeover_id');
+        if (run_takeover_id) {
+            $.cookie('run_takeover_id', null, {path: '/'});
+            var msg = '已发送开机命令，点击“确认”立即查看。';
+            openConfirmDialog({
+                html: msg,
+                width: 350,
+                height: 240,
+                onBeforeOK: function () {
+                    viewkvm(run_takeover_id);
+                    $(this).dialog("close");
+                }
+            });
+
+        }
+        get_hardware_info();
+    });
+
+    $(document).keydown(function (event) {
+        if (event.ctrlKey && event.altKey && event.key == 'p') {
+            $('.fordebug').show();
+        }
+    });
+
+
+    function takeover_resize() {
+        resizeright();
+        var width = $('.table_menu').width()-5;
+        $("#list").setGridWidth(width);
+        baseresize();
+    }
+
+
+    $(window).resize(function () {
+        takeover_resize();
+    });
+
+    function PreSelectHost4CreatePlan(hostName) {
+        window.location = '/xdashboard/createbackup/';
+        $.cookie('default_host_name_when_create_plan', hostName, {path: '/'});
+    }
+
+
+    $('.show_support_dlg').click(function(){
+        var html = $('#drill_tip_form').html();
+        openCommonDialog({width:600,height:400,title: '灾难演练', html: html});
+    });
+
+	function del_kvm_hdd(id)
+	{
+		var html = '确定要删除接管主机新增加的数据吗？该操作不可逆，如果不知道该选择什么，请选择取消。';
+        openConfirmDialog({
+            "title": "删除",
+            "html": html,
+            height: 200,
+            width: 400,
+            onBeforeOK: function () {
+                $(this).dialog('close');
+                myAjaxPost("../takeover_handle/?a=del_kvm_hdd", "ids=" + id, ReloadGridCallback);
+            }
+        });
+	}
+
+</script>

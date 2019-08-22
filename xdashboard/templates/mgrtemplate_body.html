@@ -1,0 +1,426 @@
+<style>
+    #run_form_div li {
+        list-style-type: none;
+    }
+
+    #run_form_div p {
+        margin: 0;
+        padding: 0;
+    }
+
+    #run_form_div .tips {
+        color: grey;
+        margin-left: 2em;
+        margin-top: 10px;
+    }
+
+    #run_form_div .line {
+        margin-top: 10px;
+    }
+
+    .btn_nav {
+        float: right;
+        margin-top: 10px;
+    }
+
+    .prev, .next {
+        width: 100px;
+        height: 32px;
+        line-height: 32px;
+        background: url(btn_bg.gif) repeat-x bottom;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+    }
+
+    .myhiden {
+        width: 100px;
+        height: 32px;
+    }
+
+    .myoneday {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border: 1px solid #d3d3d3;
+        cursor: pointer;
+        float: left
+    }
+
+    .myonedayselected {
+        background-color: #8ccad5
+    }
+
+    .aciTree div {
+        padding: 0em;
+    }
+
+    .manage-item, .manage-item-4cdp {
+        margin-top: 8px;
+    }
+
+    .manage {
+        margin-bottom: 16px;
+        margin-left: 16px
+    }
+
+    .pull-down-control {
+        cursor: pointer;
+    }
+
+    div.centent {
+        float: left;
+        text-align: center;
+    }
+
+    span.moveBt {
+        display: block;
+        margin: 10px;
+        padding: 4px 10px;
+        background: #898989;
+        cursor: pointer;
+        font-size: 12px;
+        color: white;
+    }
+
+    .selectCls {
+        width: 100px;
+        height: 122px;
+    }
+
+    .client_search {
+        border: 2px solid #dce4ec;
+        color: #34495e;
+        font-family: "Lato", sans-serif;
+        font-size: 14px;
+        padding: 3px 0 3px 10px;
+        width: 200px;
+        background: #fff url(/static/images/icon_search_1649.gif) no-repeat right;
+    }
+
+    li {
+        list-style-type: none;
+    }
+
+    .des {
+        margin: 20px;
+        color: grey;
+    }
+</style>
+
+<div class="right">
+    <div class="table_menu">
+        <div class="menu_btn" id="createForm">新建</div>
+        <div class="menu_btn" id="runForm">部署</div>
+        <div class="menu_btn" id="changeplanForm">编辑</div>
+        <div class="menu_btn" id="delForm">删除</div>
+        <div class="menu_btn" id="search_form">查询</div>
+        <div class="menu_btn" id="refresh">刷新</div>
+    </div>
+    <table id="list">
+    </table>
+    <div id="pager"></div>
+    <table width="100%" cellpadding="0" cellspacing="1" class="border_table detail-table">
+        <tr style="height: 25px">
+            <td align="left" width="20%">数据源客户端</td>
+            <td align="left">
+                <div id="show_host">&nbsp;</div>
+            </td>
+        </tr>
+        <tr style="height: 25px">
+            <td align="left">备份计划名</td>
+            <td align="left">
+                <div id="show_schedule">&nbsp;</div>
+            </td>
+        </tr>
+        <tr style="height: 25px">
+            <td align="left">备份点时间</td>
+            <td align="left">
+                <div id="show_snapshot">&nbsp;</div>
+            </td>
+        </tr>
+        <tr style="height: 25px">
+            <td align="left">硬盘信息</td>
+            <td align="left">
+                <div id="show_disk">&nbsp;</div>
+            </td>
+        </tr>
+        <tr style="height: 25px">
+            <td align="left">操作系统</td>
+            <td align="left">
+                <div id="show_os">&nbsp;</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="search_form_div" title="查询" class="ajaxForm">
+    <div style="margin-top: 40px">
+        <label for="search_input">关键词：</label>
+        <input type="text" maxlength="50" placeholder="模板名称、创建时间或描述" id="search_key" style="width: 200px">
+    </div>
+</div>
+
+<div style="display: none">
+    {% include 'createtemplate.inc.html' %}
+</div>
+
+<script type="text/javascript" src="/static/js/jquery.json.js"></script>
+<script type="text/javascript" src="/static/js/moment.js"></script>
+
+<script type="text/javascript">
+    var base_url = '../mgrtemplate_handle/?a=lists';
+
+    $(function () {
+        jQuery("#list").jqGrid({
+            url: base_url,
+            datatype: "json",
+            colNames: ['序号', '模板名称', '创建时间', '描述'],
+            rownumbers: true,
+            colModel: [
+                {name: 'id', index: '0', align: "center", width: 50, sortable: true, hidden: true},
+                {name: 'name', index: '1', align: "center", width: 120, sortable: true},
+                {name: 'created', index: '2', align: "center", width: 70, sortable: true},
+                {name: 'desc', index: '4', align: "center", width: 120, sortable: true},
+            ],
+            width: 748,
+            height: 250,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            pager: '#pager',
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            onSelectRow: function (ids) {
+                var params = "a=detail&taskid=" + ids;
+                $('.detail-table div').text('');
+                myAjaxGet('../mgrtemplate_handle/', params, GetBackupInfo);
+            }
+        });
+    });
+
+    jQuery("#list").jqGrid('navGrid', '#pager', {
+        add: false,
+        search: false,
+        del: false,
+        edit: false,
+        position: 'right'
+    });
+    $("#list").closest(".ui-jqgrid-bdiv").css({'overflow-x': 'scroll'});
+
+    // 点击计划后，回调函数
+    function GetBackupInfo(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('div#show_host').html(jsonstr.host);
+        $('div#show_schedule').html(jsonstr.schedule);
+        $('div#show_snapshot').html(jsonstr.snapshot);
+        $('div#show_disk').html(jsonstr.disk);
+        $('div#show_os').html(jsonstr.os);
+    }
+
+    function ReloadGridCallback(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#list').trigger("reloadGrid", [{
+            current: true
+        }]);
+    }
+
+    $('#createForm')
+        .button()
+        .click(function () {
+            $('#taskid').val('');
+            openConfirmDialog({
+                title: '提示',
+                html: '点击确认按钮会跳转置<a href="../restore/" style="color:blue">[恢复界面]</a>' +
+                    '，在恢复界面选择对应的备份点，然后添加成模板。',
+                onBeforeOK: function () {
+                    window.location = '../restore/';
+                    $(this).dialog('close');
+                }
+            });
+        });
+
+    $('#runForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length != 1) {
+                openErrorDialog({title: '错误', html: '请选择一条数据。'});
+                return;
+            }
+            myAjaxGet('../mgrtemplate_handle/', 'a=get_restore_info&id=' + ids, get_restore_point_cb);
+        });
+
+    function get_restore_point_cb(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog('错误', jsonstr.e);
+            return
+        }
+        openConfirmDialog({
+            title: '确认信息',
+            html: '你确定要部署该模板吗?',
+            onBeforeOK: function () {
+                var params = {
+                    'pointid': jsonstr.pointid,
+                    'snapshot_time': jsonstr.snapshot_time,
+                    'host_name': jsonstr.host_name,
+                    'host_os': jsonstr.host_os
+                };
+                $.cookie('deploy_template_params', JSON.stringify(params), {'path': '/'});
+                window.location = '../restore/';
+                $(this).dialog('close');
+            }
+        });
+    }
+
+    $('#delForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length == 0) {
+                openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            openConfirmDialog({
+                title: '确认信息',
+                html: '你确定要删除计划吗?点击确认按钮，执行删除操作；点击取消按钮，放弃删除操作。',
+                onBeforeOK: function () {
+                    var params = "a=delPlans&taskid=" + idstring;
+                    myAjaxGet('../mgrtemplate_handle/', params, ReloadGridCallback);
+                    $(this).dialog('close');
+                }
+            });
+            $('#dialog-confirm .dialog-icon').html('<img src="/static/images/tip_icon_warning.png" width="45"/>');
+            $('#dialog-confirm .dialog-msg').css('width', '260px');
+            $('#dialog-confirm').css('height', '110px');
+        });
+
+    function OnChangePlan(jsonstr) {
+        if (jsonstr.r != 0) {
+            openErrorDialog({title: '错误', html: jsonstr.e});
+            return;
+        }
+        $('#template_name').val(jsonstr.deploy_template_name);
+        $('#template_desc').val(jsonstr.deploy_template_desc);
+        $('#template_host').html(jsonstr.host);
+        $('#template_snapshot').html(jsonstr.snapshot);
+        $("#create_template_params_div").dialog({
+            autoOpen: true,
+            height: 700,
+            width: 700,
+            modal: true,
+            title: '编辑',
+            buttons: {
+                '确认': function () {
+                    if ($('#template_name').val() == '') {
+                        openErrorDialog('错误', '模板名称不能为空');
+                        return;
+                    }
+                    modify(jsonstr.deploy_template_id);
+                    $(this).dialog('close');
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    }
+
+    // 更改计划
+    $('#changeplanForm')
+        .button()
+        .click(function () {
+            var ids = $('#list').jqGrid('getGridParam', 'selarrrow');
+            if (ids.length != 1) {
+                openErrorDialog({title: '错误', html: '请选择一条数据。'});
+                return;
+            }
+            var idstring = ids.join(',');
+            var params = "a=detail&taskid=" + idstring;
+            $('#create_template_params_div .user-input').val('');
+            $('#create_template_params_div .user-input').html('');
+            myAjaxGet('../mgrtemplate_handle/', params, OnChangePlan);
+        });
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").css('height', 570);
+        $(".ui-tabs-nav").hide();
+        $(".prev").hide();
+        $('#navigation').html('<div class="font_navigation">模板管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#nasbackupmanager" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        mgrnasbackup_resize();
+    });
+
+    $('#refresh').button().click(function () {
+        $('#list').setGridParam({url: base_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    });
+
+    $("#search_form_div").attr('title', '查询').dialog({
+        autoOpen: false,
+        height: 200,
+        width: 350,
+        modal: true,
+        buttons: {
+            '查询': function () {
+                search_worker();
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+
+    $('#search_form').button().click(function () {
+        $("#search_form_div").dialog('open');
+    });
+
+    function search_worker() {
+        var s_key = $('#search_key').val();
+        $("#search_form_div").dialog('close');
+        var new_url = base_url + '&s_key=' + s_key;
+        $('#list').setGridParam({url: new_url});
+        $('#list').trigger("reloadGrid", [{page: 1}]);
+    }
+
+    function mgrnasbackup_resize() {
+        resizeright();
+        var width = $('.table_menu').width();
+        $("#list").setGridWidth(width);
+        $("#list").setGridHeight($(window).height() - 400);
+        baseresize();
+    }
+
+    $(window).resize(function () {
+        mgrnasbackup_resize();
+    });
+
+    $('#search_key').keypress(function (event) {
+            if (event.keyCode == 13) {
+                search_worker();
+            }
+        }
+    );
+
+    function modify(id) {
+        var params = 'a=modify';
+        params += '&name=' + encodeURIComponent($('#template_name').val());
+        params += '&desc=' + encodeURIComponent($('#template_desc').val());
+        params += '&id=' + id;
+        myAjaxPost('../mgrtemplate_handle/', params, ReloadGridCallback);
+    }
+
+</script>

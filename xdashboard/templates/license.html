@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="shortcut icon" href="/static/images/favicon.ico" />
+    <title>{{title}}</title>
+    <script type="text/javascript" src="/static/js/noReload.js"></script>
+    <script type="text/javascript" src="/static/js/base64.js"></script>
+    <style>
+	.my-ui-menu {cursor: pointer; text-align:left;line-height:32px;}
+    </style>
+</head>
+<body style="overflow-y:scroll;">
+
+<!--suppress JSUnresolvedVariable -->
+<style>
+    .authorise {
+        margin: 16px;
+    }
+</style>
+
+<div class="right">
+    <div id="authorizeDiv" style="" class="ui-widget ui-widget-content ui-corner-all">
+        <div id="authorised" class="authorise">
+            <h4>{{title}}授权信息</h4>
+            <table id="initInfo"></table>
+            <label for="AuthorizeFile"></label>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input id="file" type="file" name="file" title="选择授权文件"/>
+                <button id="upload" type="button">上传并授权</button>
+                <span id="resultAuth"></span>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#navigation').html('<div class="font_navigation">授权管理</div>');
+        $('#navigation').append('<div class="help_navigation"><a href="/xdashboard/faq/#giveright" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+		license_resize();
+    });
+
+    $(function () {
+        var timestmp = new Date().getTime();
+        myAjaxGet('../querycurauthorize/?rnd=' + timestmp, '', localAuthorizeInfo)
+    });
+
+    function localAuthorizeInfo(jsonStr) {
+        $('#initInfo').empty();
+        $('#initInfo').append('序列号: ' + jsonStr.aio_sn + '<br>');
+        $('#initInfo').append('型号: ' + jsonStr.name + '<br><br>');
+        $.each(jsonStr.license, function (index, elemObj) {
+            if (elemObj.license_guid != 'expiration_date' && elemObj.display !== 'no') {
+                var $tr = $('<tr></tr>').append('<td>' + elemObj.display_name + '</td>').append('<td>' + elemObj.value + '</td>');
+                $('#initInfo').append($tr);
+            }
+        })
+    }
+
+
+    $('#upload').click(function () {
+        $.ajax({
+            url: '../uploadfile/',
+            type: 'POST',
+            cache: false,
+            data: new FormData($('#uploadForm')[0]),
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr, settings) {
+                var csrftoken = $.cookie('csrftoken');
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }).done(function (res) {
+            var is_success = res.is_success;
+            if (is_success) {
+                $('#resultAuth').text('更新授权成功');
+                location.href='../login/';
+            }
+            else {
+                $('#resultAuth').text(res.msgs);
+            }
+        }).fail(function (res) {
+        });
+    });
+
+function license_resize()
+{
+	resizeright();
+	baseresize();
+}
+
+
+$(window).resize(function() {
+	license_resize();	
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2013 @@
+<div class="right">
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">网络设置</a></li>
+            <li><a href="#tabs-2">PXE设置</a></li>
+            <li><a href="#tabs-3">路由配置</a></li>
+            <li><a href="#tabs-4">路由检测</a></li>
+            <li><a href="#tabs-5">抓包工具</a></li>
+        </ul>
+        <div id="tabs-1">
+            <div id="waite">正在获取网卡数据，请稍候...</div>
+            <div id="adapterdiv" style="display:none;" class="ui-widget ui-widget-content ui-corner-all">
+                <div style="margin-top:20px;margin-left:20px;width:90%;height: 50px">
+                    {{ title }}会搭配多块网卡，默认情况下会将全部网卡聚合为一个网络接口，这样可成N倍的提高网络吞吐，并自动均衡各物理网卡的负载。如需在不同的子网中使用{{ title }}或者需要使用iSCSI外部存储，可从聚合网络接口中移除网卡，单独设置其IP。
+                </div>
+                <div style="float:left;margin-top:20px;margin-left:20px;width:45%;">
+                    <div id="Servers_Tree1" class="aciTree"
+                         style="width:100%;height:450px;border:1px solid #ccc;overflow:auto;">
+                        <span id="busy4netquery" style="display: none;">正在获取网卡数据，请稍候...</span>
+                    </div>
+                </div>
+                <div id="myuiright" style="float:left;margin-top:20px;margin-left:20px;width:45%;">
+                    <div style="border:1px solid #d3d3d3;padding-bottom: 20px">
+                        <div style="margin-left:20px;">
+                            <div style="margin-top:5px;">
+                                <div style="float:left;width:100px;">状态：</div>
+                                <div style="float:left;">
+                                    <input type="text" class="text6" disabled="disabled" id="serveradaptername"
+                                           style="width: 150px"/><input type="hidden" id="adapterid" name="adapterid"
+                                                                        style="width: 150px"/>
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                            <div style="margin-top:10px;">
+                                <div style="float:left;width:100px;">MAC：</div>
+                                <div style="float:left;"><input type="text" class="text6" disabled="disabled" id="mac"
+                                                                style="width: 150px"/></div>
+                            </div>
+                            <div class="clear"></div>
+                            <div style="margin-top:10px;">
+                                <div style="float:left;width:100px;">IP：</div>
+                                <div style="float:left;"><input style="width: 150px" type="text" class="input"
+                                                                id="serverip" name="serverip"
+                                                                onblur="removespace(this)"/></div>
+                            </div>
+                            <div class="clear"></div>
+                            <div style="margin-top:10px;">
+                                <div style="float:left;width:100px;">子网掩码：</div>
+                                <div style="float:left;"><input style="width: 150px" type="text" class="input"
+                                                                id="serversubmask" name="serversubmask"
+                                                                onblur="removespace(this)"/></div>
+                            </div>
+                            <div class="clear"></div>
+                            <div id='ip_container'></div>
+                            <div style="margin-bottom:10px;margin-top:10px;"><span
+                                    style="color: blue;cursor:pointer;margin-left:220px;display: none"
+                                    id="addip">增加IP</span></div>
+                            <div style="display: none">
+                                <div style="margin-top:20px;margin-left:-20px;">
+                                    <input type="checkbox" id="enbalepxe" name="enbalepxe"/>启用PXE
+                                </div>
+                                <div class="clear"></div>
+                                <div style="margin-top:10px;">
+                                    <div style="float:left;width:100px;">开始IP：</div>
+                                    <div style="float:left;"><input style="width: 150px" type="text" class="input"
+                                                                    id="rangestart" name="rangestart"
+                                                                    onblur="removespace(this)"></div>
+                                </div>
+                                <div class="clear"></div>
+                                <div style="margin-top:10px;">
+                                    <div style="float:left;width:100px;">结束IP：</div>
+                                    <div style="float:left;"><input style="width: 150px" type="text" class="input"
+                                                                    id="rangeend" name="rangeend"
+                                                                    onblur="removespace(this)"/></div>
+                                </div>
+                                <div class="clear"></div>
+                                <div style="margin-top:10px;">
+                                    <div style="float:left;width:100px;">网关：</div>
+                                    <div style="float:left;"><input style="width: 150px" type="text" class="input"
+                                                                    id="pxerouters" name="pxerouters"
+                                                                    onblur="removespace(this)"/></div>
+                                </div>
+                                <div class="clear"></div>
+                                <div style="margin-top:10px;">
+                                    <div style="float:left;width:100px;">DNS：</div>
+                                    <div style="float:left;"><input style="width: 150px" type="text" class="input"
+                                                                    id="pxedns" name="pxedns"
+                                                                    onblur="removespace(this)"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">全局设置</div>
+                    <div style="border:1px solid #d3d3d3;margin-top:10px;">
+                        <div style="margin-left:20px;margin-top:10px;">
+                            <div style="margin-top:10px;">
+                                <div style="float:left;width:100px;">默认网关：</div>
+                                <div style="float:left;"><input style="width: 150px" type="text" class="input"
+                                                                id="dftGway" name="dftGway" onblur="removespace(this)"/>
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                            <div id='dnsui'>
+                            </div>
+                            <div style="margin-bottom:10px;margin-top:10px;"><span
+                                    style="color: blue;cursor:pointer;margin-left:228px;" id="adddns">增加DNS</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-right:20px;margin-bottom:20px;margin-top:20px;">
+                    <div style="float:left;margin-left:20px;"><span style="cursor:pointer;"
+                                                                    id="RefreshAdapter">刷新</span></div>
+                    <div class="menu_btn" style="float:right;margin-right:20px;" id="ip_confirm">确认</div>
+                    <div class="menu_btn" style="float:right;margin-right: 20px" id="setbutton1">试用</div>
+                    <div class="menu_btn" style="float:left;margin-left:20px;" id="aggregationbutton">聚合</div>
+                    <div class="menu_btn" style="float:left;margin-left:20px;" id="removebutton">解除聚合</div>
+                    <div class="clear"></div>
+                    <div style="float:left;margin-left:20px;margin-top: 8px;display: none" id="ip_clall_bakc_time">
+                        <input
+                                type="text" readonly="readonly" style="width: 28px" id="ip_timer">秒之后，网络自动回滚之前状态，点击确认，生成永久网络配置。
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div class="mywaite1"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 50%;left: 40%;display: none">
+                <img src="/static/images/loading.gif" alt="请稍候，正在配置网络。" title="请稍候，正在配置网络。">
+            </div>
+        </div>
+        <div id="tabs-2" style="position: relative">
+            <div class="table_menu" style="width:99%;">
+                <div class="menu_btn" style="float:left;margin-right:10px;" id="pxe_edit">编辑</div>
+                <div class="menu_btn" style="float:left;margin-right:10px;" id="pxe_set">应用</div>
+            </div>
+            <div class="clear"></div>
+            <table id="pxe_table"></table>
+            <div class="mywaite5"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 50%;left: 40%;display: none">
+                <img src="/static/images/loading.gif" alt="请稍候，正在配置PXE服务。" title="请稍候，正在配置PXE服务。">
+            </div>
+        </div>
+        <div id="tabs-3">
+            <div class="table_menu" style="width:99%;">
+                <div class="menu_btn" style="float:left;margin-right:10px;" id="r_add">添加</div>
+                <div class="menu_btn" style="float:left;margin-right:10px;" id="r_del">删除</div>
+                <div class="menu_btn" style="float:left;margin-right:10px;" id="r_exe">试用</div>
+                <div class="menu_btn" style="float:left;margin-right:10px;" id="r_confirm">确认</div>
+                <div style="float:left;margin-right:10px;margin-top: 8px;display: none" id="clall_bakc_time"><input
+                        type="text" readonly="readonly" style="width: 28px" id="timer">秒之后，网络自动回滚之前状态，点击确认，生成永久路由。
+                </div>
+            </div>
+            <div class="clear"></div>
+            <table id="route"></table>
+            <div class="mywaite2"
+                 style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 50%;left: 44%;display: none;opacity: 0.8;z-index: 100">
+                <img src="/static/images/loading.gif" alt="请稍候，正在配置网络。" title="请稍候，正在配置网络。">
+            </div>
+        </div>
+        <div id="tabs-4">
+            <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px">
+                <div>
+                    <p style="margin: 20px 10px 0 10px">说明：在输入框中输入完整的<span style="color: blue">ping</span>命令后，点击“执行“按钮，{{ title }}会执行此命令，并在输入回显框中显示结果。
+                    </p>
+                    <p style="margin: 10px 10px 0 10px">警告：请不要在输入框中输入特殊字符如：> < | ? ;等</p>
+                    <p style="margin: 20px 10px 0 10px">ping 命令帮助信息：</p>
+                    <ul>
+                        <li> Usage: ping [-aAbBdDfhLnOqrRUvV] [-c count] [-i interval] [-I interface]</li>
+                        <li>[-m mark] [-M pmtudisc_option] [-l preload] [-p pattern] [-Q tos]</li>
+                        <li>[-s packetsize] [-S sndbuf] [-t ttl] [-T timestamp_option]</li>
+                        <li>[-w deadline] [-W timeout] [hop1 ...] destination</li>
+                        <br>
+                        <li>范例：ping 192.168.1.1 -c 5</li>
+                    </ul>
+                </div>
+                <hr>
+                <div style="margin-top:20px;margin-bottom:20px;">
+                    <div style="float: left;margin-left: 20px">
+                        <lable for="ping_cmd">命令输入框：</lable>
+                        <input type="text" style="width: 350px;height:23px" id="ping_cmd">
+                    </div>
+                    <div id="ping_exe" style="float: left;margin-left: 20px">执行</div>
+                </div>
+                <div class="clear"></div>
+                <div id="ping_content" style="width: 98%;margin: 20px;height: 300px;overflow-y: auto"
+                     class="ui-widget ui-widget-content ui-corner-all">
+                    <ul>
+                    </ul>
+                </div>
+                <div class="mywaite3"
+                     style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 65%;left: 40%;display: none">
+                    <img src="/static/images/loading.gif" alt="请稍候，正在获取结果。" title="请稍候，正在获取结果。">
+                </div>
+            </div>
+        </div>
+        <div id="tabs-5">
+            <div class="ui-widget ui-widget-content ui-corner-all" style="padding: 10px">
+                <div>
+                    <p style="margin: 20px 10px 0 10px">说明：在输入框中输入完整的<span style="color: blue">tcpdump</span>命令之后，点击“执行“按钮，{{ title }}会执行此命令，后台将结果生成tcpdump文件，当文件大小超过100M或者点击“停止“按钮，将生成ZIP文件，用户可根据下载路径，下载此文件。
+                    </p>
+                    <p style="margin: 10px 10px 0 10px">警告：请不要在输入框中输入特殊字符如：> < | ? ;等</p>
+                    <p style="margin: 20px 10px 0 10px">tcpdump 命令帮助信息：</p>
+                    <ul>
+                        <li>Usage: tcpdump [-aAbdDefhHIJKlLnNOpqRStuUvxX] [ -B size ] [ -c count ]</li>
+                        <li>[ -C file_size ] [ -E algo:secret ] [ -F file ] [ -G seconds ]</li>
+                        <li>[ -i interface ] [ -j tstamptype ] [ -M secret ]</li>
+                        <li>[ -P in|out|inout ]</li>
+                        <li>[ -r file ] [ -s snaplen ] [ -T type ] [ -V file ] [ -w file ]</li>
+                        <li>[ -W filecount ] [ -y datalinktype ] [ -z command ]</li>
+                        <li>[ -Z user ] [ expression ]</li>
+                        <br>
+                        <li class="tcpdump_example">范例1：tcpdump -i interface -nn</li>
+                        <li class="tcpdump_example">范例2：tcpdump -i interface -nn 'port 22 and src host 192.168.1.1'</li>
+                    </ul>
+                </div>
+                <hr>
+                <div style="margin-top:20px;margin-bottom:10px;margin-left: 20px">
+                   <table id="tcpdump_table" cellpadding="10">
+                    <tr name="taskname">
+                        <td>任务状态：</td>
+                        <td>无</td>
+                    </tr>
+                    <tr name="sttime">
+                        <td>开始时间：</td>
+                        <td>无</td>
+                    </tr>
+                    <tr name="edtime">
+                        <td>结束时间：</td>
+                        <td>无</td>
+                    </tr>
+                    <tr name="url">
+                        <td>下载链接：</td>
+                        <td>无</td>
+                    </tr>
+                    </table>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-top:10px;margin-bottom:20px;float: left">
+                    <div id="tcp_error" style="color: red;float: left;margin-left: 20px;margin-bottom: 10px">
+                        输入框为空，执行失败。
+                    </div>
+                    <div class="clear"></div>
+                    <div style="float: left;margin-left: 20px">
+                        <lable for="tcp_cmd">命令输入框：</lable>
+                        <input type="text" style="width: 350px;height:23px" id="tcp_cmd">
+                    </div>
+                    <div id="tcp_exe" style="float: left;margin-left: 10px">执行</div>
+                    <div id="tcp_stop" style="float: left;margin-left: 10px">停止</div>
+                </div>
+                <div class="clear"></div>
+                <div class="mywaite4"
+                     style="margin-top: 20px; padding: 0 .7em;position: absolute;top: 65%;left: 40%;display: none">
+                    <img src="/static/images/loading.gif" alt="请稍候，正在获取结果。" title="请稍候，正在获取结果。">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="bandFormDiv" title="聚合网卡" class="ajaxForm">
+    <div style="margin-top: 10px;">聚合网络接口名称</div>
+    <div style="margin-top: 10px;"><input type="text" disabled="disabled" id="showbandname" style="width:100%"/></div>
+    <div style="margin-top: 10px;">选择添加到聚合网络接口的网卡</div>
+    <div id="Servers_Tree2" class="aciTree" style="width:100%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+</div>
+
+<div id="unbandFormDiv" title="解除聚合" class="ajaxForm">
+    <div style="margin-top: 10px;">选择需要解除聚合的网络接口</div>
+    <div id="Servers_Tree3" class="aciTree" style="width:100%;height:200px;border:1px solid #ccc;overflow:auto;"></div>
+</div>
+
+<div id="add_route_form">
+    <div class="route_input_groups" style="margin-left: 20px;margin-top: 20px"><label for="add_network">目标网络： </label><input type="text" id="add_network"></div>
+    <div class="route_input_groups" style="margin-left: 20px;margin-top: 10px"><label for="add_netmask">　　掩码： </label><input type="text" id="add_netmask"></div>
+    <div class="route_input_groups" style="margin-left: 20px;margin-top: 10px"><label for="add_gateway">　　网关： </label><input type="text" id="add_gateway"></div>
+    <div style="margin-left: 20px;margin-top: 20px"><p>提示：请一次性添加所有路由，添加完成之后，点击试用按钮。</p></div>
+</div>
+
+<div class="ip_confirm_tmp" style="display: none">
+    <div>
+        <p style="text-indent: 2em">重新配置网络参数后，将生成临时网络配置，网络会暂时中断。</p>
+        <p style="text-indent: 2em">请稍后刷新网页，如果网络配置正确，请点击确认按钮，生成永久网络配置，如果在10分钟内没有点击确认，网络将自动回滚到之前状态。</p>
+        <p>请选择将要连接的主机IP：<select name="new_host_select"></select></p>
+    </div>
+</div>
+
+
+<div id="edit_pxe_form" title="PXE编辑" style="display: none">
+    {% verbatim %}
+    <div id="pxe-app">
+        <div style="margin-top: 10px"><input type="checkbox" v-model="item.enablepxe"  v-bind:true-value="1" v-bind:false-value="0"><label>启用PXE</label>
+        </div>
+        <div style="margin-top: 10px"><label style="display: inline-block;width: 80px">开始IP：</label>
+            <input type="text" v-model="item.rangestart" v-if="item.enablepxe">
+            <input type="text" v-model="item.rangestart" v-else disabled>
+        </div>
+        <div style="margin-top: 10px"><label style="display: inline-block;width: 80px">结束IP：</label>
+            <input type="text" v-model="item.rangeend" v-if="item.enablepxe">
+            <input type="text" v-model="item.rangeend" v-else disabled>
+        </div>
+        <div style="margin-top: 10px"><label style="display: inline-block;width: 80px">网关：</label>
+            <input type="text" v-model="item.pxerouters" v-if="item.enablepxe">
+            <input type="text" v-model="item.pxerouters" v-else disabled>
+        </div>
+        <div style="margin-top: 10px"><label style="display: inline-block;width: 80px">DNS：</label>
+            <input type="text" v-model="item.pxedns" v-if="item.enablepxe">
+            <input type="text" v-model="item.pxedns" v-else disabled>
+        </div>
+        <div style="margin-top: 10px"><p>提示：编辑完PXE设置后，点击‘应用’按钮，才会生效。</p></div>
+    </div>
+    {% endverbatim %}
+</div>
+
+
+{% include 'tree.inc.html' %}
+<script language="javascript">
+
+    $('#RefreshAdapter').button().click(function () {
+        openConfirmDialog({
+            title: '确认信息',
+            html: '未保存的网卡信息丢失，你确定要刷新网卡信息吗?',
+            onBeforeOK: function () {
+                $('#adapterid').val('');
+                RefreshAciTree("Servers_Tree1", null, AdapterTree);
+                $(this).dialog('close');
+            }
+        });
+
+    });
+
+    var g_dnscount = 0;
+    var g_ips = 0;
+    var rt_t1 = null;
+    var rt_t2 = null;
+    var ip_t1 = null;
+    var ip_t2 = null;
+    function ShowDNS(dnsattr) {
+        g_dnscount = dnsattr.length;
+        $('#dnsui').html('');
+        for (i = 0; i < dnsattr.length; i++) {
+            var html = '<div style="margin-top:10px;"><div style="float:left;width:100px;">DNS' + (i + 1) + '：</div><div style="float:left;"><input type="text" class="input" value="' + dnsattr[i] + '" onblur="removespace(this)" style="width:150px"/></div></div><div class="clear"></div>';
+            $('#dnsui').append(html);
+        }
+        $('#Servers_Tree1').css('height', $('#myuiright').css('height'));
+    }
+
+    function ShowGateway(gateway) {
+        $('#dftGway').html('');
+        $('#dftGway').val(gateway);
+    }
+
+    function AdapterData(AdapterAttr, type) {
+        var api = $('#Servers_Tree1').aciTree('api');
+        if (type == 'adapter') {
+            if (AdapterAttr.length == 0) {
+                return;
+            }
+            var Inode = getInode('Servers_Tree1', 'adapter');
+            for (i = 0; i < AdapterAttr.length; i++) {
+                var icon = 'adapter';
+                if (AdapterAttr[i].link != 'ok') {
+                    icon = 'adapteroffline';
+                }
+                var newitem = NewItem(AdapterAttr[i].id, AdapterAttr[i].name, false, icon);
+                api.append(Inode, {
+                        itemData: newitem,
+                        success: function () {
+                            this.open(Inode);
+                        }
+                    }
+                );
+            }
+        }
+        else if (type == 'aggregation') {
+            var aggregationInode = getInode('Servers_Tree1', 'aggregation');
+            var Inode = NewInode(AdapterAttr.id, AdapterAttr.name, false);
+            var id = AdapterAttr.id;
+            api.append(aggregationInode, {
+                itemData: Inode,
+                success: function () {
+                    Inode = getInode('Servers_Tree1', id);
+                    for (i = 0; i < AdapterAttr.list.length; i++) {
+                        var icon = 'adapter';
+                        if (AdapterAttr.list[i].link != 'ok') {
+                            icon = 'adapteroffline';
+                        }
+                        var newitem = NewItem(AdapterAttr.list[i].id, AdapterAttr.list[i].name, false, icon);
+                        api.append(Inode, {itemData: newitem});
+                    }
+                    this.open(aggregationInode);
+                }
+            });
+        }
+    }
+
+    var g_Adapterset = null;
+    function GetAdapterset(jsonstr) {
+        $('#RefreshAdapter').button("option", "disabled", false);
+        $('#busy4netquery').hide();
+        if (jsonstr.r != 0) {
+            $('#waite').html(jsonstr.e);
+            return;
+        }
+        $('#waite').hide();
+        $('#adapterdiv').show();
+        g_Adapterset = jsonstr;
+        ShowDNS(jsonstr.dns);
+        ShowGateway(jsonstr.gateway);
+        showIpConfirm();
+        var api = $('#Servers_Tree1').aciTree('api');
+
+        var Inode = {
+            id: 'adapter',
+            label: '未聚合网卡',
+            icon: 'adapter',
+            inode: false,
+            open: false
+        };
+
+        api.append(null, {
+            itemData: Inode,
+            success: function () {
+                AdapterData(jsonstr.adapter, 'adapter');
+            }
+        });
+
+        var Inode = {
+            id: 'aggregation',
+            label: '聚合网卡',
+            icon: 'adapter',
+            inode: false,
+            open: false
+        };
+        api.append(null, {
+            itemData: Inode,
+            success: function () {
+                for (var i = 0; i < jsonstr.aggregation.length; i++) {
+                    AdapterData(jsonstr.aggregation[i], 'aggregation');
+                }
+            }
+        });
+
+        adapter_resize();
+    }
+
+    function AdapterTree() {
+        myAjaxGet('../syssetget_handle/', 'a=getadapterset', GetAdapterset);
+        $('#RefreshAdapter').button("option", "disabled", true);
+        $('#busy4netquery').show();
+    }
+
+    $(function () {
+        $("#tabs").tabs();
+        $("#tabs").tabs("option", "active", 0);
+        RefreshAciTree("Servers_Tree1", null, AdapterTree);
+        $('#navigation').html('<div class="font_navigation">网络设置</div><div class="help_navigation"><a href="/xdashboard/faq/#netset" target="blank"><img src="/static/images/tip_icon_ask.png" height="24" width="24"></a></div>');
+        SetPxeStatus();
+        DisabledAll(true);
+        create_pxe_table();
+        resizeright();
+    });
+
+
+    function getItem(treeid, id) {
+        var api = $('#' + treeid).aciTree('api');
+        var Item = null;
+        var children = api.children(null, true, true);
+        children.each(api.proxy(function (element) {
+            var item = $(element);
+            var tmpid = this.getId(item);
+            if (id == tmpid) {
+                Item = item;
+                return false;
+            }
+        }, true));
+
+        return Item;
+    }
+
+    function getInode(treeid, id) {
+        var api = $('#' + treeid).aciTree('api');
+
+        var Inode = null;
+        var children = api.children(null, true, true);
+        children.each(api.proxy(function (element) {
+            var item = $(element);
+            var tmpid = this.getId(item);
+            if (id == tmpid) {
+                Inode = api.itemFrom(item);
+                api.setInode(Inode, {inode: true});
+                return false;
+            }
+        }, true));
+
+        return Inode;
+    }
+
+    function NewItem(id, label, checkbox, icon) {
+        var itemData = {
+            id: id,
+            label: label,
+            icon: icon,
+            checkbox: checkbox,
+            inode: false
+        };
+        return itemData;
+    }
+
+    function NewInode(id, label, checkbox) {
+        var itemData = {
+            id: id,
+            label: label,
+            icon: 'adapter',
+            inode: true,
+            checkbox: checkbox
+        };
+        return itemData;
+    }
+
+    function RemoveEmpytInode(treeid) {
+        var api = $('#' + treeid).aciTree('api');
+
+        var children = api.children(null, true, true);
+        children.each(api.proxy(function (element) {
+            var item = $(element);
+            var tmpid = this.getId(item);
+            if (tmpid.indexOf('aggregation') != -1) {
+                if (!this.hasChildren(item)) {
+                    this.remove(item);
+                }
+            }
+        }, true));
+
+    }
+
+    var g_i = 1;
+    function GetNewInode() {
+        var id = 'aggregationui' + g_i;
+        var lable = '聚合网络接口' + g_i;
+        var Inode = NewInode(id, lable, false);
+        g_i++;
+        return [Inode, id];
+    }
+
+    function GenBandName() {
+        return '聚合网络接口' + g_i;
+    }
+
+
+    function myRemoveAciTree(treeid, ids) {
+        ids = ids.split(',');
+        for (var k = 0; k < ids.length; k++) {
+            var selid = ids[k];
+            for (var i = 0; i < g_Adapterset.aggregation.length; i++) {
+                for (var j = 0; j < g_Adapterset.aggregation[i].list.length; j++) {
+                    if (g_Adapterset.aggregation[i].list[j].id == selid) {
+                        g_Adapterset.adapter.push(g_Adapterset.aggregation[i].list[j]);
+                        g_Adapterset.aggregation[i].list.splice(j, 1);
+                        if (g_Adapterset.aggregation[i].list.length == 0) {
+                            g_Adapterset.aggregation.splice(i, 1);
+                        }
+                        RefreshAciTree(treeid, null, GetAdapterset, g_Adapterset);
+                        break;
+                    }
+                }
+            }
+
+        }
+    }
+
+    function AdapterMoveToAggreagtion(aggregation, id) {
+        for (var i = 0; i < g_Adapterset.adapter.length; i++) {
+            if (g_Adapterset.adapter[i].id == id) {
+                aggregation.list.push(g_Adapterset.adapter[i]);
+                g_Adapterset.adapter.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    function AggreagtionMoveToAggreagtion(aggregation, id) {
+        for (var i = 0; i < g_Adapterset.aggregation.length; i++) {
+            for (var j = 0; j < g_Adapterset.aggregation[i].list.length; j++) {
+                if (g_Adapterset.aggregation[i].list[j].id == id) {
+                    aggregation.list.push(g_Adapterset.aggregation[i].list[j]);
+                    g_Adapterset.aggregation[i].list.splice(j, 1);
+                    if (g_Adapterset.aggregation[i].list.length == 0) {
+                        g_Adapterset.aggregation.splice(i, 1);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    function myAggregationAciTree(treeid, ids) {
+        var selidvec = ids.split(',');
+        var vec = GetNewInode();
+        var id = vec[1];
+        var aggregation = {};
+        aggregation.id = id;
+        aggregation.name = vec[0].label;
+        aggregation.list = [];
+
+
+        for (var i = 0; i < selidvec.length; i++) {
+            AdapterMoveToAggreagtion(aggregation, selidvec[i]);
+            AggreagtionMoveToAggreagtion(aggregation, selidvec[i]);
+        }
+
+        g_Adapterset.aggregation.push(aggregation);
+
+        RefreshAciTree(treeid, null, GetAdapterset, g_Adapterset);
+    }
+
+    function myGetAciTreeParent(treeid, id) {
+        var api = $('#' + treeid).aciTree('api');
+        var parentid = 'none';
+        var children = api.children(null, true, true);
+        var ids = '';
+        children.each(api.proxy(function (element) {
+            var item = $(element);
+            if (id == this.getId(item)) {
+                parentid = this.getId(this.parent(item));
+                return false;
+            }
+
+        }, true));
+
+        return parentid;
+    }
+
+    function SetTree3(AdapterAttr) {
+        var api = $('#Servers_Tree3').aciTree('api');
+        var aggregationInode = null;
+        var Inode = NewInode(AdapterAttr.id, AdapterAttr.name, true);
+        var id = AdapterAttr.id;
+        api.append(aggregationInode, {
+            itemData: Inode,
+            success: function () {
+                Inode = getInode('Servers_Tree3', id);
+                for (i = 0; i < AdapterAttr.list.length; i++) {
+                    var icon = 'adapter';
+                    if (AdapterAttr.list[i].link != 'ok') {
+                        icon = 'adapteroffline';
+                    }
+                    var newitem = NewItem(AdapterAttr.list[i].id, AdapterAttr.list[i].name, true, icon);
+                    api.append(Inode, {
+                        itemData: newitem,
+                        success: function () {
+                            this.open(Inode);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    function ShowTree3() {
+        jsonstr = g_Adapterset;
+        for (var j = 0; j < jsonstr.aggregation.length; j++) {
+            SetTree3(jsonstr.aggregation[j]);
+        }
+        $('#Servers_Tree3').aciTree('option', 'checkboxChain', 1);
+    }
+
+    $('#removebutton')
+        .button()
+        .click(function () {
+
+            RefreshAciTree("Servers_Tree3", null, ShowTree3);
+            $("#unbandFormDiv").attr('title', '解除聚合').dialog({
+                autoOpen: true,
+                height: 400,
+                width: 450,
+                modal: true,
+                buttons: {
+                    '解除聚合': function () {
+                        var ids = getAciTreeBoxChecked('Servers_Tree3');
+                        if (ids) {
+                            myRemoveAciTree('Servers_Tree1', ids);
+                        }
+                        $(this).dialog('close');
+
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                }
+            });
+
+        });
+
+    function ShowTree2() {
+        jsonstr = g_Adapterset;
+
+        var api1 = $('#Servers_Tree1').aciTree('api');
+        var api2 = $('#Servers_Tree2').aciTree('api');
+
+        var children = api1.children(getInode('Servers_Tree1', 'adapter'), true, true);
+        children.each(api1.proxy(function (element) {
+            var item = $(element);
+            var tmpid = this.getId(item);
+            var tmpname = this.getLabel(item);
+            var data = this.itemData(item);
+            var icon = data.icon;
+            var newitem = NewItem(tmpid, tmpname, true, icon);
+            api2.append(null, {itemData: newitem});
+        }, true));
+
+    }
+
+    $('#aggregationbutton')
+        .button()
+        .click(function () {
+            $('#showbandname').val(GenBandName());
+            RefreshAciTree("Servers_Tree2", null, ShowTree2);
+            $("#bandFormDiv").attr('title', '聚合网卡').dialog({
+                autoOpen: true,
+                height: 400,
+                width: 450,
+                modal: true,
+                buttons: {
+                    '聚合': function () {
+                        var ids = getAciTreeBoxChecked('Servers_Tree2');
+                        if (ids) {
+                            myAggregationAciTree('Servers_Tree1', ids);
+                        }
+                        $(this).dialog('close');
+
+                    },
+                    '取消': function () {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function () {
+                }
+            });
+        });
+
+    function checkisempty() {
+
+        if ($('input[name=enbalepxe]').is(':checked')) {
+
+            if ($('#rangestart').val() == '' || !isIPV4($('#rangestart').val()))
+                return false;
+            if ($('#rangeend').val() == '' || !isIPV4($('#rangeend').val()))
+                return false;
+            if ($('#pxerouters').val() == '' || !isIPV4($('#pxerouters').val()))
+                return false;
+            if ($('#pxedns').val() == '' || !isIPV4($('#pxedns').val()))
+                return false;
+        }
+        for (var i = 0; i < g_Adapterset.adapter.length; i++) {
+            if (g_Adapterset.adapter[i].enablepxe == 1) {
+                if (g_Adapterset.adapter[i].rangestart == '' || !isIPV4(g_Adapterset.adapter[i].rangestart))
+                    return false;
+                if (g_Adapterset.adapter[i].rangeend == '' || !isIPV4(g_Adapterset.adapter[i].rangeend))
+                    return false;
+                if (g_Adapterset.adapter[i].pxerouters == '' || !isIPV4(g_Adapterset.adapter[i].pxerouters))
+                    return false;
+                if (g_Adapterset.adapter[i].pxedns == '' || !isIPV4(g_Adapterset.adapter[i].pxedns))
+                    return false;
+                var startip = g_Adapterset.adapter[i].rangestart.split('.');
+                var endip = g_Adapterset.adapter[i].rangeend.split('.');
+                for (var i = 0; i < 3; i++) {
+                    if (startip[i] != endip[i]) {
+                        return false;
+                    }
+                }
+            }
+
+        }
+
+        for (var i = 0; i < g_Adapterset.aggregation.length; i++) {
+
+            if (g_Adapterset.aggregation[i].enablepxe == 1) {
+                if (g_Adapterset.aggregation[i].rangestart == '' || !isIPV4(g_Adapterset.aggregation[i].rangestart))
+                    return false;
+                if (g_Adapterset.aggregation[i].rangeend == '' || !isIPV4(g_Adapterset.aggregation[i].rangeend))
+                    return false;
+                if (g_Adapterset.aggregation[i].pxerouters == '' || !isIPV4(g_Adapterset.aggregation[i].pxerouters))
+                    return false;
+                if (g_Adapterset.aggregation[i].pxedns == '' || !isIPV4(g_Adapterset.aggregation[i].pxedns))
+                    return false;
+                var startip = g_Adapterset.aggregation[i].rangestart.split('.');
+                var endip = g_Adapterset.aggregation[i].rangeend.split('.');
+                for (var i = 0; i < 3; i++) {
+                    if (startip[i] != endip[i]) {
+                        return false;
+                    }
+                }
+            }
+
+        }
+    }
+
+    function SaveAdapterSet() {
+        confirmip();
+        confirmdns();
+        if (!confirmgateway()) {
+            openErrorDialog({
+                title: '错误',
+                html: '默认网关不是合法IP。'
+            });
+            return;
+        }
+        ;
+        if (checkisempty() == false) {
+            openErrorDialog({
+                title: '提示',
+                html: '启用PXE后，设置不能为空，且必须是合法的IP,开始IP和结束IP也必须在同一网段。请检查每块网卡是否启用了PXE，如果启用，请填写完整信息'
+            });
+            return;
+        }
+
+        if ($('input[name=enbalepxe]').is(':checked')) {
+            var startip = $('#rangestart').val().split('.');
+            var endip = $('#rangeend').val().split('.');
+            for (var i = 0; i < 3; i++) {
+                if (startip[i] != endip[i]) {
+                    openErrorDialog({
+                        title: '提示',
+                        html: '启用PXE后，设置不能为空，且必须是合法的IP,开始IP和结束IP也必须在同一网段。请检查每块网卡是否启用了PXE，如果启用，请填写完整信息。'
+                    });
+                    return;
+                }
+            }
+        }
+        var p = JSON.stringify(g_Adapterset);
+        var dom = $($('.ip_confirm_tmp').html());
+        var ip_set = get_all_ip(g_Adapterset);
+        if (!ip_set.length) {
+            openErrorDialog({
+                title: '错误',
+                html: '请至少填写一个IP信息！'
+            });
+            return;
+        }
+        // 网关校验
+        var gateway = g_Adapterset.gateway;
+        if (isIPV4(gateway)) {
+            var is_valid = false;
+            for(var i = 0; i < ip_set.length; i++ ){
+                var ip = ip_set[i][0],
+                    mask = ip_set[i][1];
+                if (gateway_reachable(ip, mask, gateway)){
+                    is_valid = true;
+                    break;
+                }
+            }
+            if(!is_valid){
+                openErrorDialog({
+                    title: '错误',
+                    html: '操作失败， 默认网关[ '+gateway+' ]不在由IP地址和子网掩码定义的同一网络段（子网）上！'
+                });
+                return;
+            }
+        }
+
+        $.each(ip_set, function (index, item) {
+            var em = $('<option></option>').text(item[0]).val(item[0]);
+            dom.find('select').append(em);
+        });
+        openConfirmDialog({
+            title: '确认信息',
+            html: dom.html(),
+            width: 575,
+            height: 320,
+            onBeforeOK: function () {
+                $('.mywaite1').show();
+                jump_to_url(this);
+                myAjaxPost('../syssetget_handle/', 'a=setadapter&info=' + p, setapdatercallback);
+                $(this).dialog('close');
+            }
+        });
+
+    }
+
+    function get_all_ip(st_data) {
+        var rs = [];
+        for (var i = 0; i < st_data.aggregation.length; i++) {
+            rs.push([st_data.aggregation[i].ip, st_data.aggregation[i].submask]);
+            if (st_data.aggregation[i].subipset == undefined) {
+                st_data.aggregation[i].subipset = [];
+            }
+            rs = rs.concat(st_data.aggregation[i].subipset.map(function (x) {
+                return [x.split('/')[0], x.split('/')[1]];
+            }))
+        }
+        for (var i = 0; i < st_data.adapter.length; i++) {
+            rs.push([st_data.adapter[i].ip, st_data.adapter[i].submask]);
+            if (st_data.adapter[i].subipset == undefined) {
+                st_data.adapter[i].subipset = [];
+            }
+            rs = rs.concat(st_data.adapter[i].subipset.map(function (x) {
+                return [x.split('/')[0], x.split('/')[1]];
+            }))
+        }
+        ;
+        rs = rs.filter(function (x) {
+            return x[0] !== null && x[0] !== undefined && x[0] !== '';
+        })
+        return rs
+    }
+
+    function jump_to_url(obj) {
+        var new_host = $(obj).find('select').val();
+        var cu_host = location.hostname;
+        console.log(new_host, cu_host);
+        if (new_host && new_host != cu_host) {
+            setTimeout(function () {
+                location.hostname = new_host;
+            }, 2000);
+        }
+    }
+
+    $('#setbutton1')
+        .button()
+        .click(function () {
+            //网卡设置
+            SaveAdapterSet();
+        });
+
+    $('#adddns').click(function () {
+        var dns_last_child = $('div .input').last().val();
+        if (!isIPV4(dns_last_child)) {
+            return;
+        }
+        var html = '<div style="margin-top:10px;"><div style="float:left;width:100px;">DNS' + (++g_dnscount) + '：</div><div style="float:left;"><input type="text" class="input"  onblur="removespace(this)" style="width:150px"/></div></div><div class="clear"></div>';
+        $('#dnsui').append(html);
+        $('#Servers_Tree1').css('height', $('#myuiright').css('height'));
+    });
+
+    $('#addip').click(function () {
+        if (!(isIPV4($('input[name=serverip]').last().val()) && isMask($('input[name=serversubmask]').last().val()))) {
+            return;
+        }
+        var interface_id = $('#adapterid').val();
+        if (!interface_id) {
+            return;
+        }
+        var ip_num = $('#ip_container').find('.input').length;
+        ip_num = (ip_num / 2) + 1;
+        var div_ip = $('<div style="margin-top:10px;"><div style="float:left;width:100px;">IP' + ip_num + ':</div><div style="float:left;"><input style="width: 150px" type="text" class="input" id="serverip_' + ip_num + '" name="serverip" onblur="removespace(this)" /></div></div><div class="clear"><div>');
+        var div_mask = $('<div style="margin-top:10px;"><div style="float:left;width:100px;">子网掩码' + ip_num + ':</div><div style="float:left;"><input style="width: 150px" type="text" class="input" id="servermask_' + ip_num + '" name="serversubmask" onblur="removespace(this)" /></div></div><div class="clear"><div>');
+        $('#ip_container').append(div_ip).append(div_mask);
+        $('#Servers_Tree1').css('height', $('#myuiright').css('height'));
+    });
+
+    function confirmdns() {
+        if ($('#dnsui').find('.input').length <= 0) {
+            return;
+        }
+        g_Adapterset.dns.splice(0, $('#dnsui').find('.input').length);
+        for (var i = 0; i < $('#dnsui').find('.input').length; i++) {
+            var dns = $($('#dnsui').find('.input')[i]).val().trim();
+            if (dns) {
+                g_Adapterset.dns.push(dns);
+            }
+        }
+    }
+
+    function confirmgateway() {
+        var gateway = $('#dftGway').val();
+        if (gateway != '' && !isIPV4(gateway)) {
+            return false;
+        }
+        g_Adapterset.gateway = gateway;
+        return true;
+    }
+
+    function DisabledAll(enable) {
+        $('input[name=serverip]').prop('disabled', enable);
+        $('input[name=serversubmask]').prop('disabled', enable);
+        $('#serverrouters').prop('disabled', enable);
+        $('#enbalepxe').prop('disabled', enable);
+        $('#rangestart').prop('disabled', enable);
+        $('#rangeend').prop('disabled', enable);
+        $('#pxerouters').prop('disabled', enable);
+        $('#pxedns').prop('disabled', enable);
+        !enable ? $('#addip').show() : $('#addip').hide();
+        $('#Servers_Tree1').css('height', $('#myuiright').css('height'));
+    }
+
+    function translateState(state) {
+        if (state == 'ok') {
+            return '已连接';
+        }
+        return '已断开';
+    }
+
+    $('#Servers_Tree1').on('acitree', function (event, api, item, eventName, options) {
+        if (eventName != 'selected') {
+            return;
+        }
+        DisabledAll(false);
+        confirmip();
+        $('#ip_container').empty();
+        $('#serveradaptername').val('');
+        $('#serverip').val('');
+        $('#mac').val('');
+        $('#serversubmask').val('');
+        $('#serverrouters').val('');
+        $('#rangestart').val('');
+        $('#rangeend').val('');
+        $('#pxerouters').val('');
+        $('#pxedns').val('');
+        $('#enbalepxe').prop('checked', false);
+        var id = api.getId(item);
+        $('#adapterid').val(id);
+        if (id == 'adapter' || id == 'aggregation') {
+            DisabledAll(true);
+            return;
+        }
+        for (var i = 0; i < g_Adapterset.adapter.length; i++) {
+            if (g_Adapterset.adapter[i].id == id) {
+                $('#serveradaptername').val(g_Adapterset.adapter[i].name + ' ' + translateState(g_Adapterset.adapter[i].link));
+                $('#serverip').val(g_Adapterset.adapter[i].ip);
+                $('#mac').val(g_Adapterset.adapter[i].mac);
+                $('#serversubmask').val(g_Adapterset.adapter[i].submask);
+                add_sub_ips_to_input(g_Adapterset.adapter[i].subipset);
+                if (g_Adapterset.adapter[i].enablepxe == 1) {
+                    $('#enbalepxe').prop('checked', true);
+                }
+                $('#rangestart').val(g_Adapterset.adapter[i].rangestart);
+                $('#rangeend').val(g_Adapterset.adapter[i].rangeend);
+                $('#pxerouters').val(g_Adapterset.adapter[i].pxerouters);
+                $('#pxedns').val(g_Adapterset.adapter[i].pxedns);
+                SetPxeStatus();
+                return;
+            }
+        }
+
+        for (var i = 0; i < g_Adapterset.aggregation.length; i++) {
+            if (id == g_Adapterset.aggregation[i].id) {
+                $('#serveradaptername').val(g_Adapterset.aggregation[i].name + ' ' + translateState(g_Adapterset.aggregation[i].link));
+                $('#serverip').val(g_Adapterset.aggregation[i].ip);
+                $('#mac').val(g_Adapterset.aggregation[i].mac);
+                $('#serversubmask').val(g_Adapterset.aggregation[i].submask);
+                add_sub_ips_to_input(g_Adapterset.aggregation[i].subipset);
+                if (g_Adapterset.aggregation[i].enablepxe == 1) {
+                    $('#enbalepxe').prop('checked', true);
+                }
+                $('#rangestart').val(g_Adapterset.aggregation[i].rangestart);
+                $('#rangeend').val(g_Adapterset.aggregation[i].rangeend);
+                $('#pxerouters').val(g_Adapterset.aggregation[i].pxerouters);
+                $('#pxedns').val(g_Adapterset.aggregation[i].pxedns);
+                SetPxeStatus();
+                return;
+            }
+        }
+
+        for (var i = 0; i < g_Adapterset.aggregation.length; i++) {
+            for (var j = 0; j < g_Adapterset.aggregation[i].list.length; j++) {
+                if (id == g_Adapterset.aggregation[i].list[j].id) {
+                    $('#serveradaptername').val(g_Adapterset.aggregation[i].list[j].name);
+                    $('#mac').val(g_Adapterset.aggregation[i].list[j].mac);
+                    DisabledAll(true);
+                    return;
+                }
+            }
+        }
+
+    });
+
+    function add_sub_ips_to_input(subset) {
+        $('#ip_container').empty();
+        $.each(subset, function (index, obj) {
+            var ip_and_mask = obj.split('/');
+            var div_ip = $('<div style="margin-top:10px;"><div style="float:left;width:100px;">IP' + (index + 1) + ':</div><div style="float:left;"><input style="width: 150px" type="text" class="input" id="serverip_' + (index + 1) + '" name="serverip" onblur="removespace(this)" value="' + ip_and_mask[0] + '"/></div></div><div class="clear"><div>');
+            var div_mask = $('<div style="margin-top:10px;"><div style="float:left;width:100px;">子网掩码' + (index + 1) + ':</div><div style="float:left;"><input style="width: 150px" type="text" class="input" id="servermask_' + (index + 1) + '" name="serversubmask" onblur="removespace(this)" value="' + ip_and_mask[1] + '"/></div></div><div class="clear"><div>');
+            $('#ip_container').append(div_ip).append(div_mask);
+        });
+
+        $('#Servers_Tree1').css('height', $('#myuiright').css('height'));
+    }
+
+    function confirmip() {
+        var id = $('#adapterid').val();
+        if (!id) {
+            return;
+        }
+        var subipsets = get_current_ip_set_by_id(id);
+        g_ips = 0;
+        for (var i = 0; i < g_Adapterset.adapter.length; i++) {
+            if (g_Adapterset.adapter[i].id == id) {
+                g_Adapterset.adapter[i].ip = $('#serverip').val();
+                g_Adapterset.adapter[i].submask = $('#serversubmask').val();
+                g_Adapterset.adapter[i].routers = '';
+                g_Adapterset.adapter[i].subipset = subipsets;
+                g_Adapterset.adapter[i].enablepxe = 0;
+                if ($('#enbalepxe').prop('checked')) {
+                    g_Adapterset.adapter[i].enablepxe = 1;
+
+                }
+                g_Adapterset.adapter[i].rangestart = $('#rangestart').val();
+                g_Adapterset.adapter[i].rangeend = $('#rangeend').val();
+                g_Adapterset.adapter[i].pxerouters = $('#pxerouters').val();
+                g_Adapterset.adapter[i].pxedns = $('#pxedns').val();
+                return;
+            }
+        }
+
+        for (var i = 0; i < g_Adapterset.aggregation.length; i++) {
+            if (id == g_Adapterset.aggregation[i].id) {
+                g_Adapterset.aggregation[i].ip = $('#serverip').val();
+                g_Adapterset.aggregation[i].submask = $('#serversubmask').val();
+                g_Adapterset.aggregation[i].routers = '';
+                g_Adapterset.aggregation[i].subipset = subipsets;
+                g_Adapterset.aggregation[i].enablepxe = 0;
+                if ($('#enbalepxe').prop('checked')) {
+                    g_Adapterset.aggregation[i].enablepxe = 1;
+                }
+                g_Adapterset.aggregation[i].rangestart = $('#rangestart').val();
+                g_Adapterset.aggregation[i].rangeend = $('#rangeend').val();
+                g_Adapterset.aggregation[i].pxerouters = $('#pxerouters').val();
+                g_Adapterset.aggregation[i].pxedns = $('#pxedns').val();
+                return;
+            }
+        }
+
+        for (var i = 0; i < g_Adapterset.aggregation.length; i++) {
+            for (var j = 0; j < g_Adapterset.aggregation[i].list.length; j++) {
+                if (id == g_Adapterset.aggregation[i].list[j].id) {
+                    g_Adapterset.aggregation[i].list[j].ip = $('#serverip').val();
+                    g_Adapterset.aggregation[i].list[j].submask = $('#serversubmask').val();
+                    g_Adapterset.aggregation[i].list[j].routers = '';
+                    g_Adapterset.aggregation[i].list[j].subipset = subipsets;
+                    g_Adapterset.aggregation[i].list[j].enablepxe = 0;
+                    if ($('#enbalepxe').prop('checked')) {
+                        g_Adapterset.aggregation[i].list[j].enablepxe = 1;
+                    }
+                    g_Adapterset.aggregation[i].list[j].rangestart = $('#rangestart').val();
+                    g_Adapterset.aggregation[i].list[j].rangeend = $('#rangeend').val();
+                    g_Adapterset.aggregation[i].list[j].pxerouters = $('#pxerouters').val();
+                    g_Adapterset.aggregation[i].list[j].pxedns = $('#pxedns').val();
+                    return;
+                }
+            }
+        }
+    }
+
+    function SetPxeStatus() {
+        if ($('#enbalepxe').prop('checked')) {
+            $('#rangestart').prop('disabled', false);
+            $('#rangeend').prop('disabled', false);
+            $('#pxerouters').prop('disabled', false);
+            $('#pxedns').prop('disabled', false);
+        }
+        else {
+            $('#rangestart').prop('disabled', true);
+            $('#rangeend').prop('disabled', true);
+            $('#pxerouters').prop('disabled', true);
+            $('#pxedns').prop('disabled', true);
+        }
+    }
+
+    function get_current_ip_set_by_id() {
+        var subipset = [];
+        var ip_l = $('#ip_container').find('.input').length;
+        if (!ip_l) {
+            return subipset
+        }
+        for (var i = 0; i < (ip_l / 2); i++) {
+            var ip = $('#serverip_' + (i + 1)).val();
+            var mask = $('#servermask_' + (i + 1)).val();
+            if (isIPV4(ip) && isMask(mask)) {
+                subipset.push(ip + '/' + mask);
+            }
+        }
+        return subipset;
+
+    }
+
+    $('#enbalepxe').click(function () {
+        SetPxeStatus();
+    });
+
+    function setapdatercallback(jsonstr) {
+        $('.mywaite1').hide();
+        if (jsonstr.r != 0) {
+            if (jsonstr.e == 'net set failed')
+                jsonstr.e = '保存失败，请检查网卡IP是否冲突。';
+            openErrorDialog({title: '错误', html: jsonstr.e});
+
+        }
+        if (jsonstr.is_set_net == 0) {
+            return;
+        }
+        clearInterval(ip_t1);
+        clearTimeout(ip_t2);
+        //$('#setbutton1').hide();
+        //$('#ip_confirm').show();
+        $('#ip_clall_bakc_time').show();
+        $("#ip_confirm").button("option", "disabled", false);
+        $("#setbutton1").button("option", "disabled", true);
+        var time = 600;
+        $('#ip_timer').val(time);
+        ip_t1 = setInterval(function () {
+            if (time <= 0) return false;
+            time = time - 1;
+            $('#ip_timer').val(time);
+        }, 1000);
+        ip_t2 = setTimeout(function () {
+            //$('#ip_confirm').hide();
+            $('#ip_clall_bakc_time').hide();
+            //$('#setbutton1').show();
+            $("#ip_confirm").button("option", "disabled", true);
+            $("#setbutton1").button("option", "disabled", false);
+        }, 600000);
+    }
+
+    $('#tabs').on('tabsbeforeactivate', function (event, ui) {
+        switch (ui.newTab.index()) {
+            case 1:
+                myAjaxGet('../syssetget_handle/', 'a=getadapterset&check_pxe=1', init_pex_tab);
+                $('#tabs-2').waite_s();
+                break;
+            case 2:
+                createRouteTable();
+                showRouteConfirm();
+                break;
+            case 4:
+                set_tcpdumpt_example();
+                get_tcpdump_status();
+                $("#tcp_error").hide();
+                break;
+        }
+        adapter_resize();
+        pxe_resize();
+    });
+
+    function createRouteTable() {
+        jQuery("#route").jqGrid({
+            url: '../syssetget_handle/?a=getroutes',
+            datatype: "json",
+            colNames: ['目标网络', '掩码', '网关', '网卡设备'],
+
+            colModel: [
+                {name: 'network', index: 'network', align: "center", width: 150, sortable: false},
+                {name: 'mask', index: 'mask', align: "center", width: 150, sortable: false},
+                {
+                    name: 'gateway',
+                    index: 'gateway',
+                    align: "center",
+                    width: 150,
+                    sortable: false,
+                    formatter: statusFmatter
+                },
+                {name: 'dev', index: 'dev', align: "center", width: 200, sortable: false}
+
+            ],
+            width: 700,
+            height: 500,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true
+        });
+    }
+
+    function statusFmatter(cellvalue, options, rowObjec) {
+        switch (cellvalue) {
+            case '':
+                return '0.0.0.0';
+        }
+        return cellvalue;
+    }
+
+    $("#add_route_form").attr('title', '添加路由').dialog({
+        autoOpen: false,
+        height: 300,
+        width: 400,
+        modal: true,
+        buttons: {
+            '添加': function () {
+                var status = check_date();
+                if (!status) {
+                    return;
+                }
+                $(this).dialog('close');
+                add_route_to_form();
+            },
+            '取消': function () {
+                $(this).dialog('close');
+            }
+        },
+        close: function () {
+        }
+    });
+
+    function add_route_to_form() {
+        var ids = $('#route').getDataIDs();
+        var network = $('#add_network').val();
+        var netmask = $('#add_netmask').val();
+        var gateway = $('#add_gateway').val();
+        var dev = "----";
+        var ojb = [{
+            'id': ids.length + 1,
+            'network': network,
+            'mask': netmask,
+            'gateway': gateway,
+            'dev': dev
+        }];
+        $('#route').addRowData('id', ojb);
+    }
+
+    function check_date() {
+        var network = $('#add_network').val();
+        var netmask = $('#add_netmask').val();
+        var gateway = $('#add_gateway').val();
+        if (!isIPV4(network)) {
+            openErrorDialog({'title': '错误', 'html': '请输入合法的网络地址。'});
+            return false;
+        }
+        if (!isMask(netmask)) {
+            openErrorDialog({'title': '错误', 'html': '请输入合法的掩码。'});
+            return false;
+        }
+        if (!isIPV4(gateway)) {
+            openErrorDialog({'title': '错误', 'html': '请输入合法的网关。'});
+            return false;
+        }
+        if (!check_gateway_is_in_all_lan(gateway)) {
+            openErrorDialog({'title': '错误', 'html': '网关地址不可到达，添加失败。'});
+            return false;
+        }
+        if (check_network_is_conflict(network, netmask)) {
+            openErrorDialog({'title': '错误', 'html': '目标网络已经存在，请不要重复添加。'});
+            return false;
+        }
+        return true;
+    }
+
+    function check_gateway_is_in_all_lan(gateway) {
+        var all_network = $('#route').jqGrid('getCol', 'network');
+        var all_mask = $('#route').jqGrid('getCol', 'mask');
+        for (var i = 0; i < all_network.length; i++) {
+            if (!all_mask[i]) {
+                continue;
+            }
+            var to_target = net_mask_to_target(gateway, all_mask[i]);
+            var to_target_str = to_target.join('.');
+            if (to_target_str == all_network[i]) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    function check_network_is_conflict(network, netmask) {
+        var all_network = $('#route').jqGrid('getCol', 'network');
+        var all_mask = $('#route').jqGrid('getCol', 'mask');
+        var to_add_target = net_mask_to_target(network, netmask);
+        var is_equal = true;
+        for (var i = 0; i < all_network.length; i++) {
+            is_equal = true;
+            if (!all_mask[i]) {
+                continue;
+            }
+            var has_exists_target = net_mask_to_target(all_network[i], all_mask[i]);
+            for (var j = 0; j < has_exists_target.length; j++) {
+                if (to_add_target[j] != has_exists_target[j]) {
+                    is_equal = false;
+                }
+            }
+            if (is_equal) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function net_mask_to_target(network, netmask) {
+        var net_item = network.split('.');
+        var mask_item = netmask.split('.');
+        var target = []
+        for (var i = 0; i < net_item.length; i++) {
+            target.push(parseInt(net_item[i]) & parseInt(mask_item[i]));
+        }
+        return target;
+    }
+
+    $('#enable_gateway').click(function () {
+        if ($('#enable_gateway').prop('checked')) {
+            $('#add_gateway').prop('disabled', false);
+        }
+        else {
+            $('#add_gateway').prop('disabled', true);
+        }
+    });
+
+    $('#r_add').button().click(function () {
+        $("#add_route_form").attr('title', '添加路由').dialog('open');
+    });
+
+    $('#r_del').button().click(function () {
+        var ids = $('#route').jqGrid('getGridParam', 'selarrrow');
+        if (!ids.length) {
+            openErrorDialog({title: '错误', html: '请至少选择一条数据。'});
+            return;
+        }
+        for (var i = 0; i < ids.length; i++) {
+            var Rowobj = $('#route').jqGrid('getRowData', ids[i]);
+            if (Rowobj.mask == '0.0.0.0') {
+                openErrorDialog({title: '错误', html: '默认网关不能删除，如果想删除，请在网络设置处修改。'});
+                return false;
+            }
+            if (Rowobj.gateway == '0.0.0.0') {
+                openErrorDialog({title: '错误', html: '非静态路由不能删除。'});
+                return false;
+            }
+        }
+        openConfirmDialog({
+            title: '确认信息',
+            html: '你确定要删除路由信息吗？所有调整完毕后，点击试用按钮。',
+            onBeforeOK: function () {
+                $(this).dialog('close');
+                var len = ids.length;
+                for (var j = 0; j < len; j++) {
+                    $('#route').jqGrid('delRowData', ids[0]);
+                }
+            }
+
+        });
+    });
+    $('#r_exe').button().click(function () {
+        //$('#r_confirm').hide();
+        $('#clall_bakc_time').hide();
+        var routes = [];
+        var ids = $('#route').getDataIDs();
+        for (var i = 0; i < ids.length; i++) {
+            var rowobj = $('#route').getRowData(ids[i]);
+            var gateway = rowobj.gateway;
+            routes.push({'network': rowobj.network, 'mask': rowobj.mask, 'gateway': gateway, 'dev': rowobj.dev});
+        }
+        if (!routes) {
+            return;
+        }
+        var p = JSON.stringify(routes);
+        openConfirmDialog({
+            title: '确认信息',
+            html: '&nbsp;&nbsp;&nbsp;&nbsp执行操作后会修改{{ title }}的临时路由表。试用后，如果10分钟内不确认，系统会自动回滚到之前的路由表。<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp你确定要执行此操作吗?',
+            width: 420,
+            height: 250,
+            onBeforeOK: function () {
+                myAjaxGet('../syssetget_handle/', 'a=setroutes&info=' + p, add_route_in_cmd_callback);
+                $(this).dialog('close');
+            }
+        });
+    });
+
+    function add_route_in_cmd_callback(jsonstr) {
+
+        if (jsonstr.r != 0) {
+            openErrorDialog({'title': '错误', 'html': jsonstr.e});
+            return;
+        }
+        clearInterval(rt_t1);
+        clearTimeout(rt_t2);
+        //$('#r_exe').hide();
+        $('#route').trigger("reloadGrid", [{page: 1}]);
+        //$('#r_confirm').show();
+        $('#clall_bakc_time').show();
+        $("#r_confirm").button("option", "disabled", false);
+        $("#r_exe").button("option", "disabled", true);
+        var time = 600;
+        $('#timer').val(time);
+        rt_t1 = setInterval(function () {
+            if (time <= 0) return false;
+            time = time - 1;
+            $('#timer').val(time);
+        }, 1000);
+        rt_t2 = setTimeout(function () {
+            //$('#r_confirm').hide();
+            $('#clall_bakc_time').hide();
+            //$('#r_exe').show();
+            $("#r_confirm").button("option", "disabled", true);
+            $("#r_exe").button("option", "disabled", false);
+        }, 600000);
+    }
+
+    $('#r_confirm').button().click(function () {
+        openConfirmDialog({
+            title: '确认信息',
+            html: '确定之后，将生成永久路由。',
+            onBeforeOK: function () {
+                $('.mywaite2').show();
+                myAjaxGet('../syssetget_handle/', 'a=writeroutes', write_route_forerver);
+                $(this).dialog('close');
+            }
+        });
+    });
+
+    $('#ip_confirm').button().click(function () {
+        openConfirmDialog({
+            title: '确认信息',
+            html: '确定之后，将生成网络配置。',
+            onBeforeOK: function () {
+                myAjaxGet('../syssetget_handle/', 'a=confirm_ipset', write_ipset_forerver);
+                $(this).dialog('close');
+            }
+        });
+    })
+
+    function write_route_forerver(jsonstr) {
+        $('.mywaite2').hide();
+        //$('#r_confirm').hide();
+        $('#clall_bakc_time').hide();
+        //$('#r_exe').show();
+        $("#r_confirm").button("option", "disabled", true);
+        $("#r_exe").button("option", "disabled", false);
+        clearInterval(rt_t1);
+        clearTimeout(rt_t2);
+        if (jsonstr.r != 0) {
+            openErrorDialog({'title': '错误', 'html': jsonstr.e});
+            return;
+        }
+        successTipBox("生成永久路由成功");
+    }
+
+    function write_ipset_forerver(jsonstr) {
+        //$('#ip_confirm').hide();
+        $('#ip_clall_bakc_time').hide();
+        //$('#setbutton1').show();
+        $("#ip_confirm").button("option", "disabled", true);
+        $("#setbutton1").button("option", "disabled", false);
+        clearInterval(ip_t1);
+        clearTimeout(ip_t2);
+        if (jsonstr.r != 0) {
+            openErrorDialog({'title': '错误', 'html': jsonstr.e});
+            return;
+        }
+        $('#ip_clall_bakc_time').hide();
+        successTipBox("生成永久网络配置成功");
+    }
+
+    function showIpConfirm() {
+        myAjaxGet('../syssetget_handle/', 'a=thread_status&type=ip', showIpConfirm_c);
+    }
+
+    function showRouteConfirm() {
+        myAjaxGet('../syssetget_handle/', 'a=thread_status&type=route', showRouteConfirm_c);
+    }
+
+    function showIpConfirm_c(jsonstr) {
+        $("#ip_confirm").button("option", "disabled", true);
+        $("#setbutton1").button("option", "disabled", false);
+        if (jsonstr.is_alive) {
+            clearInterval(ip_t1);
+            clearTimeout(ip_t2);
+            //$('#setbutton1').hide();
+            //$('#ip_confirm').show();
+            $("#setbutton1").button("option", "disabled", true);
+            $("#ip_confirm").button("option", "disabled", false);
+            $('#ip_clall_bakc_time').show();
+            var time = 600 - parseInt(jsonstr.time);
+            $('#ip_timer').val(time);
+            ip_t1 = setInterval(function () {
+                if (time <= 0) return false;
+                time = time - 1;
+                $('#ip_timer').val(time);
+            }, 1000);
+            ip_t2 = setTimeout(function () {
+                //$('#ip_confirm').hide();
+                $('#ip_clall_bakc_time').hide();
+                //$('#setbutton1').show();
+                $("#ip_confirm").button("option", "disabled", true);
+                $("#setbutton1").button("option", "disabled", false);
+            }, time * 1000);
+        }
+
+    }
+
+    function showRouteConfirm_c(jsonstr) {
+        $("#r_confirm").button("option", "disabled", true);
+        $("#r_exe").button("option", "disabled", false);
+        if (jsonstr.is_alive) {
+            clearInterval(rt_t1);
+            clearTimeout(rt_t2);
+            //$('#r_exe').hide();
+            //$('#r_confirm').show();
+            $("#r_exe").button("option", "disabled", true);
+            $("#r_confirm").button("option", "disabled", false);
+            $('#clall_bakc_time').show();
+            var time = 600 - parseInt(jsonstr.time);
+            $('#timer').val(time);
+            rt_t1 = setInterval(function () {
+                if (time <= 0) return false;
+                time = time - 1;
+                $('#timer').val(time);
+            }, 1000);
+            rt_t2 = setTimeout(function () {
+                //$('#r_confirm').hide();
+                $('#clall_bakc_time').hide();
+                //$('#r_exe').show();
+                $("#r_confirm").button("option", "disabled", true);
+                $("#r_exe").button("option", "disabled", false);
+            }, time * 1000);
+        }
+    }
+    var t_ping = null;
+    $('#ping_exe').button().click(function () {
+        $(this).button("option", "disabled", true);
+        var cmd = encodeURIComponent($('#ping_cmd').val());
+        if (!cmd) {
+            $(this).button("option", "disabled", false);
+            openErrorDialog({'title': '错误', 'html': '输入框不能为空，执行失败。'});
+            return;
+        }
+        $('#ping_content ul').empty();
+        $('.mywaite3').show();
+        myAjaxGet('../syssetget_handle/', 'a=ping_cmd&cmd=' + cmd, ping_callback);
+        t_ping = setInterval(function () {
+            myAjaxGet('../syssetget_handle/', 'a=get_ping_content', get_pcot_callback);
+        }, 800);
+    });
+
+    function ping_callback(jsonstr) {
+        $('.mywaite3').hide();
+        $('#ping_exe').button("option", "disabled", false);
+        if (jsonstr.r != 0) {
+            openErrorDialog({'title': '错误', 'html': jsonstr.e});
+            clearInterval(t_ping);
+            return;
+        }
+    }
+
+    function get_pcot_callback(jsonstr) {
+        $('.mywaite3').hide();
+        $.each(jsonstr.lists, function (index, item) {
+            if (item == 'endflag') {
+                clearInterval(t_ping);
+                return;
+            }
+            var item_id = 'li_' + index;
+            var html = $('<li></li>').text(item).attr('id', item_id);
+            if ($('#' + item_id).length == 0) {
+                $('#ping_content ul').append(html);
+            }
+        });
+    }
+
+    $('#tcp_exe').button().click(function () {
+        $(this).button("option", "disabled", true);
+        var cmd = encodeURIComponent($('#tcp_cmd').val());
+        if (!cmd) {
+            $(this).button("option", "disabled", false);
+            openErrorDialog({'title': '错误', 'html': '输入框不能为空，执行失败。'});
+            return;
+        }
+        //$("#tcp_error").hide();
+        $('#tcp_content ul').empty();
+        $('.mywaite4').show();
+        myAjaxGet('../syssetget_handle/', 'a=tcpdump&cmd=' + cmd, ex_tcpdump_callback, '#tcp_exe');
+    });
+
+    function ex_tcpdump_callback(jsonstr, button) {
+        $('.mywaite4').hide();
+        $(button).button("option", "disabled", false);
+        if (jsonstr.r != 0) {
+            openErrorDialog({'title': '错误', 'html': jsonstr.e});
+            return;
+        }
+        else {
+            var taskname = $("#tcpdump_table tr[name=taskname] td").last().html(jsonstr.taskname);
+            if ((jsonstr.taskname).slice(-5) == '正在执行中') {
+                var img = $('<img style="top:2px;position:relative">').attr("src", "/static/images/loading.gif").height("16px");
+                $("#tcpdump_table tr[name=taskname] td").last().append(img);
+            }
+            var sttime = $("#tcpdump_table tr[name=sttime] td").last().html(jsonstr.sttime);
+            var edtime = $("#tcpdump_table tr[name=edtime] td").last().html(jsonstr.edtime);
+            if (jsonstr.url == '无') {
+                $("#tcpdump_table tr[name=url] td").last().html('无');
+                return;
+            }
+            var rul_text = jsonstr.url.slice(25);
+            var _a = $('<a>').attr("href", jsonstr.url).text(rul_text);
+            var url = $("#tcpdump_table tr[name=url] td").last().html(_a);
+        }
+
+    }
+
+    function set_tcpdumpt_example() {
+        var s = g_Adapterset;
+        var name = ''
+        if (s.adapter.length > 0) {
+            name = g_Adapterset.adapter[0].name;
+        }
+        else {
+            name = 'bond0';
+        }
+        name = name || 'interface'
+        $('.tcpdump_example').first().text("范例1：" + "tcpdump -i {} -nn".replace('{}', name));
+        $('.tcpdump_example').last().text("范例2：" + "tcpdump -i {} -nn 'port 22 and src host 192.168.1.1'".replace('{}', name));
+
+    }
+
+    $('#tcp_stop').button().click(function () {
+        $(this).button("option", "disabled", true);
+        $('.mywaite4').show();
+        myAjaxGet('../syssetget_handle/', 'a=tcpdump_stop', ex_tcpdump_callback, '#tcp_stop');
+    });
+
+    function get_tcpdump_status() {
+        myAjaxGet('../syssetget_handle/', 'a=get_tcpdump_status', ex_tcpdump_callback);
+    }
+
+    function adapter_resize() {
+        resizeright();
+        var width = $('#tabs').width() - 50;
+        $("#route").setGridWidth(width);
+        baseresize();
+    }
+
+    function pxe_resize() {
+        resizeright();
+        var width = $('#tabs').width() - 50;
+        $("#pxe_table").setGridWidth(width);
+        baseresize();
+    }
+
+    $(window).resize(function () {
+        adapter_resize();
+        pxe_resize();
+    });
+
+    var g_adapter_object = null;
+    function GAadapter(data) {
+        this.data = data;
+        this.get_or_set = function (key) {
+            var adapter = this.data.adapter;
+            var value = arguments[1];
+            for (var i = 0; i < adapter.length; i++){
+                 var id = 'adapter_' + adapter[i].id;
+                 if (id==key){
+                     if (value){
+                         adapter[i] = value;
+                         return;
+                     }else {
+                         return adapter[i];
+                     }
+                 }
+            }
+            var aggregation = this.data.aggregation;
+            for (var i = 0; i < aggregation.length; i++){
+                 var id = 'aggregation_' + aggregation[i].id;
+                 if (id==key){
+                    if (value){
+                         aggregation[i] = value;
+                         return;
+                     }else {
+                         return aggregation[i];
+                     }
+                 }
+            }
+        }
+    }
+    function init_pex_tab(jsonstr) {
+        $('#tabs-2').waite_h();
+        if (jsonstr.r != 0) {
+            openErrorDialog('错误', '获取PXE信息失败,' + jsonstr.e);
+            return;
+        }
+        g_adapter_object = new GAadapter(jsonstr);
+        $("#pxe_table").jqGrid("clearGridData");
+        var sys_pxe_status = jsonstr.sys_pxe_status == 1 ? '启动' : '关闭'
+        var dns = jsonstr.dns;
+        var gate_way = jsonstr.gateway;
+
+        var apapter = jsonstr.adapter;
+        for (var i = 0; i < apapter.length; i++) {
+            var id = 'adapter_' + apapter[i].id;
+            var dev_name = apapter[i].name;
+            var net_info = get_ip_info_str(apapter[i], dns, gate_way);
+            var sys_pxe_status = sys_pxe_status;
+            var pxe_info = get_pxe_info_str(apapter[i]);
+            var pxe_status = apapter[i].enablepxe == 1 ? '启用' : '禁用';
+            var tmp = {
+                id: id,
+                dev_name: dev_name,
+                net_info: net_info,
+                sys_pxe_status: sys_pxe_status,
+                pxe_info: pxe_info,
+                pxe_status: pxe_status,
+            };
+            $("#pxe_table").jqGrid('addRowData', i + 1, tmp);
+        }
+        var aggregation = jsonstr.aggregation;
+        for (var i = 0; i < aggregation.length; i++) {
+            var id = 'aggregation_' + aggregation[i].id;
+            var dev_name = aggregation[i].name;
+            var net_info = get_ip_info_str(aggregation[i], dns, gate_way);
+            var sys_pxe_status = sys_pxe_status;
+            var pxe_info = get_pxe_info_str(aggregation[i]);
+            var pxe_status = aggregation[i].enablepxe == 1 ? '启用' : '禁用';
+            var tmp = {
+                id: id,
+                dev_name: dev_name,
+                net_info: net_info,
+                sys_pxe_status: sys_pxe_status,
+                pxe_info: pxe_info,
+                pxe_status: pxe_status,
+            };
+            $("#pxe_table").jqGrid('addRowData', i + 1, tmp);
+
+        }
+        pxe_resize();
+    }
+
+    function get_ip_info_str(ip_info, dns, gate_way) {
+        var f = function (key) {
+            return ip_info[key] ? ip_info[key] : '--';
+        }
+        var g_html = function (key, value) {
+            return '<span style="display:inline-block;width:100px;margin-left:50px">' + key + '</span>' + value;
+        }
+        var cot = $('<div></div>');
+        var p1 = $('<p></p>').html(g_html('连接状态:', ip_info.link == 'ok' ? '已连接' : '未连接'));
+        var p2 = $('<p></p>').html(g_html('MAC:', ip_info.mac));
+        var p3 = $('<p></p>').html(g_html('IP:', f('ip')));
+        var p4 = $('<p></p>').html(g_html('子网掩码:', f('submask')));
+        cot.append(p1).append(p2).append(p3).append(p4);
+        for (var i = 0; i < ip_info.subipset.length; i++) {
+            var sp = ip_info.subipset[i].split('/');
+            var _p = $('<p></p>').html(g_html('IP' + (i + 1) + ':', sp[0]));
+            var _p1 = $('<p></p>').html(g_html('子网掩码' + (i + 1) + ':', sp[1]));
+            cot.append(_p).append(_p1);
+        }
+        var p5 = $('<p></p>').html(g_html('网关:', gate_way));
+        cot.append(p5);
+        for (var i = 0; i < dns.length; i++) {
+            var _p = $('<p></p>').html(g_html('DNS' + (i + 1) + ':', dns[i]));
+            cot.append(_p);
+        }
+
+        return cot.html()
+    }
+
+    function get_pxe_info_str(ip_info) {
+        var f = function (key) {
+            return ip_info[key] ? ip_info[key] : '--';
+        }
+        var g_html = function (key, value) {
+            return '<span style="display:inline-block;width:100px;margin-left:50px">' + key + '</span>' + value;
+        }
+        var cot = $('<div></div>');
+        var p1 = $('<p></p>').html(g_html('开始IP:', f('rangestart')));
+        var p2 = $('<p></p>').html(g_html('结束IP:', f('rangeend')));
+
+        var p3 = $('<p></p>').html(g_html('网关:', f('pxerouters')));
+
+        var p4 = $('<p></p>').html(g_html('DNS:', f('pxedns')));
+        cot.append(p1).append(p2).append(p3).append(p4);
+        return cot.html()
+    }
+
+    function create_pxe_table() {
+        $('#pxe_table').jqGrid({
+            datatype: "local",
+            height: 200,
+            colNames: ['id', '设备名', 'PXE服务状态', '启用/禁用', '网络', 'PXE信息'],
+            colModel: [
+                {name: 'id', index: 'id', width: 60, hidden: true},
+                {name: 'dev_name', index: 'dev_name', width: 50, align: "center"},
+                {name: 'sys_pxe_status', index: 'sys_pxe_status', width: 50, align: "center"},
+                {name: 'pxe_status', index: 'pxe_status', width: 50, align: "center"},
+                {name: 'net_info', index: 'type', width: 200, align: "left"},
+                {name: 'pxe_info', index: 'pxe_info', width: 200, align: "left"}
+            ],
+            width: 700,
+            height: 500,
+            rowNum: 300,
+            rowList: [100, 200, 300],
+            sortname: 'id',
+            recordpos: 'left',
+            viewrecords: true,
+            sortorder: "desc",
+            shrinkToFit: true,
+            multiselect: true,
+            multiboxonly:true
+        })
+    }
+
+    $('#tabs-2 .menu_btn').button().click(function () {
+        var id = $(this).attr('id');
+        switch (id) {
+            case 'pxe_edit':
+                pxe_edit();
+                break;
+            case 'pxe_set':
+                pxe_set();
+                break;
+        }
+    })
+
+    function open_pxe_exit_form() {
+        $("#edit_pxe_form").dialog({
+            autoOpen: true,
+            height: 320,
+            width: 420,
+            modal: true,
+            buttons: {
+                '确认': function () {
+                    var status = check_date_pxe();
+                    if (!status) {
+                        return;
+                    }
+                    $(this).dialog('close');
+                    save_pxe_data();
+                },
+                '取消': function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+            }
+        });
+    }
+
+    function check_date_pxe() {
+        if(pxe_app.item.rangestart && !isIPV4(pxe_app.item.rangestart)){
+            openErrorDialog('错误', '请填写合法的IP地址!');
+            return false;
+        }
+        if(pxe_app.item.rangeend && !isIPV4(pxe_app.item.rangestart)){
+            openErrorDialog('错误', '请填写合法的IP地址!');
+            return false;
+        }
+        if(pxe_app.item.pxerouters && !isIPV4(pxe_app.item.rangestart)){
+            openErrorDialog('错误', '请填写合法的IP地址!');
+            return false;
+        }
+        if(pxe_app.item.pxedns && !isIPV4(pxe_app.item.rangestart)){
+            openErrorDialog('错误', '请填写合法的IP地址!');
+            return false;
+        }
+        if (pxe_app.item.enablepxe){
+            if (!pxe_app.item.rangestart || !pxe_app.item.rangeend || !pxe_app.item.pxerouters || !pxe_app.item.pxedns){
+                openErrorDialog('错误', '启用PXE后不能填写空的参数');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function save_pxe_data() {
+        var rs = {}
+        $.each(Object.keys(pxe_app.item), function (index, _item) {
+            rs[_item] = pxe_app.item[_item];
+        })
+        g_adapter_object.get_or_set(pxe_app.id, rs);
+        var ids = $('#pxe_table').jqGrid('getGridParam', 'selarrrow');
+        $('#pxe_table').jqGrid('setCell', ids[0],  'pxe_info', get_pxe_info_str(rs));
+        $('#pxe_table').jqGrid('setCell', ids[0],  'pxe_status', rs.enablepxe ? '启用' : '禁用');
+    }
+
+    function pxe_edit() {
+        var ids = $('#pxe_table').jqGrid('getGridParam', 'selarrrow');
+        if (ids.length != 1) {
+            openErrorDialog({title: '错误', html: '请选择一条数据，进行编辑。'});
+            return;
+        }
+        var select_id = $('#pxe_table').jqGrid('getRowData', ids[0]).id;
+        console.log(select_id);
+        open_pxe_exit_form();
+        pxe_app.item = $.extend({}, g_adapter_object.get_or_set(select_id)); //对象copy
+        pxe_app.id=select_id;
+
+    }
+
+    function pxe_set() {
+        $('#pxe_set').button('option', 'disabled', true);
+        $('#mywaite5').show();
+        var p = JSON.stringify(g_adapter_object.data);
+        myAjaxPost('../syssetget_handle/', 'a=adapter_pxe&info='+p, pxe_set_callback);
+    }
+
+    function pxe_set_callback(jsonstr) {
+        $('#pxe_set').button("option", "disabled", false);
+        $('#mywaite5').hide();
+        if (jsonstr.r != 0) {
+            openErrorDialog({'title': '错误', 'html': jsonstr.e});
+            return;
+        }else{
+            openSuccessDialog('成功', '应用PXE成功！');
+        };
+
+        myAjaxGet('../syssetget_handle/', 'a=getadapterset&check_pxe=1', init_pex_tab);
+
+    }
+
+    var pxe_app = new Vue({
+        el: '#pxe-app',
+        data: {
+            item: {},
+            id:''
+        }
+    })
+
+
+</script>
