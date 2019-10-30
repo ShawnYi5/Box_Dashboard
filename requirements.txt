@@ -1,7 +1,7 @@
 numpy==1.11.1
 psutil==4.3.0
 Django==1.8.10
-djangorestframework==3.3.2
+djangorestframework==3.9.1
 zeroc-ice==3.6.1
 uwsgi==2.0.13.1
 xlsxwriter==0.9.3
