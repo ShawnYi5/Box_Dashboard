@@ -1,6 +1,6 @@
 numpy==1.11.1
 psutil==4.3.0
-Django==1.8.10
+Django==1.11.28
 djangorestframework==3.3.2
 zeroc-ice==3.6.1
 uwsgi==2.0.13.1
